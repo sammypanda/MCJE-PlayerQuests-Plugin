@@ -1,0 +1,8 @@
+name: PlayerQuests
+description: ${project.description}
+website: ${project.url}
+
+author: sammypanda
+version: ${project.version}
+
+main: playerquests.Core
