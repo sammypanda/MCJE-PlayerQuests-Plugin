@@ -6,5 +6,6 @@ public class Core extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getServer().broadcastMessage("Working");
     }
 }
