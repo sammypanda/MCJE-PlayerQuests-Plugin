@@ -1,15 +1,10 @@
 package playerquests;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
-/**
- * Don't forget to create documentation!
- */
-public class Core extends JavaPlugin
-{
+public class Core extends JavaPlugin {
+
     @Override
-    public void onEnable()
-    {
-        // TODO Let's get started!
+    public void onEnable() {
     }
 }
