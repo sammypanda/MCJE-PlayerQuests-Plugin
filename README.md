@@ -12,3 +12,16 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 | Request Item   | Finding the flower                    |
 | Speak          | First interaction with NPC            |
 | Listen         | Deciding a favourite                  |
+
+<br>
+
+The code is MVC with OOP characteristics.
+
+| Folder        | Purpose                                                |
+|---------------|--------------------------------------------------------|
+| model/        | the logic/data, accessed via the controllers (getters) |
+| model/quest/  | the logic relevant to the 'quest' container            |
+| view/         | the interface(s), powered by the controllers (setters) |
+| view/gui/     | is the presentation of logic as gui components         |
+| view/command/ | is the presentation of logic as commands               |
+| controller/   | the middleware between models and views                |
