@@ -15,13 +15,10 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 
 <br>
 
-The code is MVC with OOP characteristics.
+###### The code follows a package-by-feature pattern.
 
-| Folder        | Purpose                                                |
-|---------------|--------------------------------------------------------|
-| model/        | the logic/data, accessed via the controllers (getters) |
-| model/quest/  | the logic relevant to the 'quest' container            |
-| view/         | the interface(s), powered by the controllers (setters) |
-| view/gui/     | is the presentation of logic as gui components         |
-| view/command/ | is the presentation of logic as commands               |
-| controller/   | the middleware between models and views                |
+| Folder                      | Purpose                                  |
+|-----------------------------|------------------------------------------|
+| gui/                        | code related to the workings of GUIs     |
+| command/                    | code related to the workings of commands |
+| ../../resources/gui/screen/ | GUI templates in JSON                    |
