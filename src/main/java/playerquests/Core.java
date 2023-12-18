@@ -11,6 +11,6 @@ public class Core extends JavaPlugin {
 
     @Override
     public void onLoad() {
-	    getServer().broadcastMessage("Working");
+	    getServer().broadcastMessage("Working (/dev/sammy)");
 	}
 }
