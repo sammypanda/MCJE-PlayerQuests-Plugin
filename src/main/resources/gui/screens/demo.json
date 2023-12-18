@@ -1,0 +1,14 @@
+{
+    "title": "Demo",
+    "slots": [
+        {
+            "slot": 2,
+            "item": "SADDLE",
+            "label": "Test",
+            "functions": [
+                { "name": "test", "params": ["hi"] },
+                { "name": "testDemo", "params": ["hi"] }
+            ]
+        }
+    ]
+  }

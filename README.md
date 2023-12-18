@@ -22,3 +22,25 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 | gui/                        | code related to the workings of GUIs     |
 | command/                    | code related to the workings of commands |
 | ../../resources/gui/screen/ | GUI templates in JSON                    |
+
+<br>
+
+###### GUI screen templating layout (JSON)
+Where all the manually generated GUI screens are (src/main/resources/gui/screens/*.json).
+
+```json
+{
+    "title": String,
+    "slots": [
+        {
+            "slot": Integer,
+            "item": String,
+            "label": String,
+            "functions": [
+                { "name": String, "params": [] },
+                { "name": String, "params": [] }
+            ]
+        }
+    ]
+  }
+```
