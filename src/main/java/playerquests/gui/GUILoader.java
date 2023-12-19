@@ -8,14 +8,12 @@ import org.bukkit.entity.HumanEntity;
  */
 public class GUILoader {
 
-    GUI gui;
-    HumanEntity humanEntity;
+    private GUI gui;
+    private HumanEntity humanEntity;
 
     /**
      * Constructs a new GUILoader ready to parse the JSON templates.
      * @param    gui An existing GUI to load things into.
-     * @see      #load() Function to parse the JSON.
-     * @return   An instance of {@link #GUILoader()}.
      */
     public GUILoader(GUI gui) {
         this.gui = gui;
@@ -25,7 +23,6 @@ public class GUILoader {
     /**
      * Constructs a new GUILoader and GUI ready to parse the JSON templates.
      * @param    humanEntity The (usually player) who should view the GUI.
-     * @see      GUI#getViewer()
      */
     public GUILoader(HumanEntity humanEntity) {
         this.gui = new GUI(humanEntity);
@@ -35,11 +32,11 @@ public class GUILoader {
     /**
      * Translating a GUI screen template from JSON into a {@link GUI}.
      * <p>
-     * JSON template layout in Specification in README.
+     * JSON template layout in Specification section of README.
      * @param    template The name of the template json file excluding .json
      * @return   An instance of {@link GUI}
      */
-    GUI load(String template) {
+    public GUI load(String template) {
         return this.gui;
     }
 }

@@ -9,12 +9,12 @@ import org.bukkit.entity.HumanEntity;
  */
 public class GUI {
 
-    protected HumanEntity humanEntity;
+    private HumanEntity humanEntity;
 
     /**
      * Constructs a new GUI instance.
      * Used to manage and control the GUI.
-     * @param HumanEntity   the (usually player) who will view the GUI.
+     * @param humanEntity   the (usually player) who will view the GUI.
      */
     public GUI(HumanEntity humanEntity) {
         this.humanEntity = humanEntity;
@@ -34,6 +34,10 @@ public class GUI {
         System.out.println("Reached via GUI");
     }
 
+    /**
+     * Get's the subject who is set to view the GUI.
+     * @return The Human entity which the GUI was set to.
+     */
     public HumanEntity getViewer() {
         return this.humanEntity;
     }
