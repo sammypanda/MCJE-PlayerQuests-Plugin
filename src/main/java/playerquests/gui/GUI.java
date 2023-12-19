@@ -6,13 +6,20 @@ import org.bukkit.entity.HumanEntity;
 
 /**
  * The interface for creating and opening a GUI.
+ * Size can be changed to multiples of 9, from 0 up to 54.
+ * The default size is 0.
  */
 public class GUI {
 
     private HumanEntity humanEntity;
+    private Inventory inventory;
+
+    {
+        this.inventory = Bukkit.createInventory(this.humanEntity, 0);
+    }
 
     /**
-     * Constructs a new GUI instance.
+     * Constructs a new GUI instance to apply screens to.
      * Used to manage and control the GUI.
      * @param humanEntity   the (usually player) who will view the GUI.
      */
@@ -24,11 +31,8 @@ public class GUI {
      * Displays the current GUI on the viewers screen.
      */
     public void open() {
-        // Create the inventory
-        Inventory inventory = Bukkit.createInventory(this.humanEntity, 9);
-
         // Display the inventory
-        this.humanEntity.openInventory(inventory);
+        this.humanEntity.openInventory(this.inventory);
 
         // Testing
         System.out.println("Reached via GUI");
