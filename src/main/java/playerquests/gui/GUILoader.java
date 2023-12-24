@@ -60,12 +60,12 @@ public class GUILoader {
         // Pull out the json file as a string
         try {
             templateString = Files.readString(this.path);
+            
+            // Process the template into a real GUI screen
+            parse(templateString);
         } catch (IOException e) { // On an I/O failure such as the file not being found
             System.err.println(this.path + " is not a valid path");
         }
-
-        // Process the template into a real GUI screen
-        parse(templateString);
 
         return this.gui;
     }
