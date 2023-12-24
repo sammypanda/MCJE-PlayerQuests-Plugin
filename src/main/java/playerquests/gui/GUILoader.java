@@ -44,6 +44,7 @@ public class GUILoader {
     /**
      * Translating a GUI screen template from JSON file into a {@link GUI}.
      * <p>
+     * Expects the file name without .json on the end.
      * JSON template layout in Specification section of README.
      * @param    templateFile The name of the template json file excluding .json
      * @return   An instance of {@link GUI}
@@ -54,7 +55,7 @@ public class GUILoader {
 
         // Define the path where screens can be found and
         // Attach the templateFile parameter to the path
-        this.path = Paths.get("src","main","resources","gui","screens",templateFile);
+        this.path = Paths.get("src","main","resources","gui","screens",templateFile + ".json");
 
         // Pull out the json file as a string
         try {
