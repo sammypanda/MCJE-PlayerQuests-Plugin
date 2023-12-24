@@ -74,7 +74,7 @@ public class GUILoader {
      * Translating a GUI screen template from a JSON string into a {@link GUI}.
      * <p>
      * JSON template layout in Specification section of README.
-     * @param    templateString
+     * @param    templateString the gui template json as a string
      * @return   An instance of {@link GUI}
      */
     public GUI parse(String templateString) {
