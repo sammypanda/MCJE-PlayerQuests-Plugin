@@ -68,6 +68,4 @@ public class GUI {
     public HumanEntity getViewer() {
         return this.humanEntity;
     }
-
-    // getScreen() = the JSON layout?
 }
