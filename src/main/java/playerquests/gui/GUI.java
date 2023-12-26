@@ -16,9 +16,10 @@ public class GUI {
     private Inventory inventory; // the empty inventory used as a GUI screen
     private InventoryView inventoryView; // the screen itself when open
     private String title; // the title of the screen (InventoryView)
+    private int size = 9; // the amount of slots in the GUI screen (Inventory)
 
     {
-        this.inventory = Bukkit.createInventory(this.humanEntity, 9); // default inventory
+        this.inventory = Bukkit.createInventory(this.humanEntity, this.size); // default inventory
     }
 
     /**
@@ -37,7 +38,7 @@ public class GUI {
         // Display the inventory
         this.inventoryView = this.humanEntity.openInventory(this.inventory);
 
-        // Set the title (done here as it requires InventoryView, or to construct a new GUI)
+        // Set the title
         this.inventoryView.setTitle(this.title);
 
         // Testing
@@ -59,6 +60,26 @@ public class GUI {
      */
     public String getTitle() {
         return this.title;
+    }
+
+    /**
+     * Set's the number of slots in the GUI screen.
+     * <p>
+     * Does this by recreating the inventory, as there is no way to
+     * dynamically adjust the size after creation.
+     * @param size the number of slots (has to be a multiple of 9. Like 9 or 18
+     */
+    public void setSize(int size) {
+        this.size = size;
+        this.inventory = Bukkit.createInventory(humanEntity, size);
+    }
+
+    /**
+     * Get's the size of the GUI screen (inventory).
+     * @return the number of slots in the inventory
+     */
+    public int getSize() {
+        return this.size;
     }
 
     /**

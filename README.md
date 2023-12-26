@@ -31,6 +31,7 @@ Where all the manually generated GUI screens are (src/main/resources/gui/screens
 ```json
 {
     "title": String,
+    "size": int,
     "slots": [
         {
             "slot": Integer,

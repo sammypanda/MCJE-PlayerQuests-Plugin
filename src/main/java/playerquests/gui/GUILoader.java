@@ -88,8 +88,11 @@ public class GUILoader {
             // Method to deserialize JSON content from given JSON content String.
             template = this.jsonObjectMapper.readTree(templateString);
 
-            // to flexibly set the values from keys to the GUI screen 
+            // flexibly set the values from keys to.. 
+            // the GUI screen 
             parseTitle(template);
+            // the inventory slots size
+            parseSize(template);
 
         } catch (JsonProcessingException e) { // Encapsulates all JSON processing errors that could occur
             System.err.println("The template passed into parse(here) failed to map, JSON: " + templateString);
@@ -107,5 +110,13 @@ public class GUILoader {
             .orElse(""); // if not set it as an empty string
 
         this.gui.setTitle(title);
+    }
+
+    private void parseSize(JsonNode node) {
+        int size = Optional.ofNullable(node.get("size")) // get size field if it exists
+            .map(JsonNode::asInt) // if exists get it as Int (int)
+            .orElse(9); // if not set it as the default size
+        
+        this.gui.setSize(size);
     }
 }

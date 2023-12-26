@@ -3,7 +3,9 @@ package playerquests.gui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.inventory.Inventory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,14 +31,16 @@ public class GUITest extends BukkitTestUtil {
         // valid templateFile, should be found in resources
         GUI gui = this.guiLoader.load("demo");
 
-        assertNotNull(gui.getTitle());
+        assertEquals(gui.getTitle(), "Demo");
+        assertEquals(gui.getSize(), 18);
     }
 
     @Test
-    void invalidTemplate() {
+    void emptyTemplate() {
         // invalid templateFile, an empty json object
-        GUI gui = this.guiLoader.load("invalid");
+        GUI gui = this.guiLoader.load("empty");
 
         assertEquals(gui.getTitle(), "");
+        assertEquals(gui.getSize(), 9);
     }
 }
