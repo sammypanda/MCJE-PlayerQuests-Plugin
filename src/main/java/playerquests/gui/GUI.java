@@ -18,7 +18,7 @@ public class GUI {
     private String title; // the title of the screen (InventoryView)
 
     {
-        this.inventory = Bukkit.createInventory(this.humanEntity, 0);
+        this.inventory = Bukkit.createInventory(this.humanEntity, 9); // default inventory
     }
 
     /**
