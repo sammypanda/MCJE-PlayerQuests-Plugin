@@ -31,8 +31,8 @@ public class GUITest extends BukkitTestUtil {
         // valid templateFile, should be found in resources
         GUI gui = this.guiLoader.load("demo");
 
-        assertEquals(gui.getTitle(), "Demo");
-        assertEquals(gui.getSize(), 18);
+        assertEquals("Demo", gui.getTitle());
+        assertEquals(18, gui.getSize());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class GUITest extends BukkitTestUtil {
         // invalid templateFile, an empty json object
         GUI gui = this.guiLoader.load("empty");
 
-        assertEquals(gui.getTitle(), "");
-        assertEquals(gui.getSize(), 9);
+        assertEquals("", gui.getTitle());
+        assertEquals(9, gui.getSize());
     }
 }
