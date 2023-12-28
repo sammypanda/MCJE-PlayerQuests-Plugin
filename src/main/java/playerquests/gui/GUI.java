@@ -15,7 +15,7 @@ public class GUI {
     private HumanEntity humanEntity; // the subject the screen will open on
     private Inventory inventory; // the empty inventory used as a GUI screen
     private InventoryView inventoryView; // the screen itself when open
-    private String title; // the title of the screen (InventoryView)
+    private String title = ""; // the title of the screen (InventoryView)
     private int size = 9; // the amount of slots in the GUI screen (Inventory)
 
     {
