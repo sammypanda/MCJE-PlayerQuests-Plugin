@@ -1,9 +1,7 @@
 package playerquests.gui;
 
 import java.io.IOException; // used if the JSON GUI template file can't be loaded
-import java.nio.file.Files; // locating the JSON GUI template file
-import java.nio.file.Path; // to keep and use a file path
-import java.nio.file.Paths; // to get paths
+import java.io.InputStream; // to load the JSON GUI template file
 import java.util.Optional; // tolerates if a json field is or is not set
 
 import org.bukkit.entity.HumanEntity; // the human entity (usually player) which will see the GUI
@@ -21,7 +19,7 @@ public class GUILoader {
     private ObjectMapper jsonObjectMapper = new ObjectMapper();
     private GUI gui;
     private HumanEntity humanEntity;
-    private Path path;
+    private String path;
 
     /**
      * Constructs a new GUILoader ready to parse the JSON templates.
@@ -55,16 +53,21 @@ public class GUILoader {
 
         // Define the path where screens can be found and
         // Attach the templateFile parameter to the path
-        this.path = Paths.get("src","main","resources","gui","screens",templateFile + ".json");
+        this.path = "/gui/screens/" + templateFile + ".json";
 
         // Pull out the json file as a string
-        try {
-            templateString = Files.readString(this.path);
+        try (InputStream inputStream = getClass().getResourceAsStream(this.path)) {
             
-            // Process the template into a real GUI screen
-            parse(templateString);
+            if (inputStream != null) {
+                templateString = new String(inputStream.readAllBytes());
+                
+                // Process the template into a real GUI screen
+                parse(templateString);
+            } else {
+                System.err.println(this.path + " is not a valid path");
+            }
         } catch (IOException e) { // On an I/O failure such as the file not being found
-            System.err.println(this.path + " is not a valid path");
+            System.err.println("not able to read " + this.path);
         }
 
         return this.gui;
