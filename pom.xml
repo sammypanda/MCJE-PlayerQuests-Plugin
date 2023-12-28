@@ -108,6 +108,21 @@
         </configuration>
       </plugin>
 
+      <!-- maven-dependency-plugin (for bundling dependencies in final jar) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin> 
+
       <!-- maven-javadoc-plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
