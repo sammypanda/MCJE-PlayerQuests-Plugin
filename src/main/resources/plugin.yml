@@ -1,5 +1,6 @@
 name: PlayerQuests
 description: ${project.description}
+api-version: '1.20'
 website: ${project.url}
 
 author: sammypanda
