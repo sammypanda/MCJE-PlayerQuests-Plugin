@@ -25,8 +25,10 @@ public class Core extends JavaPlugin {
 	    getServer().broadcastMessage("Working (/dev/sammy)");
 
         // Expresses the expected flow of logic:
-        GUILoader guiLoader = new GUILoader(getServer().getPlayer("sammy0panda"));
-        GUI demo = guiLoader.load("demo");
-        demo.open();
+        getServer().getOnlinePlayers().iterator().forEachRemaining(player -> {
+            GUILoader guiLoader = new GUILoader(player);
+            GUI demo = guiLoader.load("demo");
+            demo.open();
+        });
 	}
 }
