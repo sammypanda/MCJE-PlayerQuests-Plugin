@@ -41,9 +41,6 @@ public class GUI {
         // Set the title
         this.inventoryView.setTitle(this.title);
 
-        // Testing
-        System.out.println("Reached via GUI");
-    }   
 
     /**
      * Sets the title of the screen.
