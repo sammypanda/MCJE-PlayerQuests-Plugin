@@ -28,6 +28,8 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 ###### GUI templates are parsed as JSON strings
 It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
 
+- The GUI class stores slots array items into a List of GUISlot instances.
+
 | Key-Value Pair  | Behaviour When Missing                       |
 |-----------------|----------------------------------------------|
 | title           | Uses an empty string                         |

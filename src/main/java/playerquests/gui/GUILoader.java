@@ -138,11 +138,13 @@ public class GUILoader {
         Optional.ofNullable(node.get("slots")) // get slots field if it exists
             .map(JsonNode::elements) // map to a JsonNode Iterator
             .ifPresent(slots -> slots.forEachRemaining(e -> { // iterate over slots array
+                GUISlot guiSlot = gui.newSlot();
+
                 System.out.println("raw entry: " + e); // shows all the slots and their details
                 
                 Optional.ofNullable(e.get("slot")) // get slot field if it exists
                 .map(JsonNode::asInt) // if exists get it as Int (int)
-                .ifPresent(slot -> System.out.println(slot.toString())); // show what the value is 
+                .ifPresent(slot -> guiSlot.setSlot(slot)); // set the slot position in the GUI
             }));
     }
 }
