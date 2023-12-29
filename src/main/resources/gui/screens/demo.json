@@ -10,6 +10,12 @@
                 { "name": "test", "params": ["hi"] },
                 { "name": "testDemo", "params": ["hi"] }
             ]
-        }
+        },
+        {
+            "slot": 3,
+            "item": "WOOL",
+            "label": "Second Test"
+        },
+        {}
     ]
   }

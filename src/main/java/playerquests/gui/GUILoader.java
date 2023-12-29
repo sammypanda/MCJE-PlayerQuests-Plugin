@@ -96,6 +96,8 @@ public class GUILoader {
             parseTitle(template);
             // the inventory slots size
             parseSize(template);
+            // the content of the slots
+            parseSlots(template);
 
         } catch (JsonProcessingException e) { // Encapsulates all JSON processing errors that could occur
             System.err.println("The template passed into parse(here) failed to map, JSON: " + templateString);
@@ -121,5 +123,21 @@ public class GUILoader {
             .orElse(9); // if not set it as the default size
         
         this.gui.setSize(size);
+    }
+
+    /**
+     * Take the slots array and add each slot with it's custom described function(s).
+     * @param node
+     */
+    private void parseSlots(JsonNode node) {
+        Optional.ofNullable(node.get("slots")) // get slots field if it exists
+            .map(JsonNode::elements) // map to a JsonNode Iterator
+            .ifPresent(slots -> slots.forEachRemaining(e -> { // iterate over slots array
+                System.out.println("raw entry: " + e); // shows all the slots and their details
+                
+                Optional.ofNullable(e.get("slot")) // get slot field if it exists
+                .map(JsonNode::asInt) // if exists get it as Int (int)
+                .ifPresent(slot -> System.out.println(slot.toString())); // show what the value is 
+            }));
     }
 }

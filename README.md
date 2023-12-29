@@ -25,6 +25,21 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 
 <br>
 
+###### GUI templates are parsed as JSON strings
+It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
+
+| Key-Value Pair  | Behaviour When Missing                       |
+|-----------------|----------------------------------------------|
+| title           | Uses an empty string                         |
+| size            | Uses 9 slots                                 |
+| slots           | Provides all {size} slots as empty           |
+| slots.slot      | Defaults to the next slot which is not taken |
+| slots.item      | Uses an air or grey stained glass item/block |
+| slots.label     | Uses an empty string                         |
+| slots.functions | Does nothing when slot is interacted with    |
+
+<br>
+
 ###### GUI screen templating layout (JSON)
 Where all the manually generated GUI screens are (src/main/resources/gui/screens/*.json).
 
