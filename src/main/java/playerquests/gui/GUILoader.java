@@ -108,6 +108,7 @@ public class GUILoader {
 
     /**
      * Take the 'title' template key and set it as the title for the gui.
+     * @param node
      */
     private void parseTitle(JsonNode node) {
         String title = Optional.ofNullable(node.get("title")) // get title field if it exists
