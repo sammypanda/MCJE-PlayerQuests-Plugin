@@ -118,6 +118,10 @@ public class GUILoader {
         this.gui.setTitle(title);
     }
 
+    /**
+     * Take the 'size' template key and set as the total slots of the gui.
+     * @param node
+     */
     private void parseSize(JsonNode node) {
         int size = Optional.ofNullable(node.get("size")) // get size field if it exists
             .map(JsonNode::asInt) // if exists get it as Int (int)
