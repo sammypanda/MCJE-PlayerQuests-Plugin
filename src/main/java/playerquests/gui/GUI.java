@@ -94,9 +94,10 @@ public class GUI {
             String errorLabel = "(Error)";
 
             // Evaluate label for error prefix and avoid malformatting labels
-            slot.setLabel(String.format("%s%s", 
-                slot.hasError() ? errorLabel : "", // pre-append an error notice if applicable
-                slot.getLabel().equals(" ") && slot.hasError() ? "" : " " + slot.getLabel())); // pre-append whitespace if applicable
+            slot.setLabel(String.format("%s%s%s", 
+                slot.hasError() ? errorLabel : "", // add an error notice if applicable
+                slot.hasError() && !slot.getLabel().equals(" ") ? " " : "", // put whitespace if applicable
+                slot.hasError() && slot.getLabel().equals(" ") ? slot.getLabel().trim() : slot.getLabel())); // add the real label if applicable
 
             // Edit the ItemMeta
             // Set the slot label
