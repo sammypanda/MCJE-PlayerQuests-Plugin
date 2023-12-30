@@ -14,6 +14,7 @@ public class GUISlot {
     private int slot = 0; // no slot if none passed in // slot = this.gui.getNextSlot()?
     private String label = " "; // label of the item in the slot (requires whitespace to show as empty)
     private String item = "GRAY_STAINED_GLASS_PANE"; // default item/block
+    private Boolean errored = false; // has this slot encountered a syntax error
 
     /**
      * Constructs a new {@link GUISlot} with the specified parent {@link GUI}.
@@ -67,6 +68,8 @@ public class GUISlot {
             GUIUtils.toItemStack(item);
             this.item = item; // if no issue caught overwrite the default slot item
         } catch (IllegalArgumentException exception) { // this means the ItemStack failed to construct
+            this.errored = true;
+            this.item = "RED_STAINED_GLASS_PANE"; // express that there was a problem visually by using an alarming item
             System.err.println(exception.getMessage());
         }
     }
@@ -77,5 +80,13 @@ public class GUISlot {
      */
     public String getItem() {
         return this.item;
+    }
+
+    /**
+     * Determine whether the instance has encountered an error.
+     * @return errored true or false value for if it has errored.
+     */
+    public Boolean hasError() {
+        return this.errored;
     }
 }

@@ -90,7 +90,13 @@ public class GUI {
         this.slots.iterator().forEachRemaining(slot -> {
             Integer position = slot.getSlot(); // for setting the slot position
             ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
-            ItemMeta itemMeta = item.getItemMeta(); // for setting the slot label
+            ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
+            String errorLabel = "(Error)";
+
+            // Evaluate label for error prefix and avoid malformatting labels
+            slot.setLabel(String.format("%s%s", 
+                slot.hasError() ? errorLabel : "", // pre-append an error notice if applicable
+                slot.getLabel().equals(" ") && slot.hasError() ? "" : " " + slot.getLabel())); // pre-append whitespace if applicable
 
             // Edit the ItemMeta
             // Set the slot label
