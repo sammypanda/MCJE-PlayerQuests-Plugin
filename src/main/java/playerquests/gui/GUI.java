@@ -87,9 +87,9 @@ public class GUI {
      */
     private void buildSlots() {
         this.slots.iterator().forEachRemaining(slot -> {
-            Integer position = slot.getSlot(); 
+            Integer position = slot.getSlot(); // getting the slot for the current GUISlot instance list item
 
-            ItemStack item = GUIUtils.toItemStack(slot.getItem());
+            ItemStack item = GUIUtils.toItemStack(slot.getItem()); // converting the rough item String to an exact Material in an ItemStack
 
             if (position > 0 && position <= this.size) { // if the slot position is not out of bounds
                 this.inventoryView.setItem( // populate the slot

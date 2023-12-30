@@ -1,5 +1,7 @@
 package playerquests.gui;
 
+import playerquests.utils.GUIUtils;
+
 /**
  * The {@link GUISlot} class represents a slot in the inventory as GUI.
  * <p>
@@ -61,7 +63,12 @@ public class GUISlot {
      * @param item the closest string representation to the {@link org.bukkit.Material} ENUM.
      */
     public void setItem(String item) {
-        this.item = item;
+        try { // check if the item would create a valid ItemStack (the Material exists and isn't legacy)
+            GUIUtils.toItemStack(item);
+            this.item = item; // if no issue caught overwrite the default slot item
+        } catch (IllegalArgumentException exception) { // this means the ItemStack failed to construct
+            System.err.println(exception.getMessage());
+        }
     }
 
     /**
