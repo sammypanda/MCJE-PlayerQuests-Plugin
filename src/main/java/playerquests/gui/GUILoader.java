@@ -149,6 +149,10 @@ public class GUILoader {
                 Optional.ofNullable(e.get("item")) // get item to fill slot if exists
                 .map(JsonNode::asText) // if exists get it as Text (String)
                 .ifPresent(item -> guiSlot.setItem(item)); // set the GUI slot item
+
+                Optional.ofNullable(e.get("label")) // get label for slot if exists
+                .map(JsonNode::asText) // if exists get it as Text (String)
+                .ifPresent(label -> guiSlot.setLabel(label)); // set the GUI slot label
             }));
     }
 }

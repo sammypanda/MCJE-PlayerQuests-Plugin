@@ -12,7 +12,7 @@ public class GUISlot {
 
     private GUI gui; // the parent GUI
     private int slot = 0; // no slot if none passed in // slot = this.gui.getNextSlot()?
-    private String label = ""; // label of the item in the slot
+    private String label = " "; // label of the item in the slot (requires whitespace to show as empty)
     private String item = "GRAY_STAINED_GLASS_PANE"; // default item/block
 
     /**

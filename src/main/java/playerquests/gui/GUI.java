@@ -6,6 +6,7 @@ import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.inventory.Inventory; // used to manage the GUI
 import org.bukkit.inventory.InventoryView; // used to manage the GUI screen
 import org.bukkit.inventory.ItemStack; // used to place an item visually in a slot on the GUI
+import org.bukkit.inventory.meta.ItemMeta; // used to edit the label of the slot
 
 import playerquests.utils.GUIUtils; // tools which help reduce the verbosity of GUI classes
 
@@ -87,10 +88,18 @@ public class GUI {
      */
     private void buildSlots() {
         this.slots.iterator().forEachRemaining(slot -> {
-            Integer position = slot.getSlot(); // getting the slot for the current GUISlot instance list item
+            Integer position = slot.getSlot(); // for setting the slot position
+            ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
+            ItemMeta itemMeta = item.getItemMeta(); // for setting the slot label
 
-            ItemStack item = GUIUtils.toItemStack(slot.getItem()); // converting the rough item String to an exact Material in an ItemStack
+            // Edit the ItemMeta
+            // Set the slot label
+            itemMeta.setDisplayName(slot.getLabel());
 
+            // Return the ItemMeta to the ItemStack
+            item.setItemMeta(itemMeta);
+
+            // Set the slot item at the slot position
             if (position > 0 && position <= this.size) { // if the slot position is not out of bounds
                 this.inventoryView.setItem( // populate the slot
                     position - 1, // set at the index (starting from 0)
