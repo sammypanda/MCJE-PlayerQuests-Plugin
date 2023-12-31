@@ -3,14 +3,14 @@ package playerquests.gui;
 import java.util.ArrayList; // Used to hold and manage info about the GUI slots
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
+import org.bukkit.ChatColor; // used to customise all kinds of in-game text
+import org.bukkit.entity.HumanEntity; // the subject(s) the GUI shows for
 import org.bukkit.inventory.Inventory; // used to manage the GUI
 import org.bukkit.inventory.InventoryView; // used to manage the GUI screen
 import org.bukkit.inventory.ItemStack; // used to place an item visually in a slot on the GUI
 import org.bukkit.inventory.meta.ItemMeta; // used to edit the label of the slot
 
 import playerquests.utils.GUIUtils; // tools which help reduce the verbosity of GUI classes
-
-import org.bukkit.entity.HumanEntity; // the subject(s) the GUI shows for
 
 /**
  * The interface for creating and opening a GUI.
@@ -94,7 +94,8 @@ public class GUI {
             String errorLabel = "(Error)";
 
             // Evaluate label for error prefix and avoid malformatting labels
-            slot.setLabel(String.format("%s%s%s", 
+            slot.setLabel(String.format("%s%s%s%s", 
+                ChatColor.RESET, // remove the italics set when changing from default item display name
                 slot.hasError() ? errorLabel : "", // add an error notice if applicable
                 slot.hasError() && !slot.getLabel().equals(" ") ? " " : "", // put whitespace if applicable
                 slot.hasError() && slot.getLabel().equals(" ") ? slot.getLabel().trim() : slot.getLabel())); // add the real label if applicable
