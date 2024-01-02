@@ -21,8 +21,4 @@ public class Core extends JavaPlugin {
         // TODO: automatically initiate the commands
         new Commandplayerquest();
     }
-
-    @Override
-    public void onLoad() {
-	}
 }
