@@ -1,0 +1,21 @@
+{
+    "title": "Demo",
+    "size": 18,
+    "slots": [
+        {
+            "slot": 2,
+            "item": "SADDLE",
+            "label": "Test",
+            "functions": [
+                { "name": "test", "params": ["hi"] },
+                { "name": "testDemo", "params": ["hi"] }
+            ]
+        },
+        {
+            "slot": 18,
+            "item": "WOOL",
+            "label": "Second Test"
+        },
+        {}
+    ]
+  }
