@@ -139,8 +139,6 @@ public class GUILoader {
             .map(JsonNode::elements) // map to a JsonNode Iterator
             .ifPresent(slots -> slots.forEachRemaining(e -> { // iterate over slots array
                 GUISlot guiSlot = gui.newSlot();
-
-                System.out.println("raw entry: " + e); // shows all the slots and their details
                 
                 Optional.ofNullable(e.get("slot")) // get slot field if it exists
                 .map(JsonNode::asInt) // if exists get it as Int (int)
