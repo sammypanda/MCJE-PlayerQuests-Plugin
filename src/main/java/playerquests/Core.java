@@ -25,12 +25,5 @@ public class Core extends JavaPlugin {
     @Override
     public void onLoad() {
 	    getServer().broadcastMessage("Working (/dev/sammy)");
-
-        // Expresses the expected flow of logic:
-        getServer().getOnlinePlayers().iterator().forEachRemaining(player -> {
-            GUILoader guiLoader = new GUILoader(player);
-            GUI demo = guiLoader.load("empty");
-            demo.open();
-        });
 	}
 }
