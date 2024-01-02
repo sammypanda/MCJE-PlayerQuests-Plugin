@@ -1,8 +1,8 @@
 package playerquests;
 
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
-import org.bukkit.Bukkit; // required for getServer/Bukkit
 import playerquests.gui.GUILoader; // parses template JSON files into GUI types
+import playerquests.chat.command.Commandplayerquest;
 import playerquests.gui.GUI; // used to create and control GUIs
 
 /**
@@ -18,6 +18,8 @@ public class Core extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // TODO: automatically initiate the commands
+        new Commandplayerquest();
     }
 
     @Override
@@ -27,7 +29,7 @@ public class Core extends JavaPlugin {
         // Expresses the expected flow of logic:
         getServer().getOnlinePlayers().iterator().forEachRemaining(player -> {
             GUILoader guiLoader = new GUILoader(player);
-            GUI demo = guiLoader.load("demo");
+            GUI demo = guiLoader.load("empty");
             demo.open();
         });
 	}
