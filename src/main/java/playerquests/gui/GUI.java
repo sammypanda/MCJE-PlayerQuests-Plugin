@@ -16,6 +16,17 @@ import playerquests.utils.GUIUtils; // tools which help reduce the verbosity of 
  * The interface for creating and opening a GUI.
  * Size can be changed to multiples of 9, from 0 up to 54.
  * The default size is 0.
+ * <br>
+ * <pre>
+ * Usage:
+ * <code>
+ * getServer().getOnlinePlayers().iterator().forEachRemaining(player -> { // for this example, opening the gui for everyone
+ *     GUILoader guiLoader = new GUILoader(player); // helps construct the gui
+ *     GUI demo = guiLoader.load("demo"); // demo is a template file (json)
+ *     demo.open(); // the method to show the gui on screen
+ * });      
+ * </code>
+ * </pre>
  */
 public class GUI {
 
