@@ -5,9 +5,9 @@
 
 # Specification
 ###### the way to visualise/think about, and implement the program.
-Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Events are all the things which occur. See examples in the table:
+Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Stages are all the things which occur. See examples in the table:
 
-| Action         | Events                                |
+| Action         | Stages                                |
 |----------------|---------------------------------------|
 | Request Item   | Finding the flower                    |
 | Speak          | First interaction with NPC            |
@@ -17,12 +17,18 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 
 ###### The code follows a package-by-feature pattern.
 
-| Folder                      | Purpose                                                     |
-|-----------------------------|-------------------------------------------------------------|
-| gui/                        | code related to GUIs                                        |
-| chat/                       | code related to the in-game chat + commands                 |
-| utils/                      | code used to help the main classes                          |
-| ../../resources/gui/screen/ | GUI templates in JSON                                       |
+| Folder                      | Purpose                                                              |
+|-----------------------------|----------------------------------------------------------------------|
+| ../../resources/gui/screen/ | GUI templates in JSON                                                |
+| gui/                        | code related to GUIs                                                 |
+| chat/                       | code related to the in-game chat + commands                          |
+| utils/                      | code used to help the main classes                                   |
+| quest/                      | code related to quests                                               |
+| quest/builder/              | code related to quest building/creating                              |
+| quest/event/                | code related to handling quest meta-events (like quitting the quest) |
+| quest/player/               | code related to playing quests                                       |
+| quest/stage/                | code related to organising the stages of the quest                   |
+| quest/stage/action/         | code related to the handling of quest objectives                     |
 
 <br>
 
