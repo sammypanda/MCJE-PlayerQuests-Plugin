@@ -69,22 +69,3 @@ Where all the manually generated GUI screens are (src/main/resources/gui/screens
     ]
   }
 ```
-
-###### Access to the plugin
-
-- Configuration
-    - The server admin should be able to configure the main quest command, but by default it would be /quest. i.e. it may be modified to /playerquest in case of clashes. 
-        <details>
-            <summary>The reason why /quest instead of /playerquest for the default</summary>
-            Servers with lots of plugins where /quest may already exist suggests that the <b>server admins may be comfortable with plugins enough to do extra configuring</b>. Servers where this may be one of the only plugins though, suggest a less technical audience <b>where the intuitiveness of the command being /quest is very important</b>.
-        </details>
-
-<br>
-
-- Commands
-    - Help
-        - Aliases: h, how, ?, support
-    - Create
-        - Aliases: c, build, new, design, make, compose, construct, forge, planner
-    - Edit
-        - Aliases: e, modify, adjust, patch, change
