@@ -17,11 +17,12 @@ Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins>
 
 ###### The code follows a package-by-feature pattern.
 
-| Folder                      | Purpose                                  |
-|-----------------------------|------------------------------------------|
-| gui/                        | code related to the workings of GUIs     |
-| command/                    | code related to the workings of commands |
-| ../../resources/gui/screen/ | GUI templates in JSON                    |
+| Folder                      | Purpose                                                     |
+|-----------------------------|-------------------------------------------------------------|
+| gui/                        | code related to GUIs                                        |
+| chat/                       | code related to the in-game chat + commands                 |
+| utils/                      | code used to help the main classes                          |
+| ../../resources/gui/screen/ | GUI templates in JSON                                       |
 
 <br>
 
