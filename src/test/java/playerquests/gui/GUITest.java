@@ -1,8 +1,11 @@
 package playerquests.gui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,6 +19,10 @@ public class GUITest extends BukkitTestUtil {
 
     @BeforeAll
     void setUp() {
+        // creating mock Bukkit and getPluginManager for the GUI initializer
+        PluginManager pluginManager = Mockito.mock(PluginManager.class);
+        when(Bukkit.getPluginManager()).thenReturn(pluginManager);
+
         // creating mock humanEntity to start a GUI
         this.humanEntity = Mockito.mock(HumanEntity.class);
 

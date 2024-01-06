@@ -5,11 +5,13 @@ import java.util.ArrayList; // Used to hold and manage info about the GUI slots
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.ChatColor; // used to customise all kinds of in-game text
 import org.bukkit.entity.HumanEntity; // the subject(s) the GUI shows for
+import org.bukkit.event.HandlerList; // list of event handlers; used to unload a listener
 import org.bukkit.inventory.Inventory; // used to manage the GUI
 import org.bukkit.inventory.InventoryView; // used to manage the GUI screen
 import org.bukkit.inventory.ItemStack; // used to place an item visually in a slot on the GUI
 import org.bukkit.inventory.meta.ItemMeta; // used to edit the label of the slot
 
+import playerquests.Core; // used to get the Plugin instance
 import playerquests.utils.GUIUtils; // tools which help reduce the verbosity of GUI classes
 
 /**
@@ -34,11 +36,16 @@ public class GUI {
     private Inventory inventory; // the empty inventory used as a GUI screen
     private InventoryView inventoryView; // the screen itself when open
     private String title = ""; // the title of the screen (InventoryView)
-    private int size = 9; // the amount of slots in the GUI screen (Inventory)
+    private Integer size = 9; // the amount of slots in the GUI screen (Inventory)
     private ArrayList<GUISlot> slots = new ArrayList<GUISlot>(); // the list of each slot with their own unique options
+    private GUIListener guiListener = new GUIListener(this);
 
     {
-        this.inventory = Bukkit.createInventory(this.humanEntity, this.size); // default inventory
+        // default inventory
+        this.inventory = Bukkit.createInventory(this.humanEntity, this.size);
+
+        // disallow taking slot items from GUI
+        Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
     }
 
     /**
@@ -64,6 +71,35 @@ public class GUI {
         // everything operating on InventoryView types
         buildFrame(); // populating the GUI frame
         buildSlots(); // populating the GUI slots
+    }
+    
+    /**
+     * Prepares the GUI window to be closed, in such a way that there
+     * are no leftover objects or listeners.
+     * @see #close() for closing GUI on the frontend.
+     */
+    public void dispose() {
+        HandlerList.unregisterAll(this.guiListener); // unregister the listeners, don't need them if there is no GUI
+        
+        // nullify class values we are never going to use again
+        this.humanEntity = null;
+        this.inventory = null;
+        this.inventoryView = null;
+        this.title = null;
+        this.size = null;
+        this.slots = null;
+        this.guiListener = null;
+    }
+
+    /**
+     * Shuts the {@link #inventoryView} on the player screen, 
+     * just the UI side of closing down the GUI.
+     * @see #dispose() for unloading GUI on the backend.
+     */
+    public void close() {
+        this.dispose(); // unload GUI on the backend
+
+        this.inventoryView.close(); // close GUI on the frontend.
     }
 
     /**
