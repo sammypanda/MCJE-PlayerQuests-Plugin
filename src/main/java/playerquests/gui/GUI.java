@@ -1,6 +1,6 @@
 package playerquests.gui;
 
-import java.util.ArrayList; // Used to hold and manage info about the GUI slots
+import java.util.HashMap; // Used to hold and manage info about the GUI slots
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.ChatColor; // used to customise all kinds of in-game text
@@ -37,8 +37,8 @@ public class GUI {
     private InventoryView inventoryView; // the screen itself when open
     private String title = ""; // the title of the screen (InventoryView)
     private Integer size = 9; // the amount of slots in the GUI screen (Inventory)
-    private ArrayList<GUISlot> slots = new ArrayList<GUISlot>(); // the list of each slot with their own unique options
     private GUIListener guiListener = new GUIListener(this);
+    private HashMap<Integer, GUISlot> slots = new HashMap<Integer, GUISlot>();
 
     {
         // default inventory
@@ -134,8 +134,7 @@ public class GUI {
      * </ul>
      */
     private void buildSlots() {
-        this.slots.iterator().forEachRemaining(slot -> {
-            Integer position = slot.getSlot(); // for setting the slot position
+        this.slots.forEach((position, slot) -> {
             ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
             String errorLabel = "(Error)";
@@ -167,17 +166,55 @@ public class GUI {
     /**
      * Creates a new slot within the GUI system.
      * <p>
+     * Where the position of the slot is it's key.
+     * <p>
      * To address the complexity of the slots array and how slots can be comprised
      * of many parts, this method instantiates a whole new {@link GUISlot} class.
      * Each new GUISlot instance is added to a list in the {@link GUI} 
      * class. This list serves as a centralized repository, ensuring easy access to slot 
      * information when building/opening the GUI.
+     * @param position the inventory position this slot is
+     * @return a new (and tracked!) instance of GUISlot
+     */
+    public GUISlot newSlot(Integer position) {
+        GUISlot newSlot = new GUISlot(this, position);
+        this.slots.put(position, newSlot);
+        return newSlot;
+    }
+
+    /**
+     * Creates a new slot at the next possible slot in the GUI system.
+     * @see #newSlot(Integer)
      * @return a new (and tracked!) instance of GUISlot
      */
     public GUISlot newSlot() {
-        GUISlot newSlot = new GUISlot(this);
-        this.slots.add(newSlot);
-        return newSlot;
+        return this.newSlot(this.slots.size());
+    }
+
+    /**
+     * Gets the GUI slot at the inventory slot position.
+     * @param position the gui slot position, starting at 1.
+     * @return the gui slot object.
+     */
+    public GUISlot getSlot(Integer position) {
+        return this.slots.get(position);
+    }
+
+    /**
+     * Removes the {@link GUISlot} at the inventory slot position.
+     * @param position the gui slot position, starting at 1.
+     */
+    public void removeSlot(Integer position) {
+        this.slots.remove(position);
+    }
+
+    /**
+     * Update which slot of the GUI a {@link GUISlot} object shows in.
+     * @param position the gui slot position, starting at 1.
+     * @param slot the already created {@link GUISlot}  object to put in the slot.
+     */
+    public void setSlot(Integer position, GUISlot slot) {
+        this.slots.put(position, slot);
     }
 
     /**
