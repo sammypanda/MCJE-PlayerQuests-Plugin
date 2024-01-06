@@ -142,7 +142,7 @@ public class GUILoader {
                 
                 Optional.ofNullable(e.get("slot")) // get slot field if it exists
                 .map(JsonNode::asInt) // if exists get it as Int (int)
-                .ifPresent(slot -> guiSlot.setSlot(slot)); // set the slot position in the GUI
+                .ifPresent(slot -> guiSlot.setPosition(slot)); // set the slot position in the GUI
 
                 Optional.ofNullable(e.get("item")) // get item to fill slot if exists
                 .map(JsonNode::asText) // if exists get it as Text (String)

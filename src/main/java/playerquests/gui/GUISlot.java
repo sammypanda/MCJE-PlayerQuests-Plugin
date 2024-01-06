@@ -1,6 +1,6 @@
 package playerquests.gui;
 
-import playerquests.utils.GUIUtils;
+import playerquests.utils.GUIUtils; // GUI related methods to make this class less verbose
 
 /**
  * The {@link GUISlot} class represents a slot in the inventory as GUI.
@@ -22,24 +22,32 @@ public class GUISlot {
      * This should not be accessed directly. Use {@link GUI#newSlot()} instead.
      * 
      * @param gui a parent GUI which manages the window/screen.
+     * @param slotPosition where the slot should be in the GUI window, starting at 1.
      */
-    public GUISlot(GUI gui) {
+    public GUISlot(GUI gui, Integer slotPosition) {
         this.gui = gui;
+        this.setPosition(slotPosition);
     }
 
     /**
      * Sets the slot position for this instance of {@link GUISlot}.
-     * @param slot the actual position of the slot, starting from 1
+     * @param position the actual position of the slot, starting from 1
      */
-    public void setSlot(Integer slot) {
-        this.slot = slot;
+    public void setPosition(Integer position) {
+        this.slot = position;
+
+        if (gui.getSlot(position) != null) { // remove slot if it already exists in HashMap
+            gui.removeSlot(position); // remove at slot position (hashmap key)
+        }
+
+        gui.setSlot(position, this); // put our current GUISlot instead
     }
 
     /**
      * Gets the intended slot position for this instance of {@link GUISlot}.
      * @return slot the slot position.
      */
-    public Integer getSlot() {
+    public Integer getPosition() {
         return this.slot;
     }
     

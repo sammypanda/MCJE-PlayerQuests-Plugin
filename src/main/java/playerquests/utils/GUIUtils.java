@@ -1,7 +1,7 @@
 package playerquests.utils;
 
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material; // used to get a usable material instance
+import org.bukkit.inventory.ItemStack; // important type used to fill GUI slots
 
 /**
  * Helpful tools which can reduce the verbosity of GUI classes.
