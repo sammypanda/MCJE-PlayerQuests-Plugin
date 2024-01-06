@@ -1,0 +1,11 @@
+{
+    "title": "PlayerQuests",
+    "size": 9,
+    "slots": [
+        {
+            "slot": 2,
+            "item": "LIME_DYE",
+            "label": "Create Quest"
+        }
+    ]
+  }
