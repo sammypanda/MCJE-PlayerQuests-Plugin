@@ -9,6 +9,13 @@ import org.bukkit.inventory.ItemStack;
 public class GUIUtils {
 
     /**
+     * GUIUtils should not be instantiated.
+     */
+    private GUIUtils() {
+        throw new AssertionError("GUIUtils should not be instantiated.");
+    }
+
+    /**
      * Converts a {@link String} to an {@link ItemStack}.
      * @param item closest string to the {@link Material} ENUM
      * @return itemStack an instance of an {@link ItemStack} with the matching item 
