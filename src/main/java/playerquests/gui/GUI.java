@@ -44,7 +44,7 @@ public class GUI {
         // default inventory
         this.inventory = Bukkit.createInventory(this.humanEntity, this.size);
 
-        // disallow taking slot items from GUI
+        // register listening to when gui events occur
         Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
     }
 
