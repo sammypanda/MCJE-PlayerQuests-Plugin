@@ -8,6 +8,62 @@
 Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. But when creating GUI template files (usually with 'Meta Actions' or 'Functions') there isn't much option to select from a list of actions, so here is a list for devs or if you're a very brave user.
 
 ###### Meta Actions (Functions)
+| Function (How to refer to) | Parameters (How to customise)               | Purpose (What it does)                                 |
+|----------------------------|---------------------------------------------|--------------------------------------------------------|
+| UpdateScreenFile           | 1: the template filename (without .json)    | Changes the current GUI screen to a different template |
+| UpdateScreen               | 1: the template expression (as json string) | Changes the current GUI screen to a different template |
+
+###### Quest Actions (Actions)
+| Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
+|----------------------------|-------------------------------|-------------------------------------------------|
+| Speak                      | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
+| RequestItem                | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
+| ChangeQuestEntry           | 1: stage ID or action ID      | Changes what stage or action the quest opens to |
+
+# How To Get Functionality: 'Templates'
+###### We have Meta and Quest Actions, but how do we actually use them?
+Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
+```json
+{
+    "title": String, // label of the entire quest
+    "entry": String, // (as in 'entry point') where the quest starts
+    "npcs": { // directory of all the quest npcs
+        "npc_0": { // NPC ID (automatically generated)
+            "name": String // the name of the NPC
+        }
+    },
+    "stages": { // directory of all the quest stages
+        "stage_0": { // Stage ID (automatically generated)
+            "notable": Boolean, // if it would show up as a chapter in a book; a notable stage
+            "label": String, // the label for just this stage, as if it were a chapter
+            "entry": String, // where the stage starts
+            "actions": { // directory of all this stage's actions
+                "action_0": {  // Action ID (automatically generated)
+                    "name": String, // Quest Action name
+                    "params": Array, // Quest Action parameters
+                    "connections": { // defining where the action is in the stage
+                        "next": @Nullable String, // where to go if the action succeeds
+                        "curr": @Nullable String, // where to return to if the action is exited
+                        "prev": @Nullable String // where to go if the actions fails
+                    }
+                }
+            },
+            "connections": { // defining where the stage is in the quest
+                "next": @Nullable String, // where to go if the stage succeeds
+                "curr": @Nullable String, // where to return to if the stage is exited
+                "prev": @Nullable String // where to go if the stage fails
+            }
+        },
+    }
+}
+```
+*It's worth noting that just because the IDs are incremental, all starting from zero, doesn't mean they are expected to be kept/used in order or in sequence.*
+
+# How It All Works: 'Specification'
+###### the way to visualise/think about, and implement the program.
+Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Events are all the things which occur. See examples in the table:
+
+###### Meta Actions (Functions)
 | Function (How to refer to) | Parameters (How to customise)               | Purpose (What it aims to do)                                      |
 |----------------------------|---------------------------------------------|-------------------------------------------------------------------|
 | UpdateScreenFile           | 1: the template filename (without .json)    | dynamically change the current GUI screen to a different template |
@@ -69,19 +125,16 @@ Where all the manually generated GUI screens are (src/main/resources/gui/screens
 
 ```json
 {
-    "title": String,
-    "size": int,
-    "slots": [
+    "title": String, // title of the GUI window
+    "size": int, // how many slots are in the inventory GUI (multiples of 9 only) 
+    "slots": [ // list of slots
         {
-            "slot": Integer,
-            "item": String,
-            "label": String,
-            "functions": [
-                { "name": String, "params": [] },
-                { "name": String, "params": [] }
-            ],
-            "actions": [
-                { "name": String, "params": [] }
+            "slot": Integer, // position of the GUI slot
+            "item": String, // item that should show in the slot
+            "label": String, // hover tooltip on the slot
+            "functions": [ // list of functions
+                { "name": String, "params": [] }, // a function with list of params
+                { "name": String, "params": [] } // ..
             ]
         }
     ]
