@@ -9,6 +9,9 @@
             "functions": [
                 { "name": "test", "params": ["hi"] },
                 { "name": "testDemo", "params": ["hi"] }
+            ],
+            "actions": [
+                { "name": "Example", "params": [] }
             ]
         },
         {

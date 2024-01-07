@@ -151,6 +151,12 @@ public class GUILoader {
                 Optional.ofNullable(e.get("label")) // get label for slot if exists
                 .map(JsonNode::asText) // if exists get it as Text (String)
                 .ifPresent(label -> guiSlot.setLabel(label)); // set the GUI slot label
+
+                // parse functions, probably to:
+                // 1. guiSlot, then 
+                // 2. guiSlot when asked to execute functions delegates to wherever the function(s) lives.
+                // maybe for swiftly changing GUI screens as if it's one after the other, we can have an update function?
+                // maybe the functions can just be a meta version of the quest stage actions?
             }));
     }
 }

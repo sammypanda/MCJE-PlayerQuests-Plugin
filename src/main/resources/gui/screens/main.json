@@ -5,7 +5,13 @@
         {
             "slot": 2,
             "item": "LIME_DYE",
-            "label": "Create Quest"
+            "label": "Create Quest",
+            "functions": [
+                { "name": "metaUpdateScreenFile", "params": ["create-quest"] }
+            ],
+            "actions": [
+                { "name": "Normies", "params": [] }
+            ]
         }
     ]
   }
