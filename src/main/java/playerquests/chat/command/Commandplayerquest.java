@@ -12,6 +12,9 @@ import playerquests.quest.Quest;
  */
 public class Commandplayerquest extends ChatCommand {
     
+    /**
+     * Loads the /playerquests command.
+     */
     public Commandplayerquest() {
         super("playerquests");
     }
