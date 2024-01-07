@@ -1,6 +1,5 @@
 package playerquests.gui;
 
-import org.bukkit.Bukkit; // used to broadcast messages to the server
 import org.bukkit.event.EventHandler; // used to register methods as events for the listener
 import org.bukkit.event.Listener; // listener type to implement this class with
 import org.bukkit.event.inventory.InventoryClickEvent; // called when player clicks in an inventory
@@ -42,7 +41,7 @@ public class GUIListener implements Listener {
     /**
      * Utility to check if the GUI is not null and
      * if the player is clicking the actual GUI itself.
-     * @return if in a GUI and clicking in the GUI (CHEST inventory) area.
+     * @return if in a GUI clicking in the GUI (CHEST inventory) area.
      */
     private Boolean isGUI(InventoryClickEvent event) {
         InventoryType inventoryType = event.getClickedInventory().getType();
@@ -55,6 +54,10 @@ public class GUIListener implements Listener {
             return false;
         }
     }
+
+    private Boolean isEmptySlot(Integer slotPosition) {
+        return this.gui.getSlot(slotPosition) == null;
+    }
     
     /**
      * When in a GUI this event is important for registering clicks
@@ -64,19 +67,12 @@ public class GUIListener implements Listener {
      */
     @EventHandler
     public void onClickItem(InventoryClickEvent event) {
-        
+        Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
 
-        Bukkit.broadcastMessage("test");
-
-        if (this.isGUI(event)) { // if in a GUI and clicking in valid area.
-            Bukkit.broadcastMessage(String.valueOf(event.getClickedInventory().getType()));
-            Bukkit.broadcastMessage(String.valueOf(event.getSlot() + 1));
-            Bukkit.broadcastMessage(gui.getSlot(event.getSlot() + 1).getLabel());
-
+        if (this.isGUI(event) && !this.isEmptySlot(slotPosition)) { // if it's valid to register a GUI Slot click.
             event.setCancelled(true); // disallow taking slot items from GUI
 
-            //              we can either pass off the ItemStack clicked on with event.getCurrentItem()
-            // i prefer --> or the slot number that was clicked with event.getSlot()
+            gui.getSlot(slotPosition).execute(); // run the functions for this slot
         }
     }
 

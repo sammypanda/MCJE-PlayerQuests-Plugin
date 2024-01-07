@@ -7,11 +7,11 @@
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
-                { "name": "metaUpdateScreenFile", "params": ["create-quest"] }
+                { "name": "UpdateScreenFile", "params": ["create-quest"] }
             ],
             "actions": [
                 { "name": "Normies", "params": [] }
             ]
         }
     ]
-  }
+}

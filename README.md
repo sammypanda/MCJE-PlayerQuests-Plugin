@@ -10,8 +10,8 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 ###### Meta Actions (Functions)
 | Function (How to refer to) | Parameters (How to customise)               | Purpose (What it aims to do)                                      |
 |----------------------------|---------------------------------------------|-------------------------------------------------------------------|
-| metaUpdateScreenFile       | 1: the template filename (without .json)    | dynamically change the current GUI screen to a different template |
-| metaUpdateScreen           | 1: the template expression (as json string) | dynamically change the current GUI screen to a different template |
+| UpdateScreenFile           | 1: the template filename (without .json)    | dynamically change the current GUI screen to a different template |
+| UpdateScreen               | 1: the template expression (as json string) | dynamically change the current GUI screen to a different template |
 
 ###### Quest Actions (Actions)
 | Function | Params | Purpose |

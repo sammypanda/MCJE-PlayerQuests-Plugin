@@ -1,5 +1,9 @@
 package playerquests.gui;
 
+import java.util.ArrayList; // used to store a list of GUI Functions ('Meta Actions')
+import java.util.Optional; // used to do conditional actions if a param list is null
+
+import playerquests.gui.function.GUIFunction; // the class that handles Meta Actions
 import playerquests.utils.GUIUtils; // GUI related methods to make this class less verbose
 
 /**
@@ -10,23 +14,34 @@ import playerquests.utils.GUIUtils; // GUI related methods to make this class le
  */
 public class GUISlot {
 
-    private GUI gui; // the parent GUI
-    private int slot = 0; // no slot if none passed in // slot = this.gui.getNextSlot()?
+    private GUI parentGui; // the parent GUI
+    private int slot = 0; // no slot if none passed in // slot = this.parentGui.getNextSlot()?
     private String label = " "; // label of the item in the slot (requires whitespace to show as empty)
     private String item = "GRAY_STAINED_GLASS_PANE"; // default item/block
     private Boolean errored = false; // has this slot encountered a syntax error
+    private ArrayList<GUIFunction> functionList = new ArrayList<GUIFunction>(); // where the gui functions are added to and pulled from
 
     /**
      * Constructs a new {@link GUISlot} with the specified parent {@link GUI}.
      * <p>
      * This should not be accessed directly. Use {@link GUI#newSlot()} instead.
      * 
-     * @param gui a parent GUI which manages the window/screen.
+     * @param parentGui a parent GUI which manages the window/screen.
      * @param slotPosition where the slot should be in the GUI window, starting at 1.
      */
-    public GUISlot(GUI gui, Integer slotPosition) {
-        this.gui = gui;
+    public GUISlot(GUI parentGui, Integer slotPosition) {
+        this.parentGui = parentGui;
         this.setPosition(slotPosition);
+    }
+
+    /**
+     * Run the functions that are described in the GUI screen expression
+     */
+    public void execute() {
+        this.functionList.forEach(function -> {
+            function.setParentGUI(this.parentGui);
+            function.execute();
+        });
     }
 
     /**
@@ -36,11 +51,11 @@ public class GUISlot {
     public void setPosition(Integer position) {
         this.slot = position;
 
-        if (gui.getSlot(position) != null) { // remove slot if it already exists in HashMap
-            gui.removeSlot(position); // remove at slot position (hashmap key)
+        if (this.parentGui.getSlot(position) != null) { // remove slot if it already exists in HashMap
+            this.parentGui.removeSlot(position); // remove at slot position (hashmap key)
         }
 
-        gui.setSlot(position, this); // put our current GUISlot instead
+        this.parentGui.setSlot(position, this); // put our current GUISlot instead
     }
 
     /**
@@ -96,5 +111,17 @@ public class GUISlot {
      */
     public Boolean hasError() {
         return this.errored;
+    }
+
+    /**
+     * Add a GUI Function ('Meta Action') to be executed when this GUI Slot
+     * is used.
+     * @param guiFunction the Meta Action name.
+     * @param paramList the values for the Meta Action to use.
+     */
+    public void addFunction(GUIFunction guiFunction, ArrayList<Object> paramList) {
+        paramList = Optional.ofNullable(paramList).orElse(new ArrayList<Object>()); // if there is no paramList, create an empty one
+
+        this.functionList.add(guiFunction);
     }
 }

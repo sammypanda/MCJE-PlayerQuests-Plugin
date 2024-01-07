@@ -2,13 +2,19 @@ package playerquests.gui;
 
 import java.io.IOException; // used if the JSON GUI template file can't be loaded
 import java.io.InputStream; // to load the JSON GUI template file
+import java.lang.reflect.InvocationTargetException; // used to check if a GUi function could not execute
+import java.util.ArrayList; // used to transport GUI functions
+import java.util.Objects; // used for easy null checking
 import java.util.Optional; // tolerates if a json field is or is not set
 
 import org.bukkit.entity.HumanEntity; // the human entity (usually player) which will see the GUI
 
 import com.fasterxml.jackson.core.JsonProcessingException; // catch-all erroring for the JSON files
+import com.fasterxml.jackson.core.type.TypeReference; // for passing in more specific types by allowing traits
 import com.fasterxml.jackson.databind.JsonNode; // the java-friendly object for holding the JSON info
 import com.fasterxml.jackson.databind.ObjectMapper; // reads the JSON
+
+import playerquests.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
 
 /**
  * Parses the GUI screen templates as a GUI.
@@ -20,6 +26,7 @@ public class GUILoader {
     private GUI gui;
     private HumanEntity humanEntity;
     private String path;
+    private GUISlot currentSlot;
 
     /**
      * Constructs a new GUILoader ready to parse the JSON templates.
@@ -113,7 +120,7 @@ public class GUILoader {
     private void parseTitle(JsonNode node) {
         String title = Optional.ofNullable(node.get("title")) // get title field if it exists
             .map(JsonNode::asText) // if exists get it as text (String)
-            .orElse(""); // if not set it as an empty string
+            .orElse(this.gui.getTitle()); // if not set it as the default title
 
         this.gui.setTitle(title);
     }
@@ -138,7 +145,8 @@ public class GUILoader {
         Optional.ofNullable(node.get("slots")) // get slots field if it exists
             .map(JsonNode::elements) // map to a JsonNode Iterator
             .ifPresent(slots -> slots.forEachRemaining(e -> { // iterate over slots array
-                GUISlot guiSlot = gui.newSlot();
+                GUISlot guiSlot = gui.newSlot(); 
+                this.currentSlot = guiSlot;
                 
                 Optional.ofNullable(e.get("slot")) // get slot field if it exists
                 .map(JsonNode::asInt) // if exists get it as Int (int)
@@ -152,11 +160,52 @@ public class GUILoader {
                 .map(JsonNode::asText) // if exists get it as Text (String)
                 .ifPresent(label -> guiSlot.setLabel(label)); // set the GUI slot label
 
-                // parse functions, probably to:
-                // 1. guiSlot, then 
-                // 2. guiSlot when asked to execute functions delegates to wherever the function(s) lives.
-                // maybe for swiftly changing GUI screens as if it's one after the other, we can have an update function?
-                // maybe the functions can just be a meta version of the quest stage actions?
+                Optional.ofNullable(e.get("functions")) // get functions for slot if exists
+                .ifPresent(functions -> parseFunctions(functions)); // parse all the functions in the object
             }));
     }
+
+    /**
+     * Take the functions array and add each function with it's params to a list in the {@link GUISlot} instance.
+     * @param functions the functions array from the JSON template.
+     */
+    private void parseFunctions(JsonNode functions) {
+        String slotPosition = this.currentSlot.getPosition().toString();
+
+        functions.elements().forEachRemaining(function -> {
+            JsonNode functionNameNode = Objects.requireNonNull(function.get("name"), "A function name is missing in an entry for slot " + this.currentSlot.getPosition());
+            String functionName = functionNameNode.asText();
+
+            JsonNode paramsNode = Objects.requireNonNull(function.get("params"), "The 'params' list is missing for the " + functionName + " function, in slot " + this.currentSlot.getPosition() + " (create it even if it's empty)");
+            String params = paramsNode.toString();
+
+            ArrayList<Object> paramList;
+
+            // Learn and prepare all the params to be bundled with the GUI Function
+            try {
+                paramList = this.jsonObjectMapper.readValue(params, new TypeReference<ArrayList<Object>>() {});
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("The 'params' list invalid or empty for the " + functionName + " function, in slot " + slotPosition);
+            }
+
+            // construct a GUIFunction and add it to the GUI Slot instance
+            try {
+                Class<?> classRef = Class.forName("playerquests.gui.function." + functionName);
+                try {
+                    GUIFunction guiFunction = (GUIFunction) classRef.getDeclaredConstructor().newInstance(); // create an instance of whichever function class
+                    guiFunction.setParams(paramList); // set the function params safe in the GUI Function instance
+                    this.currentSlot.addFunction(guiFunction, paramList); // ship the packaged GUI Function to be kept in the current GUI Slot instance
+                    // NOTE: now we could run these parsed functions we put in the GUI Slot with: currentSlot.execute();
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    throw new RuntimeException("Error instantiating or invoking the " + functionName + " function, in slot " + slotPosition);
+                }
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Class not found for the " + functionName + " function, in slot " + slotPosition);
+            } catch (SecurityException e) {
+                throw new RuntimeException("Security exception while accessing the " + functionName + " function, in slot " + slotPosition);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid arguments passed to the " + functionName + " function, in slot " + slotPosition);
+            }
+        });
+    }    
 }

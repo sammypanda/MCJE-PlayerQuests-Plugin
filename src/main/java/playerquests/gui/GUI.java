@@ -44,6 +44,9 @@ public class GUI {
         // default inventory
         this.inventory = Bukkit.createInventory(this.humanEntity, this.size);
 
+        // default title 
+        this.title = "";
+
         // register listening to when gui events occur
         Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
     }
@@ -97,9 +100,9 @@ public class GUI {
      * @see #dispose() for unloading GUI on the backend.
      */
     public void close() {
-        this.dispose(); // unload GUI on the backend
-
         this.inventoryView.close(); // close GUI on the frontend.
+
+        this.dispose(); // unload GUI on the backend
     }
 
     /**

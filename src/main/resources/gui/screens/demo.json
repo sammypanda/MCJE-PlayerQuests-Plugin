@@ -7,8 +7,8 @@
             "item": "SADDLE",
             "label": "Test",
             "functions": [
-                { "name": "test", "params": ["hi"] },
-                { "name": "testDemo", "params": ["hi"] }
+                { "name": "Test", "params": ["hi"] },
+                { "name": "UpdateScreenFile", "params": ["hi"] }
             ],
             "actions": [
                 { "name": "Example", "params": [] }
@@ -17,8 +17,11 @@
         {
             "slot": 18,
             "item": "WOOL",
-            "label": "Second Test"
+            "label": "Second Test",
+            "functions": [
+                { "name": "Test", "params": [] }
+            ]
         },
         {}
     ]
-  }
+}

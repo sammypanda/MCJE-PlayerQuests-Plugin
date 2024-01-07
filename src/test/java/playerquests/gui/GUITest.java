@@ -30,15 +30,16 @@ public class GUITest extends BukkitTestUtil {
         this.guiLoader = new GUILoader(humanEntity);
     }
 
-    @Test 
+    @Test
     void validTemplate() {
-        // valid templateFile, should be found in resources
+        // Load the GUI with the resource named "demo"
         GUI gui = this.guiLoader.load("demo");
-
+            
+        // Perform assertions on the loaded GUI
         assertEquals("Demo", gui.getTitle());
         assertEquals(18, gui.getSize());
     }
-
+    
     @Test
     void emptyTemplate() {
         // invalid templateFile, an empty json object
