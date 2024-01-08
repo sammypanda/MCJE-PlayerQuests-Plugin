@@ -61,21 +61,6 @@ Usually you would never need this, but this is what makes it all tick. When you 
 
 # How It All Works: 'Specification'
 ###### the way to visualise/think about, and implement the program.
-Each <ins>quest</ins> is a <ins>container of events</ins>. Each <ins>event</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Events are all the things which occur. See examples in the table:
-
-###### Meta Actions (Functions)
-| Function (How to refer to) | Parameters (How to customise)               | Purpose (What it aims to do)                                      |
-|----------------------------|---------------------------------------------|-------------------------------------------------------------------|
-| UpdateScreenFile           | 1: the template filename (without .json)    | dynamically change the current GUI screen to a different template |
-| UpdateScreen               | 1: the template expression (as json string) | dynamically change the current GUI screen to a different template |
-
-###### Quest Actions (Actions)
-| Function | Params | Purpose |
-|----------|--------|---------|
-| N/A      | 1: N/A | N/A     |
-
-# How It All Works: 'Specification'
-###### the way to visualise/think about, and implement the program.
 Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Stages are all the things which occur. See examples in the table:
 
 | Action         | Stages                                |
