@@ -8,10 +8,10 @@
 Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. But when creating GUI template files (usually with 'Meta Actions' or 'Functions') there isn't much option to select from a list of actions, so here is a list for devs or if you're a very brave user.
 
 ###### Meta Actions (Functions)
-| Function (How to refer to) | Parameters (How to customise)               | Purpose (What it aims to do)                                      |
-|----------------------------|---------------------------------------------|-------------------------------------------------------------------|
-| UpdateScreenFile           | 1: the template filename (without .json)    | dynamically change the current GUI screen to a different template |
-| UpdateScreen               | 1: the template expression (as json string) | dynamically change the current GUI screen to a different template |
+| Function (How to refer to) | Parameters (How to customise)               | Purpose (What it does)                                 |
+|----------------------------|---------------------------------------------|--------------------------------------------------------|
+| UpdateScreenFile           | 1: the template filename (without .json)    | Changes the current GUI screen to a different template |
+| UpdateScreen               | 1: the template expression (as json string) | Changes the current GUI screen to a different template |
 
 ###### Quest Actions (Actions)
 | Function | Params | Purpose |
