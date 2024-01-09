@@ -14,9 +14,50 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 | UpdateScreen               | 1: the template expression (as json string) | Changes the current GUI screen to a different template |
 
 ###### Quest Actions (Actions)
-| Function | Params | Purpose |
-|----------|--------|---------|
-| N/A      | 1: N/A | N/A     |
+| Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
+|----------------------------|-------------------------------|-------------------------------------------------|
+| Speak                      | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
+| RequestItem                | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
+| ChangeQuestEntry           | 1: stage ID or action ID      | Changes what stage or action the quest opens to |
+
+# How To Get Functionality: 'Templates'
+###### We have Meta and Quest Actions, but how do we actually use them?
+Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
+```json
+{
+    "title": String, // label of the entire quest
+    "entry": String, // (as in 'entry point') where the quest starts
+    "npcs": { // directory of all the quest npcs
+        "npc_0": { // NPC ID (automatically generated)
+            "name": String // the name of the NPC
+        }
+    },
+    "stages": { // directory of all the quest stages
+        "stage_0": { // Stage ID (automatically generated)
+            "notable": Boolean, // if it would show up as a chapter in a book; a notable stage
+            "label": String, // the label for just this stage, as if it were a chapter
+            "entry": String, // where the stage starts
+            "actions": { // directory of all this stage's actions
+                "action_0": {  // Action ID (automatically generated)
+                    "name": String, // Quest Action name
+                    "params": Array, // Quest Action parameters
+                    "connections": { // defining where the action is in the stage
+                        "next": @Nullable String, // where to go if the action succeeds
+                        "curr": @Nullable String, // where to return to if the action is exited
+                        "prev": @Nullable String // where to go if the actions fails
+                    }
+                }
+            },
+            "connections": { // defining where the stage is in the quest
+                "next": @Nullable String, // where to go if the stage succeeds
+                "curr": @Nullable String, // where to return to if the stage is exited
+                "prev": @Nullable String // where to go if the stage fails
+            }
+        },
+    }
+}
+```
+*It's worth noting that just because the IDs are incremental, all starting from zero, doesn't mean they are expected to be kept/used in order or in sequence.*
 
 # How It All Works: 'Specification'
 ###### the way to visualise/think about, and implement the program.
