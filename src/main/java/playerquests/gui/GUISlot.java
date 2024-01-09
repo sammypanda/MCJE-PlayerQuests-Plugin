@@ -3,6 +3,8 @@ package playerquests.gui;
 import java.util.ArrayList; // used to store a list of GUI Functions ('Meta Actions')
 import java.util.Optional; // used to do conditional actions if a param list is null
 
+import org.bukkit.entity.HumanEntity; // the type for the identifying the player
+
 import playerquests.gui.function.GUIFunction; // the class that handles Meta Actions
 import playerquests.utils.GUIUtils; // GUI related methods to make this class less verbose
 
@@ -37,8 +39,9 @@ public class GUISlot {
     /**
      * Run the functions that are described in the GUI screen expression
      */
-    public void execute() {
+    public void execute(HumanEntity player) {
         this.functionList.forEach(function -> {
+            function.setPlayer(player);
             function.setParentGUI(this.parentGui);
             function.execute();
         });

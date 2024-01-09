@@ -1,6 +1,7 @@
 package playerquests.gui;
 
-import java.util.HashMap; // Used to hold and manage info about the GUI slots
+import java.util.HashMap; // used to hold and manage info about the GUI slots
+import java.util.Optional; // used to check and work with nullable values
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.ChatColor; // used to customise all kinds of in-game text
@@ -100,7 +101,7 @@ public class GUI {
      * @see #dispose() for unloading GUI on the backend.
      */
     public void close() {
-        this.inventoryView.close(); // close GUI on the frontend.
+        Optional.ofNullable(this.inventoryView).ifPresent(view -> view.close()); // close GUI on the frontend.
 
         this.dispose(); // unload GUI on the backend
     }

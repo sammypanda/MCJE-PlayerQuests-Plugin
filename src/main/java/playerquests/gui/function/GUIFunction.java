@@ -4,6 +4,8 @@ import java.util.ArrayList; // used to store the params for this meta action
 import java.util.Objects; // used to require params be not null
 import java.util.stream.IntStream; // used to validate params are the correct types
 
+import org.bukkit.entity.HumanEntity; // used to set the player
+
 import playerquests.gui.GUI; // used to refer to the function and the slot parent GUI instance
 
 /**
@@ -13,6 +15,7 @@ public abstract class GUIFunction {
 
     protected GUI parentGui;
     protected ArrayList<Object> params;
+    protected HumanEntity player;
 
     /**
      * Set the params for this function to use when it executes.
@@ -29,9 +32,18 @@ public abstract class GUIFunction {
     public void setParentGUI(GUI parentGui) {
         this.parentGui = parentGui;
     }
+
+    /**
+     * Setting the player for the GUI Function to run on.
+     * @param player the entity who should see the functions execute.
+     */
+    public void setPlayer(HumanEntity player) {
+        this.player = player;
+    }
     
     /**
      * Method to be overridden by each meta action class.
+     * @return true when finished, false when not finished
      */
     public abstract void execute();
 

@@ -18,9 +18,10 @@ public class UpdateScreenFile extends GUIFunction {
         validateParams(this.params, String.class);
 
         // collect information from old gui before closing it
-        HumanEntity previousViewer = this.parentGui.getViewer();
+        HumanEntity previousViewer = this.player;
 
-        this.parentGui.close(); // move on from the existing GUI so we can swap to a new one
+        // move on from the existing GUI so we can swap to a new one
+        this.parentGui.close();
 
         // collect params
         String fileName = (String) params.get(0);

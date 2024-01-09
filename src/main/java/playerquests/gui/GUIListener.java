@@ -72,7 +72,7 @@ public class GUIListener implements Listener {
         if (this.isGUI(event) && !this.isEmptySlot(slotPosition)) { // if it's valid to register a GUI Slot click.
             event.setCancelled(true); // disallow taking slot items from GUI
 
-            gui.getSlot(slotPosition).execute(); // run the functions for this slot
+            gui.getSlot(slotPosition).execute(event.getWhoClicked()); // run the functions for this slot
         }
     }
 
