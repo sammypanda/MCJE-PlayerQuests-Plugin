@@ -110,19 +110,16 @@ Where all the manually generated GUI screens are (src/main/resources/gui/screens
 
 ```json
 {
-    "title": String,
-    "size": int,
-    "slots": [
+    "title": String, // title of the GUI window
+    "size": int, // how many slots are in the inventory GUI (multiples of 9 only) 
+    "slots": [ // list of slots
         {
-            "slot": Integer,
-            "item": String,
-            "label": String,
-            "functions": [
-                { "name": String, "params": [] },
-                { "name": String, "params": [] }
-            ],
-            "actions": [
-                { "name": String, "params": [] }
+            "slot": Integer, // position of the GUI slot
+            "item": String, // item that should show in the slot
+            "label": String, // hover tooltip on the slot
+            "functions": [ // list of functions
+                { "name": String, "params": [] }, // a function with list of params
+                { "name": String, "params": [] } // ..
             ]
         }
     ]
