@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack; // used to place an item visually in a sl
 import org.bukkit.inventory.meta.ItemMeta; // used to edit the label of the slot
 
 import playerquests.Core; // used to get the Plugin instance
+import playerquests.annotations.Key; // used to correspond setters to a key-value pattern
 import playerquests.utils.GUIUtils; // tools which help reduce the verbosity of GUI classes
 
 /**
@@ -226,6 +227,7 @@ public class GUI {
      * Applies in GUI {@link #open()}, only for the top InventoryView. 
      * @param title The label of the GUI screen.
      */
+    @Key("quest.title")
     public void setTitle(String title) {
         this.title = title; // class variable to set title when InventoryView becomes accessible
     }
