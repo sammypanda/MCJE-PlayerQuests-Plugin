@@ -43,7 +43,6 @@ public abstract class GUIFunction {
     
     /**
      * Method to be overridden by each meta action class.
-     * @return true when finished, false when not finished
      */
     public abstract void execute();
 
