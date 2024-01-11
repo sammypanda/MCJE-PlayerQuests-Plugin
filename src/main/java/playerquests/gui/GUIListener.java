@@ -1,5 +1,7 @@
 package playerquests.gui;
 
+import java.util.Optional; // for handling when values may be null
+
 import org.bukkit.event.EventHandler; // used to register methods as events for the listener
 import org.bukkit.event.Listener; // listener type to implement this class with
 import org.bukkit.event.inventory.InventoryClickEvent; // called when player clicks in an inventory
@@ -44,15 +46,14 @@ public class GUIListener implements Listener {
      * @return if in a GUI clicking in the GUI (CHEST inventory) area.
      */
     private Boolean isGUI(InventoryClickEvent event) {
-        InventoryType inventoryType = event.getClickedInventory().getType();
 
         // TODO: implement different inventory types; then compare to what the gui is set as instead of hardcoding as CHEST.
 
-        if (this.isGUI() && inventoryType == InventoryType.CHEST) { 
-            return true;
-        } else {
-            return false;
-        }
+        Boolean validInventory = Optional.ofNullable(event.getClickedInventory()).map(inventoryType -> {
+            return (inventoryType.getType() == InventoryType.CHEST);
+        }).orElse(false);
+
+        return (this.isGUI() && validInventory);
     }
 
     private Boolean isEmptySlot(Integer slotPosition) {
