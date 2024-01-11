@@ -49,8 +49,8 @@ public class GUIListener implements Listener {
 
         // TODO: implement different inventory types; then compare to what the gui is set as instead of hardcoding as CHEST.
 
-        Boolean validInventory = Optional.ofNullable(event.getClickedInventory()).map(inventoryType -> {
-            return (inventoryType.getType() == InventoryType.CHEST);
+        Boolean validInventory = Optional.ofNullable(event.getClickedInventory()).map(inventory -> {
+            return (inventory.getType() == InventoryType.CHEST);
         }).orElse(false);
 
         return (this.isGUI() && validInventory);
