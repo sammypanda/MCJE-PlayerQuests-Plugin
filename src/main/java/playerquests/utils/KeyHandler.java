@@ -1,17 +1,17 @@
 package playerquests.utils;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.lang.reflect.Method; // holds instances of methods
+import java.util.ArrayList; // handles a list of values
+import java.util.Arrays; // utilities for array literals
+import java.util.HashMap; // handles a map of values, important for this key-pair pattern {@see keyRegistry}
+import java.util.List; // utilities for list literals
+import java.util.Map; // utilities for map literals
+import java.util.stream.Collectors; // additional functional actions on stream types
 
-import playerquests.annotations.Key;
+import playerquests.annotations.Key; // the annotation used to define a key name
 
 /**
- * Singleton for mapping a key to a method anywhere in the plugin.
+ * Singleton for mapping a key string/name to a method anywhere in the plugin.
  * <pre>
  * Usage example:
  * <code>
