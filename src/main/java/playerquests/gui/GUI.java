@@ -66,19 +66,33 @@ public class GUI {
     }
 
     /**
-     * Displays the current GUI on the viewers screen.
-     * <p>
-     * Comprised of: {@link #display()}, {@link #buildFrame()}, {@link #buildSlots()}.
+     * Displays a fresh instance of the current GUI on the viewers screen.
      */
     public void open() {
-        // everything operating on Inventory types
-        // [not currently needed].
-
         display(); // opening the inventory window (InventoryView)
+
+        draw(); // function containing all the builder components of the GUI
+    }
+
+    /**
+     * Builds the gui without opening it in InventoryView.
+     */
+    private void draw() {
+        if (inventoryView == null) {
+            return;
+        }
 
         // everything operating on InventoryView types
         buildFrame(); // populating the GUI frame
         buildSlots(); // populating the GUI slots
+    }
+
+    /**
+     * Unsets any values if needed and calls on {@link #draw()}.
+     */
+    public void redraw() {
+        // draw even if previous InventoryView is still open
+        draw();
     }
     
     /**
@@ -234,6 +248,7 @@ public class GUI {
     @Key("gui.title")
     public void setTitle(String title) {
         this.title = title; // class variable to set title when InventoryView becomes accessible
+        redraw();
     }
 
     /**
@@ -254,6 +269,7 @@ public class GUI {
     public void setSize(int size) {
         this.size = size;
         this.inventory = Bukkit.createInventory(humanEntity, size);
+        redraw();
     }
 
     /**
