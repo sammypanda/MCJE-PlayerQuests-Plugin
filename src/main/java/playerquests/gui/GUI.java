@@ -49,8 +49,11 @@ public class GUI {
         // default title 
         this.title = "";
 
-        // register listening to when gui events occur
+        // adding listening to when gui events occur
         Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
+
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
     }
 
     /**
@@ -85,6 +88,7 @@ public class GUI {
      */
     public void dispose() {
         HandlerList.unregisterAll(this.guiListener); // unregister the listeners, don't need them if there is no GUI
+        Core.getKeyHandler().deregisterInstance(this); // remove the current instance from key-pair handler
         
         // nullify class values we are never going to use again
         this.humanEntity = null;
@@ -227,7 +231,7 @@ public class GUI {
      * Applies in GUI {@link #open()}, only for the top InventoryView. 
      * @param title The label of the GUI screen.
      */
-    @Key("quest.title")
+    @Key("gui.title")
     public void setTitle(String title) {
         this.title = title; // class variable to set title when InventoryView becomes accessible
     }
