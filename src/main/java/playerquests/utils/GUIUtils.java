@@ -21,9 +21,9 @@ public class GUIUtils {
      * @return itemStack an instance of an {@link ItemStack} with the matching item 
      */
     public static ItemStack toItemStack(String item) {
-        Material material = Material.matchMaterial(item, false); // get the actual material from the rough string
+        Material material = Material.matchMaterial(item); // get the actual material from the rough string
 
-        if (material == null) {
+        if (material == null || !material.isItem()) {
             throw new IllegalArgumentException( // when unable to resolve the item to a real Material
                 "Invalid item, probably couldn't find the Material ENUM for: " + item // report that the material was null
             ); // this is important since ItemStack won't correctly construct with a missing material
