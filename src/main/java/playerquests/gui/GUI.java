@@ -41,6 +41,7 @@ public class GUI {
     private Integer size = 9; // the amount of slots in the GUI screen (Inventory)
     private GUIListener guiListener = new GUIListener(this);
     private HashMap<Integer, GUISlot> slots = new HashMap<Integer, GUISlot>();
+    private Boolean locked = false; // if this gui is allowed to be deleted
 
     {
         // default inventory
@@ -69,6 +70,8 @@ public class GUI {
      * Displays a fresh instance of the current GUI on the viewers screen.
      */
     public void open() {
+        this.locked = false; // unlock it for potential deletion
+
         display(); // opening the inventory window (InventoryView)
 
         draw(); // function containing all the builder components of the GUI
@@ -130,6 +133,14 @@ public class GUI {
      */
     private void display() {
         this.inventoryView = this.humanEntity.openInventory(this.inventory); // display the inventory
+    }
+
+    /**
+     * Close but do not dispose of this GUI, opposite of {@link #display()}.
+     */
+    public void minimise() {
+        this.locked = true;
+        this.humanEntity.closeInventory();
     }
 
     /**
@@ -286,5 +297,16 @@ public class GUI {
      */
     public HumanEntity getViewer() {
         return this.humanEntity;
+    }
+
+    /**
+     * Protection from unintentional deletion
+     * <ul>
+     * <li>used when the inventory window is minimised.
+     * </ul>
+     * @return whether the gui can be deleted it or not
+     */
+    public Boolean isLocked() {
+        return this.locked;
     }
 }

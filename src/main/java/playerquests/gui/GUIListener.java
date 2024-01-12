@@ -84,9 +84,8 @@ public class GUIListener implements Listener {
      */
     @EventHandler
     public void onCloseGUI(InventoryCloseEvent event) {
-        if (this.isGUI()) {
+        if (this.isGUI() && !this.gui.isLocked()) {
             this.gui.dispose(); // nullify some values in the GUI.
-            this.gui = null; // we don't want the class instance anymore (also probably helps garbage collector)
         }
     }
 }
