@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import org.bukkit.Bukkit;
+import org.bukkit.UnsafeValues;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,6 +23,11 @@ public class GUITest extends BukkitTestUtil {
         // creating mock Bukkit and getPluginManager for the GUI initializer
         PluginManager pluginManager = Mockito.mock(PluginManager.class);
         when(Bukkit.getPluginManager()).thenReturn(pluginManager);
+        
+        // creating mock UnsafeValues for getTranslationKey() 
+            // this should be deprecated but it's still being called internally by the Spigot API
+        UnsafeValues unsafeValues = Mockito.mock(UnsafeValues.class);
+        when(Bukkit.getUnsafe()).thenReturn(unsafeValues);
 
         // creating mock humanEntity to start a GUI
         this.humanEntity = Mockito.mock(HumanEntity.class);

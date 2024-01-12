@@ -178,7 +178,7 @@ public class GUI {
 
             // Set the slot item at the slot position
             if (position > 0 && position <= this.size) { // if the slot position is not out of bounds
-                this.inventoryView.setItem( // populate the slot
+                this.inventory.setItem( // populate the slot
                     position - 1, // set at the index (starting from 0)
                     item // set the item/block representation
                 );
