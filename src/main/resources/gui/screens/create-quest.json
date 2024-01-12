@@ -1,4 +1,14 @@
 {
     "title": "Create Quest",
-    "size": 9
+    "size": 9,
+    "slots": [
+        {
+            "slot": 5,
+            "item": "ACACIA_HANGING_SIGN",
+            "label": "Set Title",
+            "functions": [
+                { "name": "ChatPrompt", "params": ["Enter the quest name: ", "gui.title"] }
+            ]
+        }
+    ]
 }
