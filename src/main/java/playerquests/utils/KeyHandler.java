@@ -1,11 +1,13 @@
 package playerquests.utils;
 
+import java.lang.reflect.InvocationTargetException; // report if a method accessed via reflection cannot invoke
 import java.lang.reflect.Method; // holds instances of methods
 import java.util.ArrayList; // handles a list of values
 import java.util.Arrays; // utilities for array literals
 import java.util.HashMap; // handles a map of values, important for this key-pair pattern {@see keyRegistry}
 import java.util.List; // utilities for list literals
 import java.util.Map; // utilities for map literals
+import java.util.Optional; // handles if values are null
 import java.util.stream.Collectors; // additional functional actions on stream types
 
 import playerquests.annotations.Key; // the annotation used to define a key name
@@ -77,10 +79,22 @@ public class KeyHandler {
 
     /**
      * Sets the value for a given key.
+     * @param classInstance instance of the class to set the value in.
      * @param key key for which the value should be set.
      * @param value value to set.
      */
-    public void setValue(String key, String value) {
-        // TODO: getting the method by the key and invoking it with the value.
+    public void setValue(Object classInstance, String key, String value) {
+        // get method and if found...
+        Optional.ofNullable(this.keyRegistry.get(classInstance).get(key)).ifPresentOrElse(method -> {
+            // try to invoke Method
+            try {
+                System.out.println("Invoking " + method + " in " + classInstance + " with value: " + value);
+                method.invoke(classInstance, value);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalArgumentException("Could not invoke the " + method + " function", e);
+            }
+        }, () -> {
+            throw new IllegalArgumentException("Could not find method according to the key: " + key);
+        });
     }
 }
