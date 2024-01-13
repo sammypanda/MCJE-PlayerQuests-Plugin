@@ -1,9 +1,13 @@
 package playerquests.gui.function;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.Bukkit; // used to access a Scheduler
+import org.bukkit.event.HandlerList; // to unregister event listener (ChatPromptListener)
+import org.bukkit.event.Listener; // to register event listener (ChatPromptListener)
 
-import playerquests.Core;
+import net.md_5.bungee.api.ChatColor; // used to format the chat messages to guide user input/UX
+import playerquests.Core; // used to access the Plugin and KeyHandler instances
+import playerquests.chat.listener.ChatPromptListener; // custom event listener user input
+import playerquests.utils.ChatUtils; // used to clear chat lines for a better UI
 
 /**
  * Meta action to swiftly move to another GUI screen based on another template JSON file. 
@@ -11,26 +15,180 @@ import playerquests.Core;
 public class ChatPrompt extends GUIFunction {
 
     /**
-     * Replaces an old GUI window with a new one as described by a template file.
+     * The prompt for the user to determine their input from.
+     */
+    private String prompt;
+    /**
+     * The key name used to identify and invoke the method via KeyHandler.
+     */
+    private String key;
+    /**
+     * The user input.
+     */
+    private String value = null;
+    /**
+     * Tracking if the setup process in execute() has already been done.
+     */
+    private Boolean wasSetUp = false;
+    /**
+     * Tracking if the user input has been confirmed by the user.
+     */
+    private Boolean confirmedValue = false;
+    /**
+     * Instantiating Listener to pass values back into this function on events.
+     */
+    private Listener chatListener;
+
+    /**
+     * Creating and validating values for the chat prompt.
+     * <ul>
+     * <li>Validates passed in params.
+     * <li>Sets the prompt and key as class values.
+     * <li>Creates and registers an instance of a chat event listener.
+     * <li>Minimises the GUI (closing without disposing).
+     * <li>Marks the prompt as successfully setup.
+     * <li>Re-runs {@link #execute()}.
+     * </ul>
+     */
+    private void setUp() {
+        validateParams(this.params, String.class, String.class);
+
+        this.prompt = (String) params.get(0);
+        this.key = (String) params.get(1);
+        this.chatListener = new ChatPromptListener(this);
+
+        // temporarily close the existing GUI but don't dispose
+        this.parentGui.minimise();
+
+        this.wasSetUp = true;
+
+        // create a listener for checking if the user types in a value (and any other related chat events)
+        Bukkit.getPluginManager().registerEvents(this.chatListener, Core.getPlugin());
+
+        this.execute(); // loop back after setting up
+    }
+
+    /**
+     * An enum of all predefined types of prompt messages.
+     * <p>
+     * Messages defined in ChatPrompt.putPredefinedMessage().
+     */
+    public enum MessageType {
+        REQUEST,
+        CONFIRM,
+        EXITED,
+        CONFIRMED
+    }
+
+    /**
+     * Prompts the user and manages the user input including 'exit' and 'confirm' UX checks.
      */
     @Override
     public void execute() {
-        validateParams(this.params, String.class, String.class);
+        if (!this.wasSetUp) {
+            setUp();
+            return;
+        }
 
-        String prompt = (String) params.get(0);
-        String key = (String) params.get(1);
+        ChatUtils.clearChat(this.player);
+
+        if (this.value == null) {
+            putPredefinedMessage(MessageType.REQUEST);
+            return;
+        }
+
+        if (this.value.toUpperCase().equals("EXIT")) {
+            putPredefinedMessage(MessageType.EXITED);
+            this.exit();
+            return;
+        }
+
+        if (this.confirmedValue) {
+            Core.getKeyHandler().setValue(this.parentGui, this.key, this.value);
+            putPredefinedMessage(MessageType.CONFIRMED);
+            this.exit();
+        }
+
+        if (this.value != null && this.confirmedValue == false) {
+            putPredefinedMessage(MessageType.CONFIRM);
+        }
+    }
+
+    /**
+     * Used to set the value for confirmation/setting.
+     * @param value the user input
+     */
+    public void setResponse(String value) {
+        if (value.toUpperCase().equals("CONFIRM")) {
+            this.confirmedValue = true;
+            return;
+        }
         
-        // TODO: get actual value from capturing chat prompt
-        String value = "[mock user input]";
+        this.value = value;
+    }
 
-        // collect information from old gui before closing it
-        HumanEntity previousViewer = this.player;
+    /**
+     * Powers the visual feedback for the chat prompt; shows the user instructions and information.
+     * @param type the ENUM for the stage of the chat prompt.
+     */
+    private void putPredefinedMessage(MessageType type) {
+        switch(type) {
+            case REQUEST:
+            this.player.sendMessage(
+                ChatColor.UNDERLINE + this.prompt + ChatColor.RESET
+            );
+            ChatUtils.clearChat(this.player, 1);
+            this.player.sendMessage(
+                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET
+            );
+            break;
 
-        // TODO: Uncomment after testing:
-        // this.parentGui.close(); // move on from the existing GUI so we can swap to a new one
+            case CONFIRM:
+            this.player.sendMessage(
+                ChatColor.UNDERLINE + prompt + ChatColor.RESET + " " +
+                ChatColor.GRAY + "" + ChatColor.ITALIC + "Entered: " + this.value
+            );
+            ChatUtils.clearChat(this.player, 1);
+            this.player.sendMessage(
+                ChatColor.GRAY + "enter again\n" +
+                ChatColor.GREEN + "or type " + ChatColor.GRAY + "confirm\n" +
+                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET
+            );
+            break;
 
-        previousViewer.sendMessage("opening chat prompt (unimplemented)"); // show that we reached this point
+            case EXITED:
+            this.player.sendMessage(
+                ChatColor.GRAY + "" + ChatColor.ITALIC + "exited"
+            );
+            break;
 
-        Core.getKeyHandler().setValue(this.parentGui, key, value);
+            case CONFIRMED:
+            this.player.sendMessage(
+                ChatColor.DARK_GREEN + "" + ChatColor.ITALIC + "confirmed"
+            );
+            break;
+        }
+    }
+
+    /**
+     * Called when everything is done.
+     * <ul>
+     * <li>Unregisters the event listener.
+     * <li>Resets the values for next user prompt.
+     * <li>Requests for the GUI to re-open.
+     * <ul>
+     */
+    private void exit() {
+        // stop capturing the user input
+        HandlerList.unregisterAll(this.chatListener);
+
+        // reset values
+        this.value = null;
+        this.wasSetUp = false;
+        this.confirmedValue = false;
+
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // async request an event to occur
+            this.parentGui.open(); // open the old GUI again after minimise().
+        });
     }
 }

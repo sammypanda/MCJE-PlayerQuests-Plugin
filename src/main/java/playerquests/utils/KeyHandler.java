@@ -88,7 +88,6 @@ public class KeyHandler {
         Optional.ofNullable(this.keyRegistry.get(classInstance).get(key)).ifPresentOrElse(method -> {
             // try to invoke Method
             try {
-                System.out.println("Invoking " + method + " in " + classInstance + " with value: " + value);
                 method.invoke(classInstance, value);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new IllegalArgumentException("Could not invoke the " + method + " function", e);

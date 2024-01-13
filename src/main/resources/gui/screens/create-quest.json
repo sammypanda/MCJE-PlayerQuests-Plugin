@@ -7,7 +7,7 @@
             "item": "ACACIA_HANGING_SIGN",
             "label": "Set Title",
             "functions": [
-                { "name": "ChatPrompt", "params": ["Enter the quest name: ", "gui.title"] }
+                { "name": "ChatPrompt", "params": ["Enter a new GUI title", "gui.title"] }
             ]
         }
     ]
