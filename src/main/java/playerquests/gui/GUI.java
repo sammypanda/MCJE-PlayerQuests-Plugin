@@ -217,12 +217,16 @@ public class GUI {
     }
 
     /**
-     * Creates a new slot at the next possible slot in the GUI system.
+     * Creates a new slot out of view in the GUI system.
+     * <p>
+     * Be sure to use setPosition() on the GUISlot or it will
+     * remain outside of the view.
      * @see #newSlot(Integer)
      * @return a new (and tracked!) instance of GUISlot
      */
     public GUISlot newSlot() {
-        return this.newSlot(this.slots.size());
+        // if position is not passed in, place out of view
+        return this.newSlot(0);
     }
 
     /**
