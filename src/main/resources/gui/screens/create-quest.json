@@ -3,7 +3,15 @@
     "size": 9,
     "slots": [
         {
-            "slot": 5,
+            "slot": 1,
+            "item": "OAK_DOOR",
+            "label": "Back",
+            "functions": [
+                { "name": "UpdateScreenFile", "params": ["main"] }
+            ]
+        },
+        {
+            "slot": 3,
             "item": "ACACIA_HANGING_SIGN",
             "label": "Set Title",
             "functions": [
