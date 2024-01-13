@@ -3,6 +3,7 @@ package playerquests.gui;
 import java.util.ArrayList; // used to store a list of GUI Functions ('Meta Actions')
 import java.util.Optional; // used to do conditional actions if a param list is null
 
+import org.bukkit.ChatColor; // used to customise all kinds of in-game text
 import org.bukkit.entity.HumanEntity; // the type for the identifying the player
 
 import playerquests.gui.function.GUIFunction; // the class that handles Meta Actions
@@ -71,9 +72,21 @@ public class GUISlot {
     
     /**
      * Sets the hover label for this instance of {@link GUISlot}.
+     * <p>
+     * Includes some processing/formatting of the label.
      * @param label the desription of what the element does/is for.
      */
     public void setLabel(String label) {
+        String errorLabel = "(Error)";
+
+        // Evaluate label for error prefix and avoid malformatting labels
+        label = String.format("%s%s%s%s", 
+            ChatColor.RESET, // remove the italics set when changing from default item display name
+            this.hasError() ? errorLabel : "", // add an error notice if applicable
+            this.hasError() && !label.equals(" ") ? " " : "", // put whitespace if applicable
+            this.hasError() && label.equals(" ") ? label.trim() : label // add the real label if applicable
+        );
+        
         this.label = label;
     }
 

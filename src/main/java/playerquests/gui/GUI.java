@@ -4,7 +4,6 @@ import java.util.HashMap; // used to hold and manage info about the GUI slots
 import java.util.Optional; // used to check and work with nullable values
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
-import org.bukkit.ChatColor; // used to customise all kinds of in-game text
 import org.bukkit.entity.HumanEntity; // the subject(s) the GUI shows for
 import org.bukkit.event.HandlerList; // list of event handlers; used to unload a listener
 import org.bukkit.inventory.Inventory; // used to manage the GUI
@@ -171,14 +170,6 @@ public class GUI {
         this.slots.forEach((position, slot) -> {
             ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
-            String errorLabel = "(Error)";
-
-            // Evaluate label for error prefix and avoid malformatting labels
-            slot.setLabel(String.format("%s%s%s%s", 
-                ChatColor.RESET, // remove the italics set when changing from default item display name
-                slot.hasError() ? errorLabel : "", // add an error notice if applicable
-                slot.hasError() && !slot.getLabel().equals(" ") ? " " : "", // put whitespace if applicable
-                slot.hasError() && slot.getLabel().equals(" ") ? slot.getLabel().trim() : slot.getLabel())); // add the real label if applicable
 
             // Edit the ItemMeta
             // Set the slot label
