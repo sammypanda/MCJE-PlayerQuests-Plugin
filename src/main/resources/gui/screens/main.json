@@ -12,6 +12,14 @@
             "actions": [
                 { "name": "Normies", "params": [] }
             ]
+        },
+        {
+            "slot": 8,
+            "item": "PAINTING",
+            "label": "View Quests",
+            "functions": [
+                { "name": "UpdateScreenDynamic", "params": ["myquests", "main"] }
+            ]
         }
     ]
 }
