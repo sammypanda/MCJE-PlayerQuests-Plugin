@@ -4,6 +4,14 @@
     "slots": [
         {
             "slot": 1,
+            "item": "OAK_DOOR",
+            "label": "Exit",
+            "functions": [
+                { "name": "CloseScreen", "params": [] }
+            ]
+        },
+        {
+            "slot": 3,
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
@@ -14,19 +22,11 @@
             ]
         },
         {
-            "slot": 2,
+            "slot": 4,
             "item": "PAINTING",
             "label": "View Quests",
             "functions": [
                 { "name": "UpdateScreenDynamic", "params": ["myquests", "main"] }
-            ]
-        },
-        {
-            "slot": 9,
-            "item": "OAK_DOOR",
-            "label": "Exit",
-            "functions": [
-                { "name": "CloseScreen", "params": [] }
             ]
         }
     ]
