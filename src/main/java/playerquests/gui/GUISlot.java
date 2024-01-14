@@ -14,12 +14,35 @@ import playerquests.utils.GUIUtils; // GUI related methods to make this class le
  */
 public class GUISlot {
 
-    private GUI parentGui; // the parent GUI
-    private int slot = 0; // no slot if none passed in // slot = this.parentGui.getNextSlot()?
-    private String label = " "; // label of the item in the slot (requires whitespace to show as empty)
-    private String item = "GRAY_STAINED_GLASS_PANE"; // default item/block
-    private Boolean errored = false; // has this slot encountered a syntax error
-    private ArrayList<GUIFunction> functionList = new ArrayList<GUIFunction>(); // where the gui functions are added to and pulled from
+    /**
+     * the parent GUI
+     */
+    private GUI parentGui;
+
+    /**
+     * no slot if none passed in // slot = this.parentGui.getNextSlot()?
+     */
+    private int slot = 0;
+
+    /**
+     * label of the item in the slot (requires whitespace to show as empty)
+     */
+    private String label = " ";
+
+    /**
+     * default item/block
+     */
+    private String item = "GRAY_STAINED_GLASS_PANE";
+
+    /**
+     * has this slot encountered a syntax error
+     */
+    private Boolean errored = false;
+
+    /**
+     * where the gui functions are added to and pulled from
+     */
+    private ArrayList<GUIFunction> functionList = new ArrayList<GUIFunction>();
 
     /**
      * Constructs a new {@link GUISlot} with the specified parent {@link GUI}.
