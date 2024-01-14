@@ -12,6 +12,14 @@
             "actions": [
                 { "name": "Normies", "params": [] }
             ]
+        },
+        {
+            "slot": 8,
+            "item": "OAK_DOOR",
+            "label": "Exit",
+            "functions": [
+                { "name": "CloseScreen", "params": [] }
+            ]
         }
     ]
 }

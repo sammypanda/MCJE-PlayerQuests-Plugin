@@ -11,7 +11,14 @@ import playerquests.gui.GUI; // used to refer to the function and the slot paren
  */
 public abstract class GUIFunction {
 
+    /**
+     * the GUI this function was spawned from
+     */
     protected GUI parentGui;
+
+    /**
+     * the params passed into this function
+     */
     protected ArrayList<Object> params;
 
     /**
