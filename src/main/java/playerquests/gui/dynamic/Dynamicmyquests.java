@@ -8,6 +8,8 @@ import java.util.Arrays; // working with literal arrays
 import java.util.List; // store temporary lists (like: string splitting)
 
 import playerquests.Core; // fetching Singletons (like: Plugin)
+import playerquests.gui.GUI; // creating the Dynamic GUI on the screen
+import playerquests.gui.GUISlot; // creating each quest button / other buttons
 
 /**
  * TODO: Shows the list of quests associated with this player.
@@ -78,11 +80,16 @@ public class Dynamicmyquests extends GUIDynamic {
         System.out.println(myquestTemplates);
 
         // TODO: create the new GUI to show the quests in
+        GUI myquestsGUI = new GUI(this.player);
+        myquestsGUI.setTitle("My Quests");
 
         // TODO: for every quest create a GUISlot on the GUI with the quest label and maybe a book for the Item
-        // start with just one quest, it doesn't have to be real
+        GUISlot questSlot = new GUISlot(myquestsGUI, 1);
+        questSlot.setItem("BOOK");
 
         // TODO: create just an outline for re-accessing GUIFunction.UpdateScreenFile (and for later passing in the quest we see + an edit screen)
         // -- since the edit screen or quest id system doesn't really exist this might have to remain just an outline
+
+        myquestsGUI.open();
     }
 }
