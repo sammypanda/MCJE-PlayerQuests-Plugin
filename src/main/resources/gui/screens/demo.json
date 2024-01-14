@@ -1,0 +1,27 @@
+{
+    "title": "Demo",
+    "size": 18,
+    "slots": [
+        {
+            "slot": 2,
+            "item": "SADDLE",
+            "label": "Test",
+            "functions": [
+                { "name": "Test", "params": ["hi"] },
+                { "name": "UpdateScreenFile", "params": ["hi"] }
+            ],
+            "actions": [
+                { "name": "Example", "params": [] }
+            ]
+        },
+        {
+            "slot": 18,
+            "item": "WOOL",
+            "label": "Second Test",
+            "functions": [
+                { "name": "Test", "params": [] }
+            ]
+        },
+        {}
+    ]
+}
