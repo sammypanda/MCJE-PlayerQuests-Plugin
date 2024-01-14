@@ -30,6 +30,9 @@ public class Core extends JavaPlugin {
 
         // TODO: automatically initiate the commands
         new Commandplayerquest();
+
+        // Save the demo quest to the server
+        saveResource("quest/templates/tina-says-hi-bonus.json", true);
     }
 
     /**
