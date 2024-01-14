@@ -15,6 +15,9 @@ import playerquests.chat.command.Commandplayerquest; // used to show the plugin 
  */
 public class Core extends JavaPlugin {
 
+    /**
+     * the Plugin singleton
+     */
     private static Plugin plugin;
 
     /**
