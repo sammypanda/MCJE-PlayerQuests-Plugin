@@ -37,7 +37,7 @@ public class UpdateScreenDynamic extends GUIFunction {
                 guiDynamic.execute(); // generate the dynamic GUI
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                throw new RuntimeException("The " + screenName + " could not be initialised. ", e);
+                throw new RuntimeException("The " + screenName + " screen could not be initialised. ", e);
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("The " + screenName + " dynamic screen requested in the " + previousTitle + " screen, is not valid. ", e);

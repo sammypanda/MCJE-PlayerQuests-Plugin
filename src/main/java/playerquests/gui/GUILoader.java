@@ -193,7 +193,6 @@ public class GUILoader {
                 Class<?> classRef = Class.forName("playerquests.gui.function." + functionName);
                 try {
                     GUIFunction guiFunction = (GUIFunction) classRef.getDeclaredConstructor().newInstance(); // create an instance of whichever function class
-                    guiFunction.setParams(paramList); // set the function params safe in the GUI Function instance
                     this.currentSlot.addFunction(guiFunction, paramList); // ship the packaged GUI Function to be kept in the current GUI Slot instance
                     // NOTE: now we could run these parsed functions we put in the GUI Slot with: currentSlot.execute();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

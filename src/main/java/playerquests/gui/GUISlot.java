@@ -23,6 +23,7 @@ public class GUISlot {
     private String item = "GRAY_STAINED_GLASS_PANE"; // default item/block
     private Boolean errored = false; // has this slot encountered a syntax error
     private ArrayList<GUIFunction> functionList = new ArrayList<GUIFunction>(); // where the gui functions are added to and pulled from
+    private Runnable onClick; // function that can be set to run when this slot is clicked
 
     /**
      * Constructs a new {@link GUISlot} with the specified parent {@link GUI}.
@@ -138,6 +139,29 @@ public class GUISlot {
     public void addFunction(GUIFunction guiFunction, ArrayList<Object> paramList) {
         paramList = Optional.ofNullable(paramList).orElse(new ArrayList<Object>()); // if there is no paramList, create an empty one
 
+        guiFunction.setParams(paramList); // set the params for the function
         this.functionList.add(guiFunction);
+    }
+
+    /**
+     * Sets a function to be executed when the slot is clicked.
+     * <p>
+     * Template functions take precedent (GUIFunction).
+     * If a function is to be added from within the code-land, it 
+     * should use this to set the function to be executed.
+     * @param onClick the function to run when the GUISlot is pressed
+     */
+    public void onClick(Runnable onClick) {
+        this.onClick = onClick;
+    }
+
+    /**
+     * Run the function set on this slot.
+     * @see #onClick(Runnable)
+     */
+    public void clicked() {
+        if (this.onClick != null) {
+            onClick.run();
+        }
     }
 }

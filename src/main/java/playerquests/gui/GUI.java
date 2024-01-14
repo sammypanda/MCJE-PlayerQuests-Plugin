@@ -2,6 +2,8 @@ package playerquests.gui;
 
 import java.util.HashMap; // used to hold and manage info about the GUI slots
 import java.util.Optional; // used to check and work with nullable values
+import java.util.Set; // used to retrieve the key values for this.slots
+import java.util.stream.IntStream; // used to find the next possible empty slot 
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.entity.HumanEntity; // the subject(s) the GUI shows for
@@ -189,6 +191,17 @@ public class GUI {
     }
 
     /**
+     * Responsible for clearing the GUI slots.
+     * <p>
+     * Useful for Dynamic GUIs which may want to 
+     * show a new array of slots.
+     */
+    public void clearSlots() {
+        this.slots.clear();
+        this.inventory.clear();
+    }
+
+    /**
      * Creates a new slot within the GUI system.
      * <p>
      * Where the position of the slot is it's key.
@@ -303,5 +316,19 @@ public class GUI {
      */
     public Boolean isLocked() {
         return this.locked;
+    }
+
+    /**
+     * Get the next empty slot available.
+     */
+    public Integer getEmptySlot() {
+        Set<Integer> filledSlots = this.slots.keySet(); // get the positions of all currently stored slots
+
+        Integer lowestEmptySlot = IntStream.iterate(1, i -> i + 1) // counter stream, starting at 1
+            .filter(slot -> !filledSlots.contains(slot)) // conditional for adding to stream
+            .findFirst() // terminate if there is a value in the stream
+            .orElse(1); // default value
+
+        return lowestEmptySlot; // the next empty slot
     }
 }
