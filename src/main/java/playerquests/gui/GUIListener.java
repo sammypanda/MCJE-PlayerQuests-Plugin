@@ -16,6 +16,9 @@ import org.bukkit.event.inventory.InventoryType; // used to check if the clicked
  */
 public class GUIListener implements Listener {
 
+    /**
+     * the GUI this listener reports back to
+     */
     private GUI gui;
 
     /**
