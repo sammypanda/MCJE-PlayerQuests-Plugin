@@ -22,6 +22,11 @@ import playerquests.gui.function.UpdateScreenFile; // used to go back to the 'ma
 public class Dynamicmyquests extends GUIDynamic {
 
     /**
+     * the GUI title
+     */
+    private String guiTitle = "My Quests";
+
+    /**
      * if the setup has been ran
      */
     private Boolean wasSetUp = false;
@@ -73,7 +78,6 @@ public class Dynamicmyquests extends GUIDynamic {
         
         // create the new GUI to show the quests in
         this.myquestsGUI = new GUI(this.player);
-        this.myquestsGUI.setTitle("My Quests");
         this.myquestsGUI.setSize(45);
 
         // Testing
@@ -152,6 +156,15 @@ public class Dynamicmyquests extends GUIDynamic {
         
         // automatically create the page of slots/options
         generatePage(this.myquestsGUI, remainingTemplates);
+
+        // determine the page number
+        Integer pageNumber = this.lastBuiltSlot/this.slotsPerPage + 1;
+
+        // set the GUI title (w/ page number feature)
+        this.myquestsGUI.setTitle(String.format("%s%s",
+            this.guiTitle, // set the default title
+            pageNumber != 1 ? " [Page " + pageNumber + "]" : "" // add page number when not page one
+        ));
 
         if (!this.wasSetUp) {
             // open the GUI for the first time
