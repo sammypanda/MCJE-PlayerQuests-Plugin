@@ -3,7 +3,7 @@
     "size": 9,
     "slots": [
         {
-            "slot": 2,
+            "slot": 1,
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
@@ -14,11 +14,19 @@
             ]
         },
         {
-            "slot": 8,
+            "slot": 2,
             "item": "PAINTING",
             "label": "View Quests",
             "functions": [
                 { "name": "UpdateScreenDynamic", "params": ["myquests", "main"] }
+            ]
+        },
+        {
+            "slot": 9,
+            "item": "OAK_DOOR",
+            "label": "Exit",
+            "functions": [
+                { "name": "CloseScreen", "params": [] }
             ]
         }
     ]

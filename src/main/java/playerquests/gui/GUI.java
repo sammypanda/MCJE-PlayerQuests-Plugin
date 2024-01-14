@@ -35,14 +35,45 @@ import playerquests.utils.GUIUtils; // tools which help reduce the verbosity of 
  */
 public class GUI {
 
-    private HumanEntity humanEntity; // the subject the screen will open on
-    private Inventory inventory; // the empty inventory used as a GUI screen
-    private InventoryView inventoryView; // the screen itself when open
-    private String title = ""; // the title of the screen (InventoryView)
-    private Integer size = 9; // the amount of slots in the GUI screen (Inventory)
+    /**
+     * subject the screen will open on
+     */
+    private HumanEntity humanEntity;
+    
+    /**
+     * empty inventory used as a GUI screen
+     */
+    private Inventory inventory;
+    
+    /**
+     * screen itself when open
+     */
+    private InventoryView inventoryView;
+    
+    /**
+     * title of the screen (InventoryView)
+     */
+    private String title = "";
+    
+    /**
+     * amount of slots in the GUI screen (Inventory)
+     */
+    private Integer size = 9;
+    
+    /**
+     * event listener for gui events
+     */
     private GUIListener guiListener = new GUIListener(this);
+    
+    /**
+     * list of slots keyed by the position in the inventory/GUI they occupy
+     */
     private HashMap<Integer, GUISlot> slots = new HashMap<Integer, GUISlot>();
-    private Boolean locked = false; // if this gui is allowed to be deleted
+
+    /**
+     * if this gui is allowed to be deleted
+     */
+    private Boolean locked = false;
 
     {
         // default inventory
@@ -221,7 +252,7 @@ public class GUI {
     }
 
     /**
-     * Creates a new slot out of view in the GUI system.
+     * Creates a new slot at the next possible slot in the GUI system.
      * <p>
      * Be sure to use setPosition() on the GUISlot or it will
      * remain outside of the view.

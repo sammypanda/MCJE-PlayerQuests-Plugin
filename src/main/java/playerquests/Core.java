@@ -16,8 +16,15 @@ import playerquests.utils.KeyHandler; // special class for using keys to referen
  */
 public class Core extends JavaPlugin {
 
-    private static Plugin plugin; // singelton of the plugin
-    private static KeyHandler keyHandler = KeyHandler.getInstance(); // singelton of the key handler
+    /**
+     * Singleton of the Plugin
+     */
+    private static Plugin plugin;
+
+    /**
+     * Singleton of the key handler
+     */
+    private static KeyHandler keyHandler = KeyHandler.getInstance();
 
     /**
      * Core class, to be instantiated by server.

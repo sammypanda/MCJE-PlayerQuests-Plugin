@@ -22,10 +22,29 @@ import playerquests.gui.function.GUIFunction; // the way GUI functions are execu
  */
 public class GUILoader {
 
+    /**
+     * handles JSON objects
+     */
     private ObjectMapper jsonObjectMapper = new ObjectMapper();
+
+    /**
+     * GUI instance this loader creates
+     */
     private GUI gui;
+
+    /**
+     * who the GUI should show for
+     */
     private HumanEntity humanEntity;
+
+    /**
+     * path to the GUI template file
+     */
     private String path;
+
+    /**
+     * for iterating and applying settings to slots
+     */
     private GUISlot currentSlot;
 
     /**
