@@ -13,6 +13,7 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 | UpdateScreenFile           | 1: the template filename (without .json)                                                                                 | Changes the current GUI screen to a different template    |
 | UpdateScreenDynamic        | 1: one of the predefined dynamic screens (options: "myquests")<br>2: screen to go back to (usually just the current one) | Changes the current GUI screen to present dynamic content |
 | UpdateScreen               | 1: the template expression (as json string)                                                                              | Changes the current GUI screen to a different template    |
+| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title")                                   | Prompts the user sets the user input result as a value    |
 
 ###### Quest Actions (Actions)
 | Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
