@@ -73,6 +73,8 @@ public class ChatUtils {
 
     /**
      * Formatting for an error message to a player.
+     * @param player the player to send error message to
+     * @param content what the error message should say
      */
     public static void sendError(HumanEntity player, String content) {
         System.err.println("sent error: " + content + " to player " + player.getName());
