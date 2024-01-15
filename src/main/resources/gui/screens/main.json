@@ -15,6 +15,7 @@
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
+                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] },
                 { "name": "UpdateScreenFile", "params": ["create-quest"] }
             ],
             "actions": [
