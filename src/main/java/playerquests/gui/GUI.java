@@ -172,6 +172,7 @@ public class GUI {
      */
     public void minimise() {
         this.locked = true;
+        this.inventoryView = null;
         this.humanEntity.closeInventory();
     }
 
