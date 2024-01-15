@@ -57,8 +57,13 @@ public class ChatPrompt extends GUIFunction {
         this.key = (String) params.get(1);
         this.chatListener = new ChatPromptListener(this);
 
+        // set the player
+        if (this.parentGui.getViewer() == null) { this.parentGui.setViewer(player); }
+
         // temporarily close the existing GUI but don't dispose
-        this.parentGui.minimise();
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            this.parentGui.minimise();
+        });
 
         this.wasSetUp = true;
 
@@ -104,13 +109,20 @@ public class ChatPrompt extends GUIFunction {
         }
 
         if (this.confirmedValue) {
-            Core.getKeyHandler().setValue(this.parentGui, this.key, this.value);
+            try {
+                Core.getKeyHandler().setValue(this.parentGui, this.key, this.value);
+            } catch (IllegalArgumentException e) {
+                ChatUtils.sendError(this.player, e.getMessage());
+            }
+
             putPredefinedMessage(MessageType.CONFIRMED);
             this.exit();
+            return;
         }
 
         if (this.value != null && this.confirmedValue == false) {
             putPredefinedMessage(MessageType.CONFIRM);
+            return;
         }
     }
 
@@ -189,6 +201,8 @@ public class ChatPrompt extends GUIFunction {
 
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // async request an event to occur
             this.parentGui.open(); // open the old GUI again after minimise().
+
+            this.parentSlot.executeNext(this.player); // run the next function
         });
     }
 }

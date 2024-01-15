@@ -69,11 +69,30 @@ public class GUISlot {
      * Run the functions that are described in the GUI screen expression
      */
     public void execute(HumanEntity player) {
-        this.functionList.forEach(function -> {
-            function.setPlayer(player);
-            function.setParentGUI(this.parentGui);
-            function.execute();
-        });
+        if (this.functionList.isEmpty()) { return; }
+
+        // get first function (the function will request the next when it is ready)
+        GUIFunction function = this.functionList.get(0);
+        
+        // run repeatable execute tasks
+        function.setPlayer(player);
+        function.setParentSlot(this);
+        function.setParentGUI(this.parentGui);
+        function.execute();
+    }
+
+    /**
+     * Run the NEXT function that is described in the GUI screen expression
+     */
+    public void executeNext(HumanEntity player) {
+        // if no more functions, don't continue
+        if (this.functionList.size() == 0) { return; }
+
+        // pop the first function off the list to reveal the next
+        this.functionList.remove(0);
+
+        // execute the next function
+        this.execute(player);
     }
 
     /**

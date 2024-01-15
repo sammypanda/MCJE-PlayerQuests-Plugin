@@ -7,6 +7,7 @@ import java.util.stream.IntStream; // used to validate params are the correct ty
 import org.bukkit.entity.HumanEntity; // used to set the player
 
 import playerquests.gui.GUI; // used to refer to the function and the slot parent GUI instance
+import playerquests.gui.GUISlot; // used to refer to the slot this function exists in
 
 /**
  * Passes and handles the GUI 'Functions' (otherwise known as 'Meta Actions') called by a GUI.
@@ -17,6 +18,11 @@ public abstract class GUIFunction {
      * the GUI this function was spawned from
      */
     protected GUI parentGui;
+
+    /**
+     * the GUI Slot this function was spawned from
+     */
+    protected GUISlot parentSlot;
 
     /**
      * the params passed into this function
@@ -42,6 +48,14 @@ public abstract class GUIFunction {
      */
     public void setParentGUI(GUI parentGui) {
         this.parentGui = parentGui;
+    }
+
+    /**
+     * Setting the GUI Slot that the GUI Function exists in.
+     * @param parentSlot the GUI Slot instance the player pressed to trigger the gui function/meta action.
+     */
+    public void setParentSlot(GUISlot parentSlot) {
+        this.parentSlot = parentSlot;
     }
 
     /**
