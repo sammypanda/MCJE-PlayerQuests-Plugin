@@ -359,6 +359,14 @@ public class GUI {
     }
 
     /**
+     * Checks if the GUI is open by checking if the inventory view is set.
+     * @return if the GUI is open
+     */
+    public Boolean isOpen() {
+        return (this.inventoryView != null); // if the inventory view is not null
+    }
+
+    /**
      * Get the next empty slot available.
      */
     public Integer getEmptySlot() {
