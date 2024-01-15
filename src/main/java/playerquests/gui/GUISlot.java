@@ -171,6 +171,13 @@ public class GUISlot {
     }
 
     /**
+     * Get the current list of the GUI functions (remaining).
+     */
+    public ArrayList<GUIFunction> getFunctionList() {
+        return this.functionList;
+    }
+
+    /**
      * Sets a function to be executed when the slot is clicked.
      * <p>
      * Template functions take precedent (GUIFunction).
