@@ -2,6 +2,7 @@ package playerquests.utils;
 
 import java.util.stream.IntStream; // to dynamically create a sized array
 
+import org.bukkit.ChatColor; // used to colour and format the chat messages!
 import org.bukkit.entity.HumanEntity; // identifies a player to send messages to  
 
 import playerquests.Core; // used to access the plugin and get all online players
@@ -69,4 +70,12 @@ public class ChatUtils {
     public static void clearChat(HumanEntity player, Integer lines) {
         player.sendMessage(newlineArray(0, lines));
     } 
+
+    /**
+     * Formatting for an error message to a player.
+     */
+    public static void sendError(HumanEntity player, String content) {
+        System.err.println("sent error: " + content + " to player " + player.getName());
+        player.sendMessage("\n" + ChatColor.BOLD + "Error: " + ChatColor.RED + content + ChatColor.RESET + "\n");
+    }
 }
