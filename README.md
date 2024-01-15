@@ -16,6 +16,8 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 | ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title")                                   | Prompts the user sets the user input result as a value    |
 
 ###### Quest Actions (Actions)
+Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
+
 | Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
 |----------------------------|-------------------------------|-------------------------------------------------|
 | Speak                      | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
@@ -63,15 +65,6 @@ Usually you would never need this, but this is what makes it all tick. When you 
 
 # How It All Works: 'Specification'
 ###### the way to visualise/think about, and implement the program.
-Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Stages are all the things which occur. See examples in the table:
-
-| Action         | Stages                                |
-|----------------|---------------------------------------|
-| Request Item   | Finding the flower                    |
-| Speak          | First interaction with NPC            |
-| Listen         | Deciding a favourite                  |
-
-<br>
 
 ###### The code follows a package-by-feature pattern.
 
