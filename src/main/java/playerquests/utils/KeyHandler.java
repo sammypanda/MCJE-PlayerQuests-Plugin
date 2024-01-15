@@ -84,6 +84,10 @@ public class KeyHandler {
      * @param value value to set.
      */
     public void setValue(Object classInstance, String key, String value) {
+        if (this.keyRegistry.get(classInstance) == null) {
+            throw new IllegalArgumentException("Invalid instance to set a value in, it may have been deregistered: " + classInstance);
+        }
+
         // get method and if found...
         Optional.ofNullable(this.keyRegistry.get(classInstance).get(key)).ifPresentOrElse(method -> {
             // try to invoke Method
