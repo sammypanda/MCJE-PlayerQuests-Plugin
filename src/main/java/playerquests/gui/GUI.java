@@ -299,7 +299,8 @@ public class GUI {
     @Key("gui.title")
     public void setTitle(String title) {
         this.title = title; // class variable to set title when InventoryView becomes accessible
-        redraw();
+        if (!this.isLocked()) { redraw(); }; // if not protected from unintentional deletion/minimised
+    }
     }
 
     /**
