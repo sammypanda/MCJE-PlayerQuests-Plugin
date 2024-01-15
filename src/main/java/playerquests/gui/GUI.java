@@ -301,6 +301,13 @@ public class GUI {
         this.title = title; // class variable to set title when InventoryView becomes accessible
         if (!this.isLocked()) { redraw(); }; // if not protected from unintentional deletion/minimised
     }
+
+    /**
+     * Sets who should view the screen.
+     * @param player who should see the GUI.
+     */
+    public void setViewer(HumanEntity player) {
+        this.humanEntity = player;
     }
 
     /**
