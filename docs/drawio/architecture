@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-01-17T03:42:40.662Z" agent="Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0" etag="g1SJotwHoAuWCtdCKT8n" version="22.1.20" type="device">
+<mxfile host="app.diagrams.net" modified="2024-01-17T03:51:53.448Z" agent="Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0" etag="xORBh3Y2lRY3DJYm6UQM" version="22.1.20" type="device">
   <diagram name="Page-1" id="guzbPALitcJsQSAOusT_">
-    <mxGraphModel dx="1864" dy="1564" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="4018" dy="2384" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -31,25 +31,10 @@
           <mxGeometry y="290" width="250" height="50" as="geometry" />
         </mxCell>
         <mxCell id="vEf1lSsuBHBiwGaWGpLT-39" value="ClientDirector(HumanEntity Player)" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="700" y="-410" width="420" height="550" as="geometry" />
+          <mxGeometry x="595" y="-410" width="420" height="550" as="geometry" />
         </mxCell>
         <mxCell id="vEf1lSsuBHBiwGaWGpLT-40" value="currentInstances = {GUIBuilder.class: object, &lt;br&gt;QuestBuilder.class: object}&lt;br&gt;&lt;br&gt;{&lt;br&gt;&amp;nbsp; this.validateCurrentInstances();&lt;br&gt;}&lt;br&gt;&lt;br&gt;setValue(?instance?, key, value)? {&lt;br&gt;&amp;nbsp; KeyHandler.setValue(instance, key, value)&lt;br&gt;}&lt;br&gt;&lt;br&gt;setValue(key, value) {&lt;br&gt;&amp;nbsp; class = KeyHandler.getClassFromKey(key)&lt;br&gt;&amp;nbsp; instance = currentInstances.get(class)&lt;br&gt;&amp;nbsp; this.setValue(instance, key, value)&lt;br&gt;}&lt;br&gt;&lt;br&gt;findCurrentInstance(class) {&lt;br&gt;&amp;nbsp; currentInstances.get(class)&lt;br&gt;}&lt;br&gt;&lt;br&gt;setCurrentInstance(object) { // only one instance at a time&lt;br&gt;&amp;nbsp; currentInstances.remove(getInstance(classOf(object))&lt;br&gt;&amp;nbsp; currentInstances.put(object)&lt;br&gt;}&lt;br&gt;&lt;br&gt;validateCurrentInstances() {&lt;br&gt;&amp;nbsp; currentInstances.putIfAbsent(QuestBuilder.class, new QuestBuilder(&quot;{}&quot;))&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;&amp;nbsp; currentInstances.putIfAbsent(GUIBuilder.class, new GUIBuilder(&quot;{}&quot;, this))&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="vEf1lSsuBHBiwGaWGpLT-39" vertex="1">
           <mxGeometry y="50" width="420" height="500" as="geometry" />
-        </mxCell>
-        <mxCell id="GDDjKXcWrNjkBSxAMw-o-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="vEf1lSsuBHBiwGaWGpLT-44" target="GDDjKXcWrNjkBSxAMw-o-9" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="vEf1lSsuBHBiwGaWGpLT-44" value="ChatClient" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="150" y="-380" width="420" height="180" as="geometry" />
-        </mxCell>
-        <mxCell id="vEf1lSsuBHBiwGaWGpLT-45" value="listener = new ChatListener(this);&lt;br&gt;&lt;br&gt;public ChatClient(player) {&lt;br&gt;&amp;nbsp; this.player = player;&lt;br&gt;&amp;nbsp; director = new Director(player);&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="vEf1lSsuBHBiwGaWGpLT-44" vertex="1">
-          <mxGeometry y="50" width="420" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="vEf1lSsuBHBiwGaWGpLT-56" value="GUIClient" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="150" y="-190" width="420" height="270" as="geometry" />
-        </mxCell>
-        <mxCell id="vEf1lSsuBHBiwGaWGpLT-57" value="listener = new GUIListener(this);&lt;br&gt;&lt;br&gt;public GUIClient(player) {&lt;br&gt;&amp;nbsp; this.player = player;&lt;br&gt;&amp;nbsp; director = new Director(player);&lt;br&gt;}&lt;br&gt;&lt;br&gt;{&lt;br&gt;&amp;nbsp; guiBuilder = director.findCurrentInstance(GUIBuilder.class);&lt;br&gt;}&lt;br&gt;&lt;br&gt;pressed(position) {&lt;br&gt;&amp;nbsp; guiBuilder.getSlot(position).execute();&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="vEf1lSsuBHBiwGaWGpLT-56" vertex="1">
-          <mxGeometry y="50" width="420" height="220" as="geometry" />
         </mxCell>
         <mxCell id="vEf1lSsuBHBiwGaWGpLT-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="vEf1lSsuBHBiwGaWGpLT-45" target="vEf1lSsuBHBiwGaWGpLT-40" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -60,7 +45,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="vEf1lSsuBHBiwGaWGpLT-89" value="Core" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="-240" y="-280" width="160" height="120" as="geometry" />
+          <mxGeometry x="-240" y="-150" width="160" height="120" as="geometry" />
         </mxCell>
         <mxCell id="vEf1lSsuBHBiwGaWGpLT-90" value="onEnable() {&lt;br&gt;&amp;nbsp; new GUIClient();&lt;br&gt;&amp;nbsp; new ChatClient();&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="vEf1lSsuBHBiwGaWGpLT-89" vertex="1">
           <mxGeometry y="50" width="160" height="70" as="geometry" />
@@ -130,21 +115,6 @@
         <mxCell id="vEf1lSsuBHBiwGaWGpLT-141" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="vEf1lSsuBHBiwGaWGpLT-102" target="vEf1lSsuBHBiwGaWGpLT-108" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="GDDjKXcWrNjkBSxAMw-o-2" value="GUIListener" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
-          <mxGeometry x="360" y="110" width="210" height="180" as="geometry" />
-        </mxCell>
-        <mxCell id="GDDjKXcWrNjkBSxAMw-o-7" value="public GUIListener(guiClient) {&lt;br&gt;&amp;nbsp; this.guiClient = guiClient;&lt;br&gt;}&lt;br&gt;&lt;br&gt;onClickItem(event) {&lt;br&gt;&amp;nbsp; guiClient.pressed(event.getSlot())&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="GDDjKXcWrNjkBSxAMw-o-2" vertex="1">
-          <mxGeometry y="50" width="210" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="GDDjKXcWrNjkBSxAMw-o-8" value="ChatListener" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="265" y="-540" width="190" height="110" as="geometry" />
-        </mxCell>
-        <mxCell id="GDDjKXcWrNjkBSxAMw-o-9" value="public ChatListener(chatClient) {&lt;br&gt;&amp;nbsp; this.chatClient = chatClient;&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="GDDjKXcWrNjkBSxAMw-o-8" vertex="1">
-          <mxGeometry y="50" width="190" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="GDDjKXcWrNjkBSxAMw-o-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="1" source="vEf1lSsuBHBiwGaWGpLT-57" target="GDDjKXcWrNjkBSxAMw-o-2" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="GDDjKXcWrNjkBSxAMw-o-27" value="GUISlot" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
           <mxGeometry x="1030" y="540" width="190" height="180" as="geometry" />
         </mxCell>
@@ -203,6 +173,45 @@
               <mxPoint x="240" y="710" />
             </Array>
           </mxGeometry>
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="CleIv_gfd7YxHGNupwpR-11" target="CleIv_gfd7YxHGNupwpR-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-11" value="Client" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="-380" width="450" height="610" as="geometry" />
+        </mxCell>
+        <mxCell id="vEf1lSsuBHBiwGaWGpLT-44" value="ChatClient" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="CleIv_gfd7YxHGNupwpR-11" vertex="1">
+          <mxGeometry y="50" width="450" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="vEf1lSsuBHBiwGaWGpLT-45" value="listener = new ChatListener(this);&lt;br&gt;&lt;br&gt;public ChatClient(player) {&lt;br&gt;&amp;nbsp; this.player = player;&lt;br&gt;&amp;nbsp; director = new Director(player);&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="vEf1lSsuBHBiwGaWGpLT-44" vertex="1">
+          <mxGeometry y="50" width="450" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="vEf1lSsuBHBiwGaWGpLT-56" value="GUIClient" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="CleIv_gfd7YxHGNupwpR-11" vertex="1">
+          <mxGeometry y="230" width="450" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="vEf1lSsuBHBiwGaWGpLT-57" value="listener = new GUIListener(this);&lt;br&gt;&lt;br&gt;public GUIClient(player) {&lt;br&gt;&amp;nbsp; this.player = player;&lt;br&gt;&amp;nbsp; director = new Director(player);&lt;br&gt;}&lt;br&gt;&lt;br&gt;{&lt;br&gt;&amp;nbsp; guiBuilder = director.findCurrentInstance(GUIBuilder.class);&lt;br&gt;}&lt;br&gt;&lt;br&gt;pressed(position) {&lt;br&gt;&amp;nbsp; guiBuilder.getSlot(position).execute();&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="vEf1lSsuBHBiwGaWGpLT-56" vertex="1">
+          <mxGeometry y="50" width="450" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-16" value="// notes" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="CleIv_gfd7YxHGNupwpR-11">
+          <mxGeometry y="500" width="450" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-17" value="Listener" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="-810" width="250" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="GDDjKXcWrNjkBSxAMw-o-8" value="ChatListener" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="CleIv_gfd7YxHGNupwpR-17" vertex="1">
+          <mxGeometry y="50" width="250" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="GDDjKXcWrNjkBSxAMw-o-9" value="public ChatListener(chatClient) {&lt;br&gt;&amp;nbsp; this.chatClient = chatClient;&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="GDDjKXcWrNjkBSxAMw-o-8" vertex="1">
+          <mxGeometry y="50" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="GDDjKXcWrNjkBSxAMw-o-2" value="GUIListener" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="CleIv_gfd7YxHGNupwpR-17" vertex="1">
+          <mxGeometry y="160" width="250" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="GDDjKXcWrNjkBSxAMw-o-7" value="public GUIListener(guiClient) {&lt;br&gt;&amp;nbsp; this.guiClient = guiClient;&lt;br&gt;}&lt;br&gt;&lt;br&gt;onClickItem(event) {&lt;br&gt;&amp;nbsp; guiClient.pressed(event.getSlot())&lt;br&gt;}" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="GDDjKXcWrNjkBSxAMw-o-2" vertex="1">
+          <mxGeometry y="50" width="250" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-22" value="// notes" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="CleIv_gfd7YxHGNupwpR-17">
+          <mxGeometry y="340" width="250" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

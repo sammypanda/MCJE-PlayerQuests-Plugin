@@ -1,3 +1,6 @@
+# Warning! Refactoring In Progress
+see ``docs/drawio/architecture`` for new structure.
+
 # How To Develop: 'Dependencies'
 - Maven (mvn)
     - Current build command: ``mvn -f [path/to/plugin/root/directory] clean package -U -e``
