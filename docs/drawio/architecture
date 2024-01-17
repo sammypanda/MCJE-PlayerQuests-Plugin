@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-01-16T14:41:51.671Z" agent="Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" etag="sS94eY8lBIkMHtiFknUq" version="22.1.18" type="device">
+<mxfile host="app.diagrams.net" modified="2024-01-17T03:42:40.662Z" agent="Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0" etag="g1SJotwHoAuWCtdCKT8n" version="22.1.20" type="device">
   <diagram name="Page-1" id="guzbPALitcJsQSAOusT_">
-    <mxGraphModel dx="2084" dy="1778" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1864" dy="1564" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -174,6 +174,35 @@
         </mxCell>
         <mxCell id="GDDjKXcWrNjkBSxAMw-o-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="GDDjKXcWrNjkBSxAMw-o-28" target="GDDjKXcWrNjkBSxAMw-o-34" edge="1">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="CleIv_gfd7YxHGNupwpR-1" target="vEf1lSsuBHBiwGaWGpLT-93">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="220" y="750" />
+              <mxPoint x="220" y="710" />
+              <mxPoint x="85" y="710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-1" value="Annotations" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="750" width="220" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-4" value="Key" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="CleIv_gfd7YxHGNupwpR-1">
+          <mxGeometry y="50" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-5" value="// notation for associating a key with a&lt;br&gt;method." style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="CleIv_gfd7YxHGNupwpR-4">
+          <mxGeometry y="50" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-6" value="// notes" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="CleIv_gfd7YxHGNupwpR-1">
+          <mxGeometry y="170" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="CleIv_gfd7YxHGNupwpR-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="vEf1lSsuBHBiwGaWGpLT-125" target="CleIv_gfd7YxHGNupwpR-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="370" y="710" />
+              <mxPoint x="240" y="710" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
