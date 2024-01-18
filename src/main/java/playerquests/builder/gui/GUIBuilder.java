@@ -27,9 +27,14 @@ import playerquests.product.GUI; // GUI product this class builds
 public class GUIBuilder implements Builder {
 
     /**
-     * Director which is responsible for this GUIBuilder
+     * Director which is responsible for this GUIBuilder.
      */
     ClientDirector director;
+
+    /**
+     * The GUI product this builder creates.
+     */
+    GUI gui;
 
     /**
      * Instantiate a GUIBuilder with default GUI.
@@ -42,8 +47,8 @@ public class GUIBuilder implements Builder {
 
     @Override
     public void reset() {
-        // TODO: implement reset method
-        throw new UnsupportedOperationException("Unimplemented method 'reset'");
+        // create a new default GUI
+        this.gui = new GUI(this.director.getPlayer());
     }
 
     @Override
@@ -79,6 +84,6 @@ public class GUIBuilder implements Builder {
 
     @Override
     public GUI getResult() {
-        return new GUI(this.director.getPlayer());
+        return this.gui;
     }
 }
