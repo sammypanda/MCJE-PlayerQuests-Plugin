@@ -1,9 +1,9 @@
 package playerquests.client.chat.command;
 
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.Bukkit; // getting the defined plugin commands
+import org.bukkit.command.Command; // represents commands
+import org.bukkit.command.CommandExecutor; // how commands are executed
+import org.bukkit.command.CommandSender; // the entity who sends the command
 
 /**
  * Organises the framework for all the commands.

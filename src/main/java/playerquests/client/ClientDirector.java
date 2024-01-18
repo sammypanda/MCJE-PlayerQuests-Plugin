@@ -1,5 +1,78 @@
 package playerquests.client;
 
+import java.util.HashMap; // holds the current instances
+
+import org.bukkit.entity.HumanEntity; // the player who controls the client
+
+import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
+
+/**
+ * Class which provides simple abstractions for clients to use.
+ * <p>
+ * Used to control the plugin and keep reference of client state.
+ */
 public class ClientDirector {
-    
+    /**
+     * One of every key-mutable instance
+     */
+    HashMap<Class<?>, Object> currentInstances = new HashMap<>();
+
+    /**
+     * The player controlling the client to act on behalf of
+     */
+    HumanEntity player;
+
+    /**
+     * Run operations when this class is instantiated
+     */
+    {
+        // validate the current instances map is correct/has everything
+        this.validateCurrentInstances();
+    }
+
+    /**
+     * Constructs a new ClientDirector instance.
+     * @param humanEntity the player controlling the client.
+     */
+    public ClientDirector(HumanEntity humanEntity) {
+        // set the player to enact on behalf of
+        this.player = humanEntity;
+    }
+
+    /**
+     * Enforces keeping one instance of every key-mutable class.
+     * <ul>
+     * <li>GUIBuilder
+     * </ul>
+     */
+    private void validateCurrentInstances() {
+        // keep a default GUIBuilder available 
+        currentInstances.putIfAbsent(GUIBuilder.class, new GUIBuilder(this));
+    }
+
+    /**
+     * Creating an empty default GUI. Provides a GUIBuilder to control it.
+     * @return a new GUIBuilder
+     */
+    public GUIBuilder newGUI() {
+        // get the GUIBuilder
+        GUIBuilder guiBuilder = (GUIBuilder) currentInstances.get(GUIBuilder.class);
+
+        // reset to defaults
+        guiBuilder.reset();
+
+        // return the new GUIBuilder
+        return guiBuilder;
+    }
+
+    /**
+     * Gets the current GUIBuilder which owns the GUI.
+     * <p>
+     * use GUIBuilder.getResult() to get the GUI product.
+     * @return the current GUIBuilder
+     */
+    public GUIBuilder getGUI() {
+        // get the current GUIBuilder
+        return (GUIBuilder) currentInstances.get(GUIBuilder.class);
+    }
 }
