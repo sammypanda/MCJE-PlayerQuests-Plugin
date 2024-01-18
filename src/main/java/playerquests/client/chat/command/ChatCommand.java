@@ -19,7 +19,7 @@ public abstract class ChatCommand implements CommandExecutor {
     }
 
     /**
-     * Delegate the execution to the specific command class
+     * Delegate the execution to the specific command class.
      * @param sender the player which typed the command
      * @param command the command itself
      * @param label the alias of the command used
@@ -28,6 +28,9 @@ public abstract class ChatCommand implements CommandExecutor {
      */
     public abstract boolean execute(CommandSender sender, Command command, String label, String[] args);
 
+    /**
+     * Ran when a command is received by the server.
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         return execute(sender, command, label, args);
