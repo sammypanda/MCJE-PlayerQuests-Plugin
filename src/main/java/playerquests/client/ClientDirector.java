@@ -75,4 +75,13 @@ public class ClientDirector {
         // get the current GUIBuilder
         return (GUIBuilder) currentInstances.get(GUIBuilder.class);
     }
+
+    /**
+     * Gets the player who has control over the client.
+     * @return the player behind the client
+     */
+    public HumanEntity getPlayer() {
+        // get the player set on this instance
+        return this.player;
+    }
 }

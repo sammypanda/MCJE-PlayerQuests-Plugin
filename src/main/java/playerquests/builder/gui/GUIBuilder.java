@@ -1,5 +1,8 @@
 package playerquests.builder.gui;
 
+import java.io.IOException; // thrown if a file is not found or invalid
+import java.io.InputStream; // stream of file contents
+
 import playerquests.builder.Builder; // builder interface
 import playerquests.client.ClientDirector; // used to control the plugin (for GUI meta functions)
 import playerquests.product.GUI; // GUI product this class builds
@@ -24,11 +27,17 @@ import playerquests.product.GUI; // GUI product this class builds
 public class GUIBuilder implements Builder {
 
     /**
+     * Director which is responsible for this GUIBuilder
+     */
+    ClientDirector director;
+
+    /**
      * Instantiate a GUIBuilder with default GUI.
      * @param director director for meta actions to utilise.
      */
     public GUIBuilder(ClientDirector director) {
-        // TODO: construct the GUIBuilder
+        // set which director instance created this GUIBuilder
+        this.director = director;
     }
 
     @Override
@@ -38,9 +47,28 @@ public class GUIBuilder implements Builder {
     }
 
     @Override
-    public void load(String templateFile) {
-        // TODO: implement load method
-        throw new UnsupportedOperationException("Unimplemented method 'load'");
+    public void load(String templateFile) throws IOException {
+        // Init variable where the JSON string will be put
+        String templateString = new String();
+
+        // Define the path where screens can be found and
+        // Attach the templateFile parameter to the path
+        String path = "/gui/screens/" + templateFile + ".json";
+
+        // Pull out the json file as a string
+        try (InputStream inputStream = getClass().getResourceAsStream(path)) {
+            
+            if (inputStream != null) {
+                templateString = new String(inputStream.readAllBytes());
+                
+                // Process the template into a real GUI screen
+                this.parse(templateString);
+            } else {
+                throw new IOException("nothing to read in " + path);
+            }
+        } catch (IOException e) { // On an I/O failure such as the file not being found
+            throw new IOException("not able to read " + path, e);
+        }
     }
 
     @Override
@@ -51,7 +79,6 @@ public class GUIBuilder implements Builder {
 
     @Override
     public GUI getResult() {
-        // TODO: implement getResult method
-        throw new UnsupportedOperationException("Unimplemented method 'getResult'");
+        return new GUI(this.director.getPlayer());
     }
 }
