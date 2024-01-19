@@ -2,8 +2,16 @@ package playerquests.builder.gui;
 
 import java.io.IOException; // thrown if a file is not found or invalid
 import java.io.InputStream; // stream of file contents
+import java.util.ArrayList; // array type of list
+import java.util.List; // generic list type
+
+import com.fasterxml.jackson.core.JsonProcessingException; // thrown if json is invalid
+import com.fasterxml.jackson.databind.JsonNode; // type for interpreting json in java
+import com.fasterxml.jackson.databind.ObjectMapper; // used to convert json string to jsonnode
 
 import playerquests.builder.Builder; // builder interface
+import playerquests.builder.gui.component.GUIFrame; // the contents of the outer frame
+import playerquests.builder.gui.component.GUISlot; // the contents of a slot
 import playerquests.client.ClientDirector; // used to control the plugin (for GUI meta functions)
 import playerquests.product.GUI; // GUI product this class builds
 
@@ -29,12 +37,27 @@ public class GUIBuilder implements Builder {
     /**
      * Director which is responsible for this GUIBuilder.
      */
-    ClientDirector director;
+    private ClientDirector director;
 
     /**
      * The GUI product this builder creates.
      */
-    GUI gui;
+    private GUI gui;
+
+    /**
+     * All the GUI slots.
+     */
+    private List<GUISlot> guiSlots = new ArrayList<GUISlot>();
+
+    /**
+     * Outer GUI frame content.
+     */
+    private GUIFrame guiFrame = new GUIFrame();
+
+    /**
+     * handles JSON objects
+     */
+    private ObjectMapper jsonObjectMapper = new ObjectMapper();
 
     /**
      * Instantiate a GUIBuilder with default GUI.
@@ -48,7 +71,7 @@ public class GUIBuilder implements Builder {
     @Override
     public void reset() {
         // create a new default GUI
-        this.gui = new GUI(this.director.getPlayer());
+        this.gui = new GUI(this);
     }
 
     @Override
@@ -78,12 +101,67 @@ public class GUIBuilder implements Builder {
 
     @Override
     public void parse(String templateJSONString) {
-        // TODO: implement parse method
-        throw new UnsupportedOperationException("Unimplemented method 'parse'");
+        // Init variable where the GUITemplate object will be put
+        JsonNode template;
+
+        // Convert the JSON string into a GUITemplate object
+        // This makes it easier to pull values out of the JSON 
+        try {
+            // readValue(String content, Class<T> valueType)
+            // Method to deserialize JSON content from given JSON content String.
+            template = this.jsonObjectMapper.readTree(templateJSONString);
+
+            // flexibly set the values from keys to.. 
+            // the GUI screen 
+            this.guiFrame.parseTitle(template);
+            // the inventory slots size
+            this.guiFrame.parseSize(template);
+            // the content of the slots
+            // this.parseSlots(template);
+
+        } catch (JsonProcessingException e) { // Encapsulates all JSON processing errors that could occur
+            throw new IllegalArgumentException("the JSON is malformed in the template: " + templateJSONString, e);
+        }
     }
 
+    /**
+     * Creates a new GUI slot.
+     */
+    public void newSlot() {
+        throw new UnsupportedOperationException("GUIBuilder.newSlot() not implemented");
+    }
+
+    /**
+     * Get the GUI instance this builder creates.
+     * @return the product gui of this builder.
+     */
     @Override
     public GUI getResult() {
         return this.gui;
     }
+
+    /**
+     * Get the director instance which owns this builder.
+    * @return the client director instance
+     */
+    public ClientDirector getDirector() {
+        return this.director;
+    }
+
+    /**
+     * Get reference to all the slots.
+     * @return the list of gui slots
+     */
+    public List<GUISlot> getSlots() {
+        return this.guiSlots;
+    }
+
+    /**
+     * Get reference to the outer GUI frame.
+     * @return the gui frame instance
+     */
+    public GUIFrame getFrame() {
+        return this.guiFrame;
+    } 
+
 }
