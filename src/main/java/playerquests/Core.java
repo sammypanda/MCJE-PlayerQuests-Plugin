@@ -3,7 +3,7 @@ package playerquests;
 import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
-import playerquests.client.chat.command.Commandplayerquest;
+import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
 
 /**
  * Entry point for the plugin.

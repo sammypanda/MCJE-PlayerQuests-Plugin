@@ -1,12 +1,14 @@
 package playerquests.product;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity; // for identifying the player
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
+import org.bukkit.Bukkit; // to create the inventory
+import org.bukkit.inventory.Inventory; // to modify the inventory
+import org.bukkit.inventory.InventoryView; // the view of the GUI
+import org.bukkit.inventory.ItemStack; // to visually represent buttons
+import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 
-import playerquests.builder.gui.GUIBuilder;
-import playerquests.builder.gui.component.GUIFrame;
+import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
+import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
+import playerquests.utility.GUIUtils; // converts string of item to presentable itemstack
 
 /**
  * The GUI product as it appears on the players screen.
@@ -80,10 +82,37 @@ public class GUI {
     }
 
     /**
-     * Populate the inner GUI slots.
+     * Responsible for filling the GUI slots in according to
+     * the configuration.
+     * <p>
+     * Turns the slots list into an iterator. For each key/option it
+     * creates the according inventory representation.
+     * <p>
+     * <ul>
+     * <li>Sets the slot position by checking it is not out of bounds
+     * and correcting for the index starting at 0.
+     * </ul>
      */
     private void drawSlots() {
-        this.builder.getSlots();
+        this.builder.getSlots().forEach((position, slot) -> {
+            ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
+            ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
+
+            // Edit the ItemMeta
+            // Set the slot label
+            itemMeta.setDisplayName(slot.getLabel());
+
+            // Return the ItemMeta to the ItemStack
+            item.setItemMeta(itemMeta);
+
+            // Set the slot item at the slot position
+            if (position > 0 && position <= this.builder.getFrame().getSize()) { // if the slot position is not out of bounds
+                this.inventory.setItem( // populate the slot
+                    position - 1, // set at the index (starting from 0)
+                    item // set the item/block representation
+                );
+            }
+        });
     }
 
     /**
@@ -103,4 +132,16 @@ public class GUI {
 
         this.view.close(); // hide the GUI window but not dispose anything
     }
+
+    /**
+     * Protection from unintentional deletion
+     * <ul>
+     * <li>used when the inventory window is minimised.
+     * </ul>
+     * @return whether the gui can be deleted it or not
+     */
+    public Boolean isLocked() {
+        return this.locked;
+    }
+
 }
