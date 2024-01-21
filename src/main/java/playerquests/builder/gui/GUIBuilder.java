@@ -69,15 +69,7 @@ public class GUIBuilder implements Builder {
     /**
      * event listener for gui events
      */
-    private GUIListener guiListener = new GUIListener(this);
-
-    {
-        // adding listening to when gui events occur
-        Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
-
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
-    }
+    private GUIListener guiListener;
 
     /**
      * Instantiate a GUIBuilder with default GUI.
@@ -86,6 +78,19 @@ public class GUIBuilder implements Builder {
     public GUIBuilder(ClientDirector director) {
         // set which director instance created this GUIBuilder
         this.director = director;
+
+        // create default GUI product
+        this.gui = new GUI(this);
+
+        // adding listening to when gui events occur
+        this.guiListener = new GUIListener(this);
+        Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
+
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
+
+        // set as the current instance in the director
+        director.setCurrentInstance(this);
     }
 
     @Override

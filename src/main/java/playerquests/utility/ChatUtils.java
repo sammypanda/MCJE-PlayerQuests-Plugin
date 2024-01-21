@@ -2,6 +2,7 @@ package playerquests.utility;
 
 import java.util.stream.IntStream; // to dynamically create a sized array
 
+import org.bukkit.Bukkit; // used to get server logger
 import org.bukkit.ChatColor; // used to colour and format the chat messages!
 import org.bukkit.entity.HumanEntity; // identifies a player to send messages to  
 
@@ -79,5 +80,15 @@ public class ChatUtils {
     public static void sendError(HumanEntity player, String content) {
         System.err.println("sent error: " + content + " to player " + player.getName());
         player.sendMessage("\n" + ChatColor.BOLD + "Error: " + ChatColor.RED + content + ChatColor.RESET + "\n");
+    }
+
+    /**
+     * Formatting for an error message to a player and logging more details.
+     * @param player the player to send error message to
+     * @param content what the error message should say
+     */
+    public static void sendError(HumanEntity player, String content, Exception exception) {
+        sendError(player, content);
+        Bukkit.getLogger().warning("more context: " + exception.toString());
     }
 }

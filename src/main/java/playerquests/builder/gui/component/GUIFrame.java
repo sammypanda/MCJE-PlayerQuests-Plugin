@@ -12,7 +12,7 @@ public class GUIFrame {
     /**
      * Title of the GUI.
      */
-    String title;
+    String title = "";
 
     /**
      * Number of slots in the GUI.
@@ -22,9 +22,7 @@ public class GUIFrame {
     /**
      * Construct a GUI frame with default content.
      */
-    public GUIFrame() {
-        this.title = "";
-    }
+    public GUIFrame() {}
 
     /**
      * Set the title of the GUI frame.

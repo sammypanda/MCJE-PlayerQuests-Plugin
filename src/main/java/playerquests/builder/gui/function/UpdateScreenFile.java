@@ -36,34 +36,23 @@ public class UpdateScreenFile extends GUIFunction {
     public void execute() {
         validateParams(this.params, String.class);
 
-        GUIBuilder guiBuilder_previous = this.director.getGUI(); // the builder for the gui
-        GUI gui_previous = guiBuilder_previous.getResult(); // the gui product
-
-        // close the existing GUI with the main thread so we can swap to a new one
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // async request an event to occur
-            if (gui_previous.isOpen()) { // if gui inventory view exists
-                gui_previous.minimise(); // gently close the GUI in case needed later (fully closed on replace)
-            }
-        });
-
         // collect params
-        String fileName = (String) params.get(0);
+        String fileName = (String) params.get(0);        
 
-        // open the new GUI on the main thread
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // async request an event to occur
-            GUIBuilder guiBuilder = new GUIBuilder(this.director);
+        // close old GUI
+        this.director.getGUI().getResult().close();
+        
+        // try to load the GUI screen file
+        try {
+            // replace the GUIBuilder
+            GUIBuilder guiBuilder = new GUIBuilder(this.director); // create next GUI
+            guiBuilder.load(fileName); // load this next screen
+        } catch (IOException e) {
+            this.errored = true;
+            ChatUtils.sendError(director.getPlayer(), "Could not load GUI screen at: " + fileName + ", will cancel rest of functions", e);
+        }
 
-            try { // to load a new GUI screen from file
-                guiBuilder.load(fileName);
-                guiBuilder.getResult().open();
-                this.slot.executeNext(this.director.getPlayer()); // run the next function
-            } catch (IOException e) {
-                guiBuilder.getResult().open(); // fallback on previous GUI
-                ChatUtils.sendError(director.getPlayer(), "Could not load GUI screen at: " + fileName + ", will cancel rest of functions");
-            }
-
-            gui_previous.close();// destroy the last gui
-        });
+        this.director.getGUI().getResult().open();
     }
 
 }
