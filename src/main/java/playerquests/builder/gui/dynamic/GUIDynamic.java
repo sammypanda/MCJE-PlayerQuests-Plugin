@@ -16,6 +16,11 @@ public abstract class GUIDynamic {
      * The player who should see the dynamic GUI.
      */
     protected ClientDirector director;
+    
+    /**
+     * The screen to return to on exit.
+     */
+    protected String previousScreen;
 
     /**
      * Not intended to be created directly, is abstract class for dynamic GUI screens.
@@ -23,8 +28,9 @@ public abstract class GUIDynamic {
      * See docs/README for list of dynamic GUI screens.
      * @param player who should see the dynamic GUI.
     */
-    public GUIDynamic(ClientDirector director) {
+    public GUIDynamic(ClientDirector director, String previousScreen) {
         this.director = director;
+        this.previousScreen = previousScreen;
     }
 
     /**

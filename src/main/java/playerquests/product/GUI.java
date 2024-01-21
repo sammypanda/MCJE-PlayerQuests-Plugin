@@ -56,6 +56,11 @@ public class GUI {
     public void open() {
         this.locked = false; 
 
+        this.inventory = Bukkit.createInventory( // create inventory
+            this.builder.getDirector().getPlayer(), // the player who should see the inventory view
+            this.builder.getFrame().getSize() // the count of slots in the inventory
+        );
+
         this.display(); // opening the inventory window (InventoryView)
 
         this.draw(); // function containing all the builder components of the GUI
@@ -133,6 +138,16 @@ public class GUI {
                 );
             }
         });
+    }
+
+    /**
+     * Responsible for clearing the GUI slots.
+     * <p>
+     * Useful for Dynamic GUIs which may want to 
+     * show a new array of slots.
+     */
+    public void clearSlots() {
+        this.inventory.clear();
     }
 
     /**

@@ -5,7 +5,9 @@ import java.io.InputStream; // stream of file contents
 import java.util.HashMap; // holds and manages info about the GUI slots
 import java.util.Map; // generic map type
 import java.util.Optional; // used to check and work with nullable values
+import java.util.Set; // used to retrieve the key values for this.slots
 import java.util.function.Consumer; // used to execute code on a result of method
+import java.util.stream.IntStream; // used to find the next possible empty slot 
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.event.HandlerList; // list of event handlers; used to unload a listener
@@ -231,11 +233,37 @@ public class GUIBuilder implements Builder {
     }
 
     /**
+     * Get the next empty slot available.
+     * @returns next available GUI slot
+     */
+    public Integer getEmptySlot() {
+        Set<Integer> filledSlots = this.guiSlots.keySet(); // get the positions of all currently stored slots
+
+        Integer lowestEmptySlot = IntStream.iterate(1, i -> i + 1) // counter stream, starting at 1
+            .filter(slot -> !filledSlots.contains(slot)) // conditional for adding to stream
+            .findFirst() // terminate if there is a value in the stream
+            .orElse(1); // default value
+
+        return lowestEmptySlot; // the next empty slot
+    }
+
+    /**
      * Removes the {@link GUISlot} at the inventory slot position.
      * @param position the gui slot position, starting at 1.
      */
     public void removeSlot(Integer position) {
         this.guiSlots.remove(position);
+    }
+
+    /**
+     * Responsible for clearing the GUI slots.
+     * <p>
+     * Useful for Dynamic GUIs which may want to 
+     * show a new array of slots.
+     */
+    public void clearSlots() {
+        this.guiSlots.clear();
+        this.getResult().clearSlots();
     }
 
     /**

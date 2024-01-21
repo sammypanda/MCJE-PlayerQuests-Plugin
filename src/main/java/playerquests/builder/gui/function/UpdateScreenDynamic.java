@@ -59,8 +59,8 @@ public class UpdateScreenDynamic extends GUIFunction {
             try {
                 // instantiate the dynamic GUI class
                 GUIDynamic guiDynamic = (GUIDynamic) screenClass
-                    .getDeclaredConstructor(ClientDirector.class)
-                    .newInstance(this.director);
+                    .getDeclaredConstructor(ClientDirector.class, String.class)
+                    .newInstance(this.director, screenName_prev);
                 guiDynamic.execute(); // generate the dynamic GUI
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 this.errored = true;
