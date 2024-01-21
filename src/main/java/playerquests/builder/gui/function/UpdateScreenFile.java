@@ -3,13 +3,9 @@ package playerquests.builder.gui.function;
 import java.io.IOException; // thrown of replacement GUI screen template file not found
 import java.util.ArrayList; // used to store the params for this meta action
 
-import org.bukkit.Bukkit; // to access the scheduler
-
-import playerquests.Core; // to access the Plugin singleton
 import playerquests.builder.gui.GUIBuilder; // used to parse the GUI screen template
 import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.client.ClientDirector; // powers functionality for functions
-import playerquests.product.GUI; // to open a new GUI
 import playerquests.utility.ChatUtils; // used to send error message in-game
 
 /**

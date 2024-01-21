@@ -1,6 +1,6 @@
 package playerquests.builder.gui.dynamic;
 
-import org.bukkit.entity.HumanEntity; // refers to the player
+import playerquests.client.ClientDirector; // enables the dynamic GUI to retrieve info
 
 /**
  * Passes and handles any GUIs which include dynamic content.
@@ -15,7 +15,7 @@ public abstract class GUIDynamic {
     /**
      * The player who should see the dynamic GUI.
      */
-    protected HumanEntity player;
+    protected ClientDirector director;
 
     /**
      * Not intended to be created directly, is abstract class for dynamic GUI screens.
@@ -23,20 +23,12 @@ public abstract class GUIDynamic {
      * See docs/README for list of dynamic GUI screens.
      * @param player who should see the dynamic GUI.
     */
-    public GUIDynamic(HumanEntity player) {
-        this.player = player;
+    public GUIDynamic(ClientDirector director) {
+        this.director = director;
     }
 
     /**
      * Method to be overridden by each meta action class.
      */
     public abstract void execute();
-
-    /**
-     * Set the player who should see the dynamic GUI.
-     * @param player the GUI viewer.
-     */
-    public void setPlayer(HumanEntity player) {
-        this.player = player;
-    }
 }

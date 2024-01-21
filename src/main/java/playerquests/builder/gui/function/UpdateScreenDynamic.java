@@ -5,11 +5,9 @@ import java.util.ArrayList; // used to store the params for this meta action
 
 import org.bukkit.entity.HumanEntity; // the player to show the dynamic GUI for
 
-import playerquests.builder.gui.GUIBuilder; // controls and modifies the GUI
 import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.builder.gui.dynamic.GUIDynamic; // the dynamic GUI abstract base class
 import playerquests.client.ClientDirector; // powers functionality for functions
-import playerquests.product.GUI; // GUI product
 import playerquests.utility.ChatUtils; // used to send error messages in-game
 
 /**
@@ -46,43 +44,31 @@ public class UpdateScreenDynamic extends GUIFunction {
     public void execute() {
         validateParams(this.params, String.class, String.class);
 
-        GUIBuilder guiBuilder_previous = this.director.getGUI(); // the builder for the gui
-        GUI gui_previous = guiBuilder_previous.getResult(); // the gui product
-
-        // close the existing GUI with the main thread so we can swap to a new one
-        // Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // async request an event to occur
-            if (gui_previous.isOpen()) { // if gui inventory view exists
-                gui_previous.minimise(); // gently close the GUI in case needed later (fully closed on replace)
-            }
-        // });
-
         // collect params
         String screenName = (String) params.get(0);
         String screenName_prev = (String) params.get(1);
 
-        // trigger generating the GUI
-        String frameTitle_previous = guiBuilder_previous.getFrame().getTitle(); // get title of previous GUI
+        // start generating the GUI
+        String frameTitle_previous = this.director.getGUI().getFrame().getTitle(); // get title of previous GUI
         this.previousScreen = screenName_prev; // set the previous screen for dynamic exit/back buttons.
-        HumanEntity player = this.director.getPlayer();
+        HumanEntity player = this.director.getPlayer(); // the player to send messages to
 
         try {
             // get the class from the dynamic screen name
             Class<?> screenClass = Class.forName("playerquests.builder.gui.dynamic.Dynamic" + screenName.toLowerCase());
             try {
                 // instantiate the dynamic GUI class
-                GUIDynamic guiDynamic = (GUIDynamic) screenClass.getDeclaredConstructor().newInstance(player);
+                GUIDynamic guiDynamic = (GUIDynamic) screenClass
+                    .getDeclaredConstructor(ClientDirector.class)
+                    .newInstance(this.director);
                 guiDynamic.execute(); // generate the dynamic GUI
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 this.errored = true;
-                ChatUtils.sendError(player, "The " + screenName + " screen could not be initialised. ");
+                ChatUtils.sendError(player, "The " + screenName + " screen could not be initialised.", e);
             }
         } catch (ClassNotFoundException e) {
             this.errored = true;
-            ChatUtils.sendError(player, "The " + screenName + " dynamic screen requested in the " + frameTitle_previous + " screen, is not valid. ");
-        }
-
-        if (errored) {
-            gui_previous.open(); // go back to the old gui
+            ChatUtils.sendError(player, "The " + screenName + " dynamic screen requested in the " + frameTitle_previous + " screen, is not valid.", e);
         }
     }
     
