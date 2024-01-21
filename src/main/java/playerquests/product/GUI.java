@@ -1,5 +1,7 @@
 package playerquests.product;
 
+import java.util.Optional; // evaluates nullable values
+
 import org.bukkit.Bukkit; // to create the inventory
 import org.bukkit.inventory.Inventory; // to modify the inventory
 import org.bukkit.inventory.InventoryView; // the view of the GUI
@@ -57,6 +59,24 @@ public class GUI {
         this.display(); // opening the inventory window (InventoryView)
 
         this.draw(); // function containing all the builder components of the GUI
+    }
+
+    /**
+     * Checks if the GUI is open by checking if the inventory view is set.
+     * @return if the GUI is open
+     */
+    public Boolean isOpen() {
+        return (this.view != null); // if the inventory view is not null
+    }
+
+    /**
+     * Closes and disposes the GUI and resets builder.
+     * @see #minimise() for non-destructive GUI window close.
+     */
+    public void close() {
+        Optional.ofNullable(this.view).ifPresent(view -> view.close()); // close GUI if open
+
+        this.builder.dispose();
     }
 
     /**
@@ -130,7 +150,7 @@ public class GUI {
     public void minimise() {
         this.locked = true; // lock gui from deletion
 
-        this.view.close(); // hide the GUI window but not dispose anything
+        Optional.ofNullable(this.view).ifPresent(view -> view.close()); // hide the GUI window if open
     }
 
     /**

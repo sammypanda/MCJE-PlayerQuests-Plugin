@@ -4,6 +4,7 @@ import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
 import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
+import playerquests.utility.KeyHandler; // special class for using keys to reference any method
 
 /**
  * Entry point for the plugin.
@@ -24,7 +25,7 @@ public class Core extends JavaPlugin {
     /**
      * Singleton of the key handler
      */
-    // private static KeyHandler keyHandler = KeyHandler.getInstance();
+    private static KeyHandler keyHandler = KeyHandler.getInstance();
 
     /**
      * Core class, to be instantiated by server.
@@ -51,11 +52,10 @@ public class Core extends JavaPlugin {
     }
 
     /**
-     * Returns key handler used to access methods with keys.
+     * Returns key handler used to access methods via key names.
      * @return the singleton instance of the plugin's key handler
      */
-    // public static KeyHandler getKeyHandler() {
-    //     // TODO: refactor KeyHandler
-    //     // return keyHandler;
-    // }
+    public static KeyHandler getKeyHandler() {
+        return keyHandler;
+    }
 }

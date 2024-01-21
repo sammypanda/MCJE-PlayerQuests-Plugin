@@ -1,6 +1,11 @@
 package playerquests.builder.gui.function;
 
 import java.util.ArrayList; // used to store the params for this meta action
+import java.util.Objects; // used to require params be not null
+import java.util.stream.IntStream; // used to validate params are the correct types
+
+import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
+import playerquests.client.ClientDirector; // powers functionality for functions
 
 /**
  * Passes and handles the GUI 'Functions' (otherwise known as 'Meta Actions') called by a GUI.
@@ -12,9 +17,43 @@ import java.util.ArrayList; // used to store the params for this meta action
 public abstract class GUIFunction {
 
     /**
-     * the params passed into this function
+     * the params passed into this function.
      */
     protected ArrayList<Object> params;
+
+    /**
+     * the slot this function belongs to.
+     */
+    protected GUISlot slot;
+
+    /**
+     * director which powers functionality.
+     */
+    protected ClientDirector director;
+
+    /**
+     * if this function has errored.
+     */
+    protected Boolean errored = false;
+
+    /**
+     * Not intended to be created directly, is abstract class for GUI functions.
+     * <p>
+     * See docs/README for list of GUI functions.
+     * @param params the list of parameters for a function
+     * @param director client director for the function to be able to control the plugin
+     * @param slot the GUI slot this function belongs to
+    */
+    public GUIFunction(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
+        this.params = params;
+        this.director = director;
+        this.slot = slot;
+    }
+
+    /**
+     * Method to be overridden by each meta action class.
+     */
+    public abstract void execute();
 
     /**
      * Set the params for this function to use when it executes.
@@ -22,5 +61,45 @@ public abstract class GUIFunction {
      */
     public void setParams(ArrayList<Object> params) {
         this.params = params;
+    }
+
+    /**
+     * Essential utility which checks that the params suit this meta action. 
+     * @param params the values the meta action requires.
+     * @param expectedTypes the type of values the meta action requires.
+     */
+    public void validateParams(ArrayList<Object> params, Class<?>... expectedTypes) {
+        Objects.requireNonNull(params, "Params cannot be null");
+
+        // check if the size of the params list is the same as the size of the expectedTypes list
+        if (params.size() != expectedTypes.length) {
+            this.errored = true;
+            throw new IllegalArgumentException("Incorrect number of parameters");
+        }
+
+        // check with a filter if any param is not an instance of it's expected type
+        IntStream.range(0, params.size())
+        .filter(i -> !expectedTypes[i].isInstance(params.get(i)))
+        .findFirst()
+        .ifPresent(index -> {
+            this.errored = true;
+            throw new IllegalArgumentException("Parameter at index " + index + " does not match the expected type");
+        });
+    }
+
+    /**
+     * Director used to power functionality.
+     * @param director the client director.
+     */
+    public void setDirector(ClientDirector director) {
+        this.director = director;
+    }
+
+    /**
+     * Parent slot this function belongs to.
+     * @param slot slot object containing content/functionality
+     */
+    public void setSlot(GUISlot slot) {
+        this.slot = slot;
     }
 }

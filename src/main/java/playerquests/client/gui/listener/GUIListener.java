@@ -60,7 +60,8 @@ public class GUIListener implements Listener {
                 return (inventory.getType() == InventoryType.CHEST); // check if the inventory type is a CHEST
             }).orElse(false);
 
-        return validInventory;
+        // if the null GUI check and this GUI check pass.
+        return (this.isGUI() && validInventory);
     }
 
     private Boolean isEmptySlot(Integer slotPosition) {

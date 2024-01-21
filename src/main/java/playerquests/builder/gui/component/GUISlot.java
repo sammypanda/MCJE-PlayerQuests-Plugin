@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException; // used to check if a GUI fu
 import java.util.ArrayList; // used to transport GUI functions
 import java.util.List; // generic list type
 import java.util.Objects; // used for easy null checking
-import java.util.Optional; // tolerates if a json field is or is not set
 
 import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
 import org.bukkit.entity.HumanEntity; // refers to the player
@@ -16,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // reads the JSON
 
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
+import playerquests.client.ClientDirector; // abstracted controls for the plugin
 import playerquests.utility.GUIUtils; // converts string of item to presentable itemstack
 
 /**
@@ -78,12 +78,13 @@ public class GUISlot {
     public void parseFunctions(JsonNode functions) {
         ObjectMapper jsonObjectMapper = new ObjectMapper();
         String slotPosition = this.position.toString();
+        String frameTitle = this.builder.getFrame().getTitle();
 
         functions.elements().forEachRemaining(function -> {
-            JsonNode functionNameNode = Objects.requireNonNull(function.get("name"), "A function name is missing in an entry for slot " + slotPosition);
+            JsonNode functionNameNode = Objects.requireNonNull(function.get("name"), "A function name is missing in an entry for slot " + slotPosition + " of the " + frameTitle + " screen.");
             String functionName = functionNameNode.asText();
 
-            JsonNode paramsNode = Objects.requireNonNull(function.get("params"), "The 'params' list is missing for the " + functionName + " function, in slot " + slotPosition + " (create it even if it's empty)");
+            JsonNode paramsNode = Objects.requireNonNull(function.get("params"), "The 'params' list is missing for the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen." + " (create it even if it's empty)");
             String params = paramsNode.toString();
 
             ArrayList<Object> paramList;
@@ -92,25 +93,27 @@ public class GUISlot {
             try {
                 paramList = jsonObjectMapper.readValue(params, new TypeReference<ArrayList<Object>>() {});
             } catch (JsonProcessingException e) {
-                throw new IllegalArgumentException("The 'params' list invalid or empty for the " + functionName + " function, in slot " + slotPosition);
+                throw new IllegalArgumentException("The 'params' list invalid or empty for the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
             }
 
             // construct a GUIFunction and add it to the GUI Slot instance
             try {
-                Class<?> classRef = Class.forName("playerquests.gui.function." + functionName);
+                Class<?> classRef = Class.forName("playerquests.builder.gui.function." + functionName);
                 try {
-                    GUIFunction guiFunction = (GUIFunction) classRef.getDeclaredConstructor().newInstance(); // create an instance of whichever function class
-                    this.addFunction(guiFunction, paramList); // ship the packaged GUI Function to be kept in the current GUI Slot instance
+                    GUIFunction guiFunction = (GUIFunction) classRef
+                        .getDeclaredConstructor(ArrayList.class, ClientDirector.class, GUISlot.class)
+                        .newInstance(paramList, this.builder.getDirector(), this); // create an instance of whichever function class
+                    this.addFunction(guiFunction); // ship the packaged GUI Function to be kept in the current GUI Slot instance
                     // NOTE: now we could run these parsed functions we put in the GUI Slot with: currentSlot.execute();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    throw new RuntimeException("Error instantiating or invoking the " + functionName + " function, in slot " + slotPosition);
+                    throw new RuntimeException("Error instantiating or invoking the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.", e);
                 }
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Class not found for the " + functionName + " function, in slot " + slotPosition);
+                throw new RuntimeException("Class not found for the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
             } catch (SecurityException e) {
-                throw new RuntimeException("Security exception while accessing the " + functionName + " function, in slot " + slotPosition);
+                throw new RuntimeException("Security exception while accessing the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid arguments passed to the " + functionName + " function, in slot " + slotPosition);
+                throw new IllegalArgumentException("Invalid arguments passed to the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
             }
         });
     }
@@ -118,14 +121,10 @@ public class GUISlot {
     /**
      * Add a GUI Function ('Meta Action') to be executed when this GUI Slot
      * is used.
-     * @param guiFunction the Meta Action name.
-     * @param paramList the values for the Meta Action to use.
+     * @param guiFunction the Meta Action function instance.
      */
-    public void addFunction(GUIFunction guiFunction, ArrayList<Object> paramList) {
-        paramList = Optional.ofNullable(paramList).orElse(new ArrayList<Object>()); // if there is no paramList, create an empty one
-
-        guiFunction.setParams(paramList); // set the params for the function
-        this.functionList.add(guiFunction);
+    public void addFunction(GUIFunction guiFunction) {
+        this.functionList.add(guiFunction); // add to list of functions
     }
 
     /**
@@ -209,13 +208,23 @@ public class GUISlot {
         // get first function (the function will request the next when it is ready)
         GUIFunction function = this.functionList.get(0);
 
-        // TODO: implement GUI functions
-        
-        // run repeatable execute tasks
-        // function.setPlayer(player);
-        // function.setParentSlot(this);
-        // function.setParentGUI(this.parentGui);
-        // function.execute();
+        // execute the function
+        function.execute();
+    }
+
+    /**
+     * Run the NEXT function that is described in the GUI screen expression
+     * @param player who to execute the next function for.
+     */
+    public void executeNext(HumanEntity player) {
+        // if no more functions, don't continue
+        if (this.functionList.size() == 0) { return; }
+
+        // pop the first function off the list to reveal the next
+        this.functionList.remove(0);
+
+        // execute the next function
+        this.execute(player);
     }
 
     /**
@@ -239,4 +248,5 @@ public class GUISlot {
             onClick.run();
         }
     }
+
 }

@@ -75,9 +75,8 @@ public class GUIBuilder implements Builder {
         // adding listening to when gui events occur
         Bukkit.getPluginManager().registerEvents(this.guiListener, Core.getPlugin());
 
-        // TODO: implement KeyHandler
         // adding to key-value pattern handler
-        // Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
+        Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
     }
 
     /**
@@ -104,7 +103,7 @@ public class GUIBuilder implements Builder {
      */
     public void dispose() {
         HandlerList.unregisterAll(this.guiListener); // unregister the listeners, don't need them if there is no GUI
-        // Core.getKeyHandler().deregisterInstance(this); // remove the current instance from key-pair handler
+        Core.getKeyHandler().deregisterInstance(this); // remove the current instance from key-pair handler
         
         // nullify class values we are never going to use again
         this.guiFrame = null;

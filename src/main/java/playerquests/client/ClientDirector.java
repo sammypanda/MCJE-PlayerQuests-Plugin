@@ -51,6 +51,24 @@ public class ClientDirector {
     }
 
     /**
+     * Retrieve the working instance of an eligible class.
+     * @param classType type of instance to return
+     * @return current working instance
+     */
+    public Object getCurrentInstance(Class<?> classType) {
+        return this.currentInstances.get(classType);
+    }
+
+    /**
+     * Put the current/working instance of a class.
+     * @param instance type of instance to store (and replace if already exists).
+     */
+    public void setCurrentInstance(Object instance) {
+        this.currentInstances.remove(instance.getClass());
+        this.currentInstances.put(instance.getClass(), instance);
+    }
+
+    /**
      * Creating an empty default GUI. Provides a GUIBuilder to control it.
      * @return a new GUIBuilder
      */
@@ -84,4 +102,5 @@ public class ClientDirector {
         // get the player set on this instance
         return this.player;
     }
+
 }
