@@ -1,6 +1,8 @@
 package playerquests.builder.quest;
 
 import java.io.IOException; // thrown if a file cannot be created
+import java.util.HashMap; // hash table map type
+import java.util.Map; // generic map type
 
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot serialise
@@ -37,6 +39,12 @@ public class QuestBuilder {
      * Entry point for the quest.
      */
     private QuestStage entryPoint = new QuestStage(0); // default entry point as first stage (stage_0)
+
+    /**
+     * List of the quest stages and actions.
+     */
+    @JsonProperty("stages")
+    private Map<String, QuestStage> questPlan = new HashMap<String, QuestStage>();
 
     /**
      * Where quests are saved.
