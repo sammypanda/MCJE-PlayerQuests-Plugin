@@ -21,7 +21,7 @@
         },
         {
             "slot": 9,
-            "item": "LIME_DYE",
+            "item": "GREEN_DYE",
             "label": "Save",
             "functions": [
                 { "name": "Save", "params": ["quest"] }
