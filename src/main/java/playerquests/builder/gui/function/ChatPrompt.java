@@ -276,9 +276,9 @@ public class ChatPrompt extends GUIFunction {
         this.confirmedValue = false;
 
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // execute next on main thread
-            if (this.errored) { 
-                this.director.getGUI().getResult().open(); // open the old GUI again after minimise(). 
-            } else {
+            this.director.getGUI().getResult().open(); // open the old GUI again after minimise(). 
+
+            if (!this.errored) { 
                 this.slot.executeNext(this.player); // run the next function
             }
         });

@@ -3,6 +3,8 @@ package playerquests.builder.quest;
 import java.io.IOException; // thrown if a file cannot be created
 
 import playerquests.Core; // gets the KeyHandler singleton
+import playerquests.builder.gui.GUIBuilder; // for modifying the GUI
+import playerquests.builder.gui.component.GUIFrame; // modifying the outer frame of the GUI
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
@@ -58,7 +60,24 @@ public class QuestBuilder {
      */
     @Key("quest.title")
     public void setTitle(String title) {
-        this.title = title;
+        String oldTitle = " (" + this.title + ")"; // store the old title to identify later
+        String newTitle = " (" + title + ")";
+
+        this.title = title; // set the new title
+        
+        GUIBuilder guiBuilder = (GUIBuilder) this.director.getCurrentInstance(GUIBuilder.class); // get the GUI builder
+        GUIFrame frame = guiBuilder.getFrame(); // get the GUI frame
+
+        if (guiBuilder.getResult() != null) {
+            if (frame.getTitle().contains(oldTitle)) {
+                String fullTitle = frame.getTitle().replace(oldTitle, newTitle); // replace the part we appended only
+                frame.setTitle(fullTitle); // re-submit
+            } else {
+                frame.setTitle(frame.getTitle() + newTitle); // submit for the first time
+            }
+            
+            guiBuilder.getResult().draw(); // ask the changes to update in the GUI
+        }
     }
 
     /**

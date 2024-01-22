@@ -49,6 +49,10 @@ public class UpdateScreenFile extends GUIFunction {
         }
 
         this.director.getGUI().getResult().open();
+
+        if (!this.errored) { 
+            this.slot.executeNext(this.director.getPlayer()); // run the next function
+        }
     }
 
 }

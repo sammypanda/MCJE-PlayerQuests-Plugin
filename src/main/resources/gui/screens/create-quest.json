@@ -15,8 +15,7 @@
             "item": "ACACIA_HANGING_SIGN",
             "label": "Set Title",
             "functions": [
-                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] },
-                { "name": "UpdateScreenFile", "params": ["create-quest"] }
+                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] }
             ]
         },
         {
