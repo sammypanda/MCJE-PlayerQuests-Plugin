@@ -234,7 +234,7 @@ public class GUIBuilder implements Builder {
 
     /**
      * Get the next empty slot available.
-     * @returns next available GUI slot
+     * @return next available GUI slot
      */
     public Integer getEmptySlot() {
         Set<Integer> filledSlots = this.guiSlots.keySet(); // get the positions of all currently stored slots
