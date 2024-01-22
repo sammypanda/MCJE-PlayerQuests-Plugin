@@ -16,7 +16,7 @@ import playerquests.builder.gui.function.UpdateScreenFile; // used to go back to
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**
- * Shows a dynamic GUI listening the players quests.
+ * Shows a dynamic GUI listing the players quests.
  */
 public class Dynamicmyquests extends GUIDynamic {
 

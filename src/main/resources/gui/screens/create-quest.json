@@ -19,6 +19,14 @@
             ]
         },
         {
+            "slot": 4,
+            "item": "CHEST",
+            "label": "Quest Stages",
+            "functions": [
+                { "name": "UpdateScreenDynamic", "params": ["queststages", "create-quest"] }
+            ]
+        },
+        {
             "slot": 9,
             "item": "GREEN_DYE",
             "label": "Save",
