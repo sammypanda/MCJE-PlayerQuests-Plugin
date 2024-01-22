@@ -1,7 +1,9 @@
 package playerquests.builder.quest;
 
 import java.io.IOException; // thrown if a file cannot be created
+import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
+import java.util.List; // generic list type
 import java.util.Map; // generic map type
 
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
@@ -155,5 +157,25 @@ public class QuestBuilder {
         }
 
         return "Quest Builder: '" + this.title + "' was saved";
+    }
+
+    /**
+     * Get all the stage IDs on this quest
+     * @return list of the stage IDs
+     */
+    public List<String> getStages() {
+        return new ArrayList<String>(this.questPlan.keySet());
+    }
+
+    // public List<QuestAction> getActions() {
+        // TODO: create QuestAction outline
+    // }
+
+    /**
+     * Get the entire quest plan map.
+     * @return map of the quest objects and values
+     */
+    public Map<String, QuestStage> getQuestPlan() {
+        return this.questPlan;
     }
 }

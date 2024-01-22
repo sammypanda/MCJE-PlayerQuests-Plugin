@@ -19,8 +19,9 @@ public class Dynamicqueststages extends GUIDynamic {
 
     @Override
     public void execute() {
-        System.out.println(this.director.getCurrentInstance(QuestBuilder.class));
-        throw new UnsupportedOperationException("Unimplemented method 'execute'");
+        QuestBuilder questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
+
+        System.out.println(questBuilder.getStages());
     }
     
 }
