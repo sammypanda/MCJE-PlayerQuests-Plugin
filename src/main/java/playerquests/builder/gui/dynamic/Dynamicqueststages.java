@@ -26,16 +26,6 @@ public class Dynamicqueststages extends GUIDynamic {
     private String guiTitle = "Quest Stages";
 
     /**
-     * If the setup has been ran
-     */
-    private Boolean wasSetUp = false;
-
-    /**
-     * The quest stages GUI
-     */
-    private GUIBuilder gui;
-
-    /**
      * Creates a dynamic GUI with a list of the current quests stages.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -51,36 +41,16 @@ public class Dynamicqueststages extends GUIDynamic {
     /**
      * Create the GUI and set up.
      */
-    private void setUp() {
-        this.wasSetUp = true;
-
-        // close the previous GUI
-        this.director.getGUI().getResult().close();
-
-        // create the new GUI to show the quests in
-        this.gui = new GUIBuilder(this.director);
-
-        this.execute();
+    public void setUp_custom() {
+        // N/A
     }
 
     /**
      * Main quest stages GUI loop
      */
     @Override
-    public void execute() {
-        if (!this.wasSetUp) {
-            this.setUp();
-            return;
-        }
-
+    public void execute_custom() {
         this.generatePages();
-
-        // open the GUI for the first time
-        if (!this.gui.getResult().isOpen()) {
-            this.gui.getResult().open();
-        } else {
-            this.gui.getResult().draw();
-        }
     }
     
     /**
