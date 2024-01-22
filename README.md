@@ -16,7 +16,7 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 | ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title")                                   | Prompts the user sets the user input result as a value    |
 
 ###### Quest Actions (Actions)
-Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
+TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
 
 | Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
 |----------------------------|-------------------------------|-------------------------------------------------|
@@ -26,7 +26,7 @@ Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins>
 
 # How To Get Functionality: 'Templates'
 ###### We have Meta and Quest Actions, but how do we actually use them?
-Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
+TODO: Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
 ```json
 {
     "title": String, // label of the entire quest
@@ -66,27 +66,22 @@ Usually you would never need this, but this is what makes it all tick. When you 
 # How It All Works: 'Specification'
 ###### the way to visualise/think about, and implement the program.
 
-###### The code follows a package-by-feature pattern.
-
-| Folder                      | Purpose                                                              |
-|-----------------------------|----------------------------------------------------------------------|
-| ../../resources/gui/screen/ | GUI templates in JSON                                                |
-| gui/                        | code related to GUIs                                                 |
-| chat/                       | code related to the in-game chat + commands                          |
-| utils/                      | code used to help the main classes                                   |
-| quest/                      | code related to quests                                               |
-| quest/builder/              | code related to quest building/creating                              |
-| quest/event/                | code related to handling quest meta-events (like quitting the quest) |
-| quest/player/               | code related to playing quests                                       |
-| quest/stage/                | code related to organising the stages of the quest                   |
-| quest/stage/action/         | code related to the handling of quest objectives                     |
+| Folder                           | Purpose                          |
+|----------------------------------|----------------------------------|
+| ../../resources/gui/screens/     | GUI templates in JSON            |
+| ../../resources/quest/templates/ | Quest templates in JSON          |
+| builder/                         | Produce product instances        |
+| product/                         | The product instances            |
+| client/                          | Ways to control the plugin       |
+| utility/                         | Tools for reducing repeated code |
+| utility/annotation               | Custom code annotations          |
 
 <br>
 
 ###### GUI templates are parsed as JSON strings
-It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
+TODO: It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
 
-- The GUI class stores slots array items into a List of GUISlot instances.
+- The GUIBuilder class stores slots array items into a List of GUISlot instances.
 
 | Key-Value Pair  | Behaviour When Missing                       |
 |-----------------|----------------------------------------------|
