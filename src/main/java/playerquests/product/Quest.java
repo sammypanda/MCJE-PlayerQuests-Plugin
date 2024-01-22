@@ -1,6 +1,6 @@
 package playerquests.product;
 
-import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.QuestBuilder; // the parent builder
 
 /**
  * The Quest product containing all the information 

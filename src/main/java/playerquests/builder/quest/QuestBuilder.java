@@ -62,6 +62,9 @@ public class QuestBuilder {
     {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
+
+        // add default entry point stage to questPlan map
+        this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
     }
 
     /**
