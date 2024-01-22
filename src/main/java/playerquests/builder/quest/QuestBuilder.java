@@ -109,6 +109,14 @@ public class QuestBuilder {
     }
 
     /**
+     * Gets the quest title.
+     * @return quest name
+     */
+    public String getTitle() {
+        return this.title;
+    }
+
+    /**
      * Creates a quest template based on the current state of the builder.
      * @return this quest as a json object
      * @throws JsonProcessingException when the json cannot seralise
