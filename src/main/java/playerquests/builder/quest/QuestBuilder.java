@@ -96,7 +96,7 @@ public class QuestBuilder {
         ObjectMapper jsonObjectMapper = new ObjectMapper();
 
         // configure the mapper
-        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
 
         // present this quest builder as a template json string (prettied)
         return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
