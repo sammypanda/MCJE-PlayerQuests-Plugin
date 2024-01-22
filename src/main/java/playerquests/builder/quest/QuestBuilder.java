@@ -2,6 +2,11 @@ package playerquests.builder.quest;
 
 import java.io.IOException; // thrown if a file cannot be created
 
+import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
+import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot serialise
+import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
+import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
+
 import playerquests.Core; // gets the KeyHandler singleton
 import playerquests.builder.gui.GUIBuilder; // for modifying the GUI
 import playerquests.builder.gui.component.GUIFrame; // modifying the outer frame of the GUI
@@ -24,6 +29,7 @@ public class QuestBuilder {
     /**
      * The title of the quest.
      */
+    @JsonProperty("title")
     private String title;
 
     /**
@@ -64,7 +70,7 @@ public class QuestBuilder {
         String newTitle = " (" + title + ")";
 
         this.title = title; // set the new title
-        
+
         GUIBuilder guiBuilder = (GUIBuilder) this.director.getCurrentInstance(GUIBuilder.class); // get the GUI builder
         GUIFrame frame = guiBuilder.getFrame(); // get the GUI frame
 
@@ -83,10 +89,17 @@ public class QuestBuilder {
     /**
      * Creates a quest template based on the current state of the builder.
      * @return this quest as a json object
+     * @throws JsonProcessingException when the json cannot seralise
      */
-    private String getTemplateString() {
-        // TODO: implement translating this quest into a json template (maybe keep as jsonnode too)
-        return "{}";
+    private String getTemplateString() throws JsonProcessingException {
+        // serialises an object into json
+        ObjectMapper jsonObjectMapper = new ObjectMapper();
+
+        // configure the mapper
+        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+        // present this quest builder as a template json string (prettied)
+        return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
     } 
 
     /**
