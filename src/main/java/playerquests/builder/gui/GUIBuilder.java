@@ -61,7 +61,7 @@ public class GUIBuilder implements Builder {
     /**
      * Outer GUI frame content.
      */
-    private GUIFrame guiFrame = new GUIFrame();
+    private GUIFrame guiFrame;
 
     /**
      * handles JSON objects
@@ -80,6 +80,9 @@ public class GUIBuilder implements Builder {
     public GUIBuilder(ClientDirector director) {
         // set which director instance created this GUIBuilder
         this.director = director;
+
+        // create default gui frame
+        this.guiFrame = new GUIFrame(director);
 
         // create default GUI product
         this.gui = new GUI(this);
@@ -100,7 +103,7 @@ public class GUIBuilder implements Builder {
         // reset values 
         // by replacing with new instances
         this.guiSlots = new HashMap<Integer, GUISlot>();
-        this.guiFrame = new GUIFrame();
+        this.guiFrame = new GUIFrame(this.director);
         this.gui = new GUI(this);
     }
 
