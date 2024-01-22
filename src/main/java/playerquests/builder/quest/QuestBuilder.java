@@ -30,7 +30,7 @@ public class QuestBuilder {
      * The title of the quest.
      */
     @JsonProperty("title")
-    private String title;
+    private String title = ""; // default quest title
 
     /**
      * Where quests are saved.
