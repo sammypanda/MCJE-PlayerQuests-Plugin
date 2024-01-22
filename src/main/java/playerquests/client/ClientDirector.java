@@ -113,6 +113,10 @@ public class ClientDirector {
             case "queststage":
                 classRef = getCurrentInstance(QuestStage.class);
                 break;
+            case "quest":
+            case "questbuilder":
+                classRef = getCurrentInstance(QuestBuilder.class);
+                break;
         };
 
         if (classRef == null) {
