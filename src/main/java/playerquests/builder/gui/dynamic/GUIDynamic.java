@@ -26,7 +26,8 @@ public abstract class GUIDynamic {
      * Not intended to be created directly, is abstract class for dynamic GUI screens.
      * <p>
      * See docs/README for list of dynamic GUI screens.
-     * @param player who should see the dynamic GUI.
+     * @param director how the dynamic gui controls the plugin
+     * @param previousScreen the screen to go back to
     */
     public GUIDynamic(ClientDirector director, String previousScreen) {
         this.director = director;
