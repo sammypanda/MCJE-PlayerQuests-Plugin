@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature; // configures json s
 import playerquests.Core; // gets the KeyHandler singleton
 import playerquests.builder.gui.GUIBuilder; // for modifying the GUI
 import playerquests.builder.gui.component.GUIFrame; // modifying the outer frame of the GUI
+import playerquests.builder.quest.component.QuestStage; // object for quest stages
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
@@ -31,6 +32,11 @@ public class QuestBuilder {
      */
     @JsonProperty("title")
     private String title = ""; // default quest title
+
+    /**
+     * Entry point for the quest.
+     */
+    private QuestStage entryPoint = new QuestStage(0); // default entry point as first stage (stage_0)
 
     /**
      * Where quests are saved.
@@ -100,7 +106,18 @@ public class QuestBuilder {
 
         // present this quest builder as a template json string (prettied)
         return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
-    } 
+    }
+
+    /**
+     * Gets the entry point ID.
+     * <p>
+     * Either an action or a stage.
+     * @return the string representation for the entry point
+     */
+    @JsonProperty("entry")
+    public String getEntryPointString() {
+        return this.entryPoint.getID();
+    }
 
     /**
      * Saves a quest into the QuestBuilder.savePath.
