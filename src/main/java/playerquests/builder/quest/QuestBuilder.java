@@ -6,6 +6,7 @@ import java.util.HashMap; // hash table map type
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot serialise
 import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
@@ -171,6 +172,7 @@ public class QuestBuilder {
      * Get all the stage IDs on this quest
      * @return list of the stage IDs
      */
+    @JsonIgnore
     public List<String> getStages() {
         return new ArrayList<String>(this.questPlan.keySet());
     }
@@ -183,6 +185,7 @@ public class QuestBuilder {
      * Get the entire quest plan map.
      * @return map of the quest objects and values
      */
+    @JsonIgnore
     public Map<String, QuestStage> getQuestPlan() {
         return this.questPlan;
     }
