@@ -51,20 +51,8 @@ public class GUIFrame {
      * @return string of the gui title 
      */
     public String getTitle() {
-        return this.title;
-    }
-
-    /**
-     * Take the 'title' template key and set it as the title for the gui.
-     * @param template the template as a jsonnode object
-     */
-    public void parseTitle(JsonNode template) {
+        String title = this.title; // empty title to receive substitutions
         Pattern replacePattern = Pattern.compile("\\{([^}]+)\\}"); // regex for anything inside curly {} brackets
-
-        String title = Optional.ofNullable(template.get("title")) // get title field if it exists
-            .map(JsonNode::asText) // if exists get it as text (String)
-            .orElse(this.getTitle()); // if not set it as the default title
-
         Matcher matches = replacePattern.matcher(title); // find replacement pattern in the title
 
         while (matches.find()) {
@@ -82,6 +70,18 @@ public class GUIFrame {
                 title = title.replace("{"+match+"}", "").trim(); // clear the replacement string
             }
         }
+
+        return title;
+    }
+
+    /**
+     * Take the 'title' template key and set it as the title for the gui.
+     * @param template the template as a jsonnode object
+     */
+    public void parseTitle(JsonNode template) {
+        String title = Optional.ofNullable(template.get("title")) // get title field if it exists
+            .map(JsonNode::asText) // if exists get it as text (String)
+            .orElse(this.getTitle()); // if not set it as the default title
 
         this.setTitle(title);
     }
