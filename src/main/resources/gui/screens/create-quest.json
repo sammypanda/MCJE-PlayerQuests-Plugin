@@ -1,4 +1,30 @@
 {
     "title": "Create Quest",
-    "size": 9
+    "size": 9,
+    "slots": [
+        {
+            "slot": 1,
+            "item": "OAK_DOOR",
+            "label": "Back",
+            "functions": [
+                { "name": "UpdateScreenFile", "params": ["main"] }
+            ]
+        },
+        {
+            "slot": 3,
+            "item": "ACACIA_HANGING_SIGN",
+            "label": "Set Title",
+            "functions": [
+                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] }
+            ]
+        },
+        {
+            "slot": 9,
+            "item": "GREEN_DYE",
+            "label": "Save",
+            "functions": [
+                { "name": "Save", "params": ["quest"] }
+            ]
+        }
+    ]
 }

@@ -3,14 +3,28 @@
     "size": 9,
     "slots": [
         {
-            "slot": 2,
+            "slot": 1,
+            "item": "OAK_DOOR",
+            "label": "Exit",
+            "functions": [
+                { "name": "CloseScreen", "params": [] }
+            ]
+        },
+        {
+            "slot": 3,
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
-                { "name": "UpdateScreenFile", "params": ["create-quest"] }
-            ],
-            "actions": [
-                { "name": "Normies", "params": [] }
+                { "name": "UpdateScreenFile", "params": ["create-quest"] },
+                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] }
+            ]
+        },
+        {
+            "slot": 4,
+            "item": "PAINTING",
+            "label": "View Quests",
+            "functions": [
+                { "name": "UpdateScreenDynamic", "params": ["myquests", "main"] }
             ]
         }
     ]

@@ -8,12 +8,16 @@
 Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. But when creating GUI template files (usually with 'Meta Actions' or 'Functions') there isn't much option to select from a list of actions, so here is a list for devs or if you're a very brave user.
 
 ###### Meta Actions (Functions)
-| Function (How to refer to) | Parameters (How to customise)               | Purpose (What it does)                                 |
-|----------------------------|---------------------------------------------|--------------------------------------------------------|
-| UpdateScreenFile           | 1: the template filename (without .json)    | Changes the current GUI screen to a different template |
-| UpdateScreen               | 1: the template expression (as json string) | Changes the current GUI screen to a different template |
+| Function (How to refer to) | Parameters (How to customise)                                                                                            | Purpose (What it does)                                    |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| UpdateScreenFile           | 1: the template filename (without .json)                                                                                 | Changes the current GUI screen to a different template    |
+| UpdateScreenDynamic        | 1: one of the predefined dynamic screens (options: "myquests")<br>2: screen to go back to (usually just the current one) | Changes the current GUI screen to present dynamic content |
+| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title", "quest.title")                    | Prompts the user sets the user input result as a value    |
+| Save                       | 1. key of instance to save (options: "quest")                                                                            | Calls the defined save processes for instances            |
 
 ###### Quest Actions (Actions)
+TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
+
 | Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
 |----------------------------|-------------------------------|-------------------------------------------------|
 | Speak                      | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
@@ -22,7 +26,7 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 
 # How To Get Functionality: 'Templates'
 ###### We have Meta and Quest Actions, but how do we actually use them?
-Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
+TODO: Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
 ```json
 {
     "title": String, // label of the entire quest
@@ -61,37 +65,23 @@ Usually you would never need this, but this is what makes it all tick. When you 
 
 # How It All Works: 'Specification'
 ###### the way to visualise/think about, and implement the program.
-Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> from the quest/NPC perspective (actions can also be stacked). Stages are all the things which occur. See examples in the table:
 
-| Action         | Stages                                |
-|----------------|---------------------------------------|
-| Request Item   | Finding the flower                    |
-| Speak          | First interaction with NPC            |
-| Listen         | Deciding a favourite                  |
-
-<br>
-
-###### The code follows a package-by-feature pattern.
-
-| Folder                      | Purpose                                                              |
-|-----------------------------|----------------------------------------------------------------------|
-| ../../resources/gui/screen/ | GUI templates in JSON                                                |
-| gui/                        | code related to GUIs                                                 |
-| chat/                       | code related to the in-game chat + commands                          |
-| utils/                      | code used to help the main classes                                   |
-| quest/                      | code related to quests                                               |
-| quest/builder/              | code related to quest building/creating                              |
-| quest/event/                | code related to handling quest meta-events (like quitting the quest) |
-| quest/player/               | code related to playing quests                                       |
-| quest/stage/                | code related to organising the stages of the quest                   |
-| quest/stage/action/         | code related to the handling of quest objectives                     |
+| Folder                           | Purpose                          |
+|----------------------------------|----------------------------------|
+| ../../resources/gui/screens/     | GUI templates in JSON            |
+| ../../resources/quest/templates/ | Quest templates in JSON          |
+| builder/                         | Produce product instances        |
+| product/                         | The product instances            |
+| client/                          | Ways to control the plugin       |
+| utility/                         | Tools for reducing repeated code |
+| utility/annotation               | Custom code annotations          |
 
 <br>
 
 ###### GUI templates are parsed as JSON strings
-It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
+TODO: It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
 
-- The GUI class stores slots array items into a List of GUISlot instances.
+- The GUIBuilder class stores slots array items into a List of GUISlot instances.
 
 | Key-Value Pair  | Behaviour When Missing                       |
 |-----------------|----------------------------------------------|
