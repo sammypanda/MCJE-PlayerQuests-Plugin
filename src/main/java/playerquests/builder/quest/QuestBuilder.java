@@ -73,6 +73,9 @@ public class QuestBuilder {
      */
     public QuestBuilder(ClientDirector director) {
         this.director = director;
+
+        // set as the current instance in the director
+        director.setCurrentInstance(this);
     }
 
     /**
