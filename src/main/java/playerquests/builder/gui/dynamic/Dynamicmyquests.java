@@ -7,7 +7,7 @@ import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
 import java.util.List; // store temporary lists (like: string splitting)
 import java.util.stream.Collectors; // used to turn a stream to a list
-import java.util.stream.IntStream; // creates 77 fake quest templates to fill slots
+import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.GUIBuilder; // creating the Dynamic GUI on the screen
@@ -53,6 +53,7 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * Creates a dynamic GUI with a list of 'my quests'.
      * @param director director for the client
+     * @param previousScreen the screen to go back to
      */
     public Dynamicmyquests(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
@@ -66,7 +67,6 @@ public class Dynamicmyquests extends GUIDynamic {
      *   <li>owned by the current player (or no-one)
      *   </ul>
      * <li>Creates and opens the GUI
-     * <li>Adds 77 fake objects TODO: remove
      * <li>Instigates pagination/page generation
      * </ul>
      */
@@ -82,9 +82,6 @@ public class Dynamicmyquests extends GUIDynamic {
         // create the new GUI to show the quests in
         this.myquestsGUI = new GUIBuilder(this.director);
         this.myquestsGUI.getFrame().setSize(45);
-
-        // Testing
-        this.myquestTemplates.addAll(IntStream.range(0, 77).mapToObj(i -> "value"+i).collect(Collectors.toList()));
 
         try { // to access the quest templates dir
             Files.walk(questTemplatesDir.toPath()).forEach(questTemplateFile -> { // get all the quest templates
@@ -174,6 +171,10 @@ public class Dynamicmyquests extends GUIDynamic {
         }
     }
 
+    /**
+     * Replaces existing screen with a page listing quests with back/forward/exit buttons.
+     * @param remainingTemplates the quest templates to insert
+     */
     private void generatePage(ArrayList<String> remainingTemplates) {
         Integer slotCount = remainingTemplates.size() >= this.slotsPerPage // if there are more remaining templates than the default slot limit
         ? this.slotsPerPage // use the default slot limit
@@ -188,7 +189,7 @@ public class Dynamicmyquests extends GUIDynamic {
             Integer nextEmptySlot = this.myquestsGUI.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.myquestsGUI, nextEmptySlot);
             questSlot.setItem("BOOK");
-            questSlot.setLabel(quest);
+            questSlot.setLabel(quest.split("_")[0]);
 
             return false; // continue the loop
         });

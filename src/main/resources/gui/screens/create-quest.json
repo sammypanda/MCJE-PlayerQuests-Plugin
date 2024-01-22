@@ -15,7 +15,16 @@
             "item": "ACACIA_HANGING_SIGN",
             "label": "Set Title",
             "functions": [
-                { "name": "ChatPrompt", "params": ["Enter a new GUI title", "gui.title"] }
+                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] },
+                { "name": "UpdateScreenFile", "params": ["create-quest"] }
+            ]
+        },
+        {
+            "slot": 9,
+            "item": "LIME_DYE",
+            "label": "Save",
+            "functions": [
+                { "name": "Save", "params": ["quest"] }
             ]
         }
     ]

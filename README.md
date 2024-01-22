@@ -12,8 +12,8 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 |----------------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 | UpdateScreenFile           | 1: the template filename (without .json)                                                                                 | Changes the current GUI screen to a different template    |
 | UpdateScreenDynamic        | 1: one of the predefined dynamic screens (options: "myquests")<br>2: screen to go back to (usually just the current one) | Changes the current GUI screen to present dynamic content |
-| UpdateScreen               | 1: the template expression (as json string)                                                                              | Changes the current GUI screen to a different template    |
-| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title")                                   | Prompts the user sets the user input result as a value    |
+| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title", "quest.title")                    | Prompts the user sets the user input result as a value    |
+| Save                       | 1. key of instance to save (options: "quest")                                                                            | Calls the defined save processes for instances            |
 
 ###### Quest Actions (Actions)
 TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):

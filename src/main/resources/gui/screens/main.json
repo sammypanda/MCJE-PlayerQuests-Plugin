@@ -17,9 +17,6 @@
             "functions": [
                 { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] },
                 { "name": "UpdateScreenFile", "params": ["create-quest"] }
-            ],
-            "actions": [
-                { "name": "Normies", "params": [] }
             ]
         },
         {
