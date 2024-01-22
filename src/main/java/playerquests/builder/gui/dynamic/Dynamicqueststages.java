@@ -82,11 +82,6 @@ public class Dynamicqueststages extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
-            questSlot.addFunction(new UpdateScreenFile(
-                new ArrayList<>(Arrays.asList("edit-stage")), 
-                director, 
-                questSlot
-            ));
 
             return false; // continue the loop
         });
