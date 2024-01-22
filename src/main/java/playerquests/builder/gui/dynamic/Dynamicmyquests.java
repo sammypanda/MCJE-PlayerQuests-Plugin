@@ -15,6 +15,9 @@ import playerquests.builder.gui.component.GUISlot; // creating each quest button
 import playerquests.builder.gui.function.UpdateScreenFile; // used to go back to the 'main' screen
 import playerquests.client.ClientDirector; // for controlling the plugin
 
+/**
+ * Shows a dynamic GUI listening the players quests.
+ */
 public class Dynamicmyquests extends GUIDynamic {
 
     /**
