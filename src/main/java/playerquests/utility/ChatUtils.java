@@ -86,6 +86,7 @@ public class ChatUtils {
      * Formatting for an error message to a player and logging more details.
      * @param player the player to send error message to
      * @param content what the error message should say
+     * @param exception the error itself
      */
     public static void sendError(HumanEntity player, String content, Exception exception) {
         sendError(player, content);
