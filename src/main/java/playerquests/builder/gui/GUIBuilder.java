@@ -309,4 +309,9 @@ public class GUIBuilder implements Builder {
         return this.guiFrame;
     }
 
+    public String getScreenName() {
+        // TODO: get the real screen name of the gui template/dynamic gui
+        return "main";
+    }
+
 }

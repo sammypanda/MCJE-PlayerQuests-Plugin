@@ -72,6 +72,7 @@ public class UpdateScreen extends GUIFunction {
 
         // dynamic GUI path
         this.screenName_dynamic = this.getDynamicClassFromName(screenName.toLowerCase());
+        this.screenName_previous = this.director.getGUI().getScreenName();
 
         // try screenName as dynamic GUI, otherwise as a template GUI
         if (this.screenName_dynamic != null) { // if a dynamic screen of this name exists
@@ -113,7 +114,7 @@ public class UpdateScreen extends GUIFunction {
             // instantiate the dynamic GUI class
             GUIDynamic guiDynamic = (GUIDynamic) this.screenName_dynamic
                 .getDeclaredConstructor(ClientDirector.class, String.class)
-                .newInstance(this.director, "main");
+                .newInstance(this.director, this.screenName_previous);
             guiDynamic.execute(); // generate the dynamic GUI
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             this.exception = e;
