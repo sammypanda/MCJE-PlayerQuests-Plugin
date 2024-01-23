@@ -108,8 +108,6 @@ public class GUIBuilder implements Builder {
             // set as the current instance in the director
             director.setCurrentInstance(this);
         }
-
-        System.out.println("created builder : " + this);
     }
 
     @Override
