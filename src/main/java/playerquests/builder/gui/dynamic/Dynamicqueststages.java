@@ -6,6 +6,7 @@ import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.GUIBuilder; // for managing the gui
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
+import playerquests.builder.gui.function.UpdateScreenDynamic;
 import playerquests.builder.gui.function.UpdateScreenFile; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
 import playerquests.client.ClientDirector; // for controlling the plugin
@@ -82,6 +83,11 @@ public class Dynamicqueststages extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
+            questSlot.addFunction(new UpdateScreenDynamic(
+                new ArrayList<>(Arrays.asList("queststage", "queststages")), 
+                director, 
+                questSlot
+            ));
 
             return false; // continue the loop
         });
