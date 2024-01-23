@@ -1,8 +1,19 @@
 package playerquests.builder.gui.dynamic;
 
-import playerquests.client.ClientDirector;
+import java.util.ArrayList; // array type of list
+import java.util.Arrays; // generic array handling
+
+import playerquests.builder.gui.component.GUISlot; // modifying gui slots
+import playerquests.builder.gui.function.UpdateScreenDynamic; // going to previous screen
+import playerquests.builder.quest.component.QuestStage; // modifying the quest stage
+import playerquests.client.ClientDirector; // controlling the plugin
 
 public class Dynamicqueststage extends GUIDynamic {
+
+    /**
+     * The current quest stage
+     */
+    QuestStage questStage;
 
     /**
      * Creates a dynamic GUI to edit a quest stage.
@@ -15,14 +26,23 @@ public class Dynamicqueststage extends GUIDynamic {
 
     @Override
     protected void setUp_custom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUp_custom'");
+        // set the quest stage instance
+        this.questStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
     }
 
     @Override
     protected void execute_custom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute_custom'");
+        this.gui.getFrame().setTitle("{QuestStage} Editor");
+
+        // the back button
+        GUISlot exitButton = new GUISlot(this.gui, 1);
+        exitButton.setLabel("Back");
+        exitButton.setItem("OAK_DOOR");
+        exitButton.addFunction(new UpdateScreenDynamic( // set function as 'UpdateScreenFile'
+            new ArrayList<>(Arrays.asList("queststages", this.previousScreen)), // set the previous screen 
+            director, // set the client director
+            exitButton // the origin GUI slot
+        ));
     }
     
 }
