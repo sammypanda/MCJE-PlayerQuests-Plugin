@@ -66,7 +66,6 @@ public class UpdateScreen extends GUIFunction {
 
         // Create the next GUI
         this.guiBuilder = new GUIBuilder(this.director, false); // do not replace as current
-        System.out.println("the gui we built: " + this.guiBuilder); 
 
         // collect params
         this.screenName = (String) params.get(0);
