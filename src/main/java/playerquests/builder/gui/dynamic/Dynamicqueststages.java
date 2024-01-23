@@ -6,8 +6,7 @@ import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.GUIBuilder; // for managing the gui
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
-import playerquests.builder.gui.function.UpdateScreenDynamic;
-import playerquests.builder.gui.function.UpdateScreenFile; // another GUI function to go to
+import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
 import playerquests.client.ClientDirector; // for controlling the plugin
 
@@ -70,7 +69,7 @@ public class Dynamicqueststages extends GUIDynamic {
         GUISlot exitButton = new GUISlot(this.gui, 1);
         exitButton.setLabel("Exit");
         exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreenFile( // set function as 'UpdateScreenFile'
+        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
             director, // set the client director
             exitButton // the origin GUI slot
@@ -83,8 +82,8 @@ public class Dynamicqueststages extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
-            questSlot.addFunction(new UpdateScreenDynamic(
-                new ArrayList<>(Arrays.asList("queststage", "queststages")), 
+            questSlot.addFunction(new UpdateScreen(
+                new ArrayList<>(Arrays.asList("queststage")), 
                 director, 
                 questSlot
             ));

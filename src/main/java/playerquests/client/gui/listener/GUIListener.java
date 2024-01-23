@@ -32,6 +32,8 @@ public class GUIListener implements Listener {
      * @param builder the gui builder it should send events to.
      */
     public GUIListener(GUIBuilder builder) {
+        System.out.println("created a gui listener for : " + builder);
+
         this.builder = builder;
     }
 
@@ -53,6 +55,8 @@ public class GUIListener implements Listener {
      * @return if in a GUI clicking in the GUI (CHEST inventory) area.
      */
     private Boolean isGUI(InventoryClickEvent event) {
+
+        System.out.println("clickin on : " + this.builder);
 
         Boolean validInventory = Optional.ofNullable(
             event.getClickedInventory()).map(inventory -> { // get the clicked inventory

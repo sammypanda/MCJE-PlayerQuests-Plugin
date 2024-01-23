@@ -11,6 +11,7 @@ import java.util.stream.IntStream; // used to find the next possible empty slot
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.event.HandlerList; // list of event handlers; used to unload a listener
+import org.bukkit.event.Listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown if json is invalid
 import com.fasterxml.jackson.databind.JsonNode; // type for interpreting json in java
@@ -74,10 +75,19 @@ public class GUIBuilder implements Builder {
     private GUIListener guiListener;
 
     /**
-     * Instantiate a GUIBuilder with default GUI.
+     * Instantiate a GUIBuilder with default GUI and set as current GUIBuilder.
      * @param director director for meta actions to utilise.
      */
     public GUIBuilder(ClientDirector director) {
+        new GUIBuilder(director, true); // create and set as current GUIBuilder
+    }
+
+    /**
+     * Instantiate a GUIBuilder with default GUI + choice if set as current GUIBuilder.
+     * @param director director for meta actions to utilise.
+     * @param current if to set the builder as the current builder instance.
+     */
+    public GUIBuilder(ClientDirector director, Boolean current) {
         // set which director instance created this GUIBuilder
         this.director = director;
 
@@ -94,8 +104,12 @@ public class GUIBuilder implements Builder {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
 
-        // set as the current instance in the director
-        director.setCurrentInstance(this);
+        if (current) {
+            // set as the current instance in the director
+            director.setCurrentInstance(this);
+        }
+
+        System.out.println("created builder : " + this);
     }
 
     @Override
@@ -114,11 +128,6 @@ public class GUIBuilder implements Builder {
     public void dispose() {
         HandlerList.unregisterAll(this.guiListener); // unregister the listeners, don't need them if there is no GUI
         Core.getKeyHandler().deregisterInstance(this); // remove the current instance from key-pair handler
-        
-        // nullify class values we are never going to use again
-        this.guiFrame = null;
-        this.guiSlots = null;
-        this.guiListener = null;
     }
 
     @Override

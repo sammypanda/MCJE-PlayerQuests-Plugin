@@ -23,7 +23,7 @@ public class GUIFrame {
     /**
      * Title of the GUI.
      */
-    String title = "";
+    String title = "Default";
 
     /**
      * Number of slots in the GUI.

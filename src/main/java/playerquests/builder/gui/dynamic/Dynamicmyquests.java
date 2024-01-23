@@ -10,9 +10,8 @@ import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.Core; // fetching Singletons (like: Plugin)
-import playerquests.builder.gui.GUIBuilder; // creating the Dynamic GUI on the screen
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
-import playerquests.builder.gui.function.UpdateScreenFile; // used to go back to the 'main' screen
+import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 'main' screen
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**
@@ -166,7 +165,7 @@ public class Dynamicmyquests extends GUIDynamic {
         GUISlot exitButton = new GUISlot(this.gui, 37);
         exitButton.setLabel("Exit");
         exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreenFile( // set function as 'UpdateScreenFile'
+        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
             director, // set the client director
             exitButton // the origin GUI slot

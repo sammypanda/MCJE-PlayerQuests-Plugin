@@ -41,7 +41,8 @@ public class UpdateScreenFile extends GUIFunction {
         // try to load the GUI screen file
         try {
             // replace the GUIBuilder
-            GUIBuilder guiBuilder = new GUIBuilder(this.director); // create next GUI
+            GUIBuilder guiBuilder = new GUIBuilder(this.director, false); // create next GUI
+            this.director.setCurrentInstance(guiBuilder);
             guiBuilder.load(fileName); // load this next screen
         } catch (IOException e) {
             this.errored = true;

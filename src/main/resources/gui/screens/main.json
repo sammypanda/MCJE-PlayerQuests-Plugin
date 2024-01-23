@@ -15,7 +15,7 @@
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
-                { "name": "UpdateScreenFile", "params": ["create-quest"] },
+                { "name": "UpdateScreen", "params": ["create-quest"] },
                 { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] }
             ]
         },
@@ -24,7 +24,7 @@
             "item": "PAINTING",
             "label": "View Quests",
             "functions": [
-                { "name": "UpdateScreenDynamic", "params": ["myquests", "main"] }
+                { "name": "UpdateScreen", "params": ["myquests"] }
             ]
         }
     ]

@@ -111,11 +111,11 @@ public class ClientDirector {
 
         switch (match.toLowerCase()) {
             case "queststage":
-                classRef = getCurrentInstance(QuestStage.class);
+                classRef = this.getCurrentInstance(QuestStage.class);
                 break;
             case "quest":
             case "questbuilder":
-                classRef = getCurrentInstance(QuestBuilder.class);
+                classRef = this.getCurrentInstance(QuestBuilder.class);
                 break;
         };
 

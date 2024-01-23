@@ -4,7 +4,7 @@ import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
-import playerquests.builder.gui.function.UpdateScreenDynamic; // going to previous screen
+import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.component.QuestStage; // modifying the quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 
@@ -38,8 +38,8 @@ public class Dynamicqueststage extends GUIDynamic {
         GUISlot exitButton = new GUISlot(this.gui, 1);
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreenDynamic( // set function as 'UpdateScreenFile'
-            new ArrayList<>(Arrays.asList("queststages", this.previousScreen)), // set the previous screen 
+        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
+            new ArrayList<>(Arrays.asList("queststages")), // set the previous screen 
             director, // set the client director
             exitButton // the origin GUI slot
         ));

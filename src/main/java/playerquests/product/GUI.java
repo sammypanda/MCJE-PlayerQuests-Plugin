@@ -1,5 +1,6 @@
 package playerquests.product;
 
+import java.util.Map;
 import java.util.Optional; // evaluates nullable values
 
 import org.bukkit.Bukkit; // to create the inventory
@@ -10,6 +11,7 @@ import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
+import playerquests.builder.gui.component.GUISlot;
 import playerquests.utility.GUIUtils; // converts string of item to presentable itemstack
 
 /**
@@ -37,6 +39,10 @@ public class GUI {
      */
     private Inventory inventory = null;
 
+    private GUIFrame frame;
+
+    private Map<Integer, GUISlot> slots;
+
     /**
      * Instantiate a GUI with the defaults.
      * @param builder the builder which creates this GUI
@@ -44,10 +50,8 @@ public class GUI {
     public GUI(GUIBuilder builder) {
         this.builder = builder;
 
-        this.inventory = Bukkit.createInventory( // create default inventory
-            this.builder.getDirector().getPlayer(), // the player who should see the inventory view
-            this.builder.getFrame().getSize() // the count of slots in the inventory
-        );
+        this.frame = builder.getFrame();
+        this.slots = builder.getSlots();
     }
     
     /**
@@ -58,7 +62,7 @@ public class GUI {
 
         this.inventory = Bukkit.createInventory( // create inventory
             this.builder.getDirector().getPlayer(), // the player who should see the inventory view
-            this.builder.getFrame().getSize() // the count of slots in the inventory
+            this.frame.getSize() // the count of slots in the inventory
         );
 
         this.display(); // opening the inventory window (InventoryView)
@@ -92,6 +96,9 @@ public class GUI {
             throw new IllegalAccessError("Could not draw on a GUI which isn't open.");
         }
 
+        this.frame = this.builder.getFrame();
+        this.slots = this.builder.getSlots();
+
         // everything operating on InventoryView types
         drawFrame(); // populating the GUI frame
         drawSlots(); // populating the GUI slots
@@ -101,9 +108,7 @@ public class GUI {
      * Populate the outer GUI window.
      */
     private void drawFrame() {
-        GUIFrame frame = this.builder.getFrame();
-
-        this.view.setTitle(frame.getTitle()); // set the GUI title
+        this.view.setTitle(this.frame.getTitle()); // set the GUI title
     }
 
     /**
@@ -119,7 +124,7 @@ public class GUI {
      * </ul>
      */
     private void drawSlots() {
-        this.builder.getSlots().forEach((position, slot) -> {
+        this.slots.forEach((position, slot) -> {
             ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
 
@@ -131,7 +136,7 @@ public class GUI {
             item.setItemMeta(itemMeta);
 
             // Set the slot item at the slot position
-            if (position > 0 && position <= this.builder.getFrame().getSize()) { // if the slot position is not out of bounds
+            if (position > 0 && position <= this.frame.getSize()) { // if the slot position is not out of bounds
                 this.inventory.setItem( // populate the slot
                     position - 1, // set at the index (starting from 0)
                     item // set the item/block representation
