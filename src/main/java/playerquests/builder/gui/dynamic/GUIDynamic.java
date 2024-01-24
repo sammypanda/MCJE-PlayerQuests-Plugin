@@ -57,6 +57,9 @@ public abstract class GUIDynamic {
         // create the new GUI to show the quests in
         this.gui = new GUIBuilder(this.director, false);
 
+        // set the screen name on the builder
+        this.gui.setScreenName(this.getClass().getSimpleName().split("Dynamic")[1]);
+
         // to-be implemented set up processes
         setUp_custom();
 

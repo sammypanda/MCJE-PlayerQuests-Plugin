@@ -2,7 +2,9 @@ package playerquests.builder.gui;
 
 import java.io.IOException; // thrown if a file is not found or invalid
 import java.io.InputStream; // stream of file contents
+import java.util.ArrayList;
 import java.util.HashMap; // holds and manages info about the GUI slots
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional; // used to check and work with nullable values
 import java.util.Set; // used to retrieve the key values for this.slots
@@ -75,6 +77,11 @@ public class GUIBuilder implements Builder {
     private GUIListener guiListener;
 
     /**
+     * The names of this screen (dynamic/templated) GUIs, and the ones before.
+     */
+    private String screenName;
+
+    /**
      * Instantiate a GUIBuilder with default GUI and set as current GUIBuilder.
      * @param director director for meta actions to utilise.
      */
@@ -130,6 +137,9 @@ public class GUIBuilder implements Builder {
 
     @Override
     public void load(String templateFile) throws IOException {
+        // Set the screen name
+        this.screenName = templateFile;
+
         // Init variable where the JSON string will be put
         String templateString = new String();
 
@@ -309,9 +319,20 @@ public class GUIBuilder implements Builder {
         return this.guiFrame;
     }
 
+    /**
+     * Get the real screen name of the GUI
+     * @return the gui template or dynamic gui name
+     */
     public String getScreenName() {
-        // TODO: get the real screen name of the gui template/dynamic gui
-        return "main";
+        return this.screenName;
+    }
+
+    /**
+     * Set the real screen name of the GUI
+     * @param name the gui template or dynamic gui name
+     */
+    public void setScreenName(String name) {
+        this.screenName = name;
     }
 
 }

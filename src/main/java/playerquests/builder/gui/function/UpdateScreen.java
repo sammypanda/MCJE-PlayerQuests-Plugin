@@ -74,6 +74,8 @@ public class UpdateScreen extends GUIFunction {
         this.screenName_dynamic = this.getDynamicClassFromName(screenName.toLowerCase());
         this.screenName_previous = this.director.getGUI().getScreenName();
 
+        System.out.println("is " + this.screenName_previous + " == " + this.screenName);
+
         // try screenName as dynamic GUI, otherwise as a template GUI
         if (this.screenName_dynamic != null) { // if a dynamic screen of this name exists
             this.fromDynamic();
