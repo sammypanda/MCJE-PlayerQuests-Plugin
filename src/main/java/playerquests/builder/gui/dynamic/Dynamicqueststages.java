@@ -6,7 +6,7 @@ import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.GUIBuilder; // for managing the gui
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
-import playerquests.builder.gui.function.UpdateScreenFile; // another GUI function to go to
+import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
 import playerquests.client.ClientDirector; // for controlling the plugin
 
@@ -26,61 +26,29 @@ public class Dynamicqueststages extends GUIDynamic {
     private String guiTitle = "Quest Stages";
 
     /**
-     * If the setup has been ran
-     */
-    private Boolean wasSetUp = false;
-
-    /**
-     * The quest stages GUI
-     */
-    private GUIBuilder gui;
-
-    /**
      * Creates a dynamic GUI with a list of the current quests stages.
      * @param director director for the client
      * @param previousScreen the screen to go back to
      */
     public Dynamicqueststages(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
+    }
 
+    /**
+     * Create the GUI and set up.
+     */
+    public void setUp_custom() {
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
         this.guiTitle = this.guiTitle + " (" + this.questBuilder.getTitle() + ")";
     }
 
     /**
-     * Create the GUI and set up.
-     */
-    private void setUp() {
-        this.wasSetUp = true;
-
-        // close the previous GUI
-        this.director.getGUI().getResult().close();
-
-        // create the new GUI to show the quests in
-        this.gui = new GUIBuilder(this.director);
-
-        this.execute();
-    }
-
-    /**
      * Main quest stages GUI loop
      */
     @Override
-    public void execute() {
-        if (!this.wasSetUp) {
-            this.setUp();
-            return;
-        }
-
+    public void execute_custom() {
         this.generatePages();
-
-        // open the GUI for the first time
-        if (!this.gui.getResult().isOpen()) {
-            this.gui.getResult().open();
-        } else {
-            this.gui.getResult().draw();
-        }
     }
     
     /**
@@ -99,7 +67,7 @@ public class Dynamicqueststages extends GUIDynamic {
         GUISlot exitButton = new GUISlot(this.gui, 1);
         exitButton.setLabel("Exit");
         exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreenFile( // set function as 'UpdateScreenFile'
+        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
             director, // set the client director
             exitButton // the origin GUI slot
@@ -112,6 +80,11 @@ public class Dynamicqueststages extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
+            questSlot.addFunction(new UpdateScreen(
+                new ArrayList<>(Arrays.asList("queststage")), 
+                director, 
+                questSlot
+            ));
 
             return false; // continue the loop
         });

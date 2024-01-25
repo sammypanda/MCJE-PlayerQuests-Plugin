@@ -1,8 +1,14 @@
 package playerquests.builder.gui.component;
 
+import java.lang.reflect.InvocationTargetException; // thrown when methods cannot be called
+import java.lang.reflect.Method; // for invoking reflected methods
 import java.util.Optional; // handling nullable values
+import java.util.regex.Matcher; // matching string to regex pattern
+import java.util.regex.Pattern; // creating regex pattern
 
 import com.fasterxml.jackson.databind.JsonNode; // type to interpret json objects
+
+import playerquests.client.ClientDirector; // controlling the plugin
 
 /**
  * The information and content of the outer GUI window.
@@ -10,9 +16,14 @@ import com.fasterxml.jackson.databind.JsonNode; // type to interpret json object
 public class GUIFrame {
 
     /**
+     * The director for this context
+     */
+    private ClientDirector director;
+
+    /**
      * Title of the GUI.
      */
-    String title = "";
+    String title = "Default";
 
     /**
      * Number of slots in the GUI.
@@ -21,8 +32,11 @@ public class GUIFrame {
 
     /**
      * Construct a GUI frame with default content.
+     * @param director setting and retrieving values
      */
-    public GUIFrame() {}
+    public GUIFrame(ClientDirector director) {
+        this.director = director;
+    }
 
     /**
      * Set the title of the GUI frame.
@@ -37,7 +51,27 @@ public class GUIFrame {
      * @return string of the gui title 
      */
     public String getTitle() {
-        return this.title;
+        String title = this.title; // empty title to receive substitutions
+        Pattern replacePattern = Pattern.compile("\\{([^}]+)\\}"); // regex for anything inside curly {} brackets
+        Matcher matches = replacePattern.matcher(title); // find replacement pattern in the title
+
+        while (matches.find()) {
+            String match = matches.group(1); // get the match string
+
+            try {
+                Object classRef = this.director.getInstanceFromKey(match);
+                Method method = classRef.getClass().getMethod("getTitle");
+                String response = (String) method.invoke(classRef);
+
+                title = title.replace("{"+match+"}", response);
+
+            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+
+                title = title.replace("{"+match+"}", "").trim(); // clear the replacement string
+            }
+        }
+
+        return title;
     }
 
     /**

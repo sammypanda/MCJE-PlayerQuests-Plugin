@@ -1,5 +1,5 @@
 {
-    "title": "Create Quest",
+    "title": "Create Quest ({Quest})",
     "size": 9,
     "slots": [
         {
@@ -7,7 +7,7 @@
             "item": "OAK_DOOR",
             "label": "Back",
             "functions": [
-                { "name": "UpdateScreenFile", "params": ["main"] }
+                { "name": "UpdateScreen", "params": ["main"] }
             ]
         },
         {
@@ -23,7 +23,7 @@
             "item": "CHEST",
             "label": "Quest Stages",
             "functions": [
-                { "name": "UpdateScreenDynamic", "params": ["queststages", "create-quest"] }
+                { "name": "UpdateScreen", "params": ["queststages"] }
             ]
         },
         {

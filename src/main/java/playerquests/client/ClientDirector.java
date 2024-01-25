@@ -6,6 +6,7 @@ import org.bukkit.entity.HumanEntity; // the player who controls the client
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
 import playerquests.builder.quest.QuestBuilder; // class to control and get Quest product
+import playerquests.builder.quest.component.QuestStage; // class to control and get Quest stages
 
 /**
  * Class which provides simple abstractions for clients to use.
@@ -104,5 +105,27 @@ public class ClientDirector {
         // get the player set on this instance
         return this.player;
     }
+
+    public Object getInstanceFromKey(String match) throws ClassNotFoundException {
+        Object classRef = null;
+
+        switch (match.toLowerCase()) {
+            case "queststage":
+                classRef = this.getCurrentInstance(QuestStage.class);
+                break;
+            case "quest":
+            case "questbuilder":
+                classRef = this.getCurrentInstance(QuestBuilder.class);
+                break;
+        };
+
+        if (classRef == null) {
+            throw new ClassNotFoundException();
+        }
+
+        return classRef;
+    }
+
+
 
 }

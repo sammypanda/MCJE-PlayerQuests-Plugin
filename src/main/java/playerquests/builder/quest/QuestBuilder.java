@@ -41,7 +41,7 @@ public class QuestBuilder {
     /**
      * Entry point for the quest.
      */
-    private QuestStage entryPoint = new QuestStage(0); // default entry point as first stage (stage_0)
+    private QuestStage entryPoint;
 
     /**
      * List of the quest stages and actions.
@@ -65,9 +65,6 @@ public class QuestBuilder {
     {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
-
-        // add default entry point stage to questPlan map
-        this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
     }
 
     /**
@@ -76,6 +73,12 @@ public class QuestBuilder {
      */
     public QuestBuilder(ClientDirector director) {
         this.director = director;
+
+        // default entry point as first stage (stage_0)
+        this.entryPoint = new QuestStage(director, 0);
+
+        // add default entry point stage to questPlan map
+        this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
 
         // set as the current instance in the director
         director.setCurrentInstance(this);
@@ -89,24 +92,7 @@ public class QuestBuilder {
      */
     @Key("quest.title")
     public void setTitle(String title) {
-        String oldTitle = " (" + this.title + ")"; // store the old title to identify later
-        String newTitle = " (" + title + ")";
-
         this.title = title; // set the new title
-
-        GUIBuilder guiBuilder = (GUIBuilder) this.director.getCurrentInstance(GUIBuilder.class); // get the GUI builder
-        GUIFrame frame = guiBuilder.getFrame(); // get the GUI frame
-
-        if (guiBuilder.getResult() != null) {
-            if (frame.getTitle().contains(oldTitle)) {
-                String fullTitle = frame.getTitle().replace(oldTitle, newTitle); // replace the part we appended only
-                frame.setTitle(fullTitle); // re-submit
-            } else {
-                frame.setTitle(frame.getTitle() + newTitle); // submit for the first time
-            }
-            
-            guiBuilder.getResult().draw(); // ask the changes to update in the GUI
-        }
     }
 
     /**
