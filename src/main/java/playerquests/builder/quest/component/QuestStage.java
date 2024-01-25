@@ -1,12 +1,12 @@
 package playerquests.builder.quest.component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap; // hash map type with sequencing
+import java.util.Map; // generic map type
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
-import playerquests.client.ClientDirector;
+import playerquests.client.ClientDirector; // to control the plugin
 
 /**
  * The information and action list for a quest stage.
@@ -22,7 +22,7 @@ public class QuestStage {
      * List of the quest actions.
      */
     @JsonProperty("actions")
-    private List<QuestAction> actions = new ArrayList<QuestAction>();
+    private Map<String, QuestAction> actions = new LinkedHashMap<String, QuestAction>();
 
     /**
      * The id for the stage
@@ -64,7 +64,7 @@ public class QuestStage {
      * @return list of the action instances
      */
     @JsonIgnore
-    public List<QuestAction> getActions() {
+    public Map<String, QuestAction> getActions() {
         return this.actions;
     }
 
@@ -74,8 +74,10 @@ public class QuestStage {
      */
     @JsonIgnore
     public QuestAction newAction() {
-        QuestAction action = new QuestAction("action_"+this.actions.size());
-        this.actions.add(action);
+        String actionID = "action_"+this.actions.size();
+
+        QuestAction action = new QuestAction(actionID);
+        this.actions.put(actionID, action);
         return action;
     }
 }

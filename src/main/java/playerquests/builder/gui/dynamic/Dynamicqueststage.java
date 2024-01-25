@@ -2,6 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
+import java.util.List; // generic list type
 import java.util.stream.IntStream; // used to iterate over a series
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
@@ -50,10 +51,11 @@ public class Dynamicqueststage extends GUIDynamic {
         ));
 
         // produce slots listing current actions
-        IntStream.range(0, this.questStage.getActions().size()).anyMatch(index -> {
+        List<String> actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
+        IntStream.range(0, actionKeys.size()).anyMatch(index -> {
             System.out.println("producting at index = " + index);
 
-            QuestAction action = this.questStage.getActions().get(index);
+            QuestAction action = this.questStage.getActions().get(actionKeys.get(index));
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
             actionSlot.setItem("DETECTOR_RAIL");
