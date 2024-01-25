@@ -76,7 +76,7 @@ public class QuestStage {
     public QuestAction newAction() {
         String actionID = "action_"+this.actions.size();
 
-        QuestAction action = new QuestAction(actionID);
+        QuestAction action = new QuestAction(this.director, actionID);
         this.actions.put(actionID, action);
         return action;
     }

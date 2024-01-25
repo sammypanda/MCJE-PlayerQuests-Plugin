@@ -1,9 +1,16 @@
 package playerquests.builder.quest.component;
 
+import playerquests.client.ClientDirector;
+
 /**
  * An instance of a quest action.
  */
 public class QuestAction {
+
+    /**
+     * Used to access plugin functionality.
+     */
+    private ClientDirector director;
 
     /**
      * The id for the action
@@ -12,9 +19,11 @@ public class QuestAction {
 
     /**
      * Constructs a new quest stage action.
+     * @param director
      * @param id value which the action is tracked by (action_[num])
      */
-    public QuestAction(String id) {
+    public QuestAction(ClientDirector director, String id) {
+        this.director = director;
         this.actionID = id;
     }
 

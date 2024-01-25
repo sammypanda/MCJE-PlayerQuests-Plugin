@@ -53,7 +53,6 @@ public class Dynamicqueststage extends GUIDynamic {
         // produce slots listing current actions
         List<String> actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
         IntStream.range(0, actionKeys.size()).anyMatch(index -> {
-            System.out.println("producting at index = " + index);
 
             QuestAction action = this.questStage.getActions().get(actionKeys.get(index));
             Integer nextEmptySlot = this.gui.getEmptySlot();
@@ -61,13 +60,17 @@ public class Dynamicqueststage extends GUIDynamic {
             actionSlot.setItem("DETECTOR_RAIL");
             actionSlot.setLabel(action.getTitle());
             actionSlot.onClick(() -> {
+                // set the action as the current action to modify
                 this.director.setCurrentInstance(action);
+                // prep the screen to be updated
+                actionSlot.addFunction(new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("edit-quest-action")), 
+                    director, 
+                    actionSlot
+                ));
+                // manually start the slot functions (updating of the screen)
+                actionSlot.execute(this.director.getPlayer());
             });
-            actionSlot.addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList("edit-quest-action")), 
-                director, 
-                actionSlot
-            ));
 
             return false; // continue the loop
         });
@@ -80,7 +83,6 @@ public class Dynamicqueststage extends GUIDynamic {
             QuestAction action = this.questStage.newAction(); // create the new action to present
             this.gui.clearSlots(); // clear to prevent duplicates
             this.execute(); // re-run to see new action in list
-            System.out.println("the actions list: " + this.questStage.getActions());
 
             // NOTE: uncomment the following to flick over into editing the action straight away:
             // this.director.setCurrentInstance(action);
