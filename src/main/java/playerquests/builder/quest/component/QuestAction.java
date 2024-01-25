@@ -1,5 +1,7 @@
 package playerquests.builder.quest.component;
 
+import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
+
 import playerquests.client.ClientDirector;
 
 /**
@@ -31,6 +33,7 @@ public class QuestAction {
      * Returns the quest action title (for now just represented as the ID).
      * @return label for the action
      */
+    @JsonProperty("name")
     public String getTitle() {
         return this.actionID;
     }
