@@ -3,6 +3,7 @@ package playerquests.builder.gui.function;
 import java.io.IOException; // thrown of replacement GUI screen template file not found
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList; // used to store the params for this meta action
+import java.util.List; // generic list type
 
 import playerquests.builder.gui.GUIBuilder; // used to parse the GUI screen template
 import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
@@ -26,22 +27,24 @@ public class UpdateScreen extends GUIFunction {
     GUIBuilder guiBuilder;
 
     /**
-     * The previous GUI screen
+     * The previous GUI screen name
      */
-    private GUIBuilder screen_previous;
-
     private String screenName_previous;
 
+    /**
+     * The screen name we are updating to.
+     */
     private String screenName;
 
+    /**
+     * The screen name if updating to a dynamic GUI.
+     */
     private Class<?> screenName_dynamic;
 
     /**
      * The error message to send
      */
     private String error;
-
-
 
     /**
      * Not intended to be created directly.
@@ -71,10 +74,28 @@ public class UpdateScreen extends GUIFunction {
         this.screenName = (String) params.get(0);
 
         // dynamic GUI path
+        List<String> screenNames_previous = this.director.getGUI().getPreviousScreens();
         this.screenName_dynamic = this.getDynamicClassFromName(screenName.toLowerCase());
-        this.screenName_previous = this.director.getGUI().getScreenName();
+        this.screenName_previous = this.director.getGUI().getScreenName(); // predicted previous screen
 
-        System.out.println("is " + this.screenName_previous + " == " + this.screenName);
+        // if where we are heading is not the same as where we came from (not going back)
+        // NOTE: using contains is the lazy way of doing so
+        if (screenNames_previous.contains(this.screenName)) {
+            screenNames_previous.remove(screenNames_previous.size() - 1); // if going backwards
+        } else {
+            screenNames_previous.add(this.screenName_previous); // if going forwards
+        }
+        
+        // set the previous screens in next GUI
+        this.guiBuilder.setPreviousScreens(screenNames_previous);
+
+        // swap to new GUI
+        this.director.setCurrentInstance(this.guiBuilder);
+
+        // replace the predicted previous screen name with the tracked one (if available)
+        if (screenNames_previous.size() >= 1) {
+            this.screenName_previous = screenNames_previous.get(screenNames_previous.size() - 1);
+        }
 
         // try screenName as dynamic GUI, otherwise as a template GUI
         if (this.screenName_dynamic != null) { // if a dynamic screen of this name exists
@@ -99,7 +120,6 @@ public class UpdateScreen extends GUIFunction {
     private void fromFile() {
         try {
             this.guiBuilder.load(this.screenName); // load this next screen
-            this.director.setCurrentInstance(this.guiBuilder);
             this.director.getGUI().getResult().open(); // open the next GUI
         } catch (IOException e) {
             this.error = "Could not load GUI screen at: " + screenName + ", will cancel rest of functions";

@@ -2,9 +2,9 @@ package playerquests.builder.gui;
 
 import java.io.IOException; // thrown if a file is not found or invalid
 import java.io.InputStream; // stream of file contents
-import java.util.ArrayList;
+import java.util.ArrayList; // array list type
 import java.util.HashMap; // holds and manages info about the GUI slots
-import java.util.List;
+import java.util.List; // generic list type
 import java.util.Map; // generic map type
 import java.util.Optional; // used to check and work with nullable values
 import java.util.Set; // used to retrieve the key values for this.slots
@@ -13,7 +13,6 @@ import java.util.stream.IntStream; // used to find the next possible empty slot
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.event.HandlerList; // list of event handlers; used to unload a listener
-import org.bukkit.event.Listener;
 
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown if json is invalid
 import com.fasterxml.jackson.databind.JsonNode; // type for interpreting json in java
@@ -80,6 +79,11 @@ public class GUIBuilder implements Builder {
      * The names of this screen (dynamic/templated) GUIs, and the ones before.
      */
     private String screenName;
+
+    /**
+     * The previous screens the user have been to.
+     */
+    private List<String> previousScreens = new ArrayList<String>();
 
     /**
      * Instantiate a GUIBuilder with default GUI and set as current GUIBuilder.
@@ -333,6 +337,22 @@ public class GUIBuilder implements Builder {
      */
     public void setScreenName(String name) {
         this.screenName = name;
+    }
+
+    /**
+     * Gets the previous screen names 
+     * @return the previous screens to go back to.
+     */
+    public List<String> getPreviousScreens() {
+        return this.previousScreens;
+    }
+
+    /**
+     * Sets the previous screen names 
+     * @param previousScreens the previous screens to go back to.
+     */
+    public void setPreviousScreens(List<String> previousScreens) {
+        this.previousScreens = previousScreens;
     }
 
 }

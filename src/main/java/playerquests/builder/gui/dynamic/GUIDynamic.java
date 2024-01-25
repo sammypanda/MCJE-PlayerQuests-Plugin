@@ -51,11 +51,8 @@ public abstract class GUIDynamic {
     public void setUp() {
         this.wasSetUp = true;
 
-        // close the previous GUI
-        this.director.getGUI().getResult().close();
-
-        // create the new GUI to show the quests in
-        this.gui = new GUIBuilder(this.director, false);
+        // get the new GUI to show the quests in
+        this.gui = this.director.getGUI();
 
         // set the screen name on the builder
         this.gui.setScreenName(this.getClass().getSimpleName().split("Dynamic")[1]);
@@ -79,9 +76,6 @@ public abstract class GUIDynamic {
 
         // to-be implemented execute processes
         execute_custom();
-
-        // replace current guibuilder with the new guibuilder
-        this.director.setCurrentInstance(this.gui);
 
         // show the results
         if (!this.gui.getResult().isOpen()) {

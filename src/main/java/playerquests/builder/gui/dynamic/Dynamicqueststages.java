@@ -32,17 +32,15 @@ public class Dynamicqueststages extends GUIDynamic {
      */
     public Dynamicqueststages(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
-
-        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
-
-        this.guiTitle = this.guiTitle + " (" + this.questBuilder.getTitle() + ")";
     }
 
     /**
      * Create the GUI and set up.
      */
     public void setUp_custom() {
-        // N/A
+        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
+
+        this.guiTitle = this.guiTitle + " (" + this.questBuilder.getTitle() + ")";
     }
 
     /**
