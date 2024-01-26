@@ -4,7 +4,6 @@ import java.util.ArrayList; // stores parameters for next GUI function
 import java.util.Arrays; // working with literal arrays
 import java.util.stream.IntStream; // fills slots procedually
 
-import playerquests.builder.gui.GUIBuilder; // for managing the gui
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
 import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest

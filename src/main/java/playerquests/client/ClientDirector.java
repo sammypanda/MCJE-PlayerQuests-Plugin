@@ -6,6 +6,7 @@ import org.bukkit.entity.HumanEntity; // the player who controls the client
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
 import playerquests.builder.quest.QuestBuilder; // class to control and get Quest product
+import playerquests.builder.quest.component.QuestAction; // class to control and get Quest stage actions
 import playerquests.builder.quest.component.QuestStage; // class to control and get Quest stages
 
 /**
@@ -67,7 +68,12 @@ public class ClientDirector {
      * @param instance type of instance to store (and replace if already exists).
      */
     public void setCurrentInstance(Object instance) {
-        this.currentInstances.remove(instance.getClass());
+        // remove if it exists
+        if (this.currentInstances.containsKey(instance)) {
+            this.currentInstances.remove(instance.getClass());
+        }
+
+        // set the current class instance for access
         this.currentInstances.put(instance.getClass(), instance);
     }
 
@@ -116,6 +122,11 @@ public class ClientDirector {
             case "quest":
             case "questbuilder":
                 classRef = this.getCurrentInstance(QuestBuilder.class);
+                break;
+            case "action":
+            case "stageaction":
+            case "questaction":
+                classRef = this.getCurrentInstance(QuestAction.class);
                 break;
         };
 

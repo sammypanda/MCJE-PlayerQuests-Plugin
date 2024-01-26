@@ -1,0 +1,14 @@
+{
+    "title": "{QuestAction} Editor",
+    "size": 9,
+    "slots": [
+        {
+            "slot": 1,
+            "item": "OAK_DOOR",
+            "label": "Back",
+            "functions": [
+                { "name": "UpdateScreen", "params": ["queststage"] }
+            ]
+        }
+    ]
+}

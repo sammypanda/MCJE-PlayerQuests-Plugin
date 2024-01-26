@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
 import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
-import playerquests.builder.gui.GUIBuilder; // for modifying the GUI
-import playerquests.builder.gui.component.GUIFrame; // modifying the outer frame of the GUI
 import playerquests.builder.quest.component.QuestStage; // object for quest stages
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
