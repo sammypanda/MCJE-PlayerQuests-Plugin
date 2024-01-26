@@ -40,6 +40,7 @@ public class ActionType {
         List<String> actionTypes = new ArrayList<>();
 
         actionTypes.add("None");
+        actionTypes.add("Speak");
 
         return actionTypes;
     }
