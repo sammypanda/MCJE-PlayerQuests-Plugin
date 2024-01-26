@@ -64,7 +64,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 this.director.setCurrentInstance(action);
                 // prep the screen to be updated
                 actionSlot.addFunction(new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("edit-quest-action")), 
+                    new ArrayList<>(Arrays.asList("actioneditor")), 
                     director, 
                     actionSlot
                 ));
@@ -88,7 +88,7 @@ public class Dynamicqueststage extends GUIDynamic {
             // this.director.setCurrentInstance(action);
         });
         // newActionButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-        //     new ArrayList<>(Arrays.asList("edit-quest-action")), // set the previous screen 
+        //     new ArrayList<>(Arrays.asList("actioneditor")), // set the previous screen 
         //     director, // set the client director
         //     newActionButton // the origin GUI slot
         // ));
