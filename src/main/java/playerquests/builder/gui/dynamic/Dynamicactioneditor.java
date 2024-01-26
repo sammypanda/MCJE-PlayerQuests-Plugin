@@ -61,7 +61,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         // changing action type button
         GUISlot typeButton = new GUISlot(this.gui, 3);
         typeButton.setItem("FIREWORK_ROCKET");
-        typeButton.setLabel("Change Type");
+        typeButton.setLabel("Change Type (" + this.action.getType().toString() + ")");
         typeButton.addFunction(new UpdateScreen(
             new ArrayList<>(Arrays.asList("actiontypes")),
             director,

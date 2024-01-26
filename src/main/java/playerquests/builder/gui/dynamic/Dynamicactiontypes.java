@@ -1,5 +1,6 @@
 package playerquests.builder.gui.dynamic;
 
+import java.lang.reflect.InvocationTargetException; // thrown if an action type cannot be instantiated
 import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
 import java.util.List; // generic list type
@@ -122,7 +123,7 @@ public class Dynamicactiontypes extends GUIDynamic {
             // set currently selected item
             try {
                 // check if the action type class exists
-                Class.forName("playerquests.builder.quest.component.action.type." + type);
+                Class<?> classRef = Class.forName("playerquests.builder.quest.component.action.type." + type);
 
                 // Then it means the action type has been implemented:
                 if (this.action.getType() == type) { // compare action type being modified with action type in this loop
@@ -132,6 +133,18 @@ public class Dynamicactiontypes extends GUIDynamic {
                     typeButton.setItem("REDSTONE");
                     typeButton.setLabel(type);
                 }
+
+                // change the action type on the action when clicked
+                typeButton.onClick(() -> {
+                    try {
+                        ActionType actionTypeInstance = (ActionType) classRef.getDeclaredConstructor().newInstance(); // create a new instance of the action type
+                        this.action.setType(actionTypeInstance); // set the instance
+                        this.gui.clearSlots(); // clear to prevent duplicates
+                        this.execute(); // re-run to show changes
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                        throw new IllegalStateException("Action type " + type + " could not be instantiated.");
+                    }
+                });
 
             } catch (ClassNotFoundException e) {
                 // Then it means the action type is not implemented:

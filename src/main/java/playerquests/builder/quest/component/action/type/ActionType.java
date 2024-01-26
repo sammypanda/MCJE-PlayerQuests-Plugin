@@ -44,4 +44,9 @@ public class ActionType {
 
         return actionTypes;
     }
+
+    @Override
+    public String toString() {
+        return "ActionType";
+    }
 }
