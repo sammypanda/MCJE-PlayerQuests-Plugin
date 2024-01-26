@@ -29,6 +29,11 @@ public class QuestStage {
      */
     private String stageID = "stage_-1";
 
+    {
+        // create the default first action
+        this.newAction();
+    }
+
     /**
      * Constructs a new quest stage.
      * @param id value which the stage is tracked by (stage_[num])
