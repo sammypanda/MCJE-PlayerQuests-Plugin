@@ -67,6 +67,15 @@ public class Dynamicactioneditor extends GUIDynamic {
             director,
             typeButton
         ));
+
+        // setting current as stage entry point button
+        GUISlot entrypointButton = new GUISlot(this.gui, 4);
+        entrypointButton.setItem("ENDER_EYE");
+        entrypointButton.setLabel("Set Action As Entry Point");
+        entrypointButton.onClick(() -> {
+            this.stage.setEntryPoint(this.action); // set this action as the stage entry point
+            this.execute(); // re-run to see changes
+        });
     }
     
 }
