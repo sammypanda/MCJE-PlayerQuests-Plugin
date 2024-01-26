@@ -6,6 +6,7 @@ import java.util.Map; // generic map type
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
 import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
+import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.component.action.type.None; // an empty/skippable quest action
 import playerquests.client.ClientDirector; // to control the plugin
 
@@ -30,9 +31,21 @@ public class QuestStage {
      */
     private String stageID = "stage_-1";
 
+    /**
+     * Entry point for the stage.
+     */
+    @JsonIgnore
+    private QuestAction entryPoint;
+
     {
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
+
         // create the default first action
-        this.newAction();
+        QuestAction action = this.newAction();
+
+        // set the default first action as the default entry point
+        this.setEntryPoint(action);
     }
 
     /**
@@ -86,5 +99,29 @@ public class QuestStage {
         QuestAction action = new QuestAction(this.director, actionID, new None());
         this.actions.put(actionID, action);
         return action;
+    }
+
+    /**
+     * Sets the first action executed when this stage is reached.
+     * @param action a quest action instance
+     */
+    public void setEntryPoint(QuestAction action) {
+        this.entryPoint = action;
+    }
+
+    /**
+     * Gets the first action executed when this stage is reached.
+     * @return a quest action instance
+     */
+    public QuestAction getEntryPoint() {
+        return this.entryPoint;
+    }
+
+    /**
+     * Gets the entry point as a string
+     */
+    @JsonProperty("entry")
+    public String getEntryPointAsString() {
+        return this.entryPoint.getTitle();
     }
 }

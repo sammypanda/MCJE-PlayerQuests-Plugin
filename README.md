@@ -43,6 +43,7 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
             "entry": String, // where the stage starts
             "actions": { // directory of all this stage's actions
                 "action_0": {  // Action ID (automatically generated)
+                    "type": String, // Quest Action type
                     "name": String, // Quest Action name
                     "params": Array, // Quest Action parameters
                     "connections": { // defining where the action is in the stage
