@@ -21,7 +21,7 @@ public class QuestAction {
 
     /**
      * Constructs a new quest stage action.
-     * @param director
+     * @param director director for the client
      * @param id value which the action is tracked by (action_[num])
      */
     public QuestAction(ClientDirector director, String id) {

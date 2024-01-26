@@ -36,7 +36,8 @@ public class QuestStage {
 
     /**
      * Constructs a new quest stage.
-     * @param id value which the stage is tracked by (stage_[num])
+     * @param director director for the client
+     * @param stageIDNumber value which the stage is tracked by (stage_[num])
      */
     public QuestStage(ClientDirector director, Integer stageIDNumber) {
         this.director = director;

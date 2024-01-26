@@ -17,11 +17,12 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 ###### Quest Actions (Actions)
 TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
 
-| Function (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
-|----------------------------|-------------------------------|-------------------------------------------------|
-| Speak                      | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
-| RequestItem                | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
-| ChangeQuestEntry           | 1: stage ID or action ID      | Changes what stage or action the quest opens to |
+| Type (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
+|------------------------|-------------------------------|-------------------------------------------------|
+| None                   | N/A                           | Nothing; ignored                                |
+| Speak                  | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
+| RequestItem            | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
+| ChangeQuestEntry       | 1: stage ID or action ID      | Changes what stage or action the quest opens to |
 
 # How To Get Functionality: 'Templates'
 ###### We have Meta and Quest Actions, but how do we actually use them?
