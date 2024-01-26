@@ -16,7 +16,7 @@ public class Dynamicactioneditor extends GUIDynamic {
     QuestAction questAction;
 
     /**
-     * Creates a dynamic GUI to edit a quest stage.
+     * Creates a dynamic GUI to edit a quest stage action.
      * @param director director for the client
      * @param previousScreen the screen to go back to
      */
