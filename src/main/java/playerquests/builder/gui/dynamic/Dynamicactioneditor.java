@@ -6,14 +6,20 @@ import java.util.Arrays; // generic array handling
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
+import playerquests.builder.quest.component.QuestStage; // modifying the quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 
 public class Dynamicactioneditor extends GUIDynamic {
 
     /**
-     * The current quest action
+     * The current quest action.
      */
-    QuestAction questAction;
+    QuestAction action;
+
+    /**
+     * The parent quest stage for this quest action.
+     */
+    QuestStage stage;
 
     /**
      * Creates a dynamic GUI to edit a quest stage action.
@@ -27,12 +33,20 @@ public class Dynamicactioneditor extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         // set the quest action instance
-        this.questAction = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+
+        // get the quest action stage parent
+        this.stage = this.action.getStage();
     }
 
     @Override
     protected void execute_custom() {
-        this.gui.getFrame().setTitle("{QuestAction} Editor");
+        // set label
+        if (this.stage.getEntryPoint() == this.action) { // if this action is the entry point
+            this.gui.getFrame().setTitle("{QuestAction} Editor (Entry Point)");
+        } else {
+            this.gui.getFrame().setTitle("{QuestAction} Editor");
+        }
 
         // the back button
         GUISlot exitButton = new GUISlot(this.gui, 1);
