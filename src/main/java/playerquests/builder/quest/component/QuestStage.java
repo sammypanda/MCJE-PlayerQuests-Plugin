@@ -34,6 +34,7 @@ public class QuestStage {
     /**
      * Entry point for the stage.
      */
+    @JsonIgnore
     private QuestAction entryPoint;
 
     {
@@ -114,5 +115,13 @@ public class QuestStage {
      */
     public QuestAction getEntryPoint() {
         return this.entryPoint;
+    }
+
+    /**
+     * Gets the entry point as a string
+     */
+    @JsonProperty("entry")
+    public String getEntryPointAsString() {
+        return this.entryPoint.getTitle();
     }
 }
