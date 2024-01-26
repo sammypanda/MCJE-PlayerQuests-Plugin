@@ -9,6 +9,14 @@
             "functions": [
                 { "name": "UpdateScreen", "params": ["queststage"] }
             ]
+        },
+        {
+            "slot": 3,
+            "item": "FIREWORK_ROCKET",
+            "label": "Change Type",
+            "functions": [
+                { "name": "UpdateScreen", "params": ["actiontypes"] }
+            ]
         }
     ]
 }
