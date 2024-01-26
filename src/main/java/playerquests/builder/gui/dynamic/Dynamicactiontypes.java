@@ -11,6 +11,7 @@ import playerquests.builder.gui.function.UpdateScreen; // used to go back to oth
 import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
 import playerquests.builder.quest.component.action.type.ActionType; // modifying a quest stage action
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.utility.ChatUtils; // used to send well-formed errors
 
 /**
  * Shows a dynamic GUI listing the possible quest actions.
@@ -136,6 +137,9 @@ public class Dynamicactiontypes extends GUIDynamic {
                 // Then it means the action type is not implemented:
                 typeButton.setItem("COAL");
                 typeButton.setLabel(type + " (Unimplemented)");
+                typeButton.onClick(() -> { // show error if trying to use unimplemented action
+                    ChatUtils.sendError(this.director.getPlayer(), "Could not change this action to an unimplemented action type.");
+                });
             }
             
             return false; // continue the loop
