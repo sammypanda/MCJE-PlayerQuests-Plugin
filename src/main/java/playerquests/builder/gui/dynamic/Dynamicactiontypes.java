@@ -120,7 +120,7 @@ public class Dynamicactiontypes extends GUIDynamic {
 
             // set currently selected item
             if (this.action.getType() == type) { // compare action type being modified with action type in this loop
-                typeButton.setItem("GLOWSTONE");
+                typeButton.setItem("GLOWSTONE_DUST");
                 typeButton.setLabel(type + " (Selected)");
             } else {
                 typeButton.setItem("REDSTONE");
