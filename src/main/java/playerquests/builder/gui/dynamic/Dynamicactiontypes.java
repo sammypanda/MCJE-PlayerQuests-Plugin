@@ -37,7 +37,7 @@ public class Dynamicactiontypes extends GUIDynamic {
     private Integer slotsPerPage = 36;
 
     /**
-     * Creates a dynamic GUI with a list of 'my quests'.
+     * Creates a dynamic GUI with a list of 'quest actions'.
      * @param director director for the client
      * @param previousScreen the screen to go back to
      */
@@ -46,13 +46,9 @@ public class Dynamicactiontypes extends GUIDynamic {
     }
 
     /**
-     * Setting important values for myquests Dynamic GUI.
+     * Setting important values for actiontypes Dynamic GUI.
      * <ul>
-     * <li>Gets list of all the quest templates
-     *   <ul>
-     *   <li>owned by the current player (or no-one)
-     *   </ul>
-     * <li>Creates and opens the GUI
+     * <li>Gets list of all the quest actions
      * <li>Instigates pagination/page generation
      * </ul>
      */
@@ -65,16 +61,15 @@ public class Dynamicactiontypes extends GUIDynamic {
     }
 
     /**
-     * Operations to run on each page of the myquests Dynamic GUI.
+     * Operations to run on each page of the actiontypes Dynamic GUI.
      * <ul>
      * <li>Runs the setup once
-     * <li>Filters the templates to show on each page
-     * <li>Generates and opens/redraws the screen pages
+     * <li>Filters the action types to show on each page
      * </ul>
      */
     @Override
     public void execute_custom() {
-        // filter out the templates (pagination)
+        // filter out the types (pagination)
         ArrayList<String> actionTypes_remaining = (ArrayList<String>) this.actionTypes
             .stream()
             .filter(i -> this.actionTypes.indexOf(i) > this.lastBuiltSlot - 1)
@@ -95,19 +90,19 @@ public class Dynamicactiontypes extends GUIDynamic {
 
     /**
      * Replaces existing screen with a page listing quests with back/forward/exit buttons.
-     * @param remainingTemplates the quest templates to insert
+     * @param actionTypes_remaining the quest actions to insert in the page
      */
-    private void generatePage(ArrayList<String> remainingTemplates) {
-        Integer slotCount = remainingTemplates.size() >= this.slotsPerPage // if there are more remaining templates than the default slot limit
+    private void generatePage(ArrayList<String> actionTypes_remaining) {
+        Integer slotCount = actionTypes_remaining.size() >= this.slotsPerPage // if there are more remaining types than the default slot limit
         ? this.slotsPerPage // use the default slot limit
-        : remainingTemplates.size(); // otherwise use the number of remaining templates
+        : actionTypes_remaining.size(); // otherwise use the number of remaining action types
 
         IntStream.range(0, slotCount).anyMatch(index -> { // only built 42 slots
-            if (remainingTemplates.isEmpty() || remainingTemplates.get(index) == null) {
+            if (actionTypes_remaining.isEmpty() || actionTypes_remaining.get(index) == null) {
                 return true; // exit the loop
             }
 
-            String quest = remainingTemplates.get(index);
+            String quest = actionTypes_remaining.get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("REDSTONE");
@@ -128,7 +123,7 @@ public class Dynamicactiontypes extends GUIDynamic {
 
         // when the back button is pressed
         GUISlot backButton = new GUISlot(this.gui, 44);
-        if (this.actionTypes.size() != remainingTemplates.size()) { // if the remaining is the same as all 
+        if (this.actionTypes.size() != actionTypes_remaining.size()) { // if the remaining is the same as all 
             backButton.setLabel("Back");
             backButton.setItem("ORANGE_STAINED_GLASS_PANE");
             backButton.onClick(() -> {
@@ -140,7 +135,7 @@ public class Dynamicactiontypes extends GUIDynamic {
 
         // when the next button is pressed
         GUISlot nextButton = new GUISlot(this.gui, 45);
-        if (this.slotsPerPage <= remainingTemplates.size()) { // if the remaining is bigger or the same as the default slots per page
+        if (this.slotsPerPage <= actionTypes_remaining.size()) { // if the remaining is bigger or the same as the default slots per page
             nextButton.setLabel("Next");
             nextButton.setItem("GREEN_STAINED_GLASS_PANE");
             nextButton.onClick(() -> {
