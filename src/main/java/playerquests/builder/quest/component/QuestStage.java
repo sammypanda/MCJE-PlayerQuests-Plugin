@@ -6,6 +6,7 @@ import java.util.Map; // generic map type
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
 import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
+import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.component.action.type.None; // an empty/skippable quest action
 import playerquests.client.ClientDirector; // to control the plugin
 
@@ -31,6 +32,9 @@ public class QuestStage {
     private String stageID = "stage_-1";
 
     {
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
+
         // create the default first action
         this.newAction();
     }
