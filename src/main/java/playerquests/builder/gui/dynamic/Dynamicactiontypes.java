@@ -119,12 +119,23 @@ public class Dynamicactiontypes extends GUIDynamic {
             GUISlot typeButton = new GUISlot(this.gui, nextEmptySlot);
 
             // set currently selected item
-            if (this.action.getType() == type) { // compare action type being modified with action type in this loop
-                typeButton.setItem("GLOWSTONE_DUST");
-                typeButton.setLabel(type + " (Selected)");
-            } else {
-                typeButton.setItem("REDSTONE");
-                typeButton.setLabel(type);
+            try {
+                // check if the action type class exists
+                Class.forName("playerquests.builder.quest.component.action.type." + type);
+
+                // Then it means the action type has been implemented:
+                if (this.action.getType() == type) { // compare action type being modified with action type in this loop
+                    typeButton.setItem("GLOWSTONE_DUST");
+                    typeButton.setLabel(type + " (Selected)");
+                } else {
+                    typeButton.setItem("REDSTONE");
+                    typeButton.setLabel(type);
+                }
+
+            } catch (ClassNotFoundException e) {
+                // Then it means the action type is not implemented:
+                typeButton.setItem("COAL");
+                typeButton.setLabel(type + " (Unimplemented)");
             }
             
             return false; // continue the loop
