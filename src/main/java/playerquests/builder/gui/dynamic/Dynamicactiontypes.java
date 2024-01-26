@@ -8,6 +8,7 @@ import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen; // used to go back to other screens
+import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
 import playerquests.builder.quest.component.action.type.ActionType; // modifying a quest stage action
 import playerquests.client.ClientDirector; // for controlling the plugin
 
@@ -25,6 +26,11 @@ public class Dynamicactiontypes extends GUIDynamic {
      * The action types available for the action.
      */
     private List<String> actionTypes = new ArrayList<>();
+
+    /**
+     * The quest action this action type list is born from
+     */
+    private QuestAction action;
 
     /**
      * the position of the last slot put on a page
@@ -55,6 +61,9 @@ public class Dynamicactiontypes extends GUIDynamic {
     public void setUp_custom() {
         // get the list of all actions
         this.actionTypes = ActionType.allActionTypes();
+
+        // get the current quest stage
+        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
 
         // modify the new GUI to show the quests in
         this.gui.getFrame().setSize(45);
@@ -102,12 +111,22 @@ public class Dynamicactiontypes extends GUIDynamic {
                 return true; // exit the loop
             }
 
-            String quest = actionTypes_remaining.get(index);
-            Integer nextEmptySlot = this.gui.getEmptySlot();
-            GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
-            questSlot.setItem("REDSTONE");
-            questSlot.setLabel(quest.split("_")[0]);
+            // get the type of current item in actions list
+            String type = actionTypes_remaining.get(index);
 
+            // set the slot this item goes into
+            Integer nextEmptySlot = this.gui.getEmptySlot();
+            GUISlot typeButton = new GUISlot(this.gui, nextEmptySlot);
+
+            // set currently selected item
+            if (this.action.getType() == type) { // compare action type being modified with action type in this loop
+                typeButton.setItem("COAL");
+                typeButton.setLabel(type + " (Selected)");
+            } else {
+                typeButton.setItem("REDSTONE");
+                typeButton.setLabel(type);
+            }
+            
             return false; // continue the loop
         });
 

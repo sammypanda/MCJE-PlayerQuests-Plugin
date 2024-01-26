@@ -13,4 +13,9 @@ public class None extends ActionType {
     public None() {
         super();
     }
+
+    @Override
+    public String toString() {
+        return "None";
+    }
 }
