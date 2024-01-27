@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
 import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
+import playerquests.builder.quest.component.QuestNPC;  // object for quest npcs
 import playerquests.builder.quest.component.QuestStage; // object for quest stages
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
@@ -44,6 +45,9 @@ public class QuestBuilder {
     /**
      * Map of the NPC characters.
      */
+    @JsonIgnore
+    private Map<String, QuestNPC> questNPCs = new HashMap<String, QuestNPC>();
+
     /**
      * Map of the quest stages and actions.
      */
@@ -80,6 +84,10 @@ public class QuestBuilder {
 
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
+
+        // TODO: remove this testing NPC
+        QuestNPC testNPC = new QuestNPC();
+        this.questNPCs.put(testNPC.getID(), testNPC);
 
         // set as the current instance in the director
         director.setCurrentInstance(this);
@@ -175,5 +183,16 @@ public class QuestBuilder {
     @JsonProperty("stages")
     public Map<String, QuestStage> getQuestPlan() {
         return this.questPlan;
+    }
+
+    /**
+     * Get the quest NPCs that have been created.
+     * @return map of quest NPCs
+     */
+    @JsonProperty("npcs")
+    public Map<String, QuestNPC> getQuestNPCs() {
+        // TODO: filter out, out of bounds NPCs (npc_-1); as they have been improperly formed
+
+        return this.questNPCs;
     }
 }
