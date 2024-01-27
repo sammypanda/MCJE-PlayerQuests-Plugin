@@ -1,14 +1,15 @@
 package playerquests.builder.quest.component.action.type;
 
+import java.util.ArrayList;
+
 public class Speak extends ActionType {
     
     /**
-     * Not intended to be created directly.
-     * <p>
      * Produces dialogue from an NPC.
+     * @param params the list of parameters for a function 
      */
-    public Speak() {
-        super();
+    public Speak(ArrayList<Object> params) {
+        super(params);
     }
 
     @Override
