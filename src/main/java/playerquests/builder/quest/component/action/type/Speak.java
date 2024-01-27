@@ -12,6 +12,15 @@ public class Speak extends ActionType {
         super(params);
     }
 
+    /**
+     * Produces dialogue from an NPC.
+     * <p>
+     * Assumes an empty param list.
+     */ 
+    public Speak() {
+        super(new ArrayList<>());
+    }
+
     @Override
     public String toString() {
         return "Speak";
