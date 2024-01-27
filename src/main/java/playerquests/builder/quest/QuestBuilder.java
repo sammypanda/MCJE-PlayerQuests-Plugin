@@ -5,6 +5,7 @@ import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
+import java.util.stream.Collectors; // accumulating elements from a stream into a type
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
@@ -191,8 +192,11 @@ public class QuestBuilder {
      */
     @JsonProperty("npcs")
     public Map<String, QuestNPC> getQuestNPCs() {
-        // TODO: filter out, out of bounds NPCs (npc_-1); as they have been improperly formed
+        // Remove invalid/out of bound NPC IDs
+        Map<String, QuestNPC> filteredNPCs = this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
+            .filter(entry -> entry.getKey() != "npc_-1") // filter out all IDs that are out of bounds
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // set the result
 
-        return this.questNPCs;
+        return filteredNPCs;
     }
 }
