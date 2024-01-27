@@ -14,6 +14,7 @@ import playerquests.Core; // used to access the Plugin and KeyHandler instances
 import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to clear chat lines for a better UI
+import playerquests.utility.PluginUtils; // used to validate function params
 
 /**
  * Meta action to swiftly move to another GUI screen based on another template JSON file. 
@@ -110,7 +111,12 @@ public class ChatPrompt extends GUIFunction {
      * </ul>
      */
     private void setUp() {
-        validateParams(this.params, String.class, String.class);
+        try {
+            PluginUtils.validateParams(this.params, String.class, String.class);
+        } catch (IllegalArgumentException e) {
+            this.errored = true;
+            ChatUtils.sendError(this.player, e.getMessage());
+        }
 
         // set initial values
         this.prompt = (String) params.get(0);

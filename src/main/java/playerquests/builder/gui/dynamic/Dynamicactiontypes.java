@@ -1,5 +1,6 @@
 package playerquests.builder.gui.dynamic;
 
+import java.lang.reflect.InvocationTargetException; // thrown if an action type cannot be instantiated
 import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
 import java.util.List; // generic list type
@@ -11,6 +12,7 @@ import playerquests.builder.gui.function.UpdateScreen; // used to go back to oth
 import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
 import playerquests.builder.quest.component.action.type.ActionType; // modifying a quest stage action
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.utility.ChatUtils; // used to send well-formed errors
 
 /**
  * Shows a dynamic GUI listing the possible quest actions.
@@ -119,12 +121,38 @@ public class Dynamicactiontypes extends GUIDynamic {
             GUISlot typeButton = new GUISlot(this.gui, nextEmptySlot);
 
             // set currently selected item
-            if (this.action.getType() == type) { // compare action type being modified with action type in this loop
-                typeButton.setItem("GLOWSTONE_DUST");
-                typeButton.setLabel(type + " (Selected)");
-            } else {
-                typeButton.setItem("REDSTONE");
-                typeButton.setLabel(type);
+            try {
+                // check if the action type class exists
+                Class<?> classRef = Class.forName("playerquests.builder.quest.component.action.type." + type);
+
+                // Then it means the action type has been implemented:
+                if (this.action.getType() == type) { // compare action type being modified with action type in this loop
+                    typeButton.setItem("GLOWSTONE_DUST");
+                    typeButton.setLabel(type + " (Selected)");
+                } else {
+                    typeButton.setItem("REDSTONE");
+                    typeButton.setLabel(type);
+                }
+
+                // change the action type on the action when clicked
+                typeButton.onClick(() -> {
+                    try {
+                        ActionType actionTypeInstance = (ActionType) classRef.getDeclaredConstructor().newInstance(); // create a new instance of the action type
+                        this.action.setType(actionTypeInstance); // set the instance
+                        this.gui.clearSlots(); // clear to prevent duplicates
+                        this.execute(); // re-run to show changes
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                        throw new IllegalStateException("Action type " + type + " could not be instantiated.");
+                    }
+                });
+
+            } catch (ClassNotFoundException e) {
+                // Then it means the action type is not implemented:
+                typeButton.setItem("COAL");
+                typeButton.setLabel(type + " (Unimplemented)");
+                typeButton.onClick(() -> { // show error if trying to use unimplemented action
+                    ChatUtils.sendError(this.director.getPlayer(), "Could not change this action to an unimplemented action type.");
+                });
             }
             
             return false; // continue the loop

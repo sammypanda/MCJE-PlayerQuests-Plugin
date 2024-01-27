@@ -2,32 +2,27 @@ package playerquests.builder.quest.component.action.type;
 
 import java.util.ArrayList;
 
-/**
- * Skips the quest action.
- */
-public class None extends ActionType {
+public class Speak extends ActionType {
     
     /**
-     * Skips the currently tasked quest action.
-     * <p>
-     * Takes an empty param list.
+     * Produces dialogue from an NPC.
      * @param params the list of parameters for a function 
      */
-    public None(ArrayList<Object> params) {
+    public Speak(ArrayList<Object> params) {
         super(params);
     }
 
     /**
-     * Skips the currently tasked quest action.
+     * Produces dialogue from an NPC.
      * <p>
      * Assumes an empty param list.
      */ 
-    public None() {
+    public Speak() {
         super(new ArrayList<>());
     }
 
     @Override
     public String toString() {
-        return "None";
+        return "Speak";
     }
 }

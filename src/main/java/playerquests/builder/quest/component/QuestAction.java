@@ -21,6 +21,11 @@ public class QuestAction {
     private ClientDirector director;
 
     /**
+     * The parent stage this action belongs to.
+     */
+    private QuestStage stage;
+
+    /**
      * The id for the action
      */
     private String actionID = "action_-1";
@@ -60,6 +65,14 @@ public class QuestAction {
     }
 
     /**
+     * Sets the the action type and updates stage instance.
+     * @param type action type object
+     */
+    public void setType(ActionType type) {
+        this.actionType = type;
+    }
+
+    /**
      * Gets the stage instance this quest action belongs to.
      * @return a QuestStage instance
      */
@@ -72,6 +85,7 @@ public class QuestAction {
             .findFirst();
 
         if (currentStage.isPresent()) {
+            this.stage = currentStage.get();
             return currentStage.get();
         } 
          

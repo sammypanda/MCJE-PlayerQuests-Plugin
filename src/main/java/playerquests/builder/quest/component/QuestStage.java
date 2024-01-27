@@ -80,7 +80,7 @@ public class QuestStage {
     }
 
     /**
-     * Returns the list of quest actions added to this stage.
+     * Gets the map of quest actions added to this stage.
      * @return list of the action instances
      */
     @JsonIgnore

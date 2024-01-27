@@ -26,11 +26,18 @@ public class ActionType {
     }
 
     /**
+     * Params passed into this function.
+     */
+    protected ArrayList<Object> params;
+
+    /**
      * Not intended to be created directly, is abstract class for action types.
      * <p>
      * See docs/README for list of action types.
     */
-    public ActionType() {}
+    public ActionType(ArrayList<Object> params) {
+        this.params = params;
+    }
 
     /**
      * Shows a list of all the action types that could be added to a quest stage.
@@ -40,7 +47,13 @@ public class ActionType {
         List<String> actionTypes = new ArrayList<>();
 
         actionTypes.add("None");
+        actionTypes.add("Speak");
 
         return actionTypes;
+    }
+
+    @Override
+    public String toString() {
+        return "ActionType";
     }
 }

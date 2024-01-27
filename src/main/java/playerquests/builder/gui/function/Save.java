@@ -10,6 +10,7 @@ import playerquests.Core;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.PluginUtils; // used to validate function params
 
 /**
  * Invokes the save method on a class instance.
@@ -30,7 +31,12 @@ public class Save extends GUIFunction {
 
     @Override
     public void execute() {
-        validateParams(this.params, String.class);
+        try {
+            PluginUtils.validateParams(this.params, String.class);
+        } catch (IllegalArgumentException e) {
+            this.errored = true;
+            ChatUtils.sendError(this.director.getPlayer(), e.getMessage());
+        }
 
         String key = (String) this.params.get(0);
 
