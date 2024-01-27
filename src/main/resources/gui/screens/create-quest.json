@@ -27,6 +27,14 @@
             ]
         },
         {
+            "slot": 5,
+            "item": "ENDER_CHEST",
+            "label": "Quest NPCs",
+            "functions": [
+                { "name": "UpdateScreen", "params": ["questnpcs"] }
+            ]
+        },
+        {
             "slot": 9,
             "item": "GREEN_DYE",
             "label": "Save",
