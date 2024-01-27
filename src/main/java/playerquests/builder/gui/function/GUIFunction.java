@@ -64,30 +64,6 @@ public abstract class GUIFunction {
     }
 
     /**
-     * Essential utility which checks that the params suit this meta action. 
-     * @param params the values the meta action requires.
-     * @param expectedTypes the type of values the meta action requires.
-     */
-    public void validateParams(ArrayList<Object> params, Class<?>... expectedTypes) {
-        Objects.requireNonNull(params, "Params cannot be null");
-
-        // check if the size of the params list is the same as the size of the expectedTypes list
-        if (params.size() != expectedTypes.length) {
-            this.errored = true;
-            throw new IllegalArgumentException("Incorrect number of parameters");
-        }
-
-        // check with a filter if any param is not an instance of it's expected type
-        IntStream.range(0, params.size())
-        .filter(i -> !expectedTypes[i].isInstance(params.get(i)))
-        .findFirst()
-        .ifPresent(index -> {
-            this.errored = true;
-            throw new IllegalArgumentException("Parameter at index " + index + " does not match the expected type");
-        });
-    }
-
-    /**
      * Director used to power functionality.
      * @param director the client director.
      */

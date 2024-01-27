@@ -10,6 +10,7 @@ import playerquests.builder.gui.component.GUISlot; // holds information about th
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to send error message in-game
+import playerquests.utility.PluginUtils; // used to validate function params
 
 /**
  * Changes the GUI screen to a different template file.
@@ -63,7 +64,12 @@ public class UpdateScreen extends GUIFunction {
      */
     @Override
     public void execute() {
-        validateParams(this.params, String.class);
+        try {
+            PluginUtils.validateParams(this.params, String.class);
+        } catch (IllegalArgumentException e) {
+            this.errored = true;
+            ChatUtils.sendError(this.director.getPlayer(), e.getMessage());
+        }
 
         this.director.getGUI().getResult().close();
 
