@@ -42,9 +42,12 @@ public class QuestBuilder {
     private QuestStage entryPoint;
 
     /**
-     * List of the quest stages and actions.
+     * Map of the NPC characters.
      */
-    @JsonProperty("stages")
+    /**
+     * Map of the quest stages and actions.
+     */
+    @JsonIgnore
     private Map<String, QuestStage> questPlan = new HashMap<String, QuestStage>();
 
     /**
@@ -169,7 +172,7 @@ public class QuestBuilder {
      * Get the entire quest plan map.
      * @return map of the quest objects and values
      */
-    @JsonIgnore
+    @JsonProperty("stages")
     public Map<String, QuestStage> getQuestPlan() {
         return this.questPlan;
     }
