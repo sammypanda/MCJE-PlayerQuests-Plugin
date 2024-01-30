@@ -187,7 +187,7 @@ public class QuestBuilder {
     }
 
     /**
-     * Get the quest NPCs that have been created.
+     * Get the filtered quest NPCs that have been created.
      * @return map of quest NPCs
      */
     @JsonProperty("npcs")
@@ -198,5 +198,19 @@ public class QuestBuilder {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // set the result
 
         return filteredNPCs;
+    }
+
+    /**
+     * Get the quest NPCs that have been created.
+     * @param all whether to show all npcs or not
+     * @return map of quest NPCs
+     */
+    @JsonProperty("npcs")
+    public Map<String, QuestNPC> getQuestNPCs(Boolean all) {
+        if (!all) {
+            return this.getQuestNPCs(); // return filtered
+        } else {
+            return this.questNPCs; // return all NPCs, including invalid/unfiltered
+        }
     }
 }
