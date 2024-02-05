@@ -59,7 +59,15 @@ public class QuestNPC {
 
     @Override
     public String toString() {
-        return this.getID();
+        return this.getName();
+    }
+
+    /**
+     * Gets the aesthetic name of this NPC.
+     * @return the name of the NPC
+     */
+    public String getName() {
+        return "null";
     }
     
 }

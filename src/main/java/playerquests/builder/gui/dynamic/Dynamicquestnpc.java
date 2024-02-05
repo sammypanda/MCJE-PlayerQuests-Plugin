@@ -1,11 +1,23 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList; // list array type
+import java.util.Arrays; // generic array type
+
+import playerquests.builder.gui.component.GUIFrame; // the style of the outer GUI frame
+import playerquests.builder.gui.component.GUISlot; // object for GUI slots
+import playerquests.builder.gui.function.UpdateScreen; // function to change the GUI screen
+import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**
  * Creates a dynamic GUI for editing a quest NPC.
  */
 public class Dynamicquestnpc extends GUIDynamic {
+
+    /**
+     * The quest NPC we are editing.
+     */
+    private QuestNPC npc;
 
     /**
      * Creates a dynamic GUI for editing a quest NPC.
@@ -18,7 +30,8 @@ public class Dynamicquestnpc extends GUIDynamic {
 
     @Override
     protected void setUp_custom() {
-        System.err.println("'questnpc' screen unimplemented");
+        // get the current quest npc for editing
+        this.npc = (QuestNPC) this.director.getCurrentInstance(QuestNPC.class);
     }
 
     @Override
@@ -26,7 +39,28 @@ public class Dynamicquestnpc extends GUIDynamic {
         this.generatePage();
     }
 
-    private void generatePage() {    
+    private void generatePage() {
+        GUIFrame guiFrame = this.gui.getFrame();
+
+        // set frame options
+        guiFrame.setTitle("NPC Editor [" + this.npc.getTitle() + "]");
+
+        // add back button
+        GUISlot backButton = new GUISlot(this.gui, 1);
+        backButton.setItem("OAK_DOOR");
+        backButton.setLabel("Back");
+        backButton.addFunction(
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                director, 
+                backButton
+            )
+        );
+
+        // add 'change NPC name' button
+        GUISlot nameButton = new GUISlot(this.gui, 3);
+        nameButton.setItem("NAME_TAG");
+        nameButton.setLabel("Change NPC Name (" + this.npc.getName() + ")");
     }
     
 }
