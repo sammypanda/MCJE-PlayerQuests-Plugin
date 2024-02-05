@@ -8,6 +8,7 @@ import java.util.stream.Collectors; // turning stream results into java objects
 
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
+import playerquests.builder.gui.function.GUIFunction;
 import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI screen
 import playerquests.builder.quest.QuestBuilder; // object for quest composition
 import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
@@ -68,14 +69,14 @@ public class Dynamicquestnpcs extends GUIDynamic {
         guiFrame.setTitle("Quest NPCs (" + this.questBuilder.getTitle() + ")");
         guiFrame.setSize(54);
 
-        // the quest npc menus
+        // add the quest npcs
         System.out.println(keys);
         keys.subList(0, Math.min(keys.size(), 36)).forEach(key -> { // only allow up to 36 NPC slots
             QuestNPC npc = this.questNPCs.get(key);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot npcSlot = new GUISlot(this.gui, nextEmptySlot);
 
-            // Different visual representation for incomplete and complete NPCs
+            // different visual representation for incomplete and complete NPCs
             if (key == "npc_-1") { // if invalid or incomplete npc
                 npcSlot.setItem("SPAWNER");
                 npcSlot.setLabel("<Unsaved NPC>");
@@ -83,9 +84,17 @@ public class Dynamicquestnpcs extends GUIDynamic {
                 npcSlot.setItem("VILLAGER_SPAWN_EGG");
                 npcSlot.setLabel(npc.getTitle());
             }
+
+            npcSlot.onClick(() -> {
+                // set the current npc we are editing
+                this.director.setCurrentInstance(npc);
+
+                // declare swapping to 'questnpc' screen
+                new UpdateScreen(new ArrayList<>(Arrays.asList("questnpc")), director, npcSlot).execute();
+            });
         });
 
-        // add npc button
+        // add new npc button
         Integer nextEmptySlot = this.gui.getEmptySlot();
         GUISlot addButton = new GUISlot(this.gui, nextEmptySlot);
         addButton.setItem("LIME_DYE");
