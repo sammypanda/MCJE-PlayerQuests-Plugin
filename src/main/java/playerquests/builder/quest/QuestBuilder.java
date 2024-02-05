@@ -213,4 +213,12 @@ public class QuestBuilder {
             return this.questNPCs; // return all NPCs, including invalid/unfiltered
         }
     }
+
+    /**
+     * Adds an NPC to this quest.
+     * @param npc the npc object to add to the map
+     */
+    public void addNPC(QuestNPC npc) {
+        this.questNPCs.put(npc.getID(), npc);
+    }
 }

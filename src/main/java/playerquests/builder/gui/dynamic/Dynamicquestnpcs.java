@@ -1,17 +1,21 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.IntStream;
+import java.util.ArrayList; // array list type
+import java.util.Arrays; // generic array type
+import java.util.List; // generic list type
+import java.util.Map; // generic map type
+import java.util.stream.Collectors; // turning stream results into java objects
 
-import playerquests.builder.gui.component.GUIFrame;
-import playerquests.builder.gui.component.GUISlot;
-import playerquests.builder.gui.function.UpdateScreen;
-import playerquests.builder.quest.QuestBuilder;
-import playerquests.builder.quest.component.QuestNPC;
+import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
+import playerquests.builder.gui.component.GUISlot; // object for GUI slots
+import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI screen
+import playerquests.builder.quest.QuestBuilder; // object for quest composition
+import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
 import playerquests.client.ClientDirector; // for controlling the plugin
 
+/**
+ * Shows a dynamic GUI list of the current quest NPCs.
+ */
 public class Dynamicquestnpcs extends GUIDynamic {
 
     /**
@@ -24,6 +28,11 @@ public class Dynamicquestnpcs extends GUIDynamic {
     */
     private Map<String, QuestNPC> questNPCs;
 
+    /**
+     * Creates a dynamic GUI listing the quest NPCs.
+     * @param director director for the client
+     * @param previousScreen the screen to go back to
+     */
     public Dynamicquestnpcs(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -43,15 +52,25 @@ public class Dynamicquestnpcs extends GUIDynamic {
     }
 
     private void generatePages() {
-
+        // get the gui frame to edit
         GUIFrame guiFrame = this.gui.getFrame();
+
+        // sort npc keys (ids) into a descending list (newest first)
+        List<String> keys = questNPCs.keySet().stream()
+        .sorted((key1, key2) -> {
+            int intValue1 = Integer.parseInt(key1.split("_")[1]);
+            int intValue2 = Integer.parseInt(key2.split("_")[1]);
+            return Integer.compare(intValue2, intValue1); // compare in descending order
+        })
+        .collect(Collectors.toList());
         
+        // set frame options
         guiFrame.setTitle("Quest NPCs (" + this.questBuilder.getTitle() + ")");
         guiFrame.setSize(54);
 
         // the quest npc menus
-        System.out.println(this.questNPCs.keySet());
-        this.questNPCs.keySet().forEach(key -> {
+        System.out.println(keys);
+        keys.subList(0, Math.min(keys.size(), 36)).forEach(key -> { // only allow up to 36 NPC slots
             QuestNPC npc = this.questNPCs.get(key);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot npcSlot = new GUISlot(this.gui, nextEmptySlot);
@@ -73,9 +92,20 @@ public class Dynamicquestnpcs extends GUIDynamic {
         addButton.setLabel("Add NPC");
         addButton.onClick(() -> {
             this.gui.clearSlots(); // clear to prevent duplicates
-            QuestNPC npc = new QuestNPC();
+            QuestNPC npc = new QuestNPC(); // create new empty npc
+            this.questBuilder.addNPC(npc); // try to add npc to list (won't add if exists)
             this.execute(); // re-run to see changes
         });
+
+        // add back button
+        GUISlot backButton = new GUISlot(this.gui, 46);
+        backButton.setLabel("Exit");
+        backButton.setItem("OAK_DOOR");
+        backButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
+            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            director, // set the client director
+            backButton // the origin GUI slot
+        ));
     }
     
 }

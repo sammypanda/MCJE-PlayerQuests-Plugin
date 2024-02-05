@@ -27,9 +27,17 @@ public class QuestNPC {
     private String name = this.ID;
 
     /**
-     * Instantiates a new Quest NPC.
+     * Instantiates a new empty Quest NPC.
      */
     public QuestNPC() {}
+
+    /**
+     * Instantiates a new Quest NPC.
+     * @param id the id for this npc, like: npc_1
+     */
+    public QuestNPC(String id) {
+        this.ID = id;
+    }
 
     /**
      * Gets the ID for the quest NPC.
@@ -42,6 +50,7 @@ public class QuestNPC {
 
     /**
      * Gets the most appropriate 'title' for this NPC.
+     * @return the string form of this npc (the npc ID)
      */
     @JsonIgnore
     public String getTitle() {
