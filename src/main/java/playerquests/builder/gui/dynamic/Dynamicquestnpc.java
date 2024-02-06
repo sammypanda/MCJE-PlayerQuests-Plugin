@@ -75,6 +75,12 @@ public class Dynamicquestnpc extends GUIDynamic {
                 this.execute();
             })
         );
+
+        // add divider slots
+        GUISlot backDivider = new GUISlot(this.gui, 2);
+        GUISlot saveDivider = new GUISlot(this.gui, 8);
+        backDivider.setItem("BLACK_STAINED_GLASS_PANE");
+        saveDivider.setItem("BLACK_STAINED_GLASS_PANE");
     }
     
 }
