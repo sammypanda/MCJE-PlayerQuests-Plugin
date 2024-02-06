@@ -218,7 +218,7 @@ public class GUISlot {
      */
     public void executeNext(HumanEntity player) {
         // if no more functions, don't continue
-        if (this.functionList.size() == 1) { return; }
+        if (this.functionList.size() <= 1) { return; }
 
         // pop the first function off the list to reveal the next
         this.functionList.remove(0);

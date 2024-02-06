@@ -37,6 +37,11 @@ public abstract class GUIFunction {
     protected Boolean errored = false;
 
     /**
+     * code that can be set to run when this function is finished.
+     */
+    private Runnable onFinish;
+
+    /**
      * Not intended to be created directly, is abstract class for GUI functions.
      * <p>
      * See docs/README for list of GUI functions.
@@ -54,6 +59,25 @@ public abstract class GUIFunction {
      * Method to be overridden by each meta action class.
      */
     public abstract void execute();
+
+    /**
+     * Sets code to be executed when the function is finished.
+     * @param onFinish the code to run when the function completes
+     */
+    public GUIFunction onFinish(Runnable onFinish) {
+        this.onFinish = onFinish;
+        return this;
+    }
+
+    /**
+     * Run the code set to run when the function finishes.
+     * @see #onFinish(Runnable)
+     */
+    public void finished() {
+        if (this.onFinish != null) {
+            onFinish.run();
+        }
+    }
 
     /**
      * Set the params for this function to use when it executes.

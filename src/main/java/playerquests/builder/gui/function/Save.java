@@ -57,12 +57,15 @@ public class Save extends GUIFunction {
 
         if (this.errored) {
             ChatUtils.sendError(this.director.getPlayer(), response.toString());
+            this.finished(); // onFinish runnable
             return;
         }
 
         this.director.getPlayer().sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "\n" + response + ".\n" + ChatColor.RESET);
 
         new CloseScreen(new ArrayList<>(), this.director, this.slot).execute();
+
+        this.finished(); // onFinish runnable
     }
     
 }

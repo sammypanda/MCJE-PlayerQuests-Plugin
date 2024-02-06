@@ -5,6 +5,8 @@ import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
+import java.util.stream.Collectors; // accumulating elements from a stream into a type
+import java.util.stream.IntStream; // used to iterate over a range
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
 import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
+import playerquests.builder.quest.component.QuestNPC;  // object for quest npcs
 import playerquests.builder.quest.component.QuestStage; // object for quest stages
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
@@ -42,9 +45,15 @@ public class QuestBuilder {
     private QuestStage entryPoint;
 
     /**
-     * List of the quest stages and actions.
+     * Map of the NPC characters.
      */
-    @JsonProperty("stages")
+    @JsonIgnore
+    private Map<String, QuestNPC> questNPCs = new HashMap<String, QuestNPC>();
+
+    /**
+     * Map of the quest stages and actions.
+     */
+    @JsonIgnore
     private Map<String, QuestStage> questPlan = new HashMap<String, QuestStage>();
 
     /**
@@ -77,6 +86,10 @@ public class QuestBuilder {
 
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
+
+        // TODO: remove this testing NPC
+        QuestNPC testNPC = new QuestNPC();
+        this.questNPCs.put(testNPC.getID(), testNPC);
 
         // set as the current instance in the director
         director.setCurrentInstance(this);
@@ -169,8 +182,101 @@ public class QuestBuilder {
      * Get the entire quest plan map.
      * @return map of the quest objects and values
      */
-    @JsonIgnore
+    @JsonProperty("stages")
     public Map<String, QuestStage> getQuestPlan() {
         return this.questPlan;
+    }
+
+    /**
+     * Get the filtered quest NPCs that have been created.
+     * @return map of quest NPCs
+     */
+    @JsonProperty("npcs")
+    public Map<String, QuestNPC> getQuestNPCs() {
+        // Remove invalid/out of bound NPC IDs
+        Map<String, QuestNPC> filteredNPCs = this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
+            .filter(entry -> entry.getKey() != "npc_-1") // filter out all IDs that are out of bounds
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // set the result
+
+        return filteredNPCs;
+    }
+
+    /**
+     * Get the quest NPCs that have been created.
+     * @param all whether to show all npcs or not
+     * @return map of quest NPCs
+     */
+    @JsonProperty("npcs")
+    public Map<String, QuestNPC> getQuestNPCs(Boolean all) {
+        if (!all) {
+            return this.getQuestNPCs(); // return filtered
+        } else {
+            return this.questNPCs; // return all NPCs, including invalid/unfiltered
+        }
+    }
+
+    /**
+     * Adds an NPC to this quest.
+     * @param npc the npc object to add to the map
+     * @param empty if the npc should be added as invalid/unvalidated
+     * @return if was successful
+     */
+    @JsonIgnore
+    public Boolean addNPC(QuestNPC npc, Boolean empty) {
+        // remove to replace if already exists
+        if (this.questNPCs.containsKey(npc.getID())) {
+            this.questNPCs.remove(npc.getID());
+        }
+
+        // put invalid npc in list if new empty npc object
+        if (empty) {
+            this.questNPCs.put("npc_-1", npc);
+            return false;
+        }
+
+        // run checks
+        if (!npc.isValid()) {
+            npc.setID("npc_-1"); // mark as incomplete
+            this.questNPCs.put(npc.getID(), npc); // put incomplete in the quest npc list
+            return false;
+        }
+
+        // add new valid NPC
+        npc.setID(this.nextNPCID()); // set this npc with a valid ID
+        this.questNPCs.put(npc.getID(), npc); // put valid NPC in the quest npc list
+        return true;
+    }
+
+    /**
+     * Adds an NPC to this quest (no saving/validating, just a new NPC).
+     * @param npc the npc object to add to the map
+     */
+    @JsonIgnore
+    public Boolean addNPC(QuestNPC npc) {
+        return this.addNPC(npc, false);
+    }
+
+    /**
+     * Provides what the next NPC ID would be.
+     * @return the next valid 'npc_[number]' NPC ID
+     */
+    @JsonIgnore
+    public String nextNPCID() {
+        // count up to compensate for previous dropped IDs
+        Integer npcID = IntStream.iterate(0, i -> i + 1)
+            .filter(i -> !this.questNPCs.keySet().contains("npc_"+i)) // check if the id at this count exists
+            .findFirst() // stop iterating when found a gap (an id not contained in the npc list)
+            .orElse(-1); // default to npc_-1 if the list is empty
+
+        return "npc_" + npcID;
+    }
+
+    /**
+     * Get the director instance which owns this builder.
+     * @return the client director instance
+     */
+    @JsonIgnore
+    public ClientDirector getDirector() {
+        return this.director;
     }
 }

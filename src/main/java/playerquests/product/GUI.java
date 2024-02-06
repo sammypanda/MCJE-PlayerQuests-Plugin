@@ -1,11 +1,13 @@
 package playerquests.product;
 
-import java.util.Map;
+import java.util.ArrayList; // array type of list
+import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 
 import org.bukkit.Bukkit; // to create the inventory
 import org.bukkit.inventory.Inventory; // to modify the inventory
 import org.bukkit.inventory.InventoryView; // the view of the GUI
+import org.bukkit.inventory.ItemFlag; // modifying item meta attributes
 import org.bukkit.inventory.ItemStack; // to visually represent buttons
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 
@@ -127,6 +129,10 @@ public class GUI {
         this.slots.forEach((position, slot) -> {
             ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
+
+            // Strip the ItemMeta
+            itemMeta.setLore(new ArrayList<String>());
+            itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 
             // Edit the ItemMeta
             // Set the slot label

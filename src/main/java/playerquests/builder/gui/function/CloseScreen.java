@@ -28,5 +28,6 @@ public class CloseScreen extends GUIFunction {
     @Override
     public void execute() {
         this.director.getGUI().getResult().close();
+        this.finished(); // onFinish runnable
     }
 }
