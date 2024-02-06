@@ -2,6 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList; // list array type
 import java.util.Arrays; // generic array type
+import java.util.Optional; // for handling nullables
 
 import playerquests.builder.gui.component.GUIFrame; // the style of the outer GUI frame
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
@@ -44,7 +45,10 @@ public class Dynamicquestnpc extends GUIDynamic {
         GUIFrame guiFrame = this.gui.getFrame();
 
         // set frame options
-        guiFrame.setTitle("NPC Editor [" + this.npc.getTitle() + "]");
+        Optional.ofNullable(this.npc.getName()).ifPresentOrElse( // compact if-else statement for nullable
+            npcName -> guiFrame.setTitle("NPC Editor ("+npcName+")"), // if present: set with npc name in title
+            () -> guiFrame.setTitle("NPC Editor") // if no name present: just the gui title
+        );
 
         // add back button
         GUISlot backButton = new GUISlot(this.gui, 1);

@@ -23,11 +23,9 @@ public class QuestNPC {
 
     /**
      * The NPC name.
-     * <p>
-     * Defaults to the ID if not set
      */
     @JsonProperty("name")
-    private String name = this.ID;
+    private String name = null;
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -61,7 +59,7 @@ public class QuestNPC {
 
     /**
      * Gets the most appropriate 'title' for this NPC.
-     * @return the string form of this npc (the npc ID)
+     * @return the string form of this npc (the npc name)
      */
     @JsonIgnore
     public String getTitle() {
