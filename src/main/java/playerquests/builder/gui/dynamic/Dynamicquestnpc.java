@@ -5,6 +5,7 @@ import java.util.Arrays; // generic array type
 
 import playerquests.builder.gui.component.GUIFrame; // the style of the outer GUI frame
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
+import playerquests.builder.gui.function.ChatPrompt; // prompting user input
 import playerquests.builder.gui.function.UpdateScreen; // function to change the GUI screen
 import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
 import playerquests.client.ClientDirector; // for controlling the plugin
@@ -61,6 +62,15 @@ public class Dynamicquestnpc extends GUIDynamic {
         GUISlot nameButton = new GUISlot(this.gui, 3);
         nameButton.setItem("NAME_TAG");
         nameButton.setLabel("Change NPC Name (" + this.npc.getName() + ")");
+        nameButton.addFunction(
+            new ChatPrompt(
+                new ArrayList<>(Arrays.asList("Set the name for this NPC", "npc.name")), 
+                director, 
+                nameButton
+            ).onFinish(() -> {
+                this.execute();
+            })
+        );
     }
     
 }

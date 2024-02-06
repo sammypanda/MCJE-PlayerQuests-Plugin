@@ -8,7 +8,6 @@ import java.util.stream.Collectors; // turning stream results into java objects
 
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
-import playerquests.builder.gui.function.GUIFunction;
 import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI screen
 import playerquests.builder.quest.QuestBuilder; // object for quest composition
 import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs

@@ -3,6 +3,9 @@ package playerquests.builder.quest.component;
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
+import playerquests.Core; // for accessing singletons
+import playerquests.utility.annotation.Key; // key-value pair annottation
+
 /**
  * Object containing details about a quest NPC.
  */
@@ -25,6 +28,14 @@ public class QuestNPC {
      */
     @JsonProperty("name")
     private String name = this.ID;
+
+    /**
+     * Operations to run whenever the class is instantiated.
+     */
+    {
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this);
+    }
 
     /**
      * Instantiates a new empty Quest NPC.
@@ -67,7 +78,16 @@ public class QuestNPC {
      * @return the name of the NPC
      */
     public String getName() {
-        return "null";
+        return this.name;
+    }
+
+    /**
+     * Sets the aesthetic name of this NPC.
+     * @param name the name of the NPC
+     */
+    @Key("npc.name")
+    public void setName(String name) {
+        this.name = name;
     }
     
 }
