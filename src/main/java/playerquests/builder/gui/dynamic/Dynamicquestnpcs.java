@@ -69,7 +69,6 @@ public class Dynamicquestnpcs extends GUIDynamic {
         guiFrame.setSize(54);
 
         // add the quest npcs
-        System.out.println(keys);
         keys.subList(0, Math.min(keys.size(), 36)).forEach(key -> { // only allow up to 36 NPC slots
             QuestNPC npc = this.questNPCs.get(key);
             Integer nextEmptySlot = this.gui.getEmptySlot();
@@ -101,7 +100,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         addButton.onClick(() -> {
             this.gui.clearSlots(); // clear to prevent duplicates
             QuestNPC npc = new QuestNPC(); // create new empty npc
-            this.questBuilder.addNPC(npc); // try to add npc to list (won't add if exists)
+            this.questBuilder.addNPC(npc, true); // add empty npc to list
             this.execute(); // re-run to see changes
         });
 

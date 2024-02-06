@@ -8,6 +8,7 @@ import playerquests.builder.gui.component.GUIFrame; // the style of the outer GU
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
 import playerquests.builder.gui.function.ChatPrompt; // prompting user input
 import playerquests.builder.gui.function.UpdateScreen; // function to change the GUI screen
+import playerquests.builder.quest.QuestBuilder; // the quest itself
 import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
 import playerquests.client.ClientDirector; // for controlling the plugin
 
@@ -22,6 +23,11 @@ public class Dynamicquestnpc extends GUIDynamic {
     private QuestNPC npc;
 
     /**
+     * The quest the NPC belongs to.
+     */
+    private QuestBuilder quest;
+
+    /**
      * Creates a dynamic GUI for editing a quest NPC.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -34,6 +40,9 @@ public class Dynamicquestnpc extends GUIDynamic {
     protected void setUp_custom() {
         // get the current quest npc for editing
         this.npc = (QuestNPC) this.director.getCurrentInstance(QuestNPC.class);
+
+        // get the current quest
+        this.quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
     }
 
     @Override
@@ -64,8 +73,9 @@ public class Dynamicquestnpc extends GUIDynamic {
 
         // add 'change NPC name' button
         GUISlot nameButton = new GUISlot(this.gui, 3);
+        String label = this.npc.getName() == null ? "Set NPC Name" : "Change NPC Name (" + this.npc.getName() + ")";
         nameButton.setItem("NAME_TAG");
-        nameButton.setLabel("Change NPC Name (" + this.npc.getName() + ")");
+        nameButton.setLabel(label);
         nameButton.addFunction(
             new ChatPrompt(
                 new ArrayList<>(Arrays.asList("Set the name for this NPC", "npc.name")), 
@@ -75,6 +85,22 @@ public class Dynamicquestnpc extends GUIDynamic {
                 this.execute();
             })
         );
+
+        // add save button
+        GUISlot saveButton = new GUISlot(this.gui, 9);
+        saveButton.setItem("GREEN_DYE");
+        saveButton.setLabel("Save NPC");
+        saveButton.onClick(() -> {
+            Boolean success = npc.save(this.quest, this.npc);
+
+            if (success) { // if the npc was successfully saved..
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                    director, 
+                    saveButton
+                ).execute();
+            }
+        });
 
         // add divider slots
         GUISlot backDivider = new GUISlot(this.gui, 2);
