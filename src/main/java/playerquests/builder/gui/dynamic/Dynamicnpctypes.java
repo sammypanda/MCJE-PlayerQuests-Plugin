@@ -48,7 +48,24 @@ public class Dynamicnpctypes extends GUIDynamic {
             )
         );
 
-        GUISlot blockOption = new GUISlot(gui, 1);
+        // add back button
+        GUISlot backButton = new GUISlot(gui, 1);
+        backButton.setLabel("Back");
+        backButton.setItem("OAK_DOOR");
+        backButton.addFunction(
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                director, 
+                backButton
+            )
+        );
+
+        // add dividers
+        GUISlot backDivider = new GUISlot(gui, 2);
+        backDivider.setItem("BLACK_STAINED_GLASS_PANE");
+
+        // add block type
+        GUISlot blockOption = new GUISlot(gui, 3);
         blockOption.setLabel("A Block");
         blockOption.setItem("GRASS_BLOCK");
         blockOption.onClick(() -> {
