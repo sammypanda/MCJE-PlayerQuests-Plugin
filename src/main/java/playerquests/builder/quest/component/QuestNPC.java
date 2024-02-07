@@ -1,8 +1,5 @@
 package playerquests.builder.quest.component;
 
-import java.util.Collections; // for immutable map
-import java.util.Map; // generic map type
-
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
@@ -10,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for
 
 import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder; // the quest itself
+import playerquests.builder.quest.component.npc.type.NPCType; // the type of NPC, such as 'Block'
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // sends error messages to player
 import playerquests.utility.annotation.Key; // key-value pair annottation
@@ -51,7 +49,7 @@ public class QuestNPC {
      * What the NPC is assigned to.
      */
     @JsonProperty("assigned")
-    private Map<String, String> assigned;
+    private NPCType assigned;
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -160,7 +158,7 @@ public class QuestNPC {
     /**
      * Assign the NPC to something.
      */
-    public void assign(String type, String value) {
-        this.assigned = Collections.unmodifiableMap(Map.of(type, value));
+    public void assign(NPCType npcType) {
+        this.assigned = npcType;
     }
 }

@@ -6,7 +6,9 @@ import java.util.Arrays; // generic type of array
 import playerquests.builder.gui.component.GUIFrame; // outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
 import playerquests.builder.gui.function.SelectBlock; // function to get the block
+import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
 import playerquests.builder.quest.component.QuestNPC; // object for the npc
+import playerquests.builder.quest.component.npc.type.BlockNPC; // NPCs as blocks
 import playerquests.client.ClientDirector; // controls the plugin
 
 public class Dynamicnpctypes extends GUIDynamic {
@@ -58,8 +60,20 @@ public class Dynamicnpctypes extends GUIDynamic {
                 director, 
                 blockOption
             ).onFinish((function) -> {
+                // get the block that was selected
                 // function.getResult();
-                this.npc.assign("block", "COAL");
+
+                // assign this block as the quest NPC
+                this.npc.assign( // set this npc as:
+                    new BlockNPC("COAL")
+                );
+
+                // go to previous screen after assigned block
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                    director, 
+                    blockOption
+                ).execute();
             })
         );
     }

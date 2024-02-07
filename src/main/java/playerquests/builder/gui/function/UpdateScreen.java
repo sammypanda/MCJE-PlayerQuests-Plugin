@@ -114,7 +114,7 @@ public class UpdateScreen extends GUIFunction {
             return;
         }
 
-        this.finished(); // onFinish runnable
+        this.finished(); // running onFinish code
 
         this.slot.executeNext(this.director.getPlayer()); // run the next function
     }

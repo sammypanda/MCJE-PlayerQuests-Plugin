@@ -23,7 +23,9 @@ public class SelectBlock extends GUIFunction {
 
     @Override
     public void execute() {
-        System.err.println("Unimplemented method 'execute'");
+        this.finished(); // running onFinish code
+
+        this.slot.executeNext(this.director.getPlayer()); // run the next function
     }
     
 }
