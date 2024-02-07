@@ -6,11 +6,10 @@ import java.util.List; // generic list type
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Passes and handles the quest stage action 'types'.
+ * Passes and handles the quest npc 'types'.
  * <p>
- * Quest actions are pre-defined behaviours that make
- * it possible to do more with quests. They
- * generally simplify more complex operations.
+ * Quest NPCs are how quests are interacted
+ * with in-game.
  */
 public class NPCType {
 
@@ -24,7 +23,7 @@ public class NPCType {
      */
     {
         // Adding types to the list
-        this.npcTypes = NPCType.allActionTypes();
+        this.npcTypes = NPCType.allNPCTypes();
     }
 
     /**
@@ -37,22 +36,22 @@ public class NPCType {
     /**
      * Not intended to be created directly, is abstract class for NPC types.
      * <p>
-     * See docs/README for list of action types.
+     * See docs/README for list of NPC types.
     */
     public NPCType(String value) {
         this.value = value;
     }
 
     /**
-     * Shows a list of all the action types that could be added to a quest stage.
-     * @return list of every action type
+     * Shows a list of all the NPC types that could be added to a quest.
+     * @return list of every NPC type
      */
-    public static List<String> allActionTypes() {
-        List<String> actionTypes = new ArrayList<>();
+    public static List<String> allNPCTypes() {
+        List<String> npcTypes = new ArrayList<>();
 
-        actionTypes.add("Block");
+        npcTypes.add("Block");
 
-        return actionTypes;
+        return npcTypes;
     }
 
     @Override
