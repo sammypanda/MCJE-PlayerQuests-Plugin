@@ -1,5 +1,6 @@
 package playerquests.builder.quest.component;
 
+import org.bukkit.Material; // for if NPC is a block
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for
 
 import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder; // the quest itself
+import playerquests.builder.quest.component.npc.type.BlockNPC; // 'Block' NPC type
 import playerquests.builder.quest.component.npc.type.NPCType; // the type of NPC, such as 'Block'
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // sends error messages to player
@@ -160,5 +162,25 @@ public class QuestNPC {
      */
     public void assign(NPCType npcType) {
         this.assigned = npcType;
+    }
+
+    /**
+     * Gets a material which represents this NPC.
+     */
+    public Material getMaterial() {
+        if (this.assigned instanceof BlockNPC) {
+            BlockNPC npc = (BlockNPC) this.assigned;
+            return npc.getBlock();
+        }
+
+        return Material.RED_STAINED_GLASS; // default to unset
+    }
+
+    /**
+     * Returns if the NPC has been assigned to a type, such as a 'Block'.
+     * @return
+     */
+    public boolean isAssigned() {
+        return this.assigned != null;
     }
 }

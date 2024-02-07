@@ -88,9 +88,14 @@ public class Dynamicquestnpc extends GUIDynamic {
 
         // add 'assign NPC to' button
         GUISlot assignButton = new GUISlot(this.gui, 4);
-        assignButton.setLabel("Assign NPC to...");
-        assignButton.setItem("RED_STAINED_GLASS");
-        // TODO: change label and icon based on what is currently assigned to
+        assignButton.setLabel( // set the GUI title
+            String.format( // ...dynamically
+                "%s %s to...",
+                this.npc.isAssigned() ? "Reassign" : "Assign",
+                this.npc.getName() != null ? this.npc.getName() : "NPC" // put NPC name if available, otherwise "NPC"
+            )
+        );
+        assignButton.setItem(this.npc.getMaterial().toString());
         assignButton.addFunction(
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList("npctypes")), 
