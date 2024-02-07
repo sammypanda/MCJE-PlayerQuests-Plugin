@@ -3,6 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.ArrayList; // list type of array
 import java.util.Arrays; // generic type of array
 
+import org.bukkit.Material; // identifying block of 'Block' NPC type
+
 import playerquests.builder.gui.component.GUIFrame; // outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
 import playerquests.builder.gui.function.SelectBlock; // function to get the block
@@ -49,23 +51,24 @@ public class Dynamicnpctypes extends GUIDynamic {
         GUISlot blockOption = new GUISlot(gui, 1);
         blockOption.setLabel("A Block");
         blockOption.setItem("GRASS_BLOCK");
-        blockOption.addFunction(
+        blockOption.onClick(() -> {
             new SelectBlock(
                 new ArrayList<>(Arrays.asList(
-                    "Bok xD", // the prompt message
+                    "Select a block", // the prompt message
                     Arrays.asList( // blacklisted blocks:
                         "BARRIER"
                     )
                 )), 
                 director, 
                 blockOption
-            ).onFinish((function) -> {
+            ).onFinish((f) -> {
                 // get the block that was selected
-                // function.getResult();
+                SelectBlock function = (SelectBlock) f;
+                Material block = function.getResult();
 
                 // assign this block as the quest NPC
                 this.npc.assign( // set this npc as:
-                    new BlockNPC("COAL")
+                    new BlockNPC(block)
                 );
 
                 // go to previous screen after assigned block
@@ -74,8 +77,7 @@ public class Dynamicnpctypes extends GUIDynamic {
                     director, 
                     blockOption
                 ).execute();
-            })
-        );
+            }).execute();
+        });
     }
-    
 }
