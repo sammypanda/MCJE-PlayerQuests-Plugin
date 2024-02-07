@@ -222,6 +222,7 @@ public class SelectBlock extends GUIFunction {
     private void exit() {
         HandlerList.unregisterAll(this.blockListener); // remove listeners
         this.finished(); // execute onFinish code
+        this.director.getGUI().getResult().open(); // re-open GUI
         this.slot.executeNext(this.player); // continue to next slot function
     }
 

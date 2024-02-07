@@ -183,9 +183,17 @@ public class QuestNPC {
 
     /**
      * Returns if the NPC has been assigned to a type, such as a 'Block'.
-     * @return
+     * @return the type of NPC assignment
      */
     public boolean isAssigned() {
         return this.assigned != null;
+    }
+
+    /**
+     * Returns the information about how the NPC is assigned.
+     * @return the NPC assignment
+     */
+    public NPCType getAssigned() {
+        return this.assigned;
     }
 }

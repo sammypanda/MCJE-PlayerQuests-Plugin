@@ -90,8 +90,7 @@ public class Dynamicquestnpc extends GUIDynamic {
         GUISlot assignButton = new GUISlot(this.gui, 4);
         assignButton.setLabel( // set the GUI title
             String.format( // ...dynamically
-                "%s %s to...",
-                this.npc.isAssigned() ? "Reassign" : "Assign",
+                "Assign %s to...",
                 this.npc.getName() != null ? this.npc.getName() : "NPC" // put NPC name if available, otherwise "NPC"
             )
         );
