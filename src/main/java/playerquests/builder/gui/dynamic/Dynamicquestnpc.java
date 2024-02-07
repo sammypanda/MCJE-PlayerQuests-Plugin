@@ -81,9 +81,22 @@ public class Dynamicquestnpc extends GUIDynamic {
                 new ArrayList<>(Arrays.asList("Set the name for this NPC", "npc.name")), 
                 director, 
                 nameButton
-            ).onFinish(() -> {
+            ).onFinish((function) -> {
                 this.execute();
             })
+        );
+
+        // add 'assign NPC to' button
+        GUISlot assignButton = new GUISlot(this.gui, 4);
+        assignButton.setLabel("Assign NPC to...");
+        assignButton.setItem("RED_STAINED_GLASS");
+        // TODO: change label and icon based on what is currently assigned to
+        assignButton.addFunction(
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("npctypes")), 
+                director, 
+                assignButton
+            )
         );
 
         // add save button

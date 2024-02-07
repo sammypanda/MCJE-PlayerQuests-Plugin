@@ -1,5 +1,8 @@
 package playerquests.builder.quest.component;
 
+import java.util.Collections; // for immutable map
+import java.util.Map; // generic map type
+
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
@@ -43,6 +46,12 @@ public class QuestNPC {
      */
     @JsonIgnore
     private ClientDirector director;
+
+    /**
+     * What the NPC is assigned to.
+     */
+    @JsonProperty("assigned")
+    private Map<String, String> assigned;
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -148,4 +157,10 @@ public class QuestNPC {
         return true;
     }
     
+    /**
+     * Assign the NPC to something.
+     */
+    public void assign(String type, String value) {
+        this.assigned = Collections.unmodifiableMap(Map.of(type, value));
+    }
 }

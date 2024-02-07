@@ -85,7 +85,13 @@ public abstract class GUIDynamic {
         }
     }
 
+    /**
+     * For declaring values/variables.
+     */
     protected abstract void setUp_custom();
 
+    /**
+     * For creating the GUI/functionality.
+     */
     protected abstract void execute_custom();
 }

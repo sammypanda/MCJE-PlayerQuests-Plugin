@@ -11,8 +11,6 @@ import playerquests.client.ClientDirector; // powers functionality for functions
 public class CloseScreen extends GUIFunction {
 
     /**
-     * Not intended to be created directly.
-     * <p>
      * Closes the currently open GUI screen.
      * @param params none required
      * @param director used to control the plugin

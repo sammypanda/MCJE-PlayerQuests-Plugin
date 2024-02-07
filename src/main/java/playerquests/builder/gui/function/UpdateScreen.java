@@ -48,8 +48,6 @@ public class UpdateScreen extends GUIFunction {
     private String error;
 
     /**
-     * Not intended to be created directly.
-     * <p>
      * Switches the GUI screen to another template.
      * @param params 1. the template file
      * @param director to control the plugin

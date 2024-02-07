@@ -88,8 +88,6 @@ public class ChatPrompt extends GUIFunction {
     private HumanEntity player;
 
     /**
-     * Not intended to be created directly.
-     * <p>
      * Requests player user input using a chat box prompt.
      * @param params 1. the prompt 2. the key name
      * @param director to set values

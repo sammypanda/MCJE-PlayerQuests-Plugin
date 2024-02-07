@@ -18,8 +18,6 @@ import playerquests.utility.PluginUtils; // used to validate function params
 public class Save extends GUIFunction {
 
     /**
-     * Not intended to be created directly.
-     * <p>
      * Saves an instance by key name.
      * @param params 1. key name
      * @param director to control the plugin

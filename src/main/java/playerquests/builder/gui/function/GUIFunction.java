@@ -1,8 +1,7 @@
 package playerquests.builder.gui.function;
 
 import java.util.ArrayList; // used to store the params for this meta action
-import java.util.Objects; // used to require params be not null
-import java.util.stream.IntStream; // used to validate params are the correct types
+import java.util.function.Consumer; // used for onFinish
 
 import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.client.ClientDirector; // powers functionality for functions
@@ -39,7 +38,7 @@ public abstract class GUIFunction {
     /**
      * code that can be set to run when this function is finished.
      */
-    private Runnable onFinish;
+    private Consumer<GUIFunction> onFinish;
 
     /**
      * Not intended to be created directly, is abstract class for GUI functions.
@@ -64,7 +63,7 @@ public abstract class GUIFunction {
      * Sets code to be executed when the function is finished.
      * @param onFinish the code to run when the function completes
      */
-    public GUIFunction onFinish(Runnable onFinish) {
+    public GUIFunction onFinish(Consumer<GUIFunction> onFinish) {
         this.onFinish = onFinish;
         return this;
     }
@@ -75,7 +74,7 @@ public abstract class GUIFunction {
      */
     public void finished() {
         if (this.onFinish != null) {
-            onFinish.run();
+            onFinish.accept(this);
         }
     }
 

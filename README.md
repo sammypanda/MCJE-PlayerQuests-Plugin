@@ -8,11 +8,12 @@
 Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. But when creating GUI template files (usually with 'Meta Actions' or 'Functions') there isn't much option to select from a list of actions, so here is a list for devs or if you're a very brave user.
 
 ###### Meta Actions (Functions)
-| Function (How to refer to) | Parameters (How to customise)                                                                         | Purpose (What it does)                                                 |
-|----------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| UpdateScreen               | 1: the template filename (without .json)                                                              | Changes the current GUI screen to a different GUI template/dynamic GUI |
-| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title", "quest.title") | Prompts the user sets the user input result as a value                 |
-| Save                       | 1. key of instance to save (options: "quest")                                                         | Calls the defined save processes for instances                         |
+| Function (How to refer to) | Parameters (How to customise)                                                                         | Purpose (What it does)                                                    |
+|----------------------------|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| UpdateScreen               | 1: the template filename (without .json)                                                              | Changes the current GUI screen to a different GUI template/dynamic GUI    |
+| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title", "quest.title") | Prompts the user to sets a text value (by typing in the chat box)         |
+| Save                       | 1. key of instance to save (options: "quest")                                                         | Calls the defined save processes for instances                            |
+| SelectBlock                | 1. the prompt to show the user<br>2. list of blacklisted blocks                                       | Prompts the user to select a block (by hitting or selecting in inventory) |
 
 ###### Quest Actions (Actions)
 TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
@@ -33,7 +34,11 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
     "entry": String, // (as in 'entry point') where the quest starts
     "npcs": { // directory of all the quest npcs
         "npc_0": { // NPC ID (automatically generated)
-            "name": String // the name of the NPC
+            "name": String, // the name of the NPC
+            "assigned": {
+                "type": String, // type the NPC is assigned to (options: "block")
+                "value": String // (options: block name)
+            }
         }
     },
     "stages": { // directory of all the quest stages
