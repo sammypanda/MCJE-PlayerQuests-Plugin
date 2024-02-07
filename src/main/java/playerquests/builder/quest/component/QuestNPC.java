@@ -154,6 +154,11 @@ public class QuestNPC {
             return false;
         }
 
+        if (this.assigned == null) {
+            ChatUtils.sendError(player, "The NPC must be assigned to a type");
+            return false;
+        }
+
         return true;
     }
     
