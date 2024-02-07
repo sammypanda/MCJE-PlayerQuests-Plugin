@@ -67,9 +67,11 @@ public class Dynamicnpctypes extends GUIDynamic {
                 Material block = function.getResult();
 
                 // assign this block as the quest NPC
-                this.npc.assign( // set this npc as:
-                    new BlockNPC(block)
-                );
+                if (block != null) {
+                    this.npc.assign( // set this npc as:
+                        new BlockNPC(block)
+                    );
+                }
 
                 // go to previous screen after assigned block
                 new UpdateScreen(

@@ -11,13 +11,14 @@ import org.bukkit.event.EventHandler; // registering methods as event handlers
 import org.bukkit.event.HandlerList; // unregistering event handlers
 import org.bukkit.event.Listener; // listening to in-game events
 import org.bukkit.event.inventory.InventoryClickEvent; // for detecting block selections in listener
+import org.bukkit.event.player.AsyncPlayerChatEvent; // handling request to exit
 import org.bukkit.event.player.PlayerInteractEvent; // for detecting block hits in listener
 
 import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.component.GUISlot; // GUI button
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.ChatUtils; // send error to player if block is invalid
-import playerquests.utility.PluginUtils;
+import playerquests.utility.PluginUtils; // used to validate function params 
 
 /**
  * Function for the user to select a block.
@@ -51,6 +52,19 @@ public class SelectBlock extends GUIFunction {
             this.parentClass.setResponse(event.getCurrentItem().getType());
             this.parentClass.execute();
         }
+
+        @EventHandler
+        private void onChat(AsyncPlayerChatEvent event) {
+            event.setCancelled(true);
+
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on main thread, instead of async
+                if (event.getMessage().toLowerCase().equals("exit")) {
+                    this.parentClass.setCancelled(true);
+                    this.parentClass.execute();
+                }
+            });
+            
+        }
     }
 
     /**
@@ -82,6 +96,11 @@ public class SelectBlock extends GUIFunction {
      * The blocks to blacklist.
      */
     private List blacklist;
+
+    /**
+     * If the player has cancelled the selection.
+     */
+    private boolean cancelled;
 
     /** 
      * Provides input as a user selected block.
@@ -147,13 +166,21 @@ public class SelectBlock extends GUIFunction {
             return;
         }
 
+        if (this.cancelled) {
+            this.player.sendMessage(
+                ChatColor.GRAY + "" + ChatColor.ITALIC + "exited" + ChatColor.RESET
+            );
+            this.exit();
+            return;
+        }
+
         if (this.result == null) {
             this.player.sendMessage(
                 ChatColor.UNDERLINE + this.prompt + ChatColor.RESET
             );
             ChatUtils.clearChat(this.player, 1);
             this.player.sendMessage(
-                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET + " [unimplemented]"
+                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET
             );
             return;
         }
@@ -196,5 +223,12 @@ public class SelectBlock extends GUIFunction {
         HandlerList.unregisterAll(this.blockListener); // remove listeners
         this.finished(); // execute onFinish code
         this.slot.executeNext(this.player); // continue to next slot function
+    }
+
+    /**
+     * Setting block selection function as cancelled
+     */
+    private void setCancelled(Boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }
