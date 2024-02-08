@@ -43,14 +43,12 @@ public class SelectBlock extends GUIFunction {
         private void onHit(PlayerInteractEvent event) {
             event.setCancelled(true);
             this.parentClass.setResponse(event.getClickedBlock().getType());
-            this.parentClass.execute();
         }
 
         @EventHandler
         private void onSelect(InventoryClickEvent event) {
             event.setCancelled(true);
             this.parentClass.setResponse(event.getCurrentItem().getType());
-            this.parentClass.execute();
         }
 
         @EventHandler
@@ -58,9 +56,10 @@ public class SelectBlock extends GUIFunction {
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on main thread, instead of async
-                if (event.getMessage().toLowerCase().equals("exit")) {
+                if (event.getMessage().toLowerCase().equals("exit")) { // if wanting to exit
                     this.parentClass.setCancelled(true);
-                    this.parentClass.execute();
+                } else { // if trying to set a block using the chat box
+                    this.parentClass.setResponse(event.getMessage());
                 }
             });
             
@@ -196,16 +195,31 @@ public class SelectBlock extends GUIFunction {
      * Try to set a material as the NPC block.
      * @param type the material to use as the NPC block
      */
-    public void setResponse(Material type) {
+    public void setResponse(Material material) {
         // TODO: add block blacklist (and add air to it by default)
 
-        if (!type.isBlock()) {
+        if (!material.isBlock()) {
             ChatUtils.sendError(this.player, "Could not set this item as an NPC block.");
             this.result = null;
             return; // keep trying
         }
 
-        this.result = type; // set the block the user selected
+        this.result = material; // set the block the user selected
+        this.execute();
+    }
+
+    /**
+     * Try to convert a string to material and set as the NPC block.
+     * @param type the name of the material to use as the NPC block
+     */
+    public void setResponse(String material) {
+        result = Material.matchMaterial(material);
+
+        if (result == null) {
+            ChatUtils.sendError(this.player, String.format("Could not find %s block to set, try to be more specific.", material));
+        } else {
+            setResponse(result); // set the block the user selected
+        }
     }
 
     /**
