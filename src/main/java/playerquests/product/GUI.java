@@ -13,8 +13,8 @@ import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
-import playerquests.builder.gui.component.GUISlot;
-import playerquests.utility.GUIUtils; // converts string of item to presentable itemstack
+import playerquests.builder.gui.component.GUISlot; // GUI buttons
+import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
 
 /**
  * The GUI product as it appears on the players screen.
@@ -127,7 +127,7 @@ public class GUI {
      */
     private void drawSlots() {
         this.slots.forEach((position, slot) -> {
-            ItemStack item = GUIUtils.toItemStack(slot.getItem()); // for setting the slot item
+            ItemStack item = MaterialUtils.toItemStack(slot.getItem()); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
 
             // Strip the ItemMeta

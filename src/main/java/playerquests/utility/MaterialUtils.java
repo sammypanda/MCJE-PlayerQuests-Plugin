@@ -3,16 +3,17 @@ package playerquests.utility;
 import org.bukkit.Material; // used to get a usable material instance
 import org.bukkit.inventory.ItemStack; // important type used to fill GUI slots
 
+
 /**
- * Helpful tools which can reduce the verbosity of GUI classes.
+ * Helpful tools which can reduce the verbosity of handling blocks.
  */
-public class GUIUtils {
+public class MaterialUtils {
 
     /**
      * GUIUtils should not be instantiated.
      */
-    private GUIUtils() {
-        throw new AssertionError("GUIUtils should not be instantiated.");
+    private MaterialUtils() {
+        throw new AssertionError("BlockUtils should not be instantiated.");
     }
 
     /**

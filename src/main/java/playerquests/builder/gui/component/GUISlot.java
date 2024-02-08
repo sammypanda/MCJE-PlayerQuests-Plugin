@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // reads the JSON
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
 import playerquests.client.ClientDirector; // abstracted controls for the plugin
-import playerquests.utility.GUIUtils; // converts string of item to presentable itemstack
+import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
 
 /**
  * The contents and function list of a slot.
@@ -145,7 +145,7 @@ public class GUISlot {
      */
     public void setItem(String item) {
         try { // check if the item would create a valid ItemStack (the Material exists and isn't legacy)
-            GUIUtils.toItemStack(item);
+            MaterialUtils.toItemStack(item);
             this.item = item; // if no issue caught overwrite the default slot item
         } catch (IllegalArgumentException exception) { // this means the ItemStack failed to construct
             this.errored = true;
