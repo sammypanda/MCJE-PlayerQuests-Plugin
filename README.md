@@ -13,7 +13,7 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 | UpdateScreen               | 1: the template filename (without .json)                                                              | Changes the current GUI screen to a different GUI template/dynamic GUI    |
 | ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "gui.title", "quest.title") | Prompts the user to sets a text value (by typing in the chat box)         |
 | Save                       | 1. key of instance to save (options: "quest")                                                         | Calls the defined save processes for instances                            |
-| SelectBlock                | 1. the prompt to show the user<br>2. list of blacklisted blocks                                       | Prompts the user to select a block (by hitting or selecting in inventory) |
+| SelectBlock                | 1. the prompt to show the user<br>2. list of denylisted blocks                                       | Prompts the user to select a block (by hitting or selecting in inventory) |
 
 ###### Quest Actions (Actions)
 TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):

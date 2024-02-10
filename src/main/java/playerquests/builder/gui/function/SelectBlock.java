@@ -1,7 +1,8 @@
 package playerquests.builder.gui.function;
 
 import java.util.ArrayList; // array type of list
-import java.util.List;
+import java.util.List; // used for creating denylist list
+import java.util.stream.Collectors; // transforming stream to data type
 
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.ChatColor;
@@ -92,9 +93,9 @@ public class SelectBlock extends GUIFunction {
     private boolean wasSetUp;
 
     /**
-     * The blocks to blacklist.
+     * The blocks to denylist.
      */
-    private List blacklist;
+    private List<String> denylist;
 
     /**
      * If the player has cancelled the selection.
@@ -107,7 +108,7 @@ public class SelectBlock extends GUIFunction {
      * <li>By hitting the physical block
      * <li>By selecting the block in an inventory
      * </ul>
-     * @param params 1. the prompt to show the user 2. list of blacklisted blocks
+     * @param params 1. the prompt to show the user 2. list of denylisted blocks
      * @param director to set values
      * @param slot slot this function belongs to
      */
@@ -136,7 +137,7 @@ public class SelectBlock extends GUIFunction {
 
         // set params
         this.prompt = (String) params.get(0);
-        this.blacklist = (List) params.get(1);
+        this.denylist = getDenylist(params.get(1));
 
         // get and set the player who is selecting the block
         this.player = this.director.getPlayer();
@@ -153,6 +154,22 @@ public class SelectBlock extends GUIFunction {
 
         // loop back after setting up
         this.execute();
+    }
+
+    /**
+     * Cast denylist object to a list of denylisted material strings.
+     * @param object object of materials to denylist
+     * @return list of materials to denylist
+     */
+    private List<String> getDenylist(Object object) {
+        List<?> castedList = (List<?>) object; // wildcard generics for cast checking
+
+        // due to java missing reified generics, stream loop to safely validate wildcarded list elements
+        // return list of denylisted strings
+        return (List<String>) castedList.stream()
+            .filter(item -> item instanceof String) // filter out non-String items
+            .map(Object::toString) // transform each item to String
+            .collect(Collectors.toList()); // collect into final denylist
     }
 
     @Override
@@ -196,7 +213,7 @@ public class SelectBlock extends GUIFunction {
      * @param type the material to use as the NPC block
      */
     public void setResponse(Material material) {
-        // TODO: add block blacklist (and add air to it by default)
+        // TODO: add block denylist (and add air to it by default)
 
         if (!material.isBlock()) {
             ChatUtils.sendError(this.player, "Could not set this item as an NPC block.");
