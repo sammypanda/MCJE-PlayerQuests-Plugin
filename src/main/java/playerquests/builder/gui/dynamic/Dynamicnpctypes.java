@@ -75,7 +75,8 @@ public class Dynamicnpctypes extends GUIDynamic {
                 new ArrayList<>(Arrays.asList(
                     "Select a block", // the prompt message
                     Arrays.asList( // denylisted blocks:
-                        "BARRIER"
+                        "BARRIER",
+                        "DRAGON_EGG"
                     )
                 )), 
                 director, 

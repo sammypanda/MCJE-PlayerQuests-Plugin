@@ -95,7 +95,7 @@ public class SelectBlock extends GUIFunction {
     /**
      * The blocks to denylist.
      */
-    private List<String> denylist;
+    private List<Material> denylist;
 
     /**
      * If the player has cancelled the selection.
@@ -161,14 +161,20 @@ public class SelectBlock extends GUIFunction {
      * @param object object of materials to denylist
      * @return list of materials to denylist
      */
-    private List<String> getDenylist(Object object) {
+    private List<Material> getDenylist(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
         // due to java missing reified generics, stream loop to safely validate wildcarded list elements
         // return list of denylisted strings
-        return (List<String>) castedList.stream()
+        return (List<Material>) castedList.stream()
             .filter(item -> item instanceof String) // filter out non-String items
-            .map(Object::toString) // transform each item to String
+            .map(itemString -> { // transform each item to String
+                Material material = Material.matchMaterial((String) itemString);
+                if (material == null) { // if material string couldn't be matched
+                    ChatUtils.sendError(this.player, String.format("Invalid item in denylist: %s", itemString));
+                }
+                return material;
+            }) 
             .collect(Collectors.toList()); // collect into final denylist
     }
 
@@ -213,7 +219,11 @@ public class SelectBlock extends GUIFunction {
      * @param type the material to use as the NPC block
      */
     public void setResponse(Material material) {
-        // TODO: add block denylist (and add air to it by default)
+        if (this.denylist.contains(material)) {
+            ChatUtils.sendError(this.player, "This item is on the denylist from being set as an NPC block.");
+            this.result = null;
+            return;
+        }
 
         if (!material.isBlock()) {
             ChatUtils.sendError(this.player, "Could not set this item as an NPC block.");
