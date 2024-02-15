@@ -8,7 +8,9 @@ import org.bukkit.Material; // identifying block of 'Block' NPC type
 import playerquests.builder.gui.component.GUIFrame; // outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
 import playerquests.builder.gui.function.SelectBlock; // function to get the block
+import playerquests.builder.gui.function.SelectLocation;
 import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
+import playerquests.builder.quest.type.Location;
 import playerquests.builder.quest.component.QuestNPC; // object for the npc
 import playerquests.builder.quest.component.npc.type.BlockNPC; // NPCs as blocks
 import playerquests.client.ClientDirector; // controls the plugin
@@ -99,9 +101,14 @@ public class Dynamicnpctypes extends GUIDynamic {
 
         // add place NPC button
         GUISlot placeButton = new GUISlot(gui, 9);
+
         placeButton.setLabel(
-            String.format("%s",
-                this.npc.isAssigned() ? "Place NPC (" + this.npc.getAssigned().toString() + ")" : "Cannot place before assigning"
+            String.format("%s", 
+                (this.npc.getLocation() == null) ? 
+                    ((this.npc.isAssigned()) ? 
+                    "Place NPC (" + this.npc.getAssigned().toString() + ")" : 
+                    "Cannot place before assigning") :
+                "Relocate NPC (" + this.npc.getAssigned().toString() + ")"
             )
         );
         placeButton.setItem(
@@ -109,5 +116,24 @@ public class Dynamicnpctypes extends GUIDynamic {
                 this.npc.isAssigned() ? this.npc.getMaterial().toString() : "BARRIER"  
             )
         );
+        placeButton.onClick(() -> {
+            new SelectLocation(
+                new ArrayList<>(Arrays.asList(
+                    "Place the NPC"
+                )),
+                director,
+                placeButton
+            ).onFinish((f) -> {
+                // get the block that was selected
+                SelectLocation function = (SelectLocation) f;
+                Location location = function.getResult();
+
+                if (location != null) {
+                    this.npc.setLocation(location);
+                }
+
+                this.execute(); // re-draw to see changes
+            }).execute();
+        });
     }
 }

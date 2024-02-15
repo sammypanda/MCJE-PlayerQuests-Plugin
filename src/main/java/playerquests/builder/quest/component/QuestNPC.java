@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when seria
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
 import playerquests.Core; // for accessing singletons
+import playerquests.builder.quest.type.Location;
 import playerquests.builder.quest.QuestBuilder; // the quest itself
 import playerquests.builder.quest.component.npc.type.BlockNPC; // 'Block' NPC type
 import playerquests.builder.quest.component.npc.type.NPCType; // the type of NPC, such as 'Block'
@@ -52,6 +53,12 @@ public class QuestNPC {
      */
     @JsonProperty("assigned")
     private NPCType assigned;
+
+    /**
+     * Where the NPC exists in the world.
+     */
+    @JsonProperty("location")
+    private Location location;
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -165,13 +172,33 @@ public class QuestNPC {
     /**
      * Assign the NPC to something.
      */
+    @JsonIgnore
     public void assign(NPCType npcType) {
         this.assigned = npcType;
     }
 
     /**
+     * Set the location of this NPC in the world.
+     * @param location PlayerQuests Location object
+     */
+    @JsonIgnore
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    /**
+     * Get the location of this NPC in the world.
+     * @return Bukkit Location object
+     */
+    @JsonIgnore
+    public Location getLocation() {
+        return this.location;
+    }
+
+    /**
      * Gets a material which represents this NPC.
      */
+    @JsonIgnore
     public Material getMaterial() {
         if (this.assigned instanceof BlockNPC) {
             BlockNPC npc = (BlockNPC) this.assigned;
@@ -185,6 +212,7 @@ public class QuestNPC {
      * Returns if the NPC has been assigned to a type, such as a 'Block'.
      * @return the type of NPC assignment
      */
+    @JsonIgnore
     public boolean isAssigned() {
         return this.assigned != null;
     }
@@ -193,6 +221,7 @@ public class QuestNPC {
      * Returns the information about how the NPC is assigned.
      * @return the NPC assignment
      */
+    @JsonIgnore
     public NPCType getAssigned() {
         return this.assigned;
     }
