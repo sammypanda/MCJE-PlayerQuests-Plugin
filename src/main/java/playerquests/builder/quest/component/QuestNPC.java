@@ -1,13 +1,15 @@
 package playerquests.builder.quest.component;
 
+import org.bukkit.Bukkit; // bukkit singleton
 import org.bukkit.Material; // for if NPC is a block
+import org.bukkit.World; // world the NPC exists in
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
 import playerquests.Core; // for accessing singletons
-import playerquests.builder.quest.type.Location;
+import playerquests.builder.quest.type.Location; // playerquests location object
 import playerquests.builder.quest.QuestBuilder; // the quest itself
 import playerquests.builder.quest.component.npc.type.BlockNPC; // 'Block' NPC type
 import playerquests.builder.quest.component.npc.type.NPCType; // the type of NPC, such as 'Block'
@@ -224,5 +226,20 @@ public class QuestNPC {
     @JsonIgnore
     public NPCType getAssigned() {
         return this.assigned;
+    }
+
+    /**
+     * Places the NPC in the world.
+     */
+    @JsonIgnore
+    public void place() {
+        World world = Bukkit.getWorld(location.getWorld());
+
+        this.assigned.place(
+            world,
+            location.getX(),
+            location.getY(),
+            location.getZ()
+        );
     }
 }

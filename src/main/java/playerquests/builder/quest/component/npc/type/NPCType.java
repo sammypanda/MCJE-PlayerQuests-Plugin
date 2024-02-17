@@ -3,6 +3,8 @@ package playerquests.builder.quest.component.npc.type;
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
+import org.bukkit.World; // world the NPC exists in
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -66,5 +68,16 @@ public class NPCType {
      */
     public String getValue() {
         return value;
+    }
+
+    /**
+     * Place the NPC in the world.
+     * @param world which world the NPC belongs in
+     * @param x the x coordinate double
+     * @param y the y coordinate double
+     * @param z the z coordinate double
+     */
+    public void place(World world, double d, double e, double f) {
+        throw new IllegalStateException("Tried to place an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 }

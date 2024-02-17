@@ -162,6 +162,13 @@ public class QuestBuilder {
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
+        // place the NPCs in the world
+        this.getQuestNPCs().entrySet().stream()
+            .forEach(entry -> {
+                QuestNPC npc = entry.getValue();
+                npc.place();
+            });
+
         return "Quest Builder: '" + this.title + "' was saved";
     }
 
