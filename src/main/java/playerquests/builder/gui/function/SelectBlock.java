@@ -50,7 +50,6 @@ public class SelectBlock extends GUIFunction {
         private void onSelect(InventoryClickEvent event) {
             event.setCancelled(true);
             event.getView().close();
-            System.out.println("is select async? " + event.isAsynchronous());
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
                 this.parentClass.setResponse(event.getCurrentItem().getType()); // <- breaks inventory state?
             });
@@ -63,6 +62,7 @@ public class SelectBlock extends GUIFunction {
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
                 if (event.getMessage().toLowerCase().equals("exit")) { // if wanting to exit
                     this.parentClass.setCancelled(true);
+                    this.parentClass.execute(); // run with cancellation
                 } else { // if trying to set a block using the chat box
                     this.parentClass.setResponse(event.getMessage());
                 }
