@@ -235,6 +235,15 @@ public class QuestNPC {
     public void place() {
         World world = Bukkit.getWorld(location.getWorld());
 
+        if (this.location != null) {
+            this.assigned.remove(
+                world,
+                location.getX(),
+                location.getY(),
+                location.getZ()
+            );
+        }
+
         this.assigned.place(
             world,
             location.getX(),

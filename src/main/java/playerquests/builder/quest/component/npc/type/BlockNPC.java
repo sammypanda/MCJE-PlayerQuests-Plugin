@@ -48,4 +48,22 @@ public class BlockNPC extends NPCType {
             this.getBlock().createBlockData()
         );
     }
+
+    /**
+     * Remove the NPC block from the world.
+     * @param world which world the NPC belongs in
+     * @param x the x coordinate double
+     * @param y the y coordinate double
+     * @param z the z coordinate double
+     */
+    @Override
+    @JsonIgnore
+    public void remove(World world, double x, double y, double z) {
+        world.setBlockData(
+            (int) x,
+            (int) y,
+            (int) z,
+            Material.AIR.createBlockData()
+        );
+    }
 }

@@ -146,6 +146,7 @@ public class Dynamicnpctypes extends GUIDynamic {
 
                 if (location != null) {
                     this.npc.setLocation(location);
+                    this.npc.place(); // place the block in the world
                 }
 
                 // return the players old inventory

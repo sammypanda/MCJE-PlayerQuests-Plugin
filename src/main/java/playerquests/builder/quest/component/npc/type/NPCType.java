@@ -77,7 +77,18 @@ public class NPCType {
      * @param y the y coordinate double
      * @param z the z coordinate double
      */
-    public void place(World world, double d, double e, double f) {
+    public void place(World world, double x, double y, double z) {
         throw new IllegalStateException("Tried to place an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
+    }
+
+    /**
+     * Remove the NPC from the world.
+     * @param world which world the NPC belongs in
+     * @param x the x coordinate double
+     * @param y the y coordinate double
+     * @param z the z coordinate double
+     */
+    public void remove(World world, double x, double y, double z) {
+        throw new IllegalStateException("Tried to remove an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 }
