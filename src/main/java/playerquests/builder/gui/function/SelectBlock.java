@@ -49,14 +49,18 @@ public class SelectBlock extends GUIFunction {
         @EventHandler
         private void onSelect(InventoryClickEvent event) {
             event.setCancelled(true);
-            this.parentClass.setResponse(event.getCurrentItem().getType());
+            event.getView().close();
+            System.out.println("is select async? " + event.isAsynchronous());
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
+                this.parentClass.setResponse(event.getCurrentItem().getType()); // <- breaks inventory state?
+            });
         }
 
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
             event.setCancelled(true);
 
-            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on main thread, instead of async
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
                 if (event.getMessage().toLowerCase().equals("exit")) { // if wanting to exit
                     this.parentClass.setCancelled(true);
                 } else { // if trying to set a block using the chat box
@@ -262,8 +266,8 @@ public class SelectBlock extends GUIFunction {
      */
     private void exit() {
         HandlerList.unregisterAll(this.blockListener); // remove listeners
-        this.finished(); // execute onFinish code
         this.director.getGUI().getResult().open(); // re-open GUI
+        this.finished(); // execute onFinish code
         this.slot.executeNext(this.player); // continue to next slot function
     }
 
