@@ -59,7 +59,7 @@ public class QuestStage {
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
 
         // create the default first action
-        String action = this.addAction(new None());
+        String action = new None(this, false).getID();
 
         // set the default first action as the default entry point
         this.setEntryPoint(action);
@@ -147,6 +147,7 @@ public class QuestStage {
     }
 
     public void changeActionType(String currentAction, QuestAction newActionInstance) {
-        this.getActions().replace(currentAction, newActionInstance);
+        newActionInstance.setID(currentAction); // update the ID in the action local
+        this.actions.replace(currentAction, newActionInstance); // replace in main list
     }
 }

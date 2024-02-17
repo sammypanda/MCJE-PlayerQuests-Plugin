@@ -89,7 +89,7 @@ public class Dynamicqueststage extends GUIDynamic {
         newActionButton.setLabel("New Action");
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
-            this.questStage.addAction(new None()); // create the new action to present
+            new None(this.questStage, false); // create the new action to present
             this.gui.clearSlots(); // clear to prevent duplicates
             this.execute(); // re-run to see new action in list
         });

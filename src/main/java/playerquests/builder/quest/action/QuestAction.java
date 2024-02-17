@@ -3,13 +3,10 @@ package playerquests.builder.quest.action;
 import java.security.InvalidParameterException; // thrown if parameters are malformed or missing
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
-import java.util.Map;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder; // for working on GUIs
 import playerquests.builder.quest.stage.QuestStage;
 
@@ -28,11 +25,25 @@ public class QuestAction {
     private QuestStage stage;
 
     /**
+     * The ID of this action.
+     */
+    private String action;
+
+    /**
      * Not intended to be created directly, is abstract class for action types.
      * <p>
      * See docs/README for list of action types.
+     * @param parentStage stage this action belongs to
+     * @param unassigned if this stage is given a valid ID
     */
-    public QuestAction() {
+    public QuestAction(QuestStage parentStage, Boolean unassigned) {
+        this.stage = parentStage;
+
+        if (unassigned) {
+            this.action = "action_-1";
+        } else {
+            this.action = this.stage.addAction(this);
+        }
     }
 
     /**
@@ -68,31 +79,24 @@ public class QuestAction {
     */
     @JsonProperty("name")
     public String getID() {
-        return this.getStage().getActions().entrySet().stream()
-            .filter(entry -> entry.getValue().equals(this))
-            .map(Map.Entry::getKey)
-            .findFirst()
-            .get();
+        return this.action;
     }
 
+    /** 
+     * Sets this action's ID.
+     * @param ID new action ID (name)
+    */
+    public String setID(String ID) {
+        return this.action = ID;
+    }
+    
     /**
-     * Gets the stage instance this quest action belongs to.
-     * @return a QuestStage instance
+     * Gets the stage this action belongs to.
+     * @return current quest stage instance
      */
     @JsonIgnore
     public QuestStage getStage() {
-        Optional<QuestStage> currentStage = Core.getKeyHandler().getInstances().stream() // get all registered instances
-            .filter(instance -> instance instanceof QuestStage) // filter out anything that is not a quest stage
-            .map(instance -> (QuestStage) instance) // map the quest stage object to QuestStage class type
-            .filter(stage -> stage.getActions().containsValue(this)) // check if the actions list in the stage contains this QuestAction
-            .findFirst();
-
-        if (currentStage.isPresent()) {
-            this.stage = currentStage.get();
-            return currentStage.get();
-        } 
-         
-        throw new IllegalStateException("Stray action found. Action: " + this.toString() + " has no parent stage.");
+        return this.stage;
     }
 
     /**

@@ -138,7 +138,14 @@ public class Dynamicactiontypes extends GUIDynamic {
                 typeButton.onClick(() -> {
                     try {
                         String currentAction = this.stage.getActionToEdit(); // get the action we are changing the type of
-                        QuestAction newActionInstance = (QuestAction) classRef.getDeclaredConstructor().newInstance(); // create a new instance of the action type
+                        
+                        // create a new instance of the action type
+                        QuestAction newActionInstance = (QuestAction) classRef.getDeclaredConstructor(
+                                QuestStage.class, Boolean.class
+                            ).newInstance(
+                                this.stage, true
+                            );
+                            
                         this.stage.changeActionType(currentAction, newActionInstance); // ask the quest stage builder to change the action to a new type
                         this.gui.clearSlots(); // clear to prevent duplicates
                         this.execute(); // re-run to show changes
