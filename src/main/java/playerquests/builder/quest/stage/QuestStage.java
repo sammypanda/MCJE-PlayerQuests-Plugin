@@ -59,7 +59,7 @@ public class QuestStage {
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
 
         // create the default first action
-        String action = new None(this, false).getID();
+        String action = new None(this).submit().getID();
 
         // set the default first action as the default entry point
         this.setEntryPoint(action);

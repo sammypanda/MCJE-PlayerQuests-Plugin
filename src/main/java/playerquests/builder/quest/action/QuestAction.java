@@ -32,18 +32,13 @@ public class QuestAction {
     /**
      * Not intended to be created directly, is abstract class for action types.
      * <p>
+     * Use .submit() on this method to add it to it's quest stage.
      * See docs/README for list of action types.
      * @param parentStage stage this action belongs to
-     * @param unassigned if this stage is given a valid ID
     */
-    public QuestAction(QuestStage parentStage, Boolean unassigned) {
+    public QuestAction(QuestStage parentStage) {
         this.stage = parentStage;
-
-        if (unassigned) {
-            this.action = "action_-1";
-        } else {
-            this.action = this.stage.addAction(this);
-        }
+        this.action = "action_-1";
     }
 
     /**
@@ -97,6 +92,18 @@ public class QuestAction {
     @JsonIgnore
     public QuestStage getStage() {
         return this.stage;
+    }
+
+    /**
+     * Submits this function to the stage.
+     * <p>
+     * This also gives it a valid ID.
+     * @return the quest action submitted to the quest stage
+     */
+    public QuestAction submit() {
+        this.stage.addAction(this);
+
+        return this;
     }
 
     /**
