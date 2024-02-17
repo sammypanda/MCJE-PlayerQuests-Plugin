@@ -4,16 +4,20 @@ import java.util.ArrayList; // list type of array
 import java.util.Arrays; // generic type of array
 
 import org.bukkit.Material; // identifying block of 'Block' NPC type
+import org.bukkit.entity.HumanEntity; // the player type
+import org.bukkit.inventory.ItemStack; // how items are identified and stored in inventories
+import org.bukkit.inventory.PlayerInventory; // the player inventory type
 
 import playerquests.builder.gui.component.GUIFrame; // outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
-import playerquests.builder.gui.function.SelectBlock; // function to get the block
-import playerquests.builder.gui.function.SelectLocation;
+import playerquests.builder.gui.function.SelectBlock; // function to get the player-chosen block
+import playerquests.builder.gui.function.SelectLocation; // function to get the player-chosen location
 import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
-import playerquests.builder.quest.type.Location;
+import playerquests.builder.quest.type.Location; // playerquests location object
 import playerquests.builder.quest.component.QuestNPC; // object for the npc
 import playerquests.builder.quest.component.npc.type.BlockNPC; // NPCs as blocks
 import playerquests.client.ClientDirector; // controls the plugin
+import playerquests.utility.MaterialUtils; // helper used to get ItemStack from simplified input
 
 public class Dynamicnpctypes extends GUIDynamic {
 
@@ -117,6 +121,18 @@ public class Dynamicnpctypes extends GUIDynamic {
             )
         );
         placeButton.onClick(() -> {
+            HumanEntity player = this.director.getPlayer();
+            PlayerInventory playerInventory = player.getInventory();
+            ItemStack[] playerInventoryContents = playerInventory.getContents();
+            
+            // temporarily empty the player inventory
+            playerInventory.clear();
+
+            // give the player the block to place
+            playerInventory.setItemInMainHand(
+                MaterialUtils.toItemStack(this.npc.getMaterial().toString())
+            );
+
             new SelectLocation(
                 new ArrayList<>(Arrays.asList(
                     "Place the NPC"
@@ -131,6 +147,9 @@ public class Dynamicnpctypes extends GUIDynamic {
                 if (location != null) {
                     this.npc.setLocation(location);
                 }
+
+                // return the players old inventory
+                playerInventory.setContents(playerInventoryContents);
 
                 this.execute(); // re-draw to see changes
             }).execute();
