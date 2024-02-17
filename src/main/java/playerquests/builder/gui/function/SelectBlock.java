@@ -7,6 +7,7 @@ import java.util.stream.Collectors; // transforming stream to data type
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.ChatColor;
 import org.bukkit.Material; // the resulting material (block)
+import org.bukkit.block.Block; // spigot block type
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler; // registering methods as event handlers
 import org.bukkit.event.HandlerList; // unregistering event handlers
@@ -43,7 +44,11 @@ public class SelectBlock extends GUIFunction {
         @EventHandler
         private void onHit(PlayerInteractEvent event) {
             event.setCancelled(true);
-            this.parentClass.setResponse(event.getClickedBlock().getType());
+            Block clickedBlock = event.getClickedBlock();
+
+            if (clickedBlock != null) {
+                this.parentClass.setResponse(clickedBlock.getType());
+            }
         }
 
         @EventHandler
