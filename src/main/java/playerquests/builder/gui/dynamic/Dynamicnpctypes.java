@@ -135,7 +135,7 @@ public class Dynamicnpctypes extends GUIDynamic {
 
             new SelectLocation(
                 new ArrayList<>(Arrays.asList(
-                    "Place the NPC"
+                    "Place the NPC Block"
                 )),
                 director,
                 placeButton
