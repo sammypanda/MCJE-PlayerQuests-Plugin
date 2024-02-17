@@ -8,6 +8,7 @@ import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
 import playerquests.builder.quest.component.QuestStage; // modifying the quest stage
+import playerquests.builder.quest.component.action.type.ActionType; // types of quest actions
 import playerquests.client.ClientDirector; // controlling the plugin
 
 public class Dynamicactioneditor extends GUIDynamic {
@@ -42,6 +43,9 @@ public class Dynamicactioneditor extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
+        // get important values
+        ActionType actionType = this.action.getType(); 
+
         // set label
         if (this.stage.getEntryPoint() == this.action) { // if this action is the entry point
             this.gui.getFrame().setTitle("{QuestAction} Editor (Entry Point)");
@@ -65,7 +69,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         // changing action type button
         GUISlot typeButton = new GUISlot(this.gui, 1);
         typeButton.setItem("FIREWORK_ROCKET");
-        typeButton.setLabel("Change Type (" + this.action.getType().toString() + ")");
+        typeButton.setLabel("Change Type (" + actionType.toString() + ")");
         typeButton.addFunction(new UpdateScreen(
             new ArrayList<>(Arrays.asList("actiontypes")),
             director,

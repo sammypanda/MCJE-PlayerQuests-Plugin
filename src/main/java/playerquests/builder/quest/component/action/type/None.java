@@ -25,9 +25,4 @@ public class None extends ActionType {
     public None() {
         super(new ArrayList<>());
     }
-
-    @Override
-    public String toString() {
-        return "None";
-    }
 }

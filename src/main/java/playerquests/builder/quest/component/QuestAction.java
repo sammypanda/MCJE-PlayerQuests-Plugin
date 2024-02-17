@@ -60,8 +60,8 @@ public class QuestAction {
      * Gets the string representation of the type.
      * @return current action type as a string
      */
-    public String getType() {
-        return this.actionType.toString();
+    public ActionType getType() {
+        return this.actionType;
     }
 
     /**

@@ -1,7 +1,10 @@
 package playerquests.builder.quest.component.action.type;
 
+import java.security.InvalidParameterException; // thrown if parameters are malformed or missing
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
+
+import playerquests.builder.gui.GUIBuilder; // for working on GUIs
 
 /**
  * Passes and handles the quest stage action 'types'.
@@ -54,6 +57,23 @@ public class ActionType {
 
     @Override
     public String toString() {
-        return "ActionType";
+        return this.getClass().getSimpleName();
+    }
+
+    /**
+     * Create GUI slots that are options for this action.
+     * @param gui the GUI to create the slots in
+     * @param deniedSlots a list of slots that cannot have the option buttons set on
+     */
+    public void putOptionSlots(GUIBuilder gui, List<Integer> deniedSlots) {
+        // error if GUI is not defined
+        if (gui == null) {
+            throw new InvalidParameterException("GUI missing to put the quest action options slots in.");
+        }
+
+        // error if trying to access this class directly instead of by an extended member
+        if (this.getClass().getSimpleName().equals("ActionType")) {
+            throw new IllegalStateException("Tried to build option slots without defining the type of action.");
+        }
     }
 }

@@ -20,9 +20,4 @@ public class Speak extends ActionType {
     public Speak() {
         super(new ArrayList<>());
     }
-
-    @Override
-    public String toString() {
-        return "Speak";
-    }
 }
