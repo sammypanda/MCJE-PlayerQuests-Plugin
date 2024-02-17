@@ -9,7 +9,7 @@ import playerquests.builder.gui.component.GUISlot; // object for GUI slots
 import playerquests.builder.gui.function.ChatPrompt; // prompting user input
 import playerquests.builder.gui.function.UpdateScreen; // function to change the GUI screen
 import playerquests.builder.quest.QuestBuilder; // the quest itself
-import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**

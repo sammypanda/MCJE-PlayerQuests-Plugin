@@ -1,4 +1,4 @@
-package playerquests.builder.quest.component;
+package playerquests.builder.quest.npc;
 
 import org.bukkit.Bukkit; // bukkit singleton
 import org.bukkit.Material; // for if NPC is a block
@@ -9,13 +9,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when seria
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
 import playerquests.Core; // for accessing singletons
-import playerquests.builder.quest.type.Location; // playerquests location object
-import playerquests.builder.quest.QuestBuilder; // the quest itself
-import playerquests.builder.quest.component.npc.type.BlockNPC; // 'Block' NPC type
-import playerquests.builder.quest.component.npc.type.NPCType; // the type of NPC, such as 'Block'
+import playerquests.builder.quest.QuestBuilder;
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // sends error messages to player
 import playerquests.utility.annotation.Key; // key-value pair annottation
+import playerquests.utility.object.Location;
 
 /**
  * Object containing details about a quest NPC.

@@ -6,9 +6,8 @@ import java.util.stream.IntStream; // functional loops
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
-import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
-import playerquests.builder.quest.component.QuestStage; // modifying the quest stage
-import playerquests.builder.quest.component.action.type.ActionType; // types of quest actions
+import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 
 public class Dynamicactioneditor extends GUIDynamic {
@@ -16,7 +15,7 @@ public class Dynamicactioneditor extends GUIDynamic {
     /**
      * The current quest action.
      */
-    QuestAction action;
+    String action;
 
     /**
      * The parent quest stage for this quest action.
@@ -34,18 +33,15 @@ public class Dynamicactioneditor extends GUIDynamic {
 
     @Override
     protected void setUp_custom() {
-        // set the quest action instance
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        // set the quest action stage parent
+        this.stage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 
-        // get the quest action stage parent
-        this.stage = this.action.getStage();
+        // set the quest action to modify
+        this.action = this.stage.getActionToEdit();
     }
 
     @Override
     protected void execute_custom() {
-        // get important values
-        ActionType actionType = this.action.getType(); 
-
         // set label
         if (this.stage.getEntryPoint() == this.action) { // if this action is the entry point
             this.gui.getFrame().setTitle("{QuestAction} Editor (Entry Point)");
@@ -69,7 +65,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         // changing action type button
         GUISlot typeButton = new GUISlot(this.gui, 1);
         typeButton.setItem("FIREWORK_ROCKET");
-        typeButton.setLabel("Change Type (" + actionType.toString() + ")");
+        typeButton.setLabel("Change Type (" + this.action.toString() + ")");
         typeButton.addFunction(new UpdateScreen(
             new ArrayList<>(Arrays.asList("actiontypes")),
             director,

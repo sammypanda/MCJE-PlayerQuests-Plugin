@@ -1,4 +1,4 @@
-package playerquests.builder.quest.component;
+package playerquests.builder.quest.stage;
 
 import java.util.LinkedHashMap; // hash map type with sequencing
 import java.util.Map; // generic map type
@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showin
 import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.builder.quest.component.action.type.None; // an empty/skippable quest action
+import playerquests.builder.quest.action.None;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.client.ClientDirector; // to control the plugin
 
 /**
@@ -27,6 +28,11 @@ public class QuestStage {
     private Map<String, QuestAction> actions = new LinkedHashMap<String, QuestAction>();
 
     /**
+     * The latest currently edited action.
+     */
+    private String actionInEditing;
+
+    /**
      * The id for the stage
      */
     private String stageID = "stage_-1";
@@ -35,18 +41,7 @@ public class QuestStage {
      * Entry point for the stage.
      */
     @JsonIgnore
-    private QuestAction entryPoint;
-
-    {
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
-
-        // create the default first action
-        QuestAction action = this.newAction();
-
-        // set the default first action as the default entry point
-        this.setEntryPoint(action);
-    }
+    private String entryPoint;
 
     /**
      * Constructs a new quest stage.
@@ -59,6 +54,15 @@ public class QuestStage {
 
         // set as the current instance in the director
         director.setCurrentInstance(this);
+
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
+
+        // create the default first action
+        String action = this.addAction(new None());
+
+        // set the default first action as the default entry point
+        this.setEntryPoint(action);
     }
 
     /**
@@ -89,31 +93,31 @@ public class QuestStage {
     }
 
     /**
-     * Creates a new instance of a quest actions and adds it to this stage.
-     * @return the new action instance
+     * Adds a new quest action instance to this stage.
+     * @param action quest action instance
+     * @return the new action id
      */
     @JsonIgnore
-    public QuestAction newAction() {
-        String actionID = "action_"+this.actions.size();
+    public String addAction(QuestAction action) {
+        String actionID = "action_"+this.actions.size(); // get next ID
 
-        QuestAction action = new QuestAction(this.director, actionID, new None());
-        this.actions.put(actionID, action);
-        return action;
+        this.actions.put(actionID, action); // add to the actions map
+        return actionID;
     }
 
     /**
      * Sets the first action executed when this stage is reached.
-     * @param action a quest action instance
+     * @param action a quest action id
      */
-    public void setEntryPoint(QuestAction action) {
+    public void setEntryPoint(String action) {
         this.entryPoint = action;
     }
 
     /**
      * Gets the first action executed when this stage is reached.
-     * @return a quest action instance
+     * @return a quest action id
      */
-    public QuestAction getEntryPoint() {
+    public String getEntryPoint() {
         return this.entryPoint;
     }
 
@@ -122,6 +126,27 @@ public class QuestStage {
      */
     @JsonProperty("entry")
     public String getEntryPointAsString() {
-        return this.entryPoint.getTitle();
+        return this.entryPoint.toString();
+    }
+
+    /**
+     * Gets the latest action currently in editing.
+     * @return the action that is currently set as being edited
+     */
+    @JsonIgnore
+    public String getActionToEdit() {
+        return this.actionInEditing;
+    }
+
+    /**
+     * Sets an action as currently in editing.
+     * @param action the action to edit
+     */
+    public void setActionToEdit(String actionID) {
+        this.actionInEditing = actionID;
+    }
+
+    public void changeActionType(String currentAction, QuestAction newActionInstance) {
+        this.getActions().replace(currentAction, newActionInstance);
     }
 }

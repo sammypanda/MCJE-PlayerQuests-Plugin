@@ -13,11 +13,11 @@ import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
 import playerquests.builder.gui.function.SelectBlock; // function to get the player-chosen block
 import playerquests.builder.gui.function.SelectLocation; // function to get the player-chosen location
 import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
-import playerquests.builder.quest.type.Location; // playerquests location object
-import playerquests.builder.quest.component.QuestNPC; // object for the npc
-import playerquests.builder.quest.component.npc.type.BlockNPC; // NPCs as blocks
+import playerquests.builder.quest.npc.BlockNPC;
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.MaterialUtils; // helper used to get ItemStack from simplified input
+import playerquests.utility.object.Location;
 
 public class Dynamicnpctypes extends GUIDynamic {
 

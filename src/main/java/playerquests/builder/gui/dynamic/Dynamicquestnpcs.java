@@ -10,7 +10,7 @@ import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GU
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
 import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI screen
 import playerquests.builder.quest.QuestBuilder; // object for quest composition
-import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**

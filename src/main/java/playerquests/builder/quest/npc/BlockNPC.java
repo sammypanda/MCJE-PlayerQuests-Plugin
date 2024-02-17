@@ -1,4 +1,4 @@
-package playerquests.builder.quest.component.npc.type;
+package playerquests.builder.quest.npc;
 
 import org.bukkit.Material; // the block material for this NPC
 import org.bukkit.World; // world the NPC exists in

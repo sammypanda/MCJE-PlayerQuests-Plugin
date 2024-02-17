@@ -1,4 +1,4 @@
-package playerquests.builder.quest.type;
+package playerquests.utility.object;
 
 /**
  * Represents a location in a three-dimensional space.

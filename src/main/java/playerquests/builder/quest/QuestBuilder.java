@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
 import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
-import playerquests.builder.quest.component.QuestNPC;  // object for quest npcs
-import playerquests.builder.quest.component.QuestStage; // object for quest stages
+import playerquests.builder.quest.npc.QuestNPC;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game

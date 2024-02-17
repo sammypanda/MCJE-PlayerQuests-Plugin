@@ -6,8 +6,8 @@ import org.bukkit.entity.HumanEntity; // the player who controls the client
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
 import playerquests.builder.quest.QuestBuilder; // class to control and get Quest product
-import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
-import playerquests.builder.quest.component.QuestStage; // class to control and get Quest stages
+import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.stage.QuestStage;
 
 /**
  * Class which provides simple abstractions for clients to use.
@@ -75,6 +75,14 @@ public class ClientDirector {
 
         // set the current class instance for access
         this.currentInstances.put(instance.getClass(), instance);
+    }
+
+    /**
+     * Get all the current/working instance of classes.
+     * @return list of current classes for this client
+     */
+    public HashMap<Class<?>, Object> getCurrentInstances() {
+        return this.currentInstances;
     }
 
     /**

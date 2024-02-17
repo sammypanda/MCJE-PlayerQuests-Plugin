@@ -1,4 +1,4 @@
-package playerquests.builder.quest.component.npc.type;
+package playerquests.builder.quest.npc;
 
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
