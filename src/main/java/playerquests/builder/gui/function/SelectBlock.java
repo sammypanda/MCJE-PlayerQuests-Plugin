@@ -54,6 +54,12 @@ public class SelectBlock extends GUIFunction {
         @EventHandler
         private void onSelect(InventoryClickEvent event) {
             event.setCancelled(true);
+
+            // ignore if air (a blank inventory slot)
+            if (event.getCurrentItem().getType().equals(Material.AIR)) {
+                return;
+            }
+
             event.getView().close();
             this.parentClass.setResponse(event.getCurrentItem().getType());
         }
@@ -145,6 +151,9 @@ public class SelectBlock extends GUIFunction {
         // set params
         this.prompt = (String) params.get(0);
         this.denylist = getDenylist(params.get(1));
+
+        // add basics to denylist
+        this.denylist.add(Material.AIR);
 
         // get and set the player who is selecting the block
         this.player = this.director.getPlayer();
