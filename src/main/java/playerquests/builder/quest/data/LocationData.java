@@ -1,9 +1,9 @@
-package playerquests.utility.object;
+package playerquests.builder.quest.data;
 
 /**
  * Represents a location in a three-dimensional space.
  */
-public class Location {
+public class LocationData {
     private String world; // The name of the world
     private double x; // The x-coordinate
     private double y; // The y-coordinate
@@ -21,7 +21,7 @@ public class Location {
      * @param pitch the pitch rotation
      * @param yaw   the yaw rotation
      */
-    public Location(String world, double x, double y, double z, float pitch, float yaw) {
+    public LocationData(String world, double x, double y, double z, float pitch, float yaw) {
         this.world = world;
         this.x = x;
         this.y = y;

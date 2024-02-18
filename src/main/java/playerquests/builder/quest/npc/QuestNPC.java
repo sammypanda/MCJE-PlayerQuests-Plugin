@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for
 
 import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // sends error messages to player
 import playerquests.utility.annotation.Key; // key-value pair annottation
-import playerquests.utility.object.Location;
 
 /**
  * Object containing details about a quest NPC.
@@ -58,7 +58,7 @@ public class QuestNPC {
      * Where the NPC exists in the world.
      */
     @JsonProperty("location")
-    private Location location;
+    private LocationData location;
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -182,7 +182,7 @@ public class QuestNPC {
      * @param location PlayerQuests Location object
      */
     @JsonIgnore
-    public void setLocation(Location location) {
+    public void setLocation(LocationData location) {
         this.location = location;
     }
 
@@ -191,7 +191,7 @@ public class QuestNPC {
      * @return Bukkit Location object
      */
     @JsonIgnore
-    public Location getLocation() {
+    public LocationData getLocation() {
         return this.location;
     }
 

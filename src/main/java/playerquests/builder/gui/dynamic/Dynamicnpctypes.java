@@ -13,11 +13,11 @@ import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
 import playerquests.builder.gui.function.SelectBlock; // function to get the player-chosen block
 import playerquests.builder.gui.function.SelectLocation; // function to get the player-chosen location
 import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
+import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.builder.quest.npc.BlockNPC;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.MaterialUtils; // helper used to get ItemStack from simplified input
-import playerquests.utility.object.Location;
 
 public class Dynamicnpctypes extends GUIDynamic {
 
@@ -142,7 +142,7 @@ public class Dynamicnpctypes extends GUIDynamic {
             ).onFinish((f) -> {
                 // get the block that was selected
                 SelectLocation function = (SelectLocation) f;
-                Location location = function.getResult();
+                LocationData location = function.getResult();
 
                 if (location != null) {
                     this.npc.setLocation(location);

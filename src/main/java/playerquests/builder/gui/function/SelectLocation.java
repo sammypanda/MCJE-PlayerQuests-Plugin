@@ -12,10 +12,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 import playerquests.Core;
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.PluginUtils;
-import playerquests.utility.object.Location;
 
 /**
  * Function for the user to select a block.
@@ -61,7 +61,7 @@ public class SelectLocation extends GUIFunction {
     /**
      * The location chosen
      */
-    private playerquests.utility.object.Location location;
+    private LocationData location;
 
     /**
      * Events for determining the location
@@ -138,7 +138,7 @@ public class SelectLocation extends GUIFunction {
      * @param location Bukkit world location the user selected
      */
     public void setResponse(org.bukkit.Location location) {
-        this.location = new Location(
+        this.location = new LocationData(
             location.getWorld().getName(),
             location.getX(),
             location.getY(),
@@ -154,7 +154,7 @@ public class SelectLocation extends GUIFunction {
      * Gets the location the user selected.
      * @return a location object
      */
-    public playerquests.utility.object.Location getResult() {
+    public LocationData getResult() {
         return this.location;
     }
 
