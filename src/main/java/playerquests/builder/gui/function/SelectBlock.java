@@ -55,13 +55,14 @@ public class SelectBlock extends GUIFunction {
         private void onSelect(InventoryClickEvent event) {
             event.setCancelled(true);
 
-            // ignore if air (a blank inventory slot)
-            if (event.getCurrentItem().getType().equals(Material.AIR)) {
-                return;
-            }
-
-            event.getView().close();
-            this.parentClass.setResponse(event.getCurrentItem().getType());
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
+                    return; // Ignore if the clicked item is null or air
+                }
+        
+                event.getView().close();
+                parentClass.setResponse(event.getCurrentItem().getType());
+            });
         }
 
         @EventHandler
