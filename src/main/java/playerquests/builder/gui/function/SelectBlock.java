@@ -55,9 +55,7 @@ public class SelectBlock extends GUIFunction {
         private void onSelect(InventoryClickEvent event) {
             event.setCancelled(true);
             event.getView().close();
-            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
-                this.parentClass.setResponse(event.getCurrentItem().getType()); // <- breaks inventory state?
-            });
+            this.parentClass.setResponse(event.getCurrentItem().getType());
         }
 
         @EventHandler
