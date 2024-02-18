@@ -1,13 +1,12 @@
 package playerquests.builder.gui.component;
 
-import java.lang.reflect.InvocationTargetException; // thrown when methods cannot be called
-import java.lang.reflect.Method; // for invoking reflected methods
 import java.util.Optional; // handling nullable values
 import java.util.regex.Matcher; // matching string to regex pattern
 import java.util.regex.Pattern; // creating regex pattern
 
 import com.fasterxml.jackson.databind.JsonNode; // type to interpret json objects
 
+import playerquests.Core; // getting the keyhandler
 import playerquests.client.ClientDirector; // controlling the plugin
 
 /**
@@ -59,13 +58,13 @@ public class GUIFrame {
             String match = matches.group(1); // get the match string
 
             try {
-                Object classRef = this.director.getInstanceFromKey(match);
-                Method method = classRef.getClass().getMethod("getTitle");
-                String response = (String) method.invoke(classRef);
+                Class<?> classType = Core.getKeyHandler().getClassFromKey(match);
+                Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
+                String response = (String) Core.getKeyHandler().getValue(instance, match); // get the value
 
                 title = title.replace("{"+match+"}", response);
 
-            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+            } catch (SecurityException e) {
 
                 title = title.replace("{"+match+"}", "").trim(); // clear the replacement string
             }
