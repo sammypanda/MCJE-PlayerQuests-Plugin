@@ -110,6 +110,7 @@ public class QuestBuilder {
      * Gets the quest title.
      * @return quest name
      */
+    @Key("Quest")
     public String getTitle() {
         return this.title;
     }
