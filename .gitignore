@@ -11,6 +11,7 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 # Test Minecraft Server
 test-server
+test
 
 # Eclipse m2e generated files
 # Eclipse Core
