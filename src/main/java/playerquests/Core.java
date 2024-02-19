@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plug
 
 import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
 import playerquests.utility.singleton.KeyHandler; // special class for using keys to reference any method
+import playerquests.utility.singleton.QuestRegistry; // the registry of quest products
 
 /**
  * Entry point for the plugin.
@@ -15,7 +16,6 @@ import playerquests.utility.singleton.KeyHandler; // special class for using key
  * </ul>
  * </ul> 
  */
-// TODO: create a registry for quests (especially those in world)
 // TODO: automatically initiate the plugin commands
 public class Core extends JavaPlugin {
 
@@ -28,6 +28,11 @@ public class Core extends JavaPlugin {
      * Singleton of the key handler
      */
     private static KeyHandler keyHandler = KeyHandler.getInstance();
+
+    /**
+     * Singleton of the quest registry
+     */
+    private static QuestRegistry questRegistry = QuestRegistry.getInstance();
 
     /**
      * Core class, to be instantiated by server.
@@ -59,5 +64,13 @@ public class Core extends JavaPlugin {
      */
     public static KeyHandler getKeyHandler() {
         return keyHandler;
+    }
+
+    /**
+     * Returns quest registry used for final quest products.
+     * @return the singleton instance of the plugin's quest registry
+     */
+    public static QuestRegistry getQuestRegistry() {
+        return questRegistry;
     }
 }
