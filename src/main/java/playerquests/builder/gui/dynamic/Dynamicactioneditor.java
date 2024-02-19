@@ -50,9 +50,9 @@ public class Dynamicactioneditor extends GUIDynamic {
     protected void execute_custom() {
         // set label
         if (this.stage.getEntryPoint() == this.action) { // if this action is the entry point
-            this.gui.getFrame().setTitle("{QuestAction} Editor (Entry Point)");
+            this.gui.getFrame().setTitle(this.action + " Editor (Entry Point)");
         } else {
-            this.gui.getFrame().setTitle("{QuestAction} Editor");
+            this.gui.getFrame().setTitle(this.action + " Editor");
         }
 
         // set the gui size
