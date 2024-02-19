@@ -1,4 +1,4 @@
-package playerquests.utility;
+package playerquests.utility.singleton;
 
 import java.lang.reflect.InvocationTargetException; // report if a method accessed via reflection cannot invoke
 import java.lang.reflect.Method; // holds instances of methods
