@@ -6,10 +6,16 @@ import java.util.stream.IntStream; // functional loops
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
-import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 
+/**
+ * Shows a dynamic GUI used for editing a quest action.
+ */
+// TODO: pagination for action options
+// TODO: replacing entry point setter button with action name changer button
+// TODO: conditional back and forward buttons in slots 10,11 for params list
+// TODO: divider on the right side of the GUI for setting: as entry point, next, current and prev connections
 public class Dynamicactioneditor extends GUIDynamic {
 
     /**
@@ -86,14 +92,6 @@ public class Dynamicactioneditor extends GUIDynamic {
             dividerSlot.setItem("BLACK_STAINED_GLASS_PANE");
             dividerSlot.setLabel(" ");
         });
-
-        // TODO: pagination for action params (action options)
-
-        // TODO: replacing entry point setter button with action name changer button
-
-        // TODO: conditional back and forward buttons in slots 10,11 for params list
-
-        // TODO: divider on the right side of the GUI for setting: as entry point, next, current and prev connections
     }
     
 }

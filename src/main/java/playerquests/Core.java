@@ -15,6 +15,8 @@ import playerquests.utility.KeyHandler; // special class for using keys to refer
  * </ul>
  * </ul> 
  */
+// TODO: create a registry for quests (especially those in world)
+// TODO: automatically initiate the plugin commands
 public class Core extends JavaPlugin {
 
     /**
@@ -36,7 +38,7 @@ public class Core extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
-        // TODO: automatically initiate the commands
+        // initiate /playerquests command
         new Commandplayerquest();
 
         // Save the demo quest to the server

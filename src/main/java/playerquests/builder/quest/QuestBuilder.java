@@ -26,6 +26,10 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 /**
  * For creating and managing a Quest.
  */
+// TODO: (on save) submit quest product to Core class quest registry
+// TODO: (on save) serialise quest product instead of quest builder
+// TODO: create QuestAction outline
+// TODO: remove this testing NPC
 public class QuestBuilder {
 
     /**
@@ -87,7 +91,6 @@ public class QuestBuilder {
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
 
-        // TODO: remove this testing NPC
         QuestNPC testNPC = new QuestNPC();
         this.questNPCs.put(testNPC.getID(), testNPC);
 
@@ -163,7 +166,7 @@ public class QuestBuilder {
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
-        // place the NPCs in the world
+        // assume enabled and place the NPCs in the world
         this.getQuestNPCs().entrySet().stream()
             .forEach(entry -> {
                 QuestNPC npc = entry.getValue();
@@ -182,10 +185,6 @@ public class QuestBuilder {
     public List<String> getStages() {
         return new ArrayList<String>(this.questPlan.keySet());
     }
-
-    // public List<QuestAction> getActions() {
-        // TODO: create QuestAction outline
-    // }
 
     /**
      * Get the entire quest plan map.
