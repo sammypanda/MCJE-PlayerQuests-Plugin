@@ -10,6 +10,7 @@ import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.client.ClientDirector; // to control the plugin
+import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
  * The information and action list for a quest stage.
@@ -79,6 +80,7 @@ public class QuestStage {
      * @return label for the action
      */
     @JsonIgnore
+    @Key("QuestStage")
     public String getTitle() {
         return this.stageID;
     }
