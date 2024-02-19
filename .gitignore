@@ -13,6 +13,8 @@ buildNumber.properties
 test-server
 test
 
+# VSCodium
+.vscode
 # Eclipse m2e generated files
 # Eclipse Core
 .project
