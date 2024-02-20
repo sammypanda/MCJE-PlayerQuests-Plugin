@@ -88,7 +88,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
                 this.director.setCurrentInstance(npc);
 
                 // declare swapping to 'questnpc' screen
-                new UpdateScreen(new ArrayList<>(Arrays.asList("questnpc")), director, npcSlot).execute();
+                new UpdateScreen(new ArrayList<>(Arrays.asList("questnpc")), director).execute();
             });
         });
 
@@ -110,8 +110,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         backButton.setItem("OAK_DOOR");
         backButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
-            director, // set the client director
-            backButton // the origin GUI slot
+            director // set the client director
         ));
     }
     

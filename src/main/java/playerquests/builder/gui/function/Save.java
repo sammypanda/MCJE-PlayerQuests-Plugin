@@ -21,10 +21,9 @@ public class Save extends GUIFunction {
      * Saves an instance by key name.
      * @param params 1. key name
      * @param director to control the plugin
-     * @param slot slot this function belongs to
      */
-    public Save(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public Save(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     @Override
@@ -61,7 +60,7 @@ public class Save extends GUIFunction {
 
         this.director.getPlayer().sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "\n" + response + ".\n" + ChatColor.RESET);
 
-        new CloseScreen(new ArrayList<>(), this.director, this.slot).execute();
+        new CloseScreen(new ArrayList<>(), this.director).execute();
 
         this.finished(); // running onFinish code
     }

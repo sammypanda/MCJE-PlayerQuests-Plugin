@@ -47,8 +47,7 @@ public class Dynamicqueststage extends GUIDynamic {
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList("queststages")), // set the previous screen 
-            director, // set the client director
-            exitButton // the origin GUI slot
+            director // set the client director
         ));
 
         // produce slots listing current actions
@@ -74,8 +73,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 // prep the screen to be updated
                 actionSlot.addFunction(new UpdateScreen(
                     new ArrayList<>(Arrays.asList("actioneditor")), 
-                    director, 
-                    actionSlot
+                    director
                 ));
                 // manually start the slot functions (updating of the screen)
                 actionSlot.execute(this.director.getPlayer());

@@ -11,7 +11,6 @@ import org.bukkit.ChatColor; // used to format the chat messages to guide user i
 import org.bukkit.entity.HumanEntity; // refers to the player
 
 import playerquests.Core; // used to access the Plugin and KeyHandler instances
-import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to clear chat lines for a better UI
 import playerquests.utility.PluginUtils; // used to validate function params
@@ -91,10 +90,9 @@ public class ChatPrompt extends GUIFunction {
      * Requests player user input using a chat box prompt.
      * @param params 1. the prompt 2. the key name
      * @param director to set values
-     * @param slot slot this function belongs to
      */
-    public ChatPrompt(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public ChatPrompt(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     /**
@@ -282,10 +280,6 @@ public class ChatPrompt extends GUIFunction {
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // execute next on main thread
             this.director.getGUI().getResult().open(); // open the old GUI again after minimise()
             this.finished(); // run code for when finished
-
-            if (!this.errored) { 
-                this.slot.executeNext(this.player); // run the next function
-            }
         });
     }
 }

@@ -61,8 +61,7 @@ public class Dynamicnpctypes extends GUIDynamic {
         backButton.addFunction(
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList(this.previousScreen)), 
-                director, 
-                backButton
+                director
             )
         );
 
@@ -85,8 +84,7 @@ public class Dynamicnpctypes extends GUIDynamic {
                         "DRAGON_EGG"
                     )
                 )), 
-                director, 
-                blockOption
+                director
             ).onFinish((f) -> {
                 // get the block that was selected
                 SelectBlock function = (SelectBlock) f;
@@ -137,8 +135,7 @@ public class Dynamicnpctypes extends GUIDynamic {
                 new ArrayList<>(Arrays.asList(
                     "Place the NPC Block"
                 )),
-                director,
-                placeButton
+                director
             ).onFinish((f) -> {
                 // get the block that was selected
                 SelectLocation function = (SelectLocation) f;

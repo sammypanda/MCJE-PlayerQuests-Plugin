@@ -64,8 +64,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
-            director, // set the client director
-            exitButton // the origin GUI slot
+            director // set the client director
         ));
 
         // changing action type button
@@ -74,8 +73,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         typeButton.setLabel("Change Type (" + this.action.toString() + ")");
         typeButton.addFunction(new UpdateScreen(
             new ArrayList<>(Arrays.asList("actiontypes")),
-            director,
-            typeButton
+            director
         ));
 
         // setting current as stage entry point button

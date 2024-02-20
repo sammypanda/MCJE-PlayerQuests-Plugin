@@ -3,7 +3,6 @@ package playerquests.builder.gui.function;
 import java.util.ArrayList; // used to store the params for this meta action
 import java.util.function.Consumer; // used for onFinish
 
-import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.client.ClientDirector; // powers functionality for functions
 
 /**
@@ -19,11 +18,6 @@ public abstract class GUIFunction {
      * the params passed into this function.
      */
     protected ArrayList<Object> params;
-
-    /**
-     * the slot this function belongs to.
-     */
-    protected GUISlot slot;
 
     /**
      * director which powers functionality.
@@ -46,12 +40,10 @@ public abstract class GUIFunction {
      * See docs/README for list of GUI functions.
      * @param params the list of parameters for a function
      * @param director client director for the function to be able to control the plugin
-     * @param slot the GUI slot this function belongs to
     */
-    public GUIFunction(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
+    public GUIFunction(ArrayList<Object> params, ClientDirector director) {
         this.params = params;
         this.director = director;
-        this.slot = slot;
     }
 
     /**
@@ -92,13 +84,5 @@ public abstract class GUIFunction {
      */
     public void setDirector(ClientDirector director) {
         this.director = director;
-    }
-
-    /**
-     * Parent slot this function belongs to.
-     * @param slot slot object containing content/functionality
-     */
-    public void setSlot(GUISlot slot) {
-        this.slot = slot;
     }
 }

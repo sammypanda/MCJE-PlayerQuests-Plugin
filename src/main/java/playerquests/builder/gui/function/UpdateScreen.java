@@ -6,7 +6,6 @@ import java.util.ArrayList; // used to store the params for this meta action
 import java.util.List; // generic list type
 
 import playerquests.builder.gui.GUIBuilder; // used to parse the GUI screen template
-import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to send error message in-game
@@ -51,10 +50,9 @@ public class UpdateScreen extends GUIFunction {
      * Switches the GUI screen to another template.
      * @param params 1. the template file
      * @param director to control the plugin
-     * @param slot slot this function belongs to
      */
-    public UpdateScreen(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public UpdateScreen(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     /**
@@ -115,8 +113,6 @@ public class UpdateScreen extends GUIFunction {
         }
 
         this.finished(); // running onFinish code
-
-        this.slot.executeNext(this.director.getPlayer()); // run the next function
     }
 
     /**

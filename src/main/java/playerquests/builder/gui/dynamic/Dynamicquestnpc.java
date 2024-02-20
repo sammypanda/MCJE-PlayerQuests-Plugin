@@ -66,8 +66,7 @@ public class Dynamicquestnpc extends GUIDynamic {
         backButton.addFunction(
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList(this.previousScreen)), 
-                director, 
-                backButton
+                director
             )
         );
 
@@ -79,8 +78,7 @@ public class Dynamicquestnpc extends GUIDynamic {
         nameButton.addFunction(
             new ChatPrompt(
                 new ArrayList<>(Arrays.asList("Set the name for this NPC", "npc.name")), 
-                director, 
-                nameButton
+                director
             ).onFinish((function) -> {
                 this.execute();
             })
@@ -98,8 +96,7 @@ public class Dynamicquestnpc extends GUIDynamic {
         assignButton.addFunction(
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList("npctypes")), 
-                director, 
-                assignButton
+                director
             )
         );
 
@@ -113,8 +110,7 @@ public class Dynamicquestnpc extends GUIDynamic {
             if (success) { // if the npc was successfully saved..
                 new UpdateScreen(
                     new ArrayList<>(Arrays.asList(this.previousScreen)), 
-                    director, 
-                    saveButton
+                    director
                 ).execute();
             }
         });

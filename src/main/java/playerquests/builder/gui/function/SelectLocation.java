@@ -11,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import playerquests.Core;
-import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
@@ -76,10 +75,9 @@ public class SelectLocation extends GUIFunction {
      * </ul>
      * @param params 1. prompt
      * @param director to set values
-     * @param slot slot this function belongs to
      */
-    public SelectLocation(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public SelectLocation(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     /**
@@ -165,7 +163,6 @@ public class SelectLocation extends GUIFunction {
         HandlerList.unregisterAll(this.locationListener); // remove listeners
         this.finished(); // execute onFinish code
         this.director.getGUI().getResult().open(); // re-open GUI
-        this.slot.executeNext(this.player); // continue to next slot function
     }
     
 }

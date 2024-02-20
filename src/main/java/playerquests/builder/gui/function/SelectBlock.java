@@ -17,7 +17,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent; // handling request to exit
 import org.bukkit.event.player.PlayerInteractEvent; // for detecting block hits in listener
 
 import playerquests.Core; // accessing singletons
-import playerquests.builder.gui.component.GUISlot; // GUI button
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.ChatUtils; // send error to player if block is invalid
 import playerquests.utility.PluginUtils; // used to validate function params 
@@ -124,10 +123,9 @@ public class SelectBlock extends GUIFunction {
      * </ul>
      * @param params 1. the prompt to show the user 2. list of denylisted blocks
      * @param director to set values
-     * @param slot slot this function belongs to
      */
-    public SelectBlock(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public SelectBlock(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     /**
@@ -281,7 +279,6 @@ public class SelectBlock extends GUIFunction {
         HandlerList.unregisterAll(this.blockListener); // remove listeners
         this.director.getGUI().getResult().open(); // re-open GUI
         this.finished(); // execute onFinish code
-        this.slot.executeNext(this.player); // continue to next slot function
     }
 
     /**

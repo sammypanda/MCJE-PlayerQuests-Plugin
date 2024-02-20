@@ -68,8 +68,7 @@ public class Dynamicqueststages extends GUIDynamic {
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
-            director, // set the client director
-            exitButton // the origin GUI slot
+            director // set the client director
         ));
 
         IntStream.range(0, this.questBuilder.getStages().size()).anyMatch(index -> {
@@ -81,8 +80,7 @@ public class Dynamicqueststages extends GUIDynamic {
             questSlot.setLabel(stage);
             questSlot.addFunction(new UpdateScreen(
                 new ArrayList<>(Arrays.asList("queststage")), 
-                director, 
-                questSlot
+                director
             ));
 
             return false; // continue the loop
