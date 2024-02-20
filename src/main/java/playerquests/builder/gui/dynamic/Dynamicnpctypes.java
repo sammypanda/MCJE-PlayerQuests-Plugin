@@ -93,7 +93,7 @@ public class Dynamicnpctypes extends GUIDynamic {
                 // assign this block as the quest NPC
                 if (block != null) {
                     this.npc.assign( // set this npc as:
-                        new BlockNPC(block)
+                        new BlockNPC(block, this.npc)
                     );
                 }
 
@@ -143,7 +143,6 @@ public class Dynamicnpctypes extends GUIDynamic {
 
                 if (location != null) {
                     this.npc.setLocation(location);
-                    this.npc.place(); // place the block in the world
                 }
 
                 // return the players old inventory

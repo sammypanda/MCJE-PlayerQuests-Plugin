@@ -1,19 +1,20 @@
 package playerquests.builder.quest.npc;
 
 import org.bukkit.Material; // the block material for this NPC
-import org.bukkit.World; // world the NPC exists in
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising properties
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
 
+import playerquests.utility.singleton.PlayerQuests;
+
 public class BlockNPC extends NPCType {
 
-    public BlockNPC(String value) {
-        super(value);
+    public BlockNPC(String value, QuestNPC npc) {
+        super(value, npc);
     }
 
-    public BlockNPC(Material block) {
-        super(block.toString());
+    public BlockNPC(Material block, QuestNPC npc) {
+        super(block.toString(), npc);
     }
 
     @Override
@@ -32,38 +33,30 @@ public class BlockNPC extends NPCType {
     }
 
     /**
+     * Get the rest of the details about this NPC.
+     * @return the NPC object.
+     */
+    public QuestNPC getNPC() {
+        return this.npc;
+    }
+
+    /**
      * Place the NPC block in the world.
-     * @param world which world the NPC belongs in
-     * @param x the x coordinate double
-     * @param y the y coordinate double
-     * @param z the z coordinate double
      */
     @Override
     @JsonIgnore
-    public void place(World world, double x, double y, double z) {
-        world.setBlockData(
-            (int) x,
-            (int) y,
-            (int) z,
-            this.getBlock().createBlockData()
-        );
+    public void place() {
+        PlayerQuests.getInstance().putBlockNPC(this);
     }
 
     /**
      * Remove the NPC block from the world.
-     * @param world which world the NPC belongs in
-     * @param x the x coordinate double
-     * @param y the y coordinate double
-     * @param z the z coordinate double
      */
     @Override
     @JsonIgnore
-    public void remove(World world, double x, double y, double z) {
-        world.setBlockData(
-            (int) x,
-            (int) y,
-            (int) z,
-            Material.AIR.createBlockData()
-        );
+    public void remove() {
+        this.npc.setLocation(null);
+
+        PlayerQuests.getInstance().putBlockNPC(this);
     }
 }

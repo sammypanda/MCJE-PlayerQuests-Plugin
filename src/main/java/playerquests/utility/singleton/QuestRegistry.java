@@ -91,6 +91,7 @@ public class QuestRegistry {
      * @param quest the new quest.
      */
     public void replace(String originalQuestID, Quest quest) {
-        registry.replace(originalQuestID, quest);
+        registry.remove(originalQuestID, quest);
+        this.add(quest);
     }
 }

@@ -3,9 +3,10 @@ package playerquests.builder.quest.npc;
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
-import org.bukkit.World; // world the NPC exists in
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisation
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import playerquests.builder.quest.data.LocationData; // describes location of a playerquests item
 
 /**
  * Passes and handles the quest npc 'types'.
@@ -14,6 +15,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * with in-game.
  */
 public class NPCType {
+
+    /**
+     * The NPC this BlockNPC type belongs to.
+     */
+    @JsonIgnore
+    protected QuestNPC npc;
 
     /**
      * The list of NPC types
@@ -39,9 +46,12 @@ public class NPCType {
      * Not intended to be created directly, is abstract class for NPC types.
      * <p>
      * See docs/README for list of NPC types.
+     * @param value the type-specific value used to customise the NPC
+     * @param npc the npc details
     */
-    public NPCType(String value) {
+    public NPCType(String value, QuestNPC npc) {
         this.value = value;
+        this.npc = npc;
     }
 
     /**
@@ -72,23 +82,15 @@ public class NPCType {
 
     /**
      * Place the NPC in the world.
-     * @param world which world the NPC belongs in
-     * @param x the x coordinate double
-     * @param y the y coordinate double
-     * @param z the z coordinate double
      */
-    public void place(World world, double x, double y, double z) {
+    public void place() {
         throw new IllegalStateException("Tried to place an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 
     /**
      * Remove the NPC from the world.
-     * @param world which world the NPC belongs in
-     * @param x the x coordinate double
-     * @param y the y coordinate double
-     * @param z the z coordinate double
      */
-    public void remove(World world, double x, double y, double z) {
+    public void remove() {
         throw new IllegalStateException("Tried to remove an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 }

@@ -1,6 +1,7 @@
 package playerquests.builder.quest.npc;
 
 import org.bukkit.Bukkit; // bukkit singleton
+import org.bukkit.Location;
 import org.bukkit.Material; // for if NPC is a block
 import org.bukkit.World; // world the NPC exists in
 import org.bukkit.entity.HumanEntity; // the player
@@ -231,21 +232,14 @@ public class QuestNPC {
      */
     @JsonIgnore
     public void place() {
-        World world = Bukkit.getWorld(location.getWorld());
+        this.assigned.place();
+    }
 
-        if (this.location != null) {
-            this.assigned.remove(
-                world,
-                location.getX(),
-                location.getY(),
-                location.getZ()
-            );
-        }
-
-        this.assigned.place(
-            world,
-            location.getX(),
-            location.getY(),
+    public Location toBukkitLocation() {
+        return new Location(
+            Bukkit.getWorld(this.location.getWorld()), 
+            location.getX(), 
+            location.getY(), 
             location.getZ()
         );
     }
