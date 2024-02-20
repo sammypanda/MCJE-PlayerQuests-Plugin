@@ -6,6 +6,7 @@ import java.util.stream.IntStream; // functional loops
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
+import playerquests.builder.quest.action.QuestAction; // describes a quest action
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 
@@ -21,7 +22,7 @@ public class Dynamicactioneditor extends GUIDynamic {
     /**
      * The current quest action.
      */
-    String action;
+    QuestAction action;
 
     /**
      * The parent quest stage for this quest action.
@@ -43,13 +44,13 @@ public class Dynamicactioneditor extends GUIDynamic {
         this.stage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 
         // set the quest action to modify
-        this.action = this.stage.getActionToEdit();
+        this.action = this.stage.getActions().get(this.stage.getActionToEdit());
     }
 
     @Override
     protected void execute_custom() {
         // set label
-        if (this.stage.getEntryPoint() == this.action) { // if this action is the entry point
+        if (this.stage.getEntryPoint() == this.action.getID()) { // if this action is the entry point
             this.gui.getFrame().setTitle(this.action + " Editor (Entry Point)");
         } else {
             this.gui.getFrame().setTitle(this.action + " Editor");
@@ -81,7 +82,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         entrypointButton.setItem("ENDER_EYE");
         entrypointButton.setLabel("Set Action As Entry Point");
         entrypointButton.onClick(() -> {
-            this.stage.setEntryPoint(this.action); // set this action as the stage entry point
+            this.stage.setEntryPoint(this.action.getID()); // set this action as the stage entry point
             this.execute(); // re-run to see changes
         });
 
