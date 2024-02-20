@@ -26,7 +26,6 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 /**
  * For creating and managing a Quest.
  */
-// TODO: (on save) submit quest product to Core class quest registry
 // TODO: create QuestAction outline
 // TODO: remove this testing NPC
 public class QuestBuilder {
@@ -164,14 +163,8 @@ public class QuestBuilder {
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
-        // assume enabled and place the NPCs in the world
-        this.getQuestNPCs().entrySet().stream()
-            .forEach(entry -> {
-                QuestNPC npc = entry.getValue();
-                npc.place();
-            });
-
-
+        // asume enabled and submit (adds the quest to the world)
+        Core.getQuestRegistry().submit(this.build());
         return "Quest Builder: '" + this.title + "' was saved";
     }
 
