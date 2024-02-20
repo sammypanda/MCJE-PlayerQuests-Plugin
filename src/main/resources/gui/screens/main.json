@@ -15,8 +15,8 @@
             "item": "LIME_DYE",
             "label": "Create Quest",
             "functions": [
-                { "name": "UpdateScreen", "params": ["create-quest"] },
-                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] }
+                { "name": "ChatPrompt", "params": ["Enter quest title", "quest.title"] },
+                { "name": "UpdateScreen", "params": ["questeditor"] }
             ]
         },
         {
