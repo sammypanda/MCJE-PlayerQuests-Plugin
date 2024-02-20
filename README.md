@@ -33,6 +33,8 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
 {
     "title": String, // label of the entire quest
     "entry": String, // (as in 'entry point') where the quest starts
+    "creator": UUID, // the player who created this quest
+    "id": String, // the id, composed of: [Quest Title]_[Creator UUID]
     "npcs": { // directory of all the quest npcs
         "npc_0": { // NPC ID (automatically generated)
             "name": String, // the name of the NPC

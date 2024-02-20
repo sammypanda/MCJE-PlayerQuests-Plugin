@@ -41,7 +41,6 @@ public class QuestStage {
     /**
      * Entry point for the stage.
      */
-    @JsonIgnore
     private String entryPoint;
 
     /**
@@ -102,8 +101,8 @@ public class QuestStage {
     @JsonIgnore
     public String addAction(QuestAction action) {
         String actionID = "action_"+this.actions.size(); // get next ID
-
-        this.actions.put(actionID, action); // add to the actions map
+        action.setID(actionID); // set the ID local to the action
+        this.actions.put(action.getID(), action); // add to the actions map
         return actionID;
     }
 

@@ -119,29 +119,4 @@ public class ClientDirector {
         // get the player set on this instance
         return this.player;
     }
-
-    public Object getInstanceFromKey(String match) throws ClassNotFoundException {
-        Object classRef = null;
-
-        switch (match.toLowerCase()) {
-            case "queststage":
-                classRef = this.getCurrentInstance(QuestStage.class);
-                break;
-            case "quest":
-            case "questbuilder":
-                classRef = this.getCurrentInstance(QuestBuilder.class);
-                break;
-            case "action":
-            case "stageaction":
-            case "questaction":
-                classRef = this.getCurrentInstance(QuestAction.class);
-                break;
-        };
-
-        if (classRef == null) {
-            throw new ClassNotFoundException();
-        }
-
-        return classRef;
-    }
 }

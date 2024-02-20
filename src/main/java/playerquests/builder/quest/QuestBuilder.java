@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
 import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
-import playerquests.builder.quest.npc.QuestNPC;
-import playerquests.builder.quest.stage.QuestStage;
+import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
+import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
@@ -27,7 +27,6 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
  * For creating and managing a Quest.
  */
 // TODO: (on save) submit quest product to Core class quest registry
-// TODO: (on save) serialise quest product instead of quest builder
 // TODO: create QuestAction outline
 // TODO: remove this testing NPC
 public class QuestBuilder {
@@ -66,11 +65,6 @@ public class QuestBuilder {
     private String savePath = "quest/templates/";
 
     /**
-     * The quest product.
-     */
-    private Quest quest = new Quest(this);
-
-    /**
      * Operations to run whenever the class is instantiated.
      */
     {
@@ -106,6 +100,11 @@ public class QuestBuilder {
      */
     @Key("quest.title")
     public void setTitle(String title) {
+        if (title.contains("_")) {
+            ChatUtils.sendError(this.director.getPlayer(), "Quest label '" + this.title + "' not allowed underscores.");
+            return;
+        }
+
         this.title = title; // set the new title
     }
 
@@ -124,14 +123,17 @@ public class QuestBuilder {
      * @throws JsonProcessingException when the json cannot seralise
      */
     private String getTemplateString() throws JsonProcessingException {
+        // get the product of this builder
+        Quest product = this.build();
+
         // serialises an object into json
         ObjectMapper jsonObjectMapper = new ObjectMapper();
 
         // configure the mapper
         jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
 
-        // present this quest builder as a template json string (prettied)
-        return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        // present this quest product as a template json string (prettied)
+        return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
     }
 
     /**
@@ -152,10 +154,6 @@ public class QuestBuilder {
      */
     @Key("quest")
     public String save() throws IllegalArgumentException {
-        if (this.title.contains("_")) {
-            throw new IllegalArgumentException("Quest name '" + this.title + "' not allowed underscores.");
-        }
-
         try {
             FileUtils.create( // create the template json file
                 this.savePath + this.title + "_" + this.director.getPlayer().getUniqueId().toString() + ".json", // name pattern
@@ -286,5 +284,19 @@ public class QuestBuilder {
     @JsonIgnore
     public ClientDirector getDirector() {
         return this.director;
+    }
+
+    /**
+     * Build the quest product from the state of this builder.
+     */
+    @JsonIgnore
+    public Quest build() {
+        return new Quest(
+            this.title,
+            this.entryPoint,
+            this.questNPCs,
+            this.questPlan,
+            this.director.getPlayer().getUniqueId()
+        );
     }
 }
