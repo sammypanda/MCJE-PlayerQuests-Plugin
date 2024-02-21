@@ -1,17 +1,19 @@
 package playerquests.utility.singleton;
 
-import org.bukkit.Location;
+import org.bukkit.Location; // the minecraft location object
 import org.bukkit.World; // the minecraft world
-import org.bukkit.block.Block;
+import org.bukkit.block.Block; // the minecraft block
 
-import playerquests.builder.quest.npc.BlockNPC;
-import playerquests.builder.quest.npc.QuestNPC;
-import playerquests.utility.listener.BlockListener;
+import playerquests.builder.quest.npc.BlockNPC; // a block representing an NPC
+import playerquests.builder.quest.npc.QuestNPC; // core NPC object/data
+import playerquests.utility.listener.BlockListener; // for block-related events
+import playerquests.utility.listener.PlayerListener; // for player-related events
 
 public class PlayerQuests {
 
     private static PlayerQuests instance = new PlayerQuests();
     private BlockListener blockListener = new BlockListener();
+    private PlayerListener playerListener = new PlayerListener();
 
     public static PlayerQuests getInstance() {
         return instance;

@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plug
 
 import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
 import playerquests.utility.singleton.KeyHandler; // special class for using keys to reference any method
+import playerquests.utility.singleton.PlayerQuests; // for cross-communication of game/plugin components
 import playerquests.utility.singleton.QuestRegistry; // the registry of quest products
 
 /**
@@ -42,6 +43,9 @@ public class Core extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+
+        // call the playerquests game class
+        PlayerQuests.getInstance();
 
         // initiate /playerquests command
         new Commandplayerquest();

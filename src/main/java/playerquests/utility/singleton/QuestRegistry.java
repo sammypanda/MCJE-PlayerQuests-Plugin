@@ -4,9 +4,11 @@ import java.util.HashMap; // hash table map
 import java.util.Map; // generic map type
 
 import org.bukkit.Bukkit; // accessing Bukkit API
-import org.bukkit.entity.HumanEntity; // representing players
+import org.bukkit.entity.HumanEntity; // representing players and other humanoid entities
+import org.bukkit.entity.Player; // representing players
 
 import playerquests.builder.quest.npc.QuestNPC; // describes quest NPCs
+import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
 
@@ -29,6 +31,11 @@ public class QuestRegistry {
      * The map holding the quests.
      */
     private final Map<String, Quest> registry = new HashMap<String, Quest>();
+
+    /**
+     * The map holding the quest clients (questers).
+     */
+    private final Map<Player, QuestClient> questers = new HashMap<Player, QuestClient>();
 
     /**
      * Private constructor to prevent instantiation.
@@ -93,5 +100,23 @@ public class QuestRegistry {
     public void replace(String originalQuestID, Quest quest) {
         registry.remove(originalQuestID, quest);
         this.add(quest);
+    }
+
+    /**
+     * Adds a quest client to the registry, identified by the 
+     * Player behind the client.
+     * @param quester a quest client
+     */
+    public void addQuester(QuestClient quester) {
+        questers.put(Bukkit.getPlayer(quester.getPlayer().getUniqueId()), quester);
+    }
+
+    /**
+     * Gets a quest client associated with a player.
+     * @param player the player the quest client is for
+     * @return a quest client instance
+     */
+    public QuestClient getQuester(Player player) {
+        return questers.get(player);
     }
 }

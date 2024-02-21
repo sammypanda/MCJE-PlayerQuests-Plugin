@@ -1,8 +1,6 @@
 package playerquests.utility.listener;
 
-import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
-import java.util.List; // generic list type
 import java.util.Map; // generic map type
 import java.util.stream.Collectors;
 
@@ -10,15 +8,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block; // the one and only great block type
 import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
+import org.bukkit.event.block.Action; // identifying what action was done to a block
 import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts with a block
+import org.bukkit.inventory.EquipmentSlot; // identifies which hand was used to interact
 
-import playerquests.Core;
+import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
+import playerquests.builder.quest.npc.QuestNPC; // the core information about an NPC
+import playerquests.client.quest.QuestClient; // player quest state
+import playerquests.utility.singleton.QuestRegistry; // application quest state
 
 /**
  * Listens out for all block-related events to inform 
  * where needed.
  */
+// TODO: implement event handler for if a quest block is broken
 public class BlockListener implements Listener {
 
     /**
@@ -58,10 +62,21 @@ public class BlockListener implements Listener {
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
 
-        if (block == null || !activeBlockNPCs.containsKey(block)) {
+        if ( // conditions to not continue the event:
+            block == null || 
+            !activeBlockNPCs.containsKey(block) || 
+            event.getHand().equals(EquipmentSlot.OFF_HAND) ||
+            !event.getAction().equals(Action.RIGHT_CLICK_BLOCK)
+        ) {
             return;
         }
+
+        // stop accidental modification of the quest block
+        event.setCancelled(true);
+
+        QuestNPC npc = activeBlockNPCs.get(block).getNPC();
+        QuestClient quester = QuestRegistry.getInstance().getQuester(event.getPlayer());
         
-        event.getPlayer().sendMessage("[PlayerQuests] You just interacted with an NPC Block (WIP)");
+        event.getPlayer().sendMessage("[PlayerQuests] You just interacted with an NPC Block (WIP: you are = " + quester + ")");
     }
 }
