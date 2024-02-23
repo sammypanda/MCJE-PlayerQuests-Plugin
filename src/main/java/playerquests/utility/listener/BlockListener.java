@@ -23,7 +23,6 @@ import playerquests.utility.singleton.QuestRegistry; // application quest state
  * Listens out for all block-related events to inform 
  * where needed.
  */
-// TODO: implement event handler for if a quest block is broken
 public class BlockListener implements Listener {
 
     /**
