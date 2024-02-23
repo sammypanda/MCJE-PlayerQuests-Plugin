@@ -1,6 +1,7 @@
 package playerquests.client.quest;
 
 import java.util.ArrayList; // array list type
+import java.util.HashMap; // hash table map type
 import java.util.Map; // generic map type
 
 import org.bukkit.Bukkit; // bukkit api
@@ -38,22 +39,22 @@ public class QuestClient {
     /**
      * The quests available to play (which haven't been started already).
      */
-    private Map<String, Quest> availableQuests;
+    private Map<String, Quest> availableQuests = new HashMap<String, Quest>();
 
     /**
      * The entry stage for each quest.
      */
-    private Map<Quest, QuestStage> entryStages;
+    private Map<Quest, QuestStage> entryStages = new HashMap<Quest, QuestStage>();
 
     /**
      * The entry action for each entry stage. 
      */
-    private Map<QuestStage, QuestAction> entryActions;
+    private Map<QuestStage, QuestAction> entryActions = new HashMap<QuestStage, QuestAction>();
     
     /**
      * The NPC associated with each entry action.
      */
-    private Map<QuestAction, QuestNPC> entryNPCs;
+    private Map<QuestAction, QuestNPC> entryNPCs = new HashMap<QuestAction, QuestNPC>();
 
     /**
      * Creates a new quest client to act on behalf of a player.
@@ -117,6 +118,10 @@ public class QuestClient {
 
         // add interact sparkle to each starting/entry-point NPC
         this.entryNPCs.values().stream().forEach(npc -> {
+            if (npc == null) {
+                return;
+            }
+
             LocationData location = npc.getLocation();
 
             scheduler.runTaskTimer(Core.getPlugin(), () -> {

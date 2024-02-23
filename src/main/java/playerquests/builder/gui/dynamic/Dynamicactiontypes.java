@@ -10,6 +10,7 @@ import java.util.stream.IntStream; // fills slots procedually
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen; // used to go back to other screens
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.npc.QuestNPC; // represents player quest NPCs
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // used to send well-formed errors
@@ -126,7 +127,7 @@ public class Dynamicactiontypes extends GUIDynamic {
                 Class<?> classRef = Class.forName("playerquests.builder.quest.action." + type);
 
                 // Then it means the action type has been implemented:
-                if (stage.getActions().get(stage.getActionToEdit()).toString().equals(type)) { // compare action type being modified with action type in this loop
+                if (stage.getActions().get(stage.getActionToEdit()).getType().equals(type)) { // compare action type being modified with action type in this loop
                     typeButton.setItem("GLOWSTONE_DUST");
                     typeButton.setLabel(type + " (Selected)");
                 } else {
@@ -141,9 +142,9 @@ public class Dynamicactiontypes extends GUIDynamic {
                         
                         // create a new instance of the action type
                         QuestAction newActionInstance = (QuestAction) classRef.getDeclaredConstructor(
-                            QuestStage.class
+                            QuestStage.class, QuestNPC.class
                         ).newInstance(
-                            this.stage
+                            this.stage, null
                         );
 
                         this.stage.changeActionType(currentAction, newActionInstance); // ask the quest stage builder to change the action to a new type
