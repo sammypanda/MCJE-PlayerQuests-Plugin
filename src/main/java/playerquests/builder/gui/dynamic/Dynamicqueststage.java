@@ -59,7 +59,7 @@ public class Dynamicqueststage extends GUIDynamic {
             GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
 
             // identify which action is the stage entry point
-            if (this.questStage.getEntryPoint().equals(action)) { // if this action is the entry point
+            if (this.questStage.getEntryPoint().getID().equals(action)) { // if this action is the entry point
                 actionSlot.setLabel(action.toString() + " (Entry Point)");
                 actionSlot.setItem("POWERED_RAIL");
             } else { // if it's not the entry point
