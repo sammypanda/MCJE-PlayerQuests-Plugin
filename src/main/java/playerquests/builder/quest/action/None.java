@@ -1,5 +1,6 @@
 package playerquests.builder.quest.action;
 
+import playerquests.builder.quest.data.ActionOptionData;
 import playerquests.builder.quest.stage.QuestStage;
 
 /**
@@ -13,5 +14,10 @@ public class None extends QuestAction {
      */
     public None(QuestStage parentStage) {
         super(parentStage);
+    }
+
+    @Override
+    public ActionOptionData getActionOptionData() {
+        return new ActionOptionData();
     }
 }

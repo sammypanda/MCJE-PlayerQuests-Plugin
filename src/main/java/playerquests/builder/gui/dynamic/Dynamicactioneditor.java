@@ -91,6 +91,9 @@ public class Dynamicactioneditor extends GUIDynamic {
             dividerSlot.setItem("BLACK_STAINED_GLASS_PANE");
             dividerSlot.setLabel(" ");
         });
+
+        // dynamically fill in option slots
+        this.action.putOptionSlots(gui, Arrays.asList(1,2,3,10,11,12));
     }
     
 }

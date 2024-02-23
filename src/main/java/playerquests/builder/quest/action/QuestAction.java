@@ -2,12 +2,21 @@ package playerquests.builder.quest.action;
 
 import java.security.InvalidParameterException; // thrown if parameters are malformed or missing
 import java.util.ArrayList; // array type of list
+import java.util.LinkedHashMap;
 import java.util.List; // generic list type
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
 import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when serialising
 
 import playerquests.builder.gui.GUIBuilder; // for working on GUIs
+import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.quest.data.ActionOptionData;
+import playerquests.builder.quest.data.ActionOption;
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 
@@ -18,7 +27,7 @@ import playerquests.builder.quest.stage.QuestStage; // represents quest stages
  * it possible to do more with quests. They
  * generally simplify more complex operations.
  */
-public class QuestAction {
+public abstract class QuestAction {
 
     /**
      * The NPC this action is from (if applicable)
@@ -127,7 +136,30 @@ public class QuestAction {
         if (this.getClass().getSimpleName().equals("ActionType")) {
             throw new IllegalStateException("Tried to build option slots without defining the type of action.");
         }
+
+        Set<ActionOption> options = this.getActionOptionData().getOptions();
+
+        Map<Integer, ActionOption> resultMap = IntStream.range(1, gui.getFrame().getSize())
+            .filter(i -> !deniedSlots.contains(i))
+            .limit(options.size())
+            .boxed()
+            .collect(Collectors.toMap(
+                slot -> slot,
+                slot -> options.iterator().next(), // assuming you want to use the first actionOption
+                (existing, replacement) -> existing, // If there are duplicate keys, keep the existing value
+                LinkedHashMap::new // maintain insertion order
+            ));
+        
+        System.out.println("result map: " + resultMap);
+        
+        // fill in the GUI slots
+        resultMap.forEach((slot, option) -> {
+            option.getGUISlot(gui, slot);
+        });
+
     }
+
+    public abstract ActionOptionData getActionOptionData();
 
     /**
      * Get the NPC this action is emitted from.
