@@ -7,7 +7,7 @@ import org.bukkit.event.server.ServerLoadEvent; // when a server is reloaded or 
 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.utility.singleton.QuestRegistry; // place where quests are stored
 
 /**
  * Listens out for all server-related events to inform 
