@@ -9,6 +9,7 @@ import org.bukkit.block.Block; // the one and only great block type
 import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
 import org.bukkit.event.block.Action; // identifying what action was done to a block
+import org.bukkit.event.block.BlockBreakEvent; // when a block is broken
 import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts with a block
 import org.bukkit.inventory.EquipmentSlot; // identifies which hand was used to interact
 
@@ -78,5 +79,17 @@ public class BlockListener implements Listener {
         QuestClient quester = QuestRegistry.getInstance().getQuester(event.getPlayer());
         
         event.getPlayer().sendMessage("[PlayerQuests] You just interacted with an NPC Block (WIP: you are = " + quester + ")");
+    }
+
+    @EventHandler
+    public void onBlockNPCBreak(BlockBreakEvent event) {
+        Block brokenBlock = event.getBlock();
+
+        if (!this.activeBlockNPCs.containsKey(brokenBlock)) {
+            return; // don't continue if not an NPC block
+        }
+
+        BlockNPC npc = this.activeBlockNPCs.get(brokenBlock);
+        this.unregisterBlockNPC(npc);
     }
 }
