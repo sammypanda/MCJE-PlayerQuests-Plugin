@@ -3,7 +3,6 @@ package playerquests.utility.listener;
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
-import org.bukkit.event.player.PlayerJoinEvent; // called when players have loaded into the game
 import org.bukkit.event.server.ServerLoadEvent;
 
 import playerquests.Core; // accessing plugin singeltons
