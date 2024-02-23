@@ -243,4 +243,12 @@ public class QuestNPC {
             location.getZ()
         );
     }
+
+    /**
+     * Gets the quest this NPC belongs to.
+     * @return the quest builder which created this NPC.
+     */
+    public QuestBuilder getQuest() {
+        return this.quest;
+    }
 }

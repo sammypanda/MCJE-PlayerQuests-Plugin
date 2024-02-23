@@ -17,6 +17,7 @@ import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC; // the core information about an NPC
 import playerquests.client.quest.QuestClient; // player quest state
+import playerquests.product.Quest; // final quest products
 import playerquests.utility.singleton.QuestRegistry; // application quest state
 
 /**
@@ -56,6 +57,10 @@ public class BlockListener implements Listener {
 
         // replace the NPCs list with the filtered
         activeBlockNPCs = filteredBlockNPCs;
+
+        // remove the quest, as now it's missing the NPC
+        Quest quest = blockNPC.getNPC().getQuest().build();
+        QuestRegistry.getInstance().remove(quest);
     }
     
     @EventHandler
