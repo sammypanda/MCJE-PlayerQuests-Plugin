@@ -50,7 +50,7 @@ public class Dynamicactioneditor extends GUIDynamic {
     @Override
     protected void execute_custom() {
         // set label
-        if (this.stage.getEntryPoint() == this.action.getID()) { // if this action is the entry point
+        if (this.stage.getEntryPoint().getID() == this.action.getID()) { // if this action is the entry point
             this.gui.getFrame().setTitle(this.action + " Editor (Entry Point)");
         } else {
             this.gui.getFrame().setTitle(this.action + " Editor");

@@ -4,11 +4,12 @@ import java.security.InvalidParameterException; // thrown if parameters are malf
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
+import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when serialising
 
 import playerquests.builder.gui.GUIBuilder; // for working on GUIs
-import playerquests.builder.quest.stage.QuestStage;
+import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
+import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 
 /**
  * Passes and handles the quest stage action 'types'.
@@ -18,6 +19,11 @@ import playerquests.builder.quest.stage.QuestStage;
  * generally simplify more complex operations.
  */
 public class QuestAction {
+
+    /**
+     * The NPC this action is from (if applicable)
+     */
+    protected QuestNPC npc;
 
     /**
      * The parent stage this action belongs to.
@@ -121,5 +127,12 @@ public class QuestAction {
         if (this.getClass().getSimpleName().equals("ActionType")) {
             throw new IllegalStateException("Tried to build option slots without defining the type of action.");
         }
+    }
+
+    /**
+     * Get the NPC this action is emitted from.
+     */
+    public QuestNPC getNPC() {
+        return this.npc;
     }
 }

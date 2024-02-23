@@ -41,7 +41,7 @@ public class QuestStage {
     /**
      * Entry point for the stage.
      */
-    private String entryPoint;
+    private QuestAction entryPoint;
 
     /**
      * Constructs a new quest stage.
@@ -111,14 +111,14 @@ public class QuestStage {
      * @param action a quest action id
      */
     public void setEntryPoint(String action) {
-        this.entryPoint = action;
+        this.entryPoint = getActions().get(action);
     }
 
     /**
      * Gets the first action executed when this stage is reached.
      * @return a quest action id
      */
-    public String getEntryPoint() {
+    public QuestAction getEntryPoint() {
         return this.entryPoint;
     }
 

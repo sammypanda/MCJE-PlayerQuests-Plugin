@@ -64,6 +64,10 @@ public class QuestRegistry {
                 QuestNPC npc = entry.getValue();
                 npc.place();
             });
+
+        questers.values().stream().forEach(quester -> {
+            quester.update();
+        });
     }
 
     /**
@@ -118,5 +122,12 @@ public class QuestRegistry {
      */
     public QuestClient getQuester(Player player) {
         return questers.get(player);
+    }
+
+    /**
+     * Gets map of all quests that have been registered.
+     */
+    public Map<String, Quest> getAllQuests() {
+        return this.registry;
     }
 }
