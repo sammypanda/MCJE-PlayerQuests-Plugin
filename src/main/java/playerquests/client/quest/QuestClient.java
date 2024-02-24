@@ -113,6 +113,8 @@ public class QuestClient {
     public void showFX() {
         this.fx = true;
 
+        System.out.println("showing fx");
+
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         Player player = Bukkit.getServer().getPlayer(this.player.getUniqueId());
 
@@ -123,6 +125,8 @@ public class QuestClient {
             }
 
             LocationData location = npc.getLocation();
+
+            System.out.println("particle timer start for " + npc);
 
             scheduler.runTaskTimer(Core.getPlugin(), () -> {
                 player.spawnParticle(

@@ -2,12 +2,18 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
+import java.util.LinkedHashMap; // hash table map type (linked/ordered)
+import java.util.List; // generic list type
+import java.util.Map; // generic map type
+import java.util.Set; // generic set type
+import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.action.QuestAction; // describes a quest action
-import playerquests.builder.quest.stage.QuestStage;
+import playerquests.builder.quest.data.ActionOption; // a setting that can be set for an action
+import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 
 /**
@@ -93,8 +99,53 @@ public class Dynamicactioneditor extends GUIDynamic {
         });
 
         // dynamically fill in option slots
-        this.action.putOptionSlots(gui, Arrays.asList(1,2,3,10,11,12));
+        this.putOptionSlots(Arrays.asList(1,2,3,10,11,12));
     }
-    
+
+    /**
+     * Create GUI slots that are options for this action.
+     * @param gui the GUI to create the slots in
+     * @param deniedSlots a list of slots that cannot have the option buttons set on
+     */
+    private void putOptionSlots(List<Integer> deniedSlots) {
+        // error if trying to access this class directly instead of by an extended member
+        if (this.action.getClass().getSimpleName().equals("ActionType")) {
+            throw new IllegalStateException("Tried to build option slots without defining the type of action.");
+        }
+
+        Set<ActionOption> options = this.action.getActionOptionData().getOptions();
+
+        Map<Integer, ActionOption> resultMap = IntStream.range(1, gui.getFrame().getSize())
+            .filter(i -> !deniedSlots.contains(i))
+            .limit(options.size())
+            .boxed()
+            .collect(Collectors.toMap(
+                slot -> slot,
+                slot -> options.iterator().next(), // assuming you want to use the first actionOption
+                (existing, replacement) -> existing, // If there are duplicate keys, keep the existing value
+                LinkedHashMap::new // maintain insertion order
+            ));
+        
+        System.out.println("result map: " + resultMap);
+        
+        // fill in the GUI slots
+        resultMap.forEach((slot, option) -> {
+            this.putOptionSlot(slot, option);
+        });
+    }
+
+    private void putOptionSlot(Integer slot, ActionOption option) {
+        GUISlot optionSlot = new GUISlot(gui, slot)
+                                .setLabel(option.getLabel())
+                                .setItem(option.getItem());
+
+        switch (option) {
+            case NPC:
+                optionSlot.onClick(() -> {
+                    System.out.println("[PlayerQuests] NPC Setter");
+                });
+                break;
+        }
+    }
 }
 

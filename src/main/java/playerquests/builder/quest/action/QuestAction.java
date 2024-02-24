@@ -121,44 +121,6 @@ public abstract class QuestAction {
         return this;
     }
 
-    /**
-     * Create GUI slots that are options for this action.
-     * @param gui the GUI to create the slots in
-     * @param deniedSlots a list of slots that cannot have the option buttons set on
-     */
-    public void putOptionSlots(GUIBuilder gui, List<Integer> deniedSlots) {
-        // error if GUI is not defined
-        if (gui == null) {
-            throw new InvalidParameterException("GUI missing to put the quest action options slots in.");
-        }
-
-        // error if trying to access this class directly instead of by an extended member
-        if (this.getClass().getSimpleName().equals("ActionType")) {
-            throw new IllegalStateException("Tried to build option slots without defining the type of action.");
-        }
-
-        Set<ActionOption> options = this.getActionOptionData().getOptions();
-
-        Map<Integer, ActionOption> resultMap = IntStream.range(1, gui.getFrame().getSize())
-            .filter(i -> !deniedSlots.contains(i))
-            .limit(options.size())
-            .boxed()
-            .collect(Collectors.toMap(
-                slot -> slot,
-                slot -> options.iterator().next(), // assuming you want to use the first actionOption
-                (existing, replacement) -> existing, // If there are duplicate keys, keep the existing value
-                LinkedHashMap::new // maintain insertion order
-            ));
-        
-        System.out.println("result map: " + resultMap);
-        
-        // fill in the GUI slots
-        resultMap.forEach((slot, option) -> {
-            option.getGUISlot(gui, slot);
-        });
-
-    }
-
     public abstract ActionOptionData getActionOptionData();
 
     /**
@@ -166,5 +128,12 @@ public abstract class QuestAction {
      */
     public QuestNPC getNPC() {
         return this.npc;
+    }
+
+    /**
+     * Set the NPC this action is emitted from.
+     */
+    public void setNPC(QuestNPC npc) {
+        this.npc = npc;
     }
 }

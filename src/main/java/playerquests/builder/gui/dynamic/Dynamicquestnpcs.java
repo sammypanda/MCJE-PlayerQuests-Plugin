@@ -113,5 +113,4 @@ public class Dynamicquestnpcs extends GUIDynamic {
             director // set the client director
         ));
     }
-    
 }
