@@ -2,7 +2,11 @@ package playerquests.client.quest;
 
 import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
+import java.util.HashSet; // hash table set type
+import java.util.List; // generic list type
 import java.util.Map; // generic map type
+import java.util.Set; // generic set type
+import java.util.stream.Collectors; // translates a stream to data type
 
 import org.bukkit.Bukkit; // bukkit api
 import org.bukkit.Particle; // particle effects (FX)
@@ -98,24 +102,9 @@ public class QuestClient {
 
             // put the quests
             this.availableQuests.put(questID, quest);
-
-            // put the entry stages
-            QuestStage stage = quest.getStages().get(quest.getEntry());
-            System.out.println("adding stage: " + stage);
-            this.entryStages.put(quest, stage);
-
-            // put the actions from entry stages
-            QuestAction action = stage.getEntryPoint();
-            System.out.println("adding action: " + action);
-            System.out.println("all actions: " + stage.getActions());
-            System.out.println("entry action: " + stage.getEntryPoint());
-            this.entryActions.put(stage, action);
-
-            // put the NPCs from entry actions
-            QuestNPC npc = action.getNPC();
-            System.out.println("adding npc: " + npc);
-            this.entryNPCs.put(action, npc);
         });
+
+        this.update();
     }
 
     /**
@@ -124,22 +113,24 @@ public class QuestClient {
     public void showFX() {
         this.fx = true;
 
-        System.out.println("showing fx for npcs: " + this.entryNPCs.values());
-
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         Player player = Bukkit.getServer().getPlayer(this.player.getUniqueId());
 
+        // remove particles from quest NPCs by the quests which
+        // are no longer 'available'
+        this.npcParticles.keySet().stream()
+            .filter(quest -> !this.availableQuests.containsKey(quest.getID()))
+            .forEach(quest -> scheduler.cancelTask(this.npcParticles.get(quest).getTaskId()));
+
         // add interact sparkle to each starting/entry-point NPC
         this.entryNPCs.values().stream().forEach(npc -> {
-            if (npc == null) {
+            if (npc == null || this.npcParticles.containsKey(npc)) {
                 return;
             }
 
             LocationData location = npc.getLocation();
 
-            System.out.println("particle timer start for " + npc);
-
-            scheduler.runTaskTimer(Core.getPlugin(), () -> {
+            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> {
                 player.spawnParticle(
                     Particle.WAX_ON,
                     (double) location.getX() + 0.5,
@@ -170,14 +161,39 @@ public class QuestClient {
      * Refresh all values.
      */
     public void update() {
-        System.out.println("updating quests: " + QuestRegistry.getInstance().getAllQuests().values());
+        // create a set for local available quests and questregistry available quests
+        List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values());
+        List<Quest> localList =  new ArrayList<>(this.availableQuests.values());
 
-        this.addQuests(
-            new ArrayList<Quest>(QuestRegistry.getInstance().getAllQuests().values())
-        );
+        Set<Quest> questSet = new HashSet<Quest>();
+        questSet.addAll(registryList);
+        questSet.addAll(localList);
+
+        // update helper maps
+        questSet.stream().forEach(quest -> {
+            // put the entry stages
+            QuestStage stage = quest.getStages().get(quest.getEntry());
+            this.entryStages.put(quest, stage);
+
+            // put the actions from entry stages
+            QuestAction action = stage.getEntryPoint();
+            this.entryActions.put(stage, action);
+
+            // put the NPCs from entry actions
+            QuestNPC npc = action.getNPC();
+            this.entryNPCs.put(action, npc);
+        });
+
+        // update main map of all quests available to this quester
+        this.availableQuests = questSet.stream()
+                                .collect(Collectors.toMap(quest -> quest.getID(), quest -> quest));
 
         if (this.fx) {
             this.showFX();
         }
+    }
+
+    public void removeQuest(Quest quest) {
+        this.availableQuests.remove(quest.getID());
     }
 }

@@ -96,7 +96,7 @@ public class QuestRegistry {
         registry.remove(quest.getID());
 
         questers.values().stream().forEach(quester -> {
-            quester.update();
+            quester.removeQuest(quest);
         });
     }
 
