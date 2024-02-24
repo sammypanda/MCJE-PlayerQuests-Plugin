@@ -195,5 +195,7 @@ public class QuestClient {
 
     public void removeQuest(Quest quest) {
         this.availableQuests.remove(quest.getID());
+
+        this.update();
     }
 }
