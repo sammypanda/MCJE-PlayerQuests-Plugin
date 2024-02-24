@@ -9,6 +9,7 @@ import org.bukkit.Particle; // particle effects (FX)
 import org.bukkit.entity.HumanEntity; // represents players and other humanoid entities
 import org.bukkit.entity.Player; // represents just players
 import org.bukkit.scheduler.BukkitScheduler; // schedules tasks/code/jobs on plugin
+import org.bukkit.scheduler.BukkitTask; // object for scheduled tasks
 
 import playerquests.Core; // access to singletons
 import playerquests.builder.quest.action.QuestAction; // represents quest actions
@@ -55,6 +56,11 @@ public class QuestClient {
      * The NPC associated with each entry action.
      */
     private Map<QuestAction, QuestNPC> entryNPCs = new HashMap<QuestAction, QuestNPC>();
+
+    /**
+     * The particles associated with NPC.
+     */
+    private Map<QuestNPC, BukkitTask> npcParticles = new HashMap<QuestNPC, BukkitTask>();
 
     /**
      * Creates a new quest client to act on behalf of a player.
@@ -142,6 +148,8 @@ public class QuestClient {
                     5
                 );
             }, 0, 20);
+
+            npcParticles.put(npc, task);
         });
     }
 
@@ -149,7 +157,13 @@ public class QuestClient {
      * Removes the quest effects from the world for this quester.
      */
     public void hideFX() {
+        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         this.fx = false;
+
+        // remove particles already in world
+        this.npcParticles.values().stream().forEach(task -> {
+            scheduler.cancelTask(task.getTaskId());
+        });
     }
 
     /**
