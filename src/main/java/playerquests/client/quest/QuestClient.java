@@ -59,7 +59,7 @@ public class QuestClient {
     /**
      * The NPC associated with each entry action.
      */
-    private Map<QuestAction, QuestNPC> entryNPCs = new HashMap<QuestAction, QuestNPC>();
+    private Map<QuestNPC, QuestAction> npcActions = new HashMap<QuestNPC, QuestAction>();
 
     /**
      * The particles associated with NPC.
@@ -123,7 +123,7 @@ public class QuestClient {
             .forEach(quest -> scheduler.cancelTask(this.npcParticles.get(quest).getTaskId()));
 
         // add interact sparkle to each starting/entry-point NPC
-        this.entryNPCs.values().stream().forEach(npc -> {
+        this.npcActions.keySet().stream().forEach(npc -> {
             if (npc == null || this.npcParticles.containsKey(npc)) {
                 return;
             }
@@ -181,7 +181,7 @@ public class QuestClient {
 
             // put the NPCs from entry actions
             QuestNPC npc = action.getNPC();
-            this.entryNPCs.put(action, npc);
+            this.npcActions.put(npc, action);
         });
 
         // update main map of all quests available to this quester
@@ -197,5 +197,11 @@ public class QuestClient {
         this.availableQuests.remove(quest.getID());
 
         this.update();
+    }
+
+    public void interact(QuestNPC npc) {
+        player.sendMessage("[PlayerQuests] You just interacted with " + npc.getName());
+        System.out.println("the npc interacted with is requesting this action: " + this.npcActions.get(npc));
+        this.npcActions.get(npc).Run(this);
     }
 }

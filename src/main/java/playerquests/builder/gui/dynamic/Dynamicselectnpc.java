@@ -41,9 +41,6 @@ public class Dynamicselectnpc extends GUIDynamic {
         IntStream.range(0, this.npcList.size()).forEach(index -> {
             QuestNPC npc = this.npcList.get(index);
             Integer slot = index + 1;
-
-            System.out.println("the index: " + index + ", the slot: " + slot);
-            System.out.println(npc + " in slot " + slot);
             
             new GUISlot(gui, slot)
                 .setLabel(npc.getName())

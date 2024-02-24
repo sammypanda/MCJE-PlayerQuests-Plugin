@@ -81,8 +81,7 @@ public class BlockListener implements Listener {
 
         QuestNPC npc = activeBlockNPCs.get(block).getNPC();
         QuestClient quester = QuestRegistry.getInstance().getQuester(event.getPlayer());
-        
-        event.getPlayer().sendMessage("[PlayerQuests] You just interacted with an NPC Block (WIP: you are = " + quester + ")");
+        quester.interact(npc);
     }
 
     @EventHandler

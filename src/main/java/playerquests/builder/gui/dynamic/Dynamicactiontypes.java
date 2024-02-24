@@ -142,9 +142,9 @@ public class Dynamicactiontypes extends GUIDynamic {
                         
                         // create a new instance of the action type
                         QuestAction newActionInstance = (QuestAction) classRef.getDeclaredConstructor(
-                            QuestStage.class, QuestNPC.class
+                            QuestStage.class
                         ).newInstance(
-                            this.stage, null
+                            this.stage
                         );
 
                         this.stage.changeActionType(currentAction, newActionInstance); // ask the quest stage builder to change the action to a new type

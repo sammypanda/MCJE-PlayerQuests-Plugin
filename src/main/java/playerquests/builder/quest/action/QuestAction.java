@@ -1,24 +1,15 @@
 package playerquests.builder.quest.action;
 
-import java.security.InvalidParameterException; // thrown if parameters are malformed or missing
 import java.util.ArrayList; // array type of list
-import java.util.LinkedHashMap;
 import java.util.List; // generic list type
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
 import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when serialising
 
-import playerquests.builder.gui.GUIBuilder; // for working on GUIs
-import playerquests.builder.gui.component.GUISlot;
-import playerquests.builder.quest.data.ActionOptionData;
-import playerquests.builder.quest.data.ActionOption;
+import playerquests.builder.quest.data.ActionOptionData; // the options on this action
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
+import playerquests.client.quest.QuestClient; // the quester themselves
 
 /**
  * Passes and handles the quest stage action 'types'.
@@ -33,6 +24,11 @@ public abstract class QuestAction {
      * The NPC this action is from (if applicable)
      */
     protected QuestNPC npc;
+
+    /**
+     * The dialogue (if applicable)
+     */
+    protected List<String> dialogue;
 
     /**
      * The parent stage this action belongs to.
@@ -136,4 +132,23 @@ public abstract class QuestAction {
     public void setNPC(QuestNPC npc) {
         this.npc = npc;
     }
+
+    /**
+     * Get the dialogue to emit.
+     */
+    public List<String> getDialogue() {
+        return this.dialogue;
+    }
+
+    /**
+     * Set the NPC this action is emitted from.
+     */
+    public void setDialogue(List<String> dialogue) {
+        this.dialogue = dialogue;
+    }
+
+    /**
+     * What is done when this quest action is called.
+     */
+    public abstract void Run(QuestClient quester);
 }

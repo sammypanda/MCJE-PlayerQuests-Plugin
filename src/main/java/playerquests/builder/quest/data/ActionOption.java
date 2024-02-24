@@ -1,7 +1,8 @@
 package playerquests.builder.quest.data;
 
 public enum ActionOption {
-    NPC("Set NPC", "VILLAGER_SPAWN_EGG");
+    NPC("Set NPC", "VILLAGER_SPAWN_EGG"), 
+    DIALOGUE("Set Dialogue", "OAK_SIGN");
 
     private final String label;
     private final String item;
