@@ -8,12 +8,14 @@ import playerquests.builder.quest.npc.BlockNPC; // a block representing an NPC
 import playerquests.builder.quest.npc.QuestNPC; // core NPC object/data
 import playerquests.utility.listener.BlockListener; // for block-related events
 import playerquests.utility.listener.PlayerListener; // for player-related events
+import playerquests.utility.listener.ServerListener; // for server-related events
 
 public class PlayerQuests {
 
     private static PlayerQuests instance = new PlayerQuests();
     private BlockListener blockListener = new BlockListener();
     private PlayerListener playerListener = new PlayerListener();
+    private ServerListener serverListener = new ServerListener();
 
     public static PlayerQuests getInstance() {
         return instance;
