@@ -37,7 +37,9 @@ public class Speak extends QuestAction {
         Player player = Bukkit.getPlayer(quester.getPlayer().getUniqueId());
 
         dialogue.forEach(line -> {
-            player.sendMessage("> " + line);
+            player.sendMessage(
+                String.format("> %s: \"%s\"", this.getNPC().getName(), line)
+            );
         });
     }
 }
