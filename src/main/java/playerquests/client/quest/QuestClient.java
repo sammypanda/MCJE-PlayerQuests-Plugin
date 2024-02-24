@@ -95,14 +95,19 @@ public class QuestClient {
 
             // put the entry stages
             QuestStage stage = quest.getStages().get(quest.getEntry());
+            System.out.println("adding stage: " + stage);
             this.entryStages.put(quest, stage);
 
             // put the actions from entry stages
             QuestAction action = stage.getEntryPoint();
+            System.out.println("adding action: " + action);
+            System.out.println("all actions: " + stage.getActions());
+            System.out.println("entry action: " + stage.getEntryPoint());
             this.entryActions.put(stage, action);
 
             // put the NPCs from entry actions
             QuestNPC npc = action.getNPC();
+            System.out.println("adding npc: " + npc);
             this.entryNPCs.put(action, npc);
         });
     }
@@ -113,7 +118,7 @@ public class QuestClient {
     public void showFX() {
         this.fx = true;
 
-        System.out.println("showing fx");
+        System.out.println("showing fx for npcs: " + this.entryNPCs.values());
 
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         Player player = Bukkit.getServer().getPlayer(this.player.getUniqueId());
@@ -131,9 +136,9 @@ public class QuestClient {
             scheduler.runTaskTimer(Core.getPlugin(), () -> {
                 player.spawnParticle(
                     Particle.WAX_ON,
-                    (double) location.getX(),
-                    (double) location.getY(),
-                    (double) location.getZ(),
+                    (double) location.getX() + 0.5,
+                    (double) location.getY() + 1.5,
+                    (double) location.getZ() + 0.5,
                     5
                 );
             }, 0, 20);
@@ -151,6 +156,8 @@ public class QuestClient {
      * Refresh all values.
      */
     public void update() {
+        System.out.println("updating quests: " + QuestRegistry.getInstance().getAllQuests().values());
+
         this.addQuests(
             new ArrayList<Quest>(QuestRegistry.getInstance().getAllQuests().values())
         );

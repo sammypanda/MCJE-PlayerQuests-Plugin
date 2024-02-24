@@ -148,6 +148,10 @@ public class QuestStage {
     }
 
     public void changeActionType(String currentAction, QuestAction newActionInstance) {
+        if (currentAction.equals(this.entryPoint.getID())) {
+            this.entryPoint = newActionInstance;
+        }
+
         newActionInstance.setID(currentAction); // update the ID in the action local
         this.actions.replace(currentAction, newActionInstance); // replace in main list
     }
