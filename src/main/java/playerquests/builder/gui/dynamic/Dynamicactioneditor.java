@@ -9,10 +9,13 @@ import java.util.Set; // generic set type
 import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
 
+import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
+import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.QuestAction; // describes a quest action
 import playerquests.builder.quest.data.ActionOption; // a setting that can be set for an action
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 
@@ -135,14 +138,33 @@ public class Dynamicactioneditor extends GUIDynamic {
     }
 
     private void putOptionSlot(Integer slot, ActionOption option) {
+        QuestBuilder quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
+        QuestNPC currentNPC = this.action.getNPC();
+
         GUISlot optionSlot = new GUISlot(gui, slot)
                                 .setLabel(option.getLabel())
                                 .setItem(option.getItem());
 
         switch (option) {
             case NPC:
+                if (currentNPC != null) {
+                    optionSlot.setLabel(
+                        String.format("%s (%s)", option.getLabel(), currentNPC.getName())
+                    );
+                }
+
                 optionSlot.onClick(() -> {
-                    System.out.println("[PlayerQuests] NPC Setter");
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList("selectnpc")), 
+                        director
+                    ).onFinish(function -> {
+                        UpdateScreen functionUpdateScreen = (UpdateScreen) function;
+                        Dynamicselectnpc NPCSelector = (Dynamicselectnpc) functionUpdateScreen.getDynamicGUI();
+
+                        NPCSelector.onSelect((selectedNPC) -> {
+                            this.action.setNPC(selectedNPC);
+                        });
+                    }).execute();;
                 });
                 break;
         }

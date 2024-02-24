@@ -47,6 +47,11 @@ public class UpdateScreen extends GUIFunction {
     private String error;
 
     /**
+     * The GUIDynamic which may be found.
+     */
+    private GUIDynamic dynamicGUI;
+
+    /**
      * Switches the GUI screen to another template.
      * @param params 1. the template file
      * @param director to control the plugin
@@ -140,6 +145,7 @@ public class UpdateScreen extends GUIFunction {
                 .getDeclaredConstructor(ClientDirector.class, String.class)
                 .newInstance(this.director, this.screenName_previous);
             guiDynamic.execute(); // generate the dynamic GUI
+            this.dynamicGUI = guiDynamic;
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             this.exception = e;
             this.error = "The " + screenName + " screen could not be initialised.";
@@ -163,4 +169,12 @@ public class UpdateScreen extends GUIFunction {
         return null;
     }
 
+    /**
+     * Get the dynamic GUI, null if this update screen is not 
+     * updating to a dynamic GUI.
+     * @return the dynamic GUI instance
+     */
+    public GUIDynamic getDynamicGUI() {
+        return this.dynamicGUI;
+    }
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 
 import playerquests.Core;
-import playerquests.builder.gui.component.GUISlot;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.PluginUtils; // used to validate function params
