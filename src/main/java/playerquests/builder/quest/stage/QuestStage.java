@@ -128,6 +128,15 @@ public class QuestStage {
     }
 
     /**
+     * Removes an action from this stage
+     * @param action the quest action to remove from the stage
+     */
+    public void removeAction(QuestAction action) {
+        this.actions.remove(action.getID());
+        this.quest.save();
+    }
+
+    /**
      * Sets the first action executed when this stage is reached.
      * @param action a quest action id
      */

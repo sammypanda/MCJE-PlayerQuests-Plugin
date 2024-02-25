@@ -15,6 +15,7 @@ import playerquests.builder.quest.data.ActionOption; // a setting that can be se
 import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
+import playerquests.utility.ChatUtils;
 
 /**
  * Shows a dynamic GUI used for editing a quest action.
@@ -73,6 +74,24 @@ public class Dynamicactioneditor extends GUIDynamic {
             new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
             director // set the client director
         ));
+
+        // the delete button
+        new GUISlot(this.gui, 11)
+            .setLabel("Delete Action")
+            .setItem("RED_DYE")
+            .onClick(() -> {
+                if (stage.getEntryPoint().equals(action)) {
+                    ChatUtils.sendError(director.getPlayer(), "Cannot remove the stage starting point action.");
+                    return;
+                }
+
+                stage.removeAction(action);
+
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("queststage")), 
+                    director
+                ).execute();
+            });
 
         // changing action type button
         GUISlot typeButton = new GUISlot(this.gui, 1);
