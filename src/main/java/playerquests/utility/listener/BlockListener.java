@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts w
 import org.bukkit.inventory.EquipmentSlot; // identifies which hand was used to interact
 
 import playerquests.Core; // accessing plugin singeltons
+import playerquests.builder.quest.QuestBuilder; // for editing a quest
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC; // the core information about an NPC
 import playerquests.client.quest.QuestClient; // player quest state
@@ -51,6 +52,9 @@ public class BlockListener implements Listener {
      * @param blockNPC the block to un-animate
      */
     public void unregisterBlockNPC(BlockNPC blockNPC) {
+        QuestNPC npc = blockNPC.getNPC();
+        QuestBuilder questBuilder = npc.getQuest();
+
         Map<Block, BlockNPC> filteredBlockNPCs = activeBlockNPCs.entrySet().stream()
             .filter(entry -> entry.getValue() != blockNPC) // filter out the blockNPC to unregister
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // collect stream back to Map
@@ -59,8 +63,12 @@ public class BlockListener implements Listener {
         activeBlockNPCs = filteredBlockNPCs;
 
         // remove the quest, as now it's missing the NPC
-        Quest quest = blockNPC.getNPC().getQuest().build();
+        Quest quest = questBuilder.build();
         QuestRegistry.getInstance().remove(quest);
+
+        // unset the NPC, as the NPC (block) has been reclaimed
+        questBuilder.removeNPC(npc);
+        questBuilder.save();
     }
     
     @EventHandler

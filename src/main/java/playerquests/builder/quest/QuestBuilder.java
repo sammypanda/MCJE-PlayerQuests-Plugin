@@ -256,6 +256,14 @@ public class QuestBuilder {
     }
 
     /**
+     * Removes an NPC from this quest.
+     * @param npc the npc object to remove from the map
+     */
+    public void removeNPC(QuestNPC npc) {
+        this.questNPCs.remove(npc.getID());
+    }
+
+    /**
      * Provides what the next NPC ID would be.
      * @return the next valid 'npc_[number]' NPC ID
      */
