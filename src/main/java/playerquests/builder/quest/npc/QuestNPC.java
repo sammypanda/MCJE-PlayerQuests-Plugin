@@ -137,7 +137,7 @@ public class QuestNPC {
         this.director = quest.getDirector();
 
         // try to save this NPC to the quest list
-        return quest.addNPC(npc, false);
+        return quest.addNPC(npc);
     }
 
     /**
@@ -155,7 +155,7 @@ public class QuestNPC {
      */
     @JsonIgnore
     public boolean isValid() {
-        HumanEntity player = this.director.getPlayer(); // the player to send invalid npc messages to
+        HumanEntity player = quest.getDirector().getPlayer(); // the player to send invalid npc messages to
 
         if (this.name == null) {
             ChatUtils.sendError(player, "The NPC name must be set");
@@ -250,5 +250,13 @@ public class QuestNPC {
      */
     public QuestBuilder getQuest() {
         return this.quest;
+    }
+
+    /**
+     * Set the quest this NPC should belong to.
+     * @param questBuilder the quest builder which owns this NPC.
+     */
+    public void setQuest(QuestBuilder questBuilder) {
+        this.quest = questBuilder;
     }
 }

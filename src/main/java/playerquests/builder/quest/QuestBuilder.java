@@ -213,26 +213,22 @@ public class QuestBuilder {
     /**
      * Adds an NPC to this quest.
      * @param npc the npc object to add to the map
-     * @param empty if the npc should be added as invalid/unvalidated
      * @return if was successful
      */
     @JsonIgnore
-    public Boolean addNPC(QuestNPC npc, Boolean empty) {
+    public Boolean addNPC(QuestNPC npc) {
         // remove to replace if already exists
         if (this.questNPCs.containsKey(npc.getID())) {
             this.questNPCs.remove(npc.getID());
         }
 
-        // put invalid npc in list if new empty npc object
-        if (empty) {
-            this.questNPCs.put("npc_-1", npc);
-            return false;
-        }
+        // set this quest as the npc parent
+        npc.setQuest(this);
 
         // run checks
         if (!npc.isValid()) {
             npc.setID("npc_-1"); // mark as incomplete
-            this.questNPCs.put(npc.getID(), npc); // put incomplete in the quest npc list
+            npc.setQuest(null);
             return false;
         }
 
@@ -240,15 +236,6 @@ public class QuestBuilder {
         npc.setID(this.nextNPCID()); // set this npc with a valid ID
         this.questNPCs.put(npc.getID(), npc); // put valid NPC in the quest npc list
         return true;
-    }
-
-    /**
-     * Adds an NPC to this quest (no saving/validating, just a new NPC).
-     * @param npc the npc object to add to the map
-     */
-    @JsonIgnore
-    public Boolean addNPC(QuestNPC npc) {
-        return this.addNPC(npc, false);
     }
 
     /**

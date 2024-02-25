@@ -98,10 +98,13 @@ public class Dynamicquestnpcs extends GUIDynamic {
         addButton.setItem("LIME_DYE");
         addButton.setLabel("Add NPC");
         addButton.onClick(() -> {
-            this.gui.clearSlots(); // clear to prevent duplicates
             QuestNPC npc = new QuestNPC(); // create new empty npc
-            this.questBuilder.addNPC(npc, true); // add empty npc to list
-            this.execute(); // re-run to see changes
+            this.director.setCurrentInstance(npc);
+
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("npceditor")), 
+                director
+            ).execute();
         });
 
         // add back button

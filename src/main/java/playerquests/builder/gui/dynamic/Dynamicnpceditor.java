@@ -119,6 +119,10 @@ public class Dynamicnpceditor extends GUIDynamic {
         saveButton.setItem("GREEN_DYE");
         saveButton.setLabel("Save NPC");
         saveButton.onClick(() -> {
+            if (npc.getQuest() == null) {
+                this.quest.addNPC(npc);
+            }
+
             Boolean success = npc.save(this.quest, this.npc);
 
             if (success) { // if the npc was successfully saved..
