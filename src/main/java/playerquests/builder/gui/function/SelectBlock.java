@@ -1,7 +1,7 @@
 package playerquests.builder.gui.function;
 
 import java.util.ArrayList; // array type of list
-import java.util.List; // used for creating denylist list
+import java.util.List; // used for creating deniedBlocks list
 import java.util.stream.Collectors; // transforming stream to data type
 
 import org.bukkit.Bukkit; // getting the plugin manager
@@ -17,6 +17,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent; // handling request to exit
 import org.bukkit.event.player.PlayerInteractEvent; // for detecting block hits in listener
 
 import playerquests.Core; // accessing singletons
+import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.ChatUtils; // send error to player if block is invalid
 import playerquests.utility.PluginUtils; // used to validate function params 
@@ -33,16 +34,27 @@ public class SelectBlock extends GUIFunction {
         private SelectBlock parentClass;
 
         /**
+         * Select methods to not allow.
+         */
+        private List<SelectMethod> deniedMethods;
+
+        /**
          * Creates a new listener for chat prompt inputs.
          * @param parent the origin ChatPrompt GUI function
          */
         public SelectBlockListener(SelectBlock parent) {
             this.parentClass = parent;
+            this.deniedMethods = parent.getDeniedMethods();
         }
 
         @EventHandler
         private void onHit(PlayerInteractEvent event) {
+            if (deniedMethods.contains(SelectMethod.HIT)) {
+                return; // do not continue
+            }
+
             event.setCancelled(true);
+
             Block clickedBlock = event.getClickedBlock();
 
             if (clickedBlock != null) {
@@ -52,6 +64,10 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onSelect(InventoryClickEvent event) {
+            if (deniedMethods.contains(SelectMethod.SELECT)) {
+                return; // do not continue
+            }
+
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
@@ -66,6 +82,10 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
+            if (deniedMethods.contains(SelectMethod.CHAT)) {
+                return; // do not continue
+            }
+
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
@@ -106,9 +126,14 @@ public class SelectBlock extends GUIFunction {
     private boolean wasSetUp;
 
     /**
-     * The blocks to denylist.
+     * The blocks to deniedBlocks.
      */
-    private List<Material> denylist;
+    private List<Material> deniedBlocks;
+
+    /**
+     * The methods of selecting blocks to deny.
+     */
+    private List<SelectMethod> deniedMethods; 
 
     /**
      * If the player has cancelled the selection.
@@ -121,7 +146,7 @@ public class SelectBlock extends GUIFunction {
      * <li>By hitting the physical block
      * <li>By selecting the block in an inventory
      * </ul>
-     * @param params 1. the prompt to show the user 2. list of denylisted blocks
+     * @param params 1. the prompt to show the user 2. list of denied blocks 3. list of denied methods
      * @param director to set values
      */
     public SelectBlock(ArrayList<Object> params, ClientDirector director) {
@@ -141,7 +166,7 @@ public class SelectBlock extends GUIFunction {
      */
     private void setUp() {
         try {
-            PluginUtils.validateParams(this.params, String.class, List.class);
+            PluginUtils.validateParams(this.params, String.class, List.class, List.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
             ChatUtils.sendError(this.player, e.getMessage());
@@ -149,10 +174,11 @@ public class SelectBlock extends GUIFunction {
 
         // set params
         this.prompt = (String) params.get(0);
-        this.denylist = getDenylist(params.get(1));
+        this.deniedBlocks = castDeniedBlocks(params.get(1));
+        this.deniedMethods = castDeniedMethods(params.get(2));
 
-        // add basics to denylist
-        this.denylist.add(Material.AIR);
+        // add basics to deniedBlocks
+        this.deniedBlocks.add(Material.AIR);
 
         // get and set the player who is selecting the block
         this.player = this.director.getPlayer();
@@ -172,25 +198,55 @@ public class SelectBlock extends GUIFunction {
     }
 
     /**
-     * Cast denylist object to a list of denylisted material strings.
-     * @param object object of materials to denylist
-     * @return list of materials to denylist
+     * Cast deniedBlocks object to a list of denied block material strings.
+     * @param object object of materials to deny
+     * @return list of materials to deny
      */
-    private List<Material> getDenylist(Object object) {
+    private List<Material> castDeniedBlocks(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
         // due to java missing reified generics, stream loop to safely validate wildcarded list elements
-        // return list of denylisted strings
+        // return list of deniedBlocksed strings
         return (List<Material>) castedList.stream()
             .filter(item -> item instanceof String) // filter out non-String items
             .map(itemString -> { // transform each item to String
                 Material material = Material.matchMaterial((String) itemString);
                 if (material == null) { // if material string couldn't be matched
-                    ChatUtils.sendError(this.player, String.format("Invalid item in denylist: %s", itemString));
+                    ChatUtils.sendError(this.player, String.format("Invalid item in deniedBlocks: %s", itemString));
                 }
                 return material;
             }) 
             .collect(Collectors.toList()); // collect into final denylist
+    }
+
+    /**
+     * Gets the blocks that cannot be set as an NPC.
+     * @return a list of materials
+     */
+    public List<Material> getDeniedBlocks() {
+        return this.deniedBlocks;
+    }
+
+    /**
+     * Check and cast deniedMethods to a list of denied method ENUMs
+     * @param object object of methods to deny
+     * @return list of methods to deny
+     */
+    private List<SelectMethod> castDeniedMethods(Object object) {
+        List<?> castedList = (List<?>) object; // wildcard generics for cast checking
+
+        return (List<SelectMethod>) castedList.stream()
+            .filter(method -> method instanceof SelectMethod) // filter out non-method items
+            .map(method -> (SelectMethod) method) // cast safely
+            .collect(Collectors.toList()); // collect into final denylist
+    }
+
+    /**
+     * Gets the select methods that have been denied.
+     * @return a list of select method enums
+     */
+    public List<SelectMethod> getDeniedMethods() {
+        return this.deniedMethods;
     }
 
     @Override
@@ -234,8 +290,8 @@ public class SelectBlock extends GUIFunction {
      * @param type the material to use as the NPC block
      */
     public void setResponse(Material material) {
-        if (this.denylist.contains(material)) {
-            ChatUtils.sendError(this.player, "This item is on the denylist from being set as an NPC block.");
+        if (this.deniedBlocks.contains(material)) {
+            ChatUtils.sendError(this.player, "This item is denied from being set as an NPC block.");
             this.result = null;
             return;
         }

@@ -13,9 +13,10 @@ import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
 import playerquests.builder.gui.function.SelectBlock; // function to get the player-chosen block
 import playerquests.builder.gui.function.SelectLocation; // function to get the player-chosen location
 import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
+import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.builder.quest.data.LocationData; // quest entity locations
-import playerquests.builder.quest.npc.BlockNPC;
-import playerquests.builder.quest.npc.QuestNPC;
+import playerquests.builder.quest.npc.BlockNPC; // the block expression of an NPC
+import playerquests.builder.quest.npc.QuestNPC; // represents a quest NPC
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.MaterialUtils; // helper used to get ItemStack from simplified input
 
@@ -78,10 +79,14 @@ public class Dynamicnpctypes extends GUIDynamic {
         blockOption.onClick(() -> {
             new SelectBlock(
                 new ArrayList<>(Arrays.asList(
-                    "Select a block", // the prompt message
+                    "Select a block from your inventory", // the prompt message
                     Arrays.asList( // denylisted blocks:
                         "BARRIER",
                         "DRAGON_EGG"
+                    ),
+                    Arrays.asList( // denied select methods:
+                        SelectMethod.HIT,
+                        SelectMethod.CHAT
                     )
                 )), 
                 director
