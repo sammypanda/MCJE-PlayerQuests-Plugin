@@ -27,7 +27,6 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
  * For creating and managing a Quest.
  */
 // TODO: create QuestAction outline
-// TODO: remove this testing NPC
 public class QuestBuilder {
 
     /**
@@ -83,9 +82,6 @@ public class QuestBuilder {
 
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
-
-        QuestNPC testNPC = new QuestNPC();
-        this.questNPCs.put(testNPC.getID(), testNPC);
 
         // set as the current instance in the director
         director.setCurrentInstance(this);
