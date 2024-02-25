@@ -38,8 +38,10 @@ public class Dynamicselectnpc extends GUIDynamic {
         gui.getFrame().setSize(Math.max(9, Math.round(this.npcList.size() / 9) * 9));
         gui.getFrame().setTitle("NPC Selector");
 
-        IntStream.range(0, this.npcList.size()).forEach(index -> {
-            QuestNPC npc = this.npcList.get(index);
+        // populate list of quest NPCs
+        // (shifted by 1 to appear start in the second slot)
+        IntStream.range(1, this.npcList.size() + 1).forEach(index -> {
+            QuestNPC npc = this.npcList.get(index - 1);
             Integer slot = index + 1;
             
             new GUISlot(gui, slot)
@@ -49,6 +51,16 @@ public class Dynamicselectnpc extends GUIDynamic {
                     this.select(npc);
                 });
         });
+
+        new GUISlot(gui, 1)
+            .setLabel("Back")
+            .setItem("OAK_DOOR")
+            .addFunction(
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                    director
+                )
+            );
     }
 
     /**
