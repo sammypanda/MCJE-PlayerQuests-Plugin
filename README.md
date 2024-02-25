@@ -39,13 +39,15 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
         "npc_0": { // NPC ID (automatically generated)
             "name": String, // the name of the NPC
             "assigned": {
-                "type": String, // type the NPC is assigned to (options: "block")
-                "value": String // (options: block name)
+                "type": String, // type the NPC is assigned to (options: "Block")
+                "value": String // (options: block material)
             },
             "location": {
-                "x": String,
-                "y": String,
-                "z": String,
+                "x": Double,
+                "y": Double,
+                "z": Double,
+                "pitch": Double,
+                "yaw": Double
             }
         }
     },
@@ -58,7 +60,8 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
                 "action_0": {  // Action ID (automatically generated)
                     "type": String, // Quest Action type
                     "name": String, // Quest Action name
-                    "params": Array, // Quest Action parameters
+                    "npc": String, // NPC ID (if applicable)
+                    "dialogue": String Array // Dialogue lines (if applicable) 
                     "connections": { // defining where the action is in the stage
                         "next": @Nullable String, // where to go if the action succeeds
                         "curr": @Nullable String, // where to return to if the action is exited

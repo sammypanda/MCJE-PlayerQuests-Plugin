@@ -6,8 +6,6 @@ import java.util.List; // generic list type
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisation
 
-import playerquests.builder.quest.data.LocationData; // describes location of a playerquests item
-
 /**
  * Passes and handles the quest npc 'types'.
  * <p>

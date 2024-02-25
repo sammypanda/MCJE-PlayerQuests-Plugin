@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showin
 import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
 import playerquests.Core; // accessing plugin singeltons
+import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.client.ClientDirector; // to control the plugin
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
@@ -18,9 +18,10 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 public class QuestStage {
 
     /**
-     * Director to retrieve values
+     * The quest this stage belongs to.
      */
-    private ClientDirector director;
+    @JsonIgnore
+    private QuestBuilder quest;
 
     /**
      * List of the quest actions.
@@ -39,21 +40,24 @@ public class QuestStage {
     private String stageID = "stage_-1";
 
     /**
-     * Entry point for the stage.
+     * Entry point action for the stage.
      */
-    private QuestAction entryPoint;
+    @JsonProperty("entry")
+    private String entryPoint;
 
     /**
      * Constructs a new quest stage.
-     * @param director director for the client
+     * @param questBuilder which quest this stage is in
      * @param stageIDNumber value which the stage is tracked by (stage_[num])
      */
-    public QuestStage(ClientDirector director, Integer stageIDNumber) {
-        this.director = director;
+    public QuestStage(QuestBuilder questBuilder, Integer stageIDNumber) {
         this.stageID = "stage_"+stageIDNumber;
 
+        // set which quest this stage belongs to
+        this.quest = questBuilder;
+
         // set as the current instance in the director
-        director.setCurrentInstance(this);
+        questBuilder.getDirector().setCurrentInstance(this);
 
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
@@ -63,6 +67,23 @@ public class QuestStage {
 
         // set the default first action as the default entry point
         this.setEntryPoint(action);
+    }
+
+    /**
+     * Set what quest this stage belongs to.
+     * @param quest a quest builder instance
+     */
+    public void setQuest(QuestBuilder quest) {
+        this.quest = quest;
+    }
+
+    /**
+     * Get what quest this stage belongs to.
+     * @return a quest builder instance
+     */
+    @JsonIgnore
+    public QuestBuilder getQuest() {
+        return this.quest;
     }
 
     /**
@@ -111,23 +132,16 @@ public class QuestStage {
      * @param action a quest action id
      */
     public void setEntryPoint(String action) {
-        this.entryPoint = getActions().get(action);
+        this.entryPoint = action;
     }
 
     /**
      * Gets the first action executed when this stage is reached.
      * @return a quest action id
      */
+    @JsonIgnore
     public QuestAction getEntryPoint() {
-        return this.entryPoint;
-    }
-
-    /**
-     * Gets the entry point as a string
-     */
-    @JsonProperty("entry")
-    public String getEntryPointAsString() {
-        return this.entryPoint.toString();
+        return this.actions.get(this.entryPoint);
     }
 
     /**
@@ -148,11 +162,11 @@ public class QuestStage {
     }
 
     public void changeActionType(String currentAction, QuestAction newActionInstance) {
-        if (currentAction.equals(this.entryPoint.getID())) {
-            this.entryPoint = newActionInstance;
-        }
-
         newActionInstance.setID(currentAction); // update the ID in the action local
         this.actions.replace(currentAction, newActionInstance); // replace in main list
+
+        if (currentAction.equals(this.entryPoint)) {
+            this.entryPoint = newActionInstance.getID();
+        }
     }
 }

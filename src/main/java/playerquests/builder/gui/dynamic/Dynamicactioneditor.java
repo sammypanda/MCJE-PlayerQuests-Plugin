@@ -113,7 +113,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             throw new IllegalStateException("Tried to build option slots without defining the type of action.");
         }
 
-        List<ActionOption> options = new ArrayList<ActionOption>(this.action.getActionOptionData().getOptions());
+        List<ActionOption> options = this.action.getActionOptions();
         List<Integer> allowedSlots = IntStream.range(1, gui.getFrame().getSize())
                                             .filter(slot -> !deniedSlots.contains(slot))
                                             .boxed()

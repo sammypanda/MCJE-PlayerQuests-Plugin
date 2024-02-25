@@ -1,6 +1,9 @@
 package playerquests.builder.quest.action;
 
-import playerquests.builder.quest.data.ActionOptionData; // the options on this action
+import java.util.ArrayList; // array list type
+import java.util.List; // generic list type
+
+import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.stage.QuestStage; // refers to a stage which this action may belong to
 import playerquests.client.quest.QuestClient; // the quester themselves
 
@@ -18,8 +21,8 @@ public class None extends QuestAction {
     }
 
     @Override
-    public ActionOptionData getActionOptionData() {
-        return new ActionOptionData();
+    public List<ActionOption> initOptions() {
+        return new ArrayList<ActionOption>();
     }
 
     @Override

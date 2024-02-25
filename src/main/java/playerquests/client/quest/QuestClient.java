@@ -200,8 +200,6 @@ public class QuestClient {
     }
 
     public void interact(QuestNPC npc) {
-        player.sendMessage("[PlayerQuests] You just interacted with " + npc.getName());
-        System.out.println("the npc interacted with is requesting this action: " + this.npcActions.get(npc));
         this.npcActions.get(npc).Run(this);
     }
 }

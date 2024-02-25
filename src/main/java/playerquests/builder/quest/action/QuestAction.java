@@ -6,7 +6,7 @@ import java.util.List; // generic list type
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
 import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when serialising
 
-import playerquests.builder.quest.data.ActionOptionData; // the options on this action
+import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 import playerquests.client.quest.QuestClient; // the quester themselves
@@ -21,13 +21,21 @@ import playerquests.client.quest.QuestClient; // the quester themselves
 public abstract class QuestAction {
 
     /**
+     * The list of ActionOptions
+     */
+    @JsonProperty("options")
+    protected List<ActionOption> actionOptions;
+
+    /**
      * The NPC this action is from (if applicable)
      */
-    protected QuestNPC npc;
+    @JsonProperty("npc")
+    protected String npc;
 
     /**
      * The dialogue (if applicable)
      */
+    @JsonProperty("dialogue")
     protected List<String> dialogue;
 
     /**
@@ -50,6 +58,7 @@ public abstract class QuestAction {
     public QuestAction(QuestStage parentStage) {
         this.stage = parentStage;
         this.action = "action_-1";
+        this.actionOptions = this.initOptions();
     }
 
     /**
@@ -117,20 +126,35 @@ public abstract class QuestAction {
         return this;
     }
 
-    public abstract ActionOptionData getActionOptionData();
+    /**
+     * Add option enums to list so the quest knows
+     * what options to process.
+     * @return a list of action option enums
+     */
+    public abstract List<ActionOption> initOptions();
+
+    /**
+     * Get a list of options attributed to this
+     * action.
+     * @return a list of action option enums
+     */
+    public List<ActionOption> getActionOptions() {
+        return this.actionOptions;
+    }
 
     /**
      * Get the NPC this action is emitted from.
      */
+    @JsonIgnore
     public QuestNPC getNPC() {
-        return this.npc;
+        return this.stage.getQuest().getQuestNPCs().get(this.npc);
     }
 
     /**
      * Set the NPC this action is emitted from.
      */
     public void setNPC(QuestNPC npc) {
-        this.npc = npc;
+        this.npc = npc.getID();
     }
 
     /**

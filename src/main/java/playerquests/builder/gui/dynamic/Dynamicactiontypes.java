@@ -10,7 +10,6 @@ import java.util.stream.IntStream; // fills slots procedually
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen; // used to go back to other screens
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.npc.QuestNPC; // represents player quest NPCs
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // used to send well-formed errors

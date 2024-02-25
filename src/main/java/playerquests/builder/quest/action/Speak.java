@@ -1,10 +1,12 @@
 package playerquests.builder.quest.action;
 
+import java.util.ArrayList; // array list type
+import java.util.List; // generic list type
+
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.entity.Player; // represents a bukkit player
 
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
-import playerquests.builder.quest.data.ActionOptionData; // the options on this action
 import playerquests.builder.quest.stage.QuestStage; // refers to a stage which this action may belong to
 import playerquests.client.quest.QuestClient; // the quester themselves
 
@@ -23,8 +25,8 @@ public class Speak extends QuestAction {
     }
 
     @Override
-    public ActionOptionData getActionOptionData() {
-        ActionOptionData options = new ActionOptionData();
+    public List<ActionOption> initOptions() {
+        List<ActionOption> options = new ArrayList<ActionOption>();
 
         options.add(ActionOption.NPC);
         options.add(ActionOption.DIALOGUE);

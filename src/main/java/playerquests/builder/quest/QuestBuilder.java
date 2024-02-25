@@ -79,7 +79,7 @@ public class QuestBuilder {
         this.director = director;
 
         // default entry point as first stage (stage_0)
-        this.entryPoint = new QuestStage(director, 0);
+        this.entryPoint = new QuestStage(this, 0);
 
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
