@@ -79,7 +79,7 @@ public class QuestRegistry {
         HumanEntity creator = Bukkit.getPlayer(quest.getCreator());
 
         if (registry.get(questID) != null) {
-            ChatUtils.sendError(creator, "[Replacing]");
+            creator.sendMessage("[Updating the quest]");
             this.replace(questID, quest);
             return;
         }
@@ -106,7 +106,7 @@ public class QuestRegistry {
      * @param quest the new quest.
      */
     public void replace(String originalQuestID, Quest quest) {
-        registry.remove(originalQuestID, quest);
+        this.remove(registry.get(originalQuestID));
         this.add(quest);
     }
 

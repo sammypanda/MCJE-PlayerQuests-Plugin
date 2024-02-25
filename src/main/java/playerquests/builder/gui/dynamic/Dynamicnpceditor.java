@@ -100,6 +100,20 @@ public class Dynamicnpceditor extends GUIDynamic {
             )
         );
 
+        // add delete button
+        GUISlot deleteButton = new GUISlot(this.gui, 8);
+        deleteButton.setItem("RED_DYE");
+        deleteButton.setLabel("Delete NPC");
+        deleteButton.onClick(() -> {
+            quest.removeNPC(npc);
+            quest.save();
+
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                director
+            ).execute();
+        });
+
         // add save button
         GUISlot saveButton = new GUISlot(this.gui, 9);
         saveButton.setItem("GREEN_DYE");
@@ -117,7 +131,7 @@ public class Dynamicnpceditor extends GUIDynamic {
 
         // add divider slots
         GUISlot backDivider = new GUISlot(this.gui, 2);
-        GUISlot saveDivider = new GUISlot(this.gui, 8);
+        GUISlot saveDivider = new GUISlot(this.gui, 7);
         backDivider.setItem("BLACK_STAINED_GLASS_PANE");
         saveDivider.setItem("BLACK_STAINED_GLASS_PANE");
     }
