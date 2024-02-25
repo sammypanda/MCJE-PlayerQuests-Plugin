@@ -88,7 +88,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
                 this.director.setCurrentInstance(npc);
 
                 // declare swapping to 'questnpc' screen
-                new UpdateScreen(new ArrayList<>(Arrays.asList("questnpc")), director).execute();
+                new UpdateScreen(new ArrayList<>(Arrays.asList("npceditor")), director).execute();
             });
         });
 

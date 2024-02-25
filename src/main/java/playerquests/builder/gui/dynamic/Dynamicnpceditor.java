@@ -15,7 +15,7 @@ import playerquests.client.ClientDirector; // for controlling the plugin
 /**
  * Creates a dynamic GUI for editing a quest NPC.
  */
-public class Dynamicquestnpc extends GUIDynamic {
+public class Dynamicnpceditor extends GUIDynamic {
 
     /**
      * The quest NPC we are editing.
@@ -32,7 +32,7 @@ public class Dynamicquestnpc extends GUIDynamic {
      * @param director director for the client
      * @param previousScreen the screen to go back to
      */
-    public Dynamicquestnpc(ClientDirector director, String previousScreen) {
+    public Dynamicnpceditor(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
 
