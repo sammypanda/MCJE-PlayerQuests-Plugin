@@ -94,9 +94,14 @@ public class Dynamicnpctypes extends GUIDynamic {
                 // get the block that was selected
                 SelectBlock function = (SelectBlock) f;
                 Material block = function.getResult();
+                HumanEntity player = this.director.getPlayer();
 
                 // assign this block as the quest NPC
                 if (block != null) {
+                    // remove one of the block the npc is being set as
+                    ItemStack penaltyBlock = new ItemStack(block, 1);
+                    player.getInventory().removeItem(penaltyBlock);
+
                     this.npc.assign( // set this npc as:
                         new BlockNPC(block, this.npc)
                     );
