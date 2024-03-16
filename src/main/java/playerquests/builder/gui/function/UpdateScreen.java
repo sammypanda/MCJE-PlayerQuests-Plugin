@@ -6,7 +6,6 @@ import java.util.ArrayList; // used to store the params for this meta action
 import java.util.List; // generic list type
 
 import playerquests.builder.gui.GUIBuilder; // used to parse the GUI screen template
-import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to send error message in-game
@@ -48,15 +47,17 @@ public class UpdateScreen extends GUIFunction {
     private String error;
 
     /**
-     * Not intended to be created directly.
-     * <p>
+     * The GUIDynamic which may be found.
+     */
+    private GUIDynamic dynamicGUI;
+
+    /**
      * Switches the GUI screen to another template.
      * @param params 1. the template file
      * @param director to control the plugin
-     * @param slot slot this function belongs to
      */
-    public UpdateScreen(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public UpdateScreen(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     /**
@@ -116,9 +117,7 @@ public class UpdateScreen extends GUIFunction {
             return;
         }
 
-        this.finished(); // onFinish runnable
-
-        this.slot.executeNext(this.director.getPlayer()); // run the next function
+        this.finished(); // running onFinish code
     }
 
     /**
@@ -146,6 +145,7 @@ public class UpdateScreen extends GUIFunction {
                 .getDeclaredConstructor(ClientDirector.class, String.class)
                 .newInstance(this.director, this.screenName_previous);
             guiDynamic.execute(); // generate the dynamic GUI
+            this.dynamicGUI = guiDynamic;
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             this.exception = e;
             this.error = "The " + screenName + " screen could not be initialised.";
@@ -169,4 +169,12 @@ public class UpdateScreen extends GUIFunction {
         return null;
     }
 
+    /**
+     * Get the dynamic GUI, null if this update screen is not 
+     * updating to a dynamic GUI.
+     * @return the dynamic GUI instance
+     */
+    public GUIDynamic getDynamicGUI() {
+        return this.dynamicGUI;
+    }
 }

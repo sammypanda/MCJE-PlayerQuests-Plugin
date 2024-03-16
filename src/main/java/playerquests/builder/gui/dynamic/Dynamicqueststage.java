@@ -7,8 +7,8 @@ import java.util.stream.IntStream; // used to iterate over a series
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
-import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
-import playerquests.builder.quest.component.QuestStage; // modifying the quest stage
+import playerquests.builder.quest.action.None;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 
 /**
@@ -46,35 +46,33 @@ public class Dynamicqueststage extends GUIDynamic {
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList("queststages")), // set the previous screen 
-            director, // set the client director
-            exitButton // the origin GUI slot
+            director // set the client director
         ));
 
         // produce slots listing current actions
         List<String> actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
         IntStream.range(0, actionKeys.size()).anyMatch(index -> {
 
-            QuestAction action = this.questStage.getActions().get(actionKeys.get(index));
+            String action = actionKeys.get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
 
             // identify which action is the stage entry point
-            if (this.questStage.getEntryPoint() == action) { // if this action is the entry point
-                actionSlot.setLabel(action.getTitle() + " (Entry Point)");
+            if (this.questStage.getEntryPoint().getID().equals(action)) { // if this action is the entry point
+                actionSlot.setLabel(action.toString() + " (Entry Point)");
                 actionSlot.setItem("POWERED_RAIL");
             } else { // if it's not the entry point
-                actionSlot.setLabel(action.getTitle());
+                actionSlot.setLabel(action.toString());
                 actionSlot.setItem("DETECTOR_RAIL");
             }
 
             actionSlot.onClick(() -> {
                 // set the action as the current action to modify
-                this.director.setCurrentInstance(action);
+                this.questStage.setActionToEdit(actionKeys.get(index));
                 // prep the screen to be updated
                 actionSlot.addFunction(new UpdateScreen(
                     new ArrayList<>(Arrays.asList("actioneditor")), 
-                    director, 
-                    actionSlot
+                    director
                 ));
                 // manually start the slot functions (updating of the screen)
                 actionSlot.execute(this.director.getPlayer());
@@ -88,18 +86,10 @@ public class Dynamicqueststage extends GUIDynamic {
         newActionButton.setLabel("New Action");
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
-            QuestAction action = this.questStage.newAction(); // create the new action to present
+            new None(this.questStage).submit(); // create the new action to present
             this.gui.clearSlots(); // clear to prevent duplicates
             this.execute(); // re-run to see new action in list
-
-            // NOTE: uncomment the following to flick over into editing the action straight away:
-            // this.director.setCurrentInstance(action);
         });
-        // newActionButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-        //     new ArrayList<>(Arrays.asList("actioneditor")), // set the previous screen 
-        //     director, // set the client director
-        //     newActionButton // the origin GUI slot
-        // ));
     }
     
 }

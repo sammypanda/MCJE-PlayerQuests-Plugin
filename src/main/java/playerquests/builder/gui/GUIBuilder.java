@@ -43,6 +43,7 @@ import playerquests.product.GUI; // GUI product this class builds
  * </code>
  * </pre>
  */
+// TODO: deserialise json automatically instead of custom parse (requires refactoring dynamic guis and gui functions)
 public class GUIBuilder implements Builder {
 
     /**
@@ -116,6 +117,11 @@ public class GUIBuilder implements Builder {
         Core.getKeyHandler().registerInstance(this); // add the current instance of gui to be accessed with key-pair syntax
 
         if (current) {
+            GUIBuilder oldGUI = (GUIBuilder) this.director.getCurrentInstance(GUIBuilder.class);
+            if (oldGUI != null) {
+                oldGUI.getResult().minimise();
+            };
+
             // set as the current instance in the director
             director.setCurrentInstance(this);
         }

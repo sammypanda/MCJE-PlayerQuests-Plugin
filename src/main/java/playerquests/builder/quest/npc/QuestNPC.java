@@ -1,12 +1,17 @@
-package playerquests.builder.quest.component;
+package playerquests.builder.quest.npc;
 
+import org.bukkit.Bukkit; // bukkit singleton
+import org.bukkit.Location;
+import org.bukkit.Material; // for if NPC is a block
+import org.bukkit.World; // world the NPC exists in
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
 import playerquests.Core; // for accessing singletons
-import playerquests.builder.quest.QuestBuilder; // the quest itself
+import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // sends error messages to player
 import playerquests.utility.annotation.Key; // key-value pair annottation
@@ -43,6 +48,18 @@ public class QuestNPC {
      */
     @JsonIgnore
     private ClientDirector director;
+
+    /**
+     * What the NPC is assigned to.
+     */
+    @JsonProperty("assigned")
+    private NPCType assigned;
+
+    /**
+     * Where the NPC exists in the world.
+     */
+    @JsonProperty("location")
+    private LocationData location;
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -120,7 +137,7 @@ public class QuestNPC {
         this.director = quest.getDirector();
 
         // try to save this NPC to the quest list
-        return quest.addNPC(npc, false);
+        return quest.addNPC(npc);
     }
 
     /**
@@ -138,14 +155,108 @@ public class QuestNPC {
      */
     @JsonIgnore
     public boolean isValid() {
-        HumanEntity player = this.director.getPlayer(); // the player to send invalid npc messages to
+        HumanEntity player = quest.getDirector().getPlayer(); // the player to send invalid npc messages to
 
         if (this.name == null) {
             ChatUtils.sendError(player, "The NPC name must be set");
             return false;
         }
 
+        if (this.assigned == null) {
+            ChatUtils.sendError(player, "The NPC must be assigned to a type");
+            return false;
+        }
+
         return true;
     }
     
+    /**
+     * Assign the NPC to something.
+     */
+    @JsonIgnore
+    public void assign(NPCType npcType) {
+        this.assigned = npcType;
+    }
+
+    /**
+     * Set the location of this NPC in the world.
+     * @param location PlayerQuests Location object
+     */
+    @JsonIgnore
+    public void setLocation(LocationData location) {
+        this.location = location;
+    }
+
+    /**
+     * Get the location of this NPC in the world.
+     * @return Bukkit Location object
+     */
+    @JsonIgnore
+    public LocationData getLocation() {
+        return this.location;
+    }
+
+    /**
+     * Gets a material which represents this NPC.
+     */
+    @JsonIgnore
+    public Material getMaterial() {
+        if (this.assigned instanceof BlockNPC) {
+            BlockNPC npc = (BlockNPC) this.assigned;
+            return npc.getBlock();
+        }
+
+        return Material.RED_STAINED_GLASS; // default to unset
+    }
+
+    /**
+     * Returns if the NPC has been assigned to a type, such as a 'Block'.
+     * @return the type of NPC assignment
+     */
+    @JsonIgnore
+    public boolean isAssigned() {
+        return this.assigned != null;
+    }
+
+    /**
+     * Returns the information about how the NPC is assigned.
+     * @return the NPC assignment
+     */
+    @JsonIgnore
+    public NPCType getAssigned() {
+        return this.assigned;
+    }
+
+    /**
+     * Places the NPC in the world.
+     */
+    @JsonIgnore
+    public void place() {
+        this.assigned.place();
+    }
+
+    public Location toBukkitLocation() {
+        return new Location(
+            Bukkit.getWorld(this.location.getWorld()), 
+            location.getX(), 
+            location.getY(), 
+            location.getZ()
+        );
+    }
+
+    /**
+     * Gets the quest this NPC belongs to.
+     * @return the quest builder which created this NPC.
+     */
+    public QuestBuilder getQuest() {
+        return this.quest;
+    }
+
+    /**
+     * Set the quest this NPC should belong to.
+     * @param questBuilder the quest builder which owns this NPC.
+     */
+    public void setQuest(QuestBuilder questBuilder) {
+        this.quest = questBuilder;
+    }
 }

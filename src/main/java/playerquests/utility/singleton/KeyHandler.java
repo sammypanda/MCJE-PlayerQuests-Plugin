@@ -1,4 +1,4 @@
-package playerquests.utility;
+package playerquests.utility.singleton;
 
 import java.lang.reflect.InvocationTargetException; // report if a method accessed via reflection cannot invoke
 import java.lang.reflect.Method; // holds instances of methods
@@ -100,6 +100,29 @@ public class KeyHandler {
         }, () -> {
             throw new IllegalArgumentException("Could not find method according to the key: " + key);
         });
+    }
+
+    /**
+     * Gets the value for a given key.
+     * @param classInstance instance of the class to get the value from.
+     * @param match key to find getter for.
+     */
+    public Object getValue(Object classInstance, String match) {
+        if (this.keyRegistry.get(classInstance) == null) {
+            throw new IllegalArgumentException("Invalid instance to set a value in, it may have been deregistered: " + classInstance);
+        }
+
+        Method method = this.keyRegistry.get(classInstance).get(match);
+
+        Object result;
+        
+        try {
+            result = method.invoke(classInstance);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException("Could not get value from the value: " + match);
+        }
+        
+        return result;
     }
 
     /**

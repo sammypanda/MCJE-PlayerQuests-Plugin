@@ -20,6 +20,7 @@ import playerquests.product.GUI; // the GUI product itself
  * <li>Inventory Click Events
  * </ul>
  */
+// TODO: implement different inventory types; then compare to what the gui is set as instead of hardcoding as CHEST.
 public class GUIListener implements Listener {
 
     /**
@@ -56,7 +57,6 @@ public class GUIListener implements Listener {
 
         Boolean validInventory = Optional.ofNullable(
             event.getClickedInventory()).map(inventory -> { // get the clicked inventory
-                // TODO: implement different inventory types; then compare to what the gui is set as instead of hardcoding as CHEST.
                 return (inventory.getType() == InventoryType.CHEST); // check if the inventory type is a CHEST
             }).orElse(false);
 

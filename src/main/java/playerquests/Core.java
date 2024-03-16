@@ -4,7 +4,9 @@ import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
 import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
-import playerquests.utility.KeyHandler; // special class for using keys to reference any method
+import playerquests.utility.singleton.KeyHandler; // special class for using keys to reference any method
+import playerquests.utility.singleton.PlayerQuests; // for cross-communication of game/plugin components
+import playerquests.utility.singleton.QuestRegistry; // the registry of quest products
 
 /**
  * Entry point for the plugin.
@@ -15,6 +17,7 @@ import playerquests.utility.KeyHandler; // special class for using keys to refer
  * </ul>
  * </ul> 
  */
+// TODO: automatically initiate the plugin commands
 public class Core extends JavaPlugin {
 
     /**
@@ -28,6 +31,11 @@ public class Core extends JavaPlugin {
     private static KeyHandler keyHandler = KeyHandler.getInstance();
 
     /**
+     * Singleton of the quest registry
+     */
+    private static QuestRegistry questRegistry = QuestRegistry.getInstance();
+
+    /**
      * Core class, to be instantiated by server.
      */
     public Core() {}
@@ -36,7 +44,10 @@ public class Core extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
-        // TODO: automatically initiate the commands
+        // call the playerquests game class
+        PlayerQuests.getInstance();
+
+        // initiate /playerquests command
         new Commandplayerquest();
 
         // Save the demo quest to the server
@@ -57,5 +68,13 @@ public class Core extends JavaPlugin {
      */
     public static KeyHandler getKeyHandler() {
         return keyHandler;
+    }
+
+    /**
+     * Returns quest registry used for final quest products.
+     * @return the singleton instance of the plugin's quest registry
+     */
+    public static QuestRegistry getQuestRegistry() {
+        return questRegistry;
     }
 }

@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
 import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
-import playerquests.builder.quest.component.QuestNPC;  // object for quest npcs
-import playerquests.builder.quest.component.QuestStage; // object for quest stages
+import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
+import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
@@ -26,6 +26,7 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 /**
  * For creating and managing a Quest.
  */
+// TODO: create QuestAction outline
 public class QuestBuilder {
 
     /**
@@ -62,11 +63,6 @@ public class QuestBuilder {
     private String savePath = "quest/templates/";
 
     /**
-     * The quest product.
-     */
-    private Quest quest = new Quest(this);
-
-    /**
      * Operations to run whenever the class is instantiated.
      */
     {
@@ -82,14 +78,10 @@ public class QuestBuilder {
         this.director = director;
 
         // default entry point as first stage (stage_0)
-        this.entryPoint = new QuestStage(director, 0);
+        this.entryPoint = new QuestStage(this, 0);
 
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
-
-        // TODO: remove this testing NPC
-        QuestNPC testNPC = new QuestNPC();
-        this.questNPCs.put(testNPC.getID(), testNPC);
 
         // set as the current instance in the director
         director.setCurrentInstance(this);
@@ -103,6 +95,11 @@ public class QuestBuilder {
      */
     @Key("quest.title")
     public void setTitle(String title) {
+        if (title.contains("_")) {
+            ChatUtils.sendError(this.director.getPlayer(), "Quest label '" + this.title + "' not allowed underscores.");
+            return;
+        }
+
         this.title = title; // set the new title
     }
 
@@ -110,6 +107,7 @@ public class QuestBuilder {
      * Gets the quest title.
      * @return quest name
      */
+    @Key("Quest")
     public String getTitle() {
         return this.title;
     }
@@ -120,14 +118,17 @@ public class QuestBuilder {
      * @throws JsonProcessingException when the json cannot seralise
      */
     private String getTemplateString() throws JsonProcessingException {
+        // get the product of this builder
+        Quest product = this.build();
+
         // serialises an object into json
         ObjectMapper jsonObjectMapper = new ObjectMapper();
 
         // configure the mapper
         jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
 
-        // present this quest builder as a template json string (prettied)
-        return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        // present this quest product as a template json string (prettied)
+        return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
     }
 
     /**
@@ -148,10 +149,6 @@ public class QuestBuilder {
      */
     @Key("quest")
     public String save() throws IllegalArgumentException {
-        if (this.title.contains("_")) {
-            throw new IllegalArgumentException("Quest name '" + this.title + "' not allowed underscores.");
-        }
-
         try {
             FileUtils.create( // create the template json file
                 this.savePath + this.title + "_" + this.director.getPlayer().getUniqueId().toString() + ".json", // name pattern
@@ -162,6 +159,8 @@ public class QuestBuilder {
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
+        // asume enabled and submit (adds the quest to the world)
+        Core.getQuestRegistry().submit(this.build());
         return "Quest Builder: '" + this.title + "' was saved";
     }
 
@@ -173,10 +172,6 @@ public class QuestBuilder {
     public List<String> getStages() {
         return new ArrayList<String>(this.questPlan.keySet());
     }
-
-    // public List<QuestAction> getActions() {
-        // TODO: create QuestAction outline
-    // }
 
     /**
      * Get the entire quest plan map.
@@ -218,26 +213,22 @@ public class QuestBuilder {
     /**
      * Adds an NPC to this quest.
      * @param npc the npc object to add to the map
-     * @param empty if the npc should be added as invalid/unvalidated
      * @return if was successful
      */
     @JsonIgnore
-    public Boolean addNPC(QuestNPC npc, Boolean empty) {
+    public Boolean addNPC(QuestNPC npc) {
         // remove to replace if already exists
         if (this.questNPCs.containsKey(npc.getID())) {
             this.questNPCs.remove(npc.getID());
         }
 
-        // put invalid npc in list if new empty npc object
-        if (empty) {
-            this.questNPCs.put("npc_-1", npc);
-            return false;
-        }
+        // set this quest as the npc parent
+        npc.setQuest(this);
 
         // run checks
         if (!npc.isValid()) {
             npc.setID("npc_-1"); // mark as incomplete
-            this.questNPCs.put(npc.getID(), npc); // put incomplete in the quest npc list
+            npc.setQuest(null);
             return false;
         }
 
@@ -248,12 +239,11 @@ public class QuestBuilder {
     }
 
     /**
-     * Adds an NPC to this quest (no saving/validating, just a new NPC).
-     * @param npc the npc object to add to the map
+     * Removes an NPC from this quest.
+     * @param npc the npc object to remove from the map
      */
-    @JsonIgnore
-    public Boolean addNPC(QuestNPC npc) {
-        return this.addNPC(npc, false);
+    public void removeNPC(QuestNPC npc) {
+        this.questNPCs.remove(npc.getID());
     }
 
     /**
@@ -278,5 +268,19 @@ public class QuestBuilder {
     @JsonIgnore
     public ClientDirector getDirector() {
         return this.director;
+    }
+
+    /**
+     * Build the quest product from the state of this builder.
+     */
+    @JsonIgnore
+    public Quest build() {
+        return new Quest(
+            this.title,
+            this.entryPoint,
+            this.questNPCs,
+            this.questPlan,
+            this.director.getPlayer().getUniqueId()
+        );
     }
 }

@@ -43,6 +43,9 @@ public abstract class GUIDynamic {
     public GUIDynamic(ClientDirector director, String previousScreen) {
         this.director = director;
         this.previousScreen = previousScreen;
+        
+        // get the new GUI to show the quests in
+        this.gui = director.getGUI();
     }
 
     /**
@@ -50,9 +53,6 @@ public abstract class GUIDynamic {
      */
     public void setUp() {
         this.wasSetUp = true;
-
-        // get the new GUI to show the quests in
-        this.gui = this.director.getGUI();
 
         // set the screen name on the builder
         this.gui.setScreenName(this.getClass().getSimpleName().split("Dynamic")[1]);
@@ -85,7 +85,13 @@ public abstract class GUIDynamic {
         }
     }
 
+    /**
+     * For declaring values/variables.
+     */
     protected abstract void setUp_custom();
 
+    /**
+     * For creating the GUI/functionality.
+     */
     protected abstract void execute_custom();
 }

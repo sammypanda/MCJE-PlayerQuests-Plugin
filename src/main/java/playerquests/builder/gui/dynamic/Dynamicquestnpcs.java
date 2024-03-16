@@ -10,7 +10,7 @@ import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GU
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
 import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI screen
 import playerquests.builder.quest.QuestBuilder; // object for quest composition
-import playerquests.builder.quest.component.QuestNPC; // object for quest NPCs
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**
@@ -88,7 +88,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
                 this.director.setCurrentInstance(npc);
 
                 // declare swapping to 'questnpc' screen
-                new UpdateScreen(new ArrayList<>(Arrays.asList("questnpc")), director, npcSlot).execute();
+                new UpdateScreen(new ArrayList<>(Arrays.asList("npceditor")), director).execute();
             });
         });
 
@@ -98,10 +98,13 @@ public class Dynamicquestnpcs extends GUIDynamic {
         addButton.setItem("LIME_DYE");
         addButton.setLabel("Add NPC");
         addButton.onClick(() -> {
-            this.gui.clearSlots(); // clear to prevent duplicates
             QuestNPC npc = new QuestNPC(); // create new empty npc
-            this.questBuilder.addNPC(npc, true); // add empty npc to list
-            this.execute(); // re-run to see changes
+            this.director.setCurrentInstance(npc);
+
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("npceditor")), 
+                director
+            ).execute();
         });
 
         // add back button
@@ -110,9 +113,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         backButton.setItem("OAK_DOOR");
         backButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
-            director, // set the client director
-            backButton // the origin GUI slot
+            director // set the client director
         ));
     }
-    
 }

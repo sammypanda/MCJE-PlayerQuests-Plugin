@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 
 import playerquests.Core;
-import playerquests.builder.gui.component.GUISlot;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.PluginUtils; // used to validate function params
@@ -18,15 +17,12 @@ import playerquests.utility.PluginUtils; // used to validate function params
 public class Save extends GUIFunction {
 
     /**
-     * Not intended to be created directly.
-     * <p>
      * Saves an instance by key name.
      * @param params 1. key name
      * @param director to control the plugin
-     * @param slot slot this function belongs to
      */
-    public Save(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
-        super(params, director, slot);
+    public Save(ArrayList<Object> params, ClientDirector director) {
+        super(params, director);
     }
 
     @Override
@@ -57,15 +53,15 @@ public class Save extends GUIFunction {
 
         if (this.errored) {
             ChatUtils.sendError(this.director.getPlayer(), response.toString());
-            this.finished(); // onFinish runnable
+            this.finished(); // running onFinish code
             return;
         }
 
         this.director.getPlayer().sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "\n" + response + ".\n" + ChatColor.RESET);
 
-        new CloseScreen(new ArrayList<>(), this.director, this.slot).execute();
+        new CloseScreen(new ArrayList<>(), this.director).execute();
 
-        this.finished(); // onFinish runnable
+        this.finished(); // running onFinish code
     }
     
 }

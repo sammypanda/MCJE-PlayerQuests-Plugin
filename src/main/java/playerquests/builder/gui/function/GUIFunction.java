@@ -1,10 +1,8 @@
 package playerquests.builder.gui.function;
 
 import java.util.ArrayList; // used to store the params for this meta action
-import java.util.Objects; // used to require params be not null
-import java.util.stream.IntStream; // used to validate params are the correct types
+import java.util.function.Consumer; // used for onFinish
 
-import playerquests.builder.gui.component.GUISlot; // holds information about the GUI slot
 import playerquests.client.ClientDirector; // powers functionality for functions
 
 /**
@@ -22,11 +20,6 @@ public abstract class GUIFunction {
     protected ArrayList<Object> params;
 
     /**
-     * the slot this function belongs to.
-     */
-    protected GUISlot slot;
-
-    /**
      * director which powers functionality.
      */
     protected ClientDirector director;
@@ -39,7 +32,7 @@ public abstract class GUIFunction {
     /**
      * code that can be set to run when this function is finished.
      */
-    private Runnable onFinish;
+    private Consumer<GUIFunction> onFinish;
 
     /**
      * Not intended to be created directly, is abstract class for GUI functions.
@@ -47,12 +40,10 @@ public abstract class GUIFunction {
      * See docs/README for list of GUI functions.
      * @param params the list of parameters for a function
      * @param director client director for the function to be able to control the plugin
-     * @param slot the GUI slot this function belongs to
     */
-    public GUIFunction(ArrayList<Object> params, ClientDirector director, GUISlot slot) {
+    public GUIFunction(ArrayList<Object> params, ClientDirector director) {
         this.params = params;
         this.director = director;
-        this.slot = slot;
     }
 
     /**
@@ -64,7 +55,7 @@ public abstract class GUIFunction {
      * Sets code to be executed when the function is finished.
      * @param onFinish the code to run when the function completes
      */
-    public GUIFunction onFinish(Runnable onFinish) {
+    public GUIFunction onFinish(Consumer<GUIFunction> onFinish) {
         this.onFinish = onFinish;
         return this;
     }
@@ -75,7 +66,7 @@ public abstract class GUIFunction {
      */
     public void finished() {
         if (this.onFinish != null) {
-            onFinish.run();
+            onFinish.accept(this);
         }
     }
 
@@ -93,13 +84,5 @@ public abstract class GUIFunction {
      */
     public void setDirector(ClientDirector director) {
         this.director = director;
-    }
-
-    /**
-     * Parent slot this function belongs to.
-     * @param slot slot object containing content/functionality
-     */
-    public void setSlot(GUISlot slot) {
-        this.slot = slot;
     }
 }

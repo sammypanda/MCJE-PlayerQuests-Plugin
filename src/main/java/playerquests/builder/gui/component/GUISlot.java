@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // reads the JSON
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
 import playerquests.client.ClientDirector; // abstracted controls for the plugin
-import playerquests.utility.GUIUtils; // converts string of item to presentable itemstack
+import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
 
 /**
  * The contents and function list of a slot.
@@ -101,8 +101,11 @@ public class GUISlot {
                 Class<?> classRef = Class.forName("playerquests.builder.gui.function." + functionName);
                 try {
                     GUIFunction guiFunction = (GUIFunction) classRef
-                        .getDeclaredConstructor(ArrayList.class, ClientDirector.class, GUISlot.class)
-                        .newInstance(paramList, this.builder.getDirector(), this); // create an instance of whichever function class
+                        .getDeclaredConstructor(ArrayList.class, ClientDirector.class)
+                        .newInstance(paramList, this.builder.getDirector()); // create an instance of whichever function class
+                    guiFunction.onFinish((f) -> {
+                        this.executeNext(this.builder.getDirector().getPlayer()); // run the next function
+                    });
                     this.addFunction(guiFunction); // ship the packaged GUI Function to be kept in the current GUI Slot instance
                     // NOTE: now we could run these parsed functions we put in the GUI Slot with: currentSlot.execute();
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -122,9 +125,11 @@ public class GUISlot {
      * Add a GUI Function ('Meta Action') to be executed when this GUI Slot
      * is used.
      * @param guiFunction the Meta Action function instance.
+     * @return the modified instance of the slot builder
      */
-    public void addFunction(GUIFunction guiFunction) {
+    public GUISlot addFunction(GUIFunction guiFunction) {
         this.functionList.add(guiFunction); // add to list of functions
+        return this;
     }
 
     /**
@@ -132,26 +137,40 @@ public class GUISlot {
      * <p>
      * This will replace whatever is existing in the passed in position.
      * @param position the actual position of the slot, starting from 1
+     * @return the modified instance of the slot builder
      */
-    public void setPosition(Integer position) {
+    public GUISlot setPosition(Integer position) {
         this.position = position; // set in our current GUISlot class
 
         this.builder.setSlot(position, this); // put our current GUISlot in builder
+        return this;
+    }
+
+    /**
+     * Gets the slot position for this instance of {@link GUISlot}.
+     * <p>
+     * @return the integer of the slot this button occupies
+     */
+    public Integer getPosition(Integer position) {
+        return this.position;
     }
 
     /**
      * Sets the item/block that will fill the slot for this instance of {@link GUISlot}.
      * @param item the closest string representation to the {@link org.bukkit.Material} ENUM.
+     * @return the modified instance of the slot builder
      */
-    public void setItem(String item) {
+    public GUISlot setItem(String item) {
         try { // check if the item would create a valid ItemStack (the Material exists and isn't legacy)
-            GUIUtils.toItemStack(item);
+            MaterialUtils.toItemStack(item);
             this.item = item; // if no issue caught overwrite the default slot item
         } catch (IllegalArgumentException exception) { // this means the ItemStack failed to construct
             this.errored = true;
             this.item = "RED_STAINED_GLASS_PANE"; // express that there was a problem visually by using an alarming item
             System.err.println(exception.getMessage());
         }
+        
+        return this;
     }
 
     /**
@@ -159,8 +178,9 @@ public class GUISlot {
      * <p>
      * Includes some processing/formatting of the label.
      * @param label the desription of what the element does/is for.
+     * @return the modified instance of the slot builder
      */
-    public void setLabel(String label) {
+    public GUISlot setLabel(String label) {
         String errorLabel = "(Error)";
 
         // Evaluate label for error prefix and avoid malformatting labels
@@ -172,6 +192,7 @@ public class GUISlot {
         );
         
         this.label = label;
+        return this;
     }
 
     /**

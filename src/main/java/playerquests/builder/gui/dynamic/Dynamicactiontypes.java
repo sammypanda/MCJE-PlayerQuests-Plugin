@@ -9,8 +9,8 @@ import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen; // used to go back to other screens
-import playerquests.builder.quest.component.QuestAction; // modifying a quest stage action
-import playerquests.builder.quest.component.action.type.ActionType; // modifying a quest stage action
+import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.utility.ChatUtils; // used to send well-formed errors
 
@@ -30,9 +30,9 @@ public class Dynamicactiontypes extends GUIDynamic {
     private List<String> actionTypes = new ArrayList<>();
 
     /**
-     * The quest action this action type list is born from
+     * The quest stage to add actions to
      */
-    private QuestAction action;
+    private QuestStage stage;
 
     /**
      * the position of the last slot put on a page
@@ -62,10 +62,10 @@ public class Dynamicactiontypes extends GUIDynamic {
      */
     public void setUp_custom() {
         // get the list of all actions
-        this.actionTypes = ActionType.allActionTypes();
+        this.actionTypes = QuestAction.allActionTypes();
 
         // get the current quest stage
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.stage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 
         // modify the new GUI to show the quests in
         this.gui.getFrame().setSize(45);
@@ -123,10 +123,10 @@ public class Dynamicactiontypes extends GUIDynamic {
             // set currently selected item
             try {
                 // check if the action type class exists
-                Class<?> classRef = Class.forName("playerquests.builder.quest.component.action.type." + type);
+                Class<?> classRef = Class.forName("playerquests.builder.quest.action." + type);
 
                 // Then it means the action type has been implemented:
-                if (this.action.getType() == type) { // compare action type being modified with action type in this loop
+                if (stage.getActions().get(stage.getActionToEdit()).getType().equals(type)) { // compare action type being modified with action type in this loop
                     typeButton.setItem("GLOWSTONE_DUST");
                     typeButton.setLabel(type + " (Selected)");
                 } else {
@@ -137,8 +137,16 @@ public class Dynamicactiontypes extends GUIDynamic {
                 // change the action type on the action when clicked
                 typeButton.onClick(() -> {
                     try {
-                        ActionType actionTypeInstance = (ActionType) classRef.getDeclaredConstructor().newInstance(); // create a new instance of the action type
-                        this.action.setType(actionTypeInstance); // set the instance
+                        String currentAction = this.stage.getActionToEdit(); // get the action we are changing the type of
+                        
+                        // create a new instance of the action type
+                        QuestAction newActionInstance = (QuestAction) classRef.getDeclaredConstructor(
+                            QuestStage.class
+                        ).newInstance(
+                            this.stage
+                        );
+
+                        this.stage.changeActionType(currentAction, newActionInstance); // ask the quest stage builder to change the action to a new type
                         this.gui.clearSlots(); // clear to prevent duplicates
                         this.execute(); // re-run to show changes
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -164,8 +172,7 @@ public class Dynamicactiontypes extends GUIDynamic {
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
-            director, // set the client director
-            exitButton // the origin GUI slot
+            director // set the client director
         ));
 
         // when the back button is pressed
