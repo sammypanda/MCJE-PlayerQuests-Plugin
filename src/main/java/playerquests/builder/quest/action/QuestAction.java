@@ -166,9 +166,12 @@ public abstract class QuestAction {
 
     /**
      * Set the NPC this action is emitted from.
+     * @return the modified quest action
      */
-    public void setDialogue(List<String> dialogue) {
+    public QuestAction setDialogue(List<String> dialogue) {
         this.dialogue = dialogue;
+
+        return this;
     }
 
     /**

@@ -107,18 +107,18 @@ public class ChatPrompt extends GUIFunction {
      * </ul>
      */
     private void setUp() {
+        // set initial values
+        this.prompt = (String) params.get(0);
+        this.key = (String) params.get(1);
+        this.chatListener = new ChatPromptListener(this);
+        this.player = this.director.getPlayer();
+
         try {
             PluginUtils.validateParams(this.params, String.class, String.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
             ChatUtils.sendError(this.player, e.getMessage());
         }
-
-        // set initial values
-        this.prompt = (String) params.get(0);
-        this.key = (String) params.get(1);
-        this.chatListener = new ChatPromptListener(this);
-        this.player = this.director.getPlayer();
 
         // temporarily close the existing GUI but don't dispose
         this.director.getGUI().getResult().minimise();
@@ -179,18 +179,21 @@ public class ChatPrompt extends GUIFunction {
 
         if (this.value.toUpperCase().equals("EXIT")) {
             putPredefinedMessage(MessageType.EXITED);
+            this.confirmedValue = false;
             this.exit();
             return;
         }
 
         if (this.confirmedValue) {
-            try {
-                Class<?> classType = Core.getKeyHandler().getClassFromKey(this.key); // discover what class type the key is for
-                Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
-                Core.getKeyHandler().setValue(instance, this.key, this.value); // set the value
-            } catch (IllegalArgumentException e) {
-                ChatUtils.sendError(this.player, e.getMessage());
-                this.errored = true;
+            if (!this.key.equals("none")) {
+                try {
+                    Class<?> classType = Core.getKeyHandler().getClassFromKey(this.key); // discover what class type the key is for
+                    Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
+                    Core.getKeyHandler().setValue(instance, this.key, this.value); // set the value
+                } catch (IllegalArgumentException e) {
+                    ChatUtils.sendError(this.player, e.getMessage());
+                    this.errored = true;
+                }
             }
 
             putPredefinedMessage(MessageType.CONFIRMED);
@@ -215,6 +218,18 @@ public class ChatPrompt extends GUIFunction {
         }
         
         this.value = value;
+    }
+
+    /**
+     * Used to get the value inputted.
+     * @return value of the user input
+     */
+    public String getResponse() {
+        if (confirmedValue) {
+            return value;
+        }
+
+        return null;
     }
 
     /**
@@ -272,14 +287,14 @@ public class ChatPrompt extends GUIFunction {
         // stop capturing the user input
         HandlerList.unregisterAll(this.chatListener);
 
-        // reset values
-        this.value = null;
-        this.wasSetUp = false;
-        this.confirmedValue = false;
-
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // execute next on main thread
             this.director.getGUI().getResult().open(); // open the old GUI again after minimise()
             this.finished(); // run code for when finished
+
+            // reset values
+            this.value = null;
+            this.wasSetUp = false;
+            this.confirmedValue = false;
         });
     }
 }

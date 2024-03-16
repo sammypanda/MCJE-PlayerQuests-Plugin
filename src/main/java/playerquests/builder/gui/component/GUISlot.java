@@ -147,6 +147,15 @@ public class GUISlot {
     }
 
     /**
+     * Gets the slot position for this instance of {@link GUISlot}.
+     * <p>
+     * @return the integer of the slot this button occupies
+     */
+    public Integer getPosition(Integer position) {
+        return this.position;
+    }
+
+    /**
      * Sets the item/block that will fill the slot for this instance of {@link GUISlot}.
      * @param item the closest string representation to the {@link org.bukkit.Material} ENUM.
      * @return the modified instance of the slot builder

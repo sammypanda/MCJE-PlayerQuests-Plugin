@@ -8,6 +8,7 @@ import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
+import playerquests.builder.gui.function.ChatPrompt; // prompts the user for input
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder; // used to edit a quest
 import playerquests.builder.quest.action.QuestAction; // describes a quest action
@@ -15,7 +16,7 @@ import playerquests.builder.quest.data.ActionOption; // a setting that can be se
 import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
-import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils; // working with in-game chat
 
 /**
  * Shows a dynamic GUI used for editing a quest action.
@@ -52,6 +53,9 @@ public class Dynamicactioneditor extends GUIDynamic {
 
         // set the quest action to modify
         this.action = this.stage.getActions().get(this.stage.getActionToEdit());
+
+        // dynamically fill in option slots
+        this.putOptionSlots(Arrays.asList(1,2,3,10,11,12));
     }
 
     @Override
@@ -116,9 +120,6 @@ public class Dynamicactioneditor extends GUIDynamic {
             dividerSlot.setItem("BLACK_STAINED_GLASS_PANE");
             dividerSlot.setLabel(" ");
         });
-
-        // dynamically fill in option slots
-        this.putOptionSlots(Arrays.asList(1,2,3,10,11,12));
     }
 
     /**
@@ -151,7 +152,6 @@ public class Dynamicactioneditor extends GUIDynamic {
     private void putOptionSlot(Integer slot, ActionOption option) {
         QuestBuilder quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
         QuestNPC currentNPC = this.action.getNPC();
-
         GUISlot optionSlot = new GUISlot(gui, slot)
                                 .setLabel(option.getLabel())
                                 .setItem(option.getItem());
@@ -179,9 +179,32 @@ public class Dynamicactioneditor extends GUIDynamic {
                 });
                 break;
             case DIALOGUE:
-                optionSlot.onClick(() -> {
-                    this.director.getPlayer().sendMessage("[PlayerQuests] WIP: setting demo dialogue");
-                    this.action.setDialogue(Arrays.asList("demo", "dialogue"));
+                optionSlot.onClick(() -> { 
+                    new ChatPrompt(
+                        new ArrayList<>(Arrays.asList("Enter the dialogue", "none")), 
+                        this.director
+                    ).onFinish((function) -> {
+                        ChatPrompt prompt = (ChatPrompt) function; // cast the GUIFunction as ChatPrompt
+
+                        if (prompt.getResponse() == null) {
+                            return;
+                        }
+                        
+                        QuestAction action = this.action.setDialogue(Arrays.asList(prompt.getResponse())); // set dialogue with prompt response
+
+                        if (action.getDialogue() != null) {
+                            String dialogue = action.getDialogue().get(0);
+                            
+                            optionSlot.setLabel(
+                                String.format("%s (%s...)", 
+                                    option.getLabel(), 
+                                    dialogue.length() >= 5 ? dialogue.substring(0, 5) : dialogue
+                                )
+                            );
+                        }
+
+                        this.execute(); // show label change
+                    }).execute();
                 });
         }
     }
