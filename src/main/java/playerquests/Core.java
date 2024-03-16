@@ -4,6 +4,7 @@ import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
 import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
+import playerquests.utility.singleton.Database; // API for game persistent data
 import playerquests.utility.singleton.KeyHandler; // special class for using keys to reference any method
 import playerquests.utility.singleton.PlayerQuests; // for cross-communication of game/plugin components
 import playerquests.utility.singleton.QuestRegistry; // the registry of quest products
@@ -34,6 +35,11 @@ public class Core extends JavaPlugin {
      * Singleton of the quest registry
      */
     private static QuestRegistry questRegistry = QuestRegistry.getInstance();
+
+    /**
+     * Singleton for persistent data
+     */
+    private static Database database = Database.getInstance();
 
     /**
      * Core class, to be instantiated by server.
@@ -76,5 +82,13 @@ public class Core extends JavaPlugin {
      */
     public static QuestRegistry getQuestRegistry() {
         return questRegistry;
+    }
+
+    /**
+     * Gets the database as an API for working with persistent data.
+     * @return the singleton instance of the game database API.
+     */
+    public static Database getDatabase() {
+        return database;
     }
 }
