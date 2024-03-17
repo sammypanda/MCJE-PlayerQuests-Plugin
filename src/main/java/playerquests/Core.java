@@ -50,6 +50,9 @@ public class Core extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
+        // initialise the database
+        database.init();
+
         // call the playerquests game class
         PlayerQuests.getInstance();
 
