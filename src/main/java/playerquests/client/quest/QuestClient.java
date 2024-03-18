@@ -21,6 +21,7 @@ import playerquests.builder.quest.data.LocationData; // data object containing a
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages 
 import playerquests.product.Quest; // represents a player quest
+import playerquests.utility.singleton.Database; // where game data is stored
 import playerquests.utility.singleton.QuestRegistry; // where available quests are stored
 
 /**
@@ -75,6 +76,9 @@ public class QuestClient {
      */
     public QuestClient(Player player) {
         this.player = player;
+
+        // put player in database
+        Database.addPlayer(player.getUniqueId());
 
         // initiate personal quest world state
         this.showFX(); // visual quest indicators

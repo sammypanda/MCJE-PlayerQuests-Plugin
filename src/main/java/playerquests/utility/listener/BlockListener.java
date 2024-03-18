@@ -53,7 +53,12 @@ public class BlockListener implements Listener {
      */
     public void unregisterBlockNPC(BlockNPC blockNPC) {
         QuestNPC npc = blockNPC.getNPC();
-        QuestBuilder questBuilder = npc.getQuest();
+
+        if (npc == null) {
+            return; // don't continue if no NPC associated
+        }
+
+        Quest quest = npc.getQuest();
 
         Map<Block, BlockNPC> filteredBlockNPCs = activeBlockNPCs.entrySet().stream()
             .filter(entry -> entry.getValue() != blockNPC) // filter out the blockNPC to unregister
@@ -63,12 +68,7 @@ public class BlockListener implements Listener {
         activeBlockNPCs = filteredBlockNPCs;
 
         // remove the quest, as now it's missing the NPC
-        Quest quest = questBuilder.build();
         QuestRegistry.getInstance().remove(quest);
-
-        // unset the NPC, as the NPC (block) has been reclaimed
-        questBuilder.removeNPC(npc);
-        questBuilder.save();
     }
     
     @EventHandler

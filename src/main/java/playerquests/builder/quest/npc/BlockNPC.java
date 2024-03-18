@@ -9,18 +9,18 @@ import playerquests.utility.singleton.PlayerQuests;
 
 public class BlockNPC extends NPCType {
 
+    /**
+     * Defaut constructor (for Jackson)
+    */
+    public BlockNPC() {}
+
     public BlockNPC(String value, QuestNPC npc) {
         super(value, npc);
+        this.type = "Block";
     }
 
     public BlockNPC(Material block, QuestNPC npc) {
-        super(block.toString(), npc);
-    }
-
-    @Override
-    @JsonProperty("type")
-    public String toString() {
-        return "Block";
+        this(block.toString(), npc);
     }
 
     /**

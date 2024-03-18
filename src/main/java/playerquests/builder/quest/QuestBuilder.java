@@ -58,11 +58,6 @@ public class QuestBuilder {
     private Map<String, QuestStage> questPlan = new HashMap<String, QuestStage>();
 
     /**
-     * Where quests are saved.
-     */
-    private String savePath = "quest/templates/";
-
-    /**
      * Operations to run whenever the class is instantiated.
      */
     {
@@ -78,13 +73,15 @@ public class QuestBuilder {
         this.director = director;
 
         // default entry point as first stage (stage_0)
-        this.entryPoint = new QuestStage(this, 0);
+        this.entryPoint = new QuestStage(this.build(), 0);
+        director.setCurrentInstance(this.entryPoint); // make it modifiable
 
         // add default entry point stage to questPlan map
         this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
 
-        // set as the current instance in the director
+        // set as the current quest in the director
         director.setCurrentInstance(this);
+        this.build(); // build default product
     }
 
     /**
@@ -101,6 +98,7 @@ public class QuestBuilder {
         }
 
         this.title = title; // set the new title
+        this.build();
     }
 
     /**
@@ -113,25 +111,6 @@ public class QuestBuilder {
     }
 
     /**
-     * Creates a quest template based on the current state of the builder.
-     * @return this quest as a json object
-     * @throws JsonProcessingException when the json cannot seralise
-     */
-    private String getTemplateString() throws JsonProcessingException {
-        // get the product of this builder
-        Quest product = this.build();
-
-        // serialises an object into json
-        ObjectMapper jsonObjectMapper = new ObjectMapper();
-
-        // configure the mapper
-        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
-
-        // present this quest product as a template json string (prettied)
-        return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
-    }
-
-    /**
      * Gets the entry point ID.
      * <p>
      * Either an action or a stage.
@@ -140,28 +119,6 @@ public class QuestBuilder {
     @JsonProperty("entry")
     public String getEntryPointString() {
         return this.entryPoint.getID();
-    }
-
-    /**
-     * Saves a quest into the QuestBuilder.savePath.
-     * @return the response message
-     * @throws IllegalArgumentException when saving is not safe/possible
-     */
-    @Key("quest")
-    public String save() throws IllegalArgumentException {
-        try {
-            FileUtils.create( // create the template json file
-                this.savePath + this.title + "_" + this.director.getPlayer().getUniqueId().toString() + ".json", // name pattern
-                getTemplateString().getBytes() // put the content in the file
-            );
-        } catch (IOException e) {
-            ChatUtils.sendError(this.director.getPlayer(), e.getMessage(), e);
-            return "Quest Builder: '" + this.title + "' could not save.";
-        }
-
-        // asume enabled and submit (adds the quest to the world)
-        Core.getQuestRegistry().submit(this.build());
-        return "Quest Builder: '" + this.title + "' was saved";
     }
 
     /**
@@ -223,7 +180,7 @@ public class QuestBuilder {
         }
 
         // set this quest as the npc parent
-        npc.setQuest(this);
+        npc.setQuest(this.build());
 
         // run checks
         if (!npc.isValid()) {
@@ -275,12 +232,15 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public Quest build() {
-        return new Quest(
+        Quest product = new Quest(
             this.title,
             this.entryPoint,
             this.questNPCs,
             this.questPlan,
             this.director.getPlayer().getUniqueId()
         );
+
+        director.setCurrentInstance(product);
+        return product;
     }
 }

@@ -12,6 +12,11 @@ public class LocationData {
     private float yaw; // The yaw rotation
 
     /**
+     * Defaut constructor (for Jackson)
+     */
+    public LocationData() {}
+
+    /**
      * Constructs a new Location with the specified parameters.
      *
      * @param world the name of the world
