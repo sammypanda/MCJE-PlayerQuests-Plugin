@@ -6,7 +6,9 @@ import org.bukkit.Material; // for if NPC is a block
 import org.bukkit.World; // world the NPC exists in
 import org.bukkit.entity.HumanEntity; // the player
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
 import playerquests.Core; // for accessing singletons
@@ -40,7 +42,7 @@ public class QuestNPC {
     /**
      * The parent quest.
      */
-    @JsonIgnore
+    @JsonBackReference
     private QuestBuilder quest;
 
     /**
@@ -53,6 +55,7 @@ public class QuestNPC {
      * What the NPC is assigned to.
      */
     @JsonProperty("assigned")
+    @JsonManagedReference
     private NPCType assigned;
 
     /**

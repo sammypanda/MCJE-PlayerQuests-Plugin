@@ -40,6 +40,7 @@ public class QuestStage {
     /**
      * The id for the stage
      */
+    @JsonProperty("id")
     private String stageID = "stage_-1";
 
     /**
@@ -112,7 +113,6 @@ public class QuestStage {
      * Get what quest this stage belongs to.
      * @return a quest builder instance
      */
-    @JsonIgnore
     public Quest getQuest() {
         return this.quest;
     }
@@ -121,7 +121,6 @@ public class QuestStage {
      * Returns the quest stage ID.
      * @return value which the stage is tracked by (stage_[num])
      */
-    @JsonIgnore
     public String getID() {
         return this.stageID;
     }

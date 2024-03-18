@@ -195,6 +195,15 @@ public class QuestClient {
         if (this.fx) {
             this.showFX();
         }
+
+        System.out.println("new available quests: " + this.availableQuests);
+        //test npcs list
+        System.out.println("test quest npc list: " + this.availableQuests.get("Test_15eea801-3dc5-4339-93cf-79f15320067c").getNPCs());
+        System.out.println("get npc 1: " + this.availableQuests.get("Test_15eea801-3dc5-4339-93cf-79f15320067c").getNPCs().get("npc_0").getLocation());
+        System.out.println("test quest stage list: " + this.availableQuests.get("Test_15eea801-3dc5-4339-93cf-79f15320067c").getStages());
+        System.out.println("quest stage 1 action 1 associated npc: " + this.availableQuests.get("Test_15eea801-3dc5-4339-93cf-79f15320067c").getStages().get("stage_0").getActions().get("action_0").getNPC());
+        System.out.println("quest stage 1 action 1 associated npc dialogue: " + this.availableQuests.get("Test_15eea801-3dc5-4339-93cf-79f15320067c").getStages().get("stage_0").getActions().get("action_0").getDialogue());
+        System.out.println("is showing fx?: " + this.fx);
     }
 
     public void removeQuest(Quest quest) {

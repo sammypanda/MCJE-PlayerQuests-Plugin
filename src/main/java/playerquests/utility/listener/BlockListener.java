@@ -53,6 +53,11 @@ public class BlockListener implements Listener {
      */
     public void unregisterBlockNPC(BlockNPC blockNPC) {
         QuestNPC npc = blockNPC.getNPC();
+
+        if (npc == null) {
+            return; // don't continue if no NPC associated
+        }
+
         QuestBuilder questBuilder = npc.getQuest();
 
         Map<Block, BlockNPC> filteredBlockNPCs = activeBlockNPCs.entrySet().stream()

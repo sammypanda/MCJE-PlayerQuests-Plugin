@@ -3,6 +3,7 @@ package playerquests.builder.quest.npc;
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisation
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -26,7 +27,7 @@ public class NPCType {
     /**
      * The NPC this BlockNPC type belongs to.
      */
-    @JsonIgnore
+    @JsonBackReference
     protected QuestNPC npc;
 
     /**
@@ -41,6 +42,13 @@ public class NPCType {
         // Adding types to the list
         this.npcTypes = NPCType.allNPCTypes();
     }
+
+    /**
+     * Type of this NPC.
+     * <p>
+     * Such as, 'Block'.
+     */
+    protected String type;
 
     /**
      * Value of this NPC type.
@@ -81,7 +89,12 @@ public class NPCType {
     @Override
     @JsonProperty("type")
     public String toString() {
-        return "NPCType";
+        return this.type;
+    }
+
+    @JsonProperty("type")
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**

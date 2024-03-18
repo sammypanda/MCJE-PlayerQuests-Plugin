@@ -58,9 +58,12 @@ public class QuestRegistry {
         // add to the registry map
         registry.put(quest.getID(), quest);
 
+        System.out.println("adding quest with the npcs: " + quest.getNPCs());
+
         // place the NPCs in the world
         quest.getNPCs().entrySet().stream()
             .forEach(entry -> {
+                System.out.println("placing npc in world: " + entry);
                 QuestNPC npc = entry.getValue();
                 npc.place();
             });
@@ -79,7 +82,9 @@ public class QuestRegistry {
         HumanEntity creator = Bukkit.getPlayer(quest.getCreator());
 
         if (registry.get(questID) != null) {
-            creator.sendMessage("[Updating the quest]");
+            if (creator != null) {
+                creator.sendMessage("[Updating the quest]");
+            }
             this.replace(questID, quest);
             return;
         }
@@ -90,7 +95,9 @@ public class QuestRegistry {
         // store ref to registry
         this.add(quest);
 
-        creator.sendMessage("[Submitted]");
+        if (creator != null) {
+            creator.sendMessage("[Submitted]");
+        }
     }
 
     /**

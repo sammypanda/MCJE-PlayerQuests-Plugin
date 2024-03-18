@@ -40,6 +40,7 @@ public class Quest {
     /**
      * The map of NPCs used in this quest, by their ID.
      */
+    @JsonManagedReference
     private Map<String, QuestNPC> npcs;
 
     /**
@@ -81,6 +82,16 @@ public class Quest {
         this.npcs = npcs;
         this.stages = stages;
         this.creator = creator;
+
+        // Set Quest dependency for each QuestStage instead of custom deserialize
+        if (stages != null) {
+            for (QuestStage stage : stages.values()) {
+                stage.setQuest(this);
+
+                System.out.println(this); // this is null
+                System.out.println(":0 quest npcs: " + this.getNPCs());
+            }
+        }
     }
 
     /**

@@ -16,16 +16,11 @@ public class BlockNPC extends NPCType {
 
     public BlockNPC(String value, QuestNPC npc) {
         super(value, npc);
+        this.type = "Block";
     }
 
     public BlockNPC(Material block, QuestNPC npc) {
-        super(block.toString(), npc);
-    }
-
-    @Override
-    @JsonProperty("type")
-    public String toString() {
-        return "Block";
+        this(block.toString(), npc);
     }
 
     /**
