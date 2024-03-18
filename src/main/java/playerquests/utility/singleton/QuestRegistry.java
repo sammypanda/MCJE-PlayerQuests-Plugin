@@ -122,6 +122,7 @@ public class QuestRegistry {
      */
     public void addQuester(QuestClient quester) {
         questers.put(Bukkit.getPlayer(quester.getPlayer().getUniqueId()), quester);
+        quester.update(); // add quests from registry
     }
 
     /**
