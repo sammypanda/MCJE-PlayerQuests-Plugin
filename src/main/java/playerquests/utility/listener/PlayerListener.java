@@ -7,7 +7,6 @@ import org.bukkit.event.player.PlayerJoinEvent; // called when players have load
 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
-import playerquests.utility.singleton.Database; // where game data is stored
 import playerquests.utility.singleton.QuestRegistry; // where available quests are stored
 
 /**
@@ -24,7 +23,6 @@ public class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         // create a quest client and add it to registry.
         // this enables a player to interact with and track quests.
-        Database.addPlayer(event.getPlayer().getUniqueId());
         QuestClient quester = new QuestClient(event.getPlayer());
         QuestRegistry.getInstance().addQuester(quester);
     }
