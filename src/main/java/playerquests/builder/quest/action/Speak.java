@@ -15,13 +15,18 @@ import playerquests.client.quest.QuestClient; // the quester themselves
  */
 // TODO: decorate dialogue
 public class Speak extends QuestAction {
+
+    /**
+     * Default constructor (for Jackson)
+    */
+    public Speak() {}
     
     /**
      * Produces dialogue from an NPC.
-     * @param parentStage stage this action belongs to
+     * @param stage stage this action belongs to
      */
-    public Speak(QuestStage parentStage) {
-        super(parentStage);
+    public Speak(QuestStage stage) {
+        super(stage);
     }
 
     @Override

@@ -86,7 +86,6 @@ public class QuestNPC {
      * Gets the ID for the quest NPC.
      * @return the quest NPC ID
      */
-    @JsonIgnore
     public String getID() {
         return this.id;
     }

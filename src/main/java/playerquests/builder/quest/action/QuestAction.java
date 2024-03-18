@@ -3,8 +3,11 @@ package playerquests.builder.quest.action;
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
 import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when serialising
+import com.fasterxml.jackson.annotation.JsonSubTypes; // defines sub types of an abstract class
+import com.fasterxml.jackson.annotation.JsonTypeInfo; // where to find type definition
 
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
@@ -18,6 +21,14 @@ import playerquests.client.quest.QuestClient; // the quester themselves
  * it possible to do more with quests. They
  * generally simplify more complex operations.
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = None.class, name = "None"),
+    @JsonSubTypes.Type(value = Speak.class, name = "Speak")
+})
 public abstract class QuestAction {
 
     /**
@@ -41,6 +52,7 @@ public abstract class QuestAction {
     /**
      * The parent stage this action belongs to.
      */
+    @JsonBackReference
     private QuestStage stage;
 
     /**
@@ -49,14 +61,19 @@ public abstract class QuestAction {
     private String action;
 
     /**
+     * Default constructor (for Jackson)
+    */
+    public QuestAction() {}
+
+    /**
      * Not intended to be created directly, is abstract class for action types.
      * <p>
      * Use .submit() on this method to add it to it's quest stage.
      * See docs/README for list of action types.
-     * @param parentStage stage this action belongs to
+     * @param stage stage this action belongs to
     */
-    public QuestAction(QuestStage parentStage) {
-        this.stage = parentStage;
+    public QuestAction(QuestStage stage) {
+        this.stage = stage;
         this.action = "action_-1";
         this.actionOptions = this.initOptions();
     }
@@ -147,13 +164,17 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public QuestNPC getNPC() {
-        return this.stage.getQuest().getQuestNPCs().get(this.npc);
+        return this.stage.getQuest().getNPCs().get(this.npc);
     }
 
     /**
      * Set the NPC this action is emitted from.
      */
     public void setNPC(QuestNPC npc) {
+        if (npc == null) {
+            return;
+        }
+
         this.npc = npc.getID();
     }
 

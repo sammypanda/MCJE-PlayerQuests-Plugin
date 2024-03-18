@@ -3,13 +3,15 @@ package playerquests.builder.quest.stage;
 import java.util.LinkedHashMap; // hash map type with sequencing
 import java.util.Map; // generic map type
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
+import com.fasterxml.jackson.annotation.JsonManagedReference; // refers to the parent of a back reference
 import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.builder.quest.QuestBuilder;
-import playerquests.builder.quest.action.None;
-import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.action.None; // default QuestAction type
+import playerquests.builder.quest.action.QuestAction; // abstract class for quest actions
+import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
@@ -20,13 +22,14 @@ public class QuestStage {
     /**
      * The quest this stage belongs to.
      */
-    @JsonIgnore
-    private QuestBuilder quest;
+    @JsonBackReference
+    private Quest quest;
 
     /**
      * List of the quest actions.
      */
     @JsonProperty("actions")
+    @JsonManagedReference
     private Map<String, QuestAction> actions = new LinkedHashMap<String, QuestAction>();
 
     /**
@@ -46,18 +49,15 @@ public class QuestStage {
     private String entryPoint;
 
     /**
-     * Constructs a new quest stage.
-     * @param questBuilder which quest this stage is in
-     * @param stageIDNumber value which the stage is tracked by (stage_[num])
-     */
-    public QuestStage(QuestBuilder questBuilder, Integer stageIDNumber) {
-        this.stageID = "stage_"+stageIDNumber;
+     * Default constructor (for Jackson)
+    */
+    public QuestStage() {}
 
-        // set which quest this stage belongs to
-        this.quest = questBuilder;
-
-        // set as the current instance in the director
-        questBuilder.getDirector().setCurrentInstance(this);
+    /**
+     * StageID constructor (for Jackson)
+    */
+    public QuestStage(String stageID) {
+        this.stageID = stageID;
 
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
@@ -70,10 +70,41 @@ public class QuestStage {
     }
 
     /**
+     * Constructs a new quest stage.
+     * @param quest which quest this stage is in
+     * @param stageIDNumber value which the stage is tracked by (stage_[num])
+     */
+    public QuestStage(Quest quest, Integer stageIDNumber) {
+        this.stageID = "stage_"+stageIDNumber;
+
+        // set which quest this stage belongs to
+        this.quest = quest;
+
+        // adding to key-value pattern handler
+        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
+
+        // create the default first action
+        String action = new None(this).submit().getID();
+
+        // set the default first action as the default entry point
+        this.setEntryPoint(action);
+    }
+
+    /**
+     * Constructs a new quest stage.
+     * With a fully qualified stage ID string.
+     * @param quest which quest this stage is in
+     * @param stageID value which the stage is tracked by (stage_[num])
+    */
+    public QuestStage(Quest quest, String stageID) {
+        this(quest, Integer.parseInt(stageID.substring(6)));
+    }
+
+    /**
      * Set what quest this stage belongs to.
      * @param quest a quest builder instance
      */
-    public void setQuest(QuestBuilder quest) {
+    public void setQuest(Quest quest) {
         this.quest = quest;
     }
 
@@ -82,7 +113,7 @@ public class QuestStage {
      * @return a quest builder instance
      */
     @JsonIgnore
-    public QuestBuilder getQuest() {
+    public Quest getQuest() {
         return this.quest;
     }
 

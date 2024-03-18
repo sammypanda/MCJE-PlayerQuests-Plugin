@@ -106,7 +106,7 @@ public class Dynamicnpceditor extends GUIDynamic {
         deleteButton.setLabel("Delete NPC");
         deleteButton.onClick(() -> {
             quest.removeNPC(npc);
-            quest.save();
+            quest.build().save();
 
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList(this.previousScreen)), 

@@ -11,13 +11,18 @@ import playerquests.client.quest.QuestClient; // the quester themselves
  * Skips the quest action.
  */
 public class None extends QuestAction {
+
+    /**
+     * Default constructor (for Jackson)
+    */
+    public None() {}
     
     /**
      * Skips the currently tasked quest action.
-     * @param parentStage stage this action belongs to
+     * @param stage stage this action belongs to
      */
-    public None(QuestStage parentStage) {
-        super(parentStage);
+    public None(QuestStage stage) {
+        super(stage);
     }
 
     @Override

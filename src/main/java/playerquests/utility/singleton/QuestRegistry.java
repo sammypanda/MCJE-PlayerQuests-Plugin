@@ -84,7 +84,12 @@ public class QuestRegistry {
             return;
         }
 
+        // store ref to database
+        Database.addQuest(questID);
+
+        // store ref to registry
         this.add(quest);
+
         creator.sendMessage("[Submitted]");
     }
 

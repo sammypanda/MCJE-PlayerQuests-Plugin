@@ -6,6 +6,7 @@ import java.sql.PreparedStatement; // represents prepared SQL statements
 import java.sql.ResultSet; // represents SQL results
 import java.sql.SQLException; // thrown when a database operation fails
 import java.sql.Statement; // represents SQL statements
+import java.util.ArrayList; // array list type
 import java.util.List; // generic list type
 import java.util.UUID; // how users are identified
 
@@ -44,8 +45,12 @@ public class Database {
             String playersTableSQL = "CREATE TABLE IF NOT EXISTS players ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + "uuid TEXT NOT NULL);";
-            
             statement.execute(playersTableSQL);
+
+            // Create quests table
+            String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
+                + "id TEXT PRIMARY KEY);";
+            statement.execute(questsTableSQL);
 
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
@@ -91,7 +96,6 @@ public class Database {
      */
     public static void addPlayer(UUID uuid) {
         if (getPlayer(uuid) != null) {
-            System.err.println("User with the UUID " + uuid + ", already exists in the database.");
             return;
         }
 
@@ -149,5 +153,58 @@ public class Database {
         });
 
         return this;
+    }
+
+    /**
+     * Gets the id for all quests, as stored in the database.
+     * @return all known quest IDs
+     */
+    public List<String> getAllQuests() {
+        // Create list to add results to
+        List<String> ids = new ArrayList<String>();
+
+        // Get quest IDs from quests table
+        try {
+            Statement statement = getConnection().createStatement();
+            String allQuestsSQL = "SELECT id FROM quests;";
+
+            ResultSet result = statement.executeQuery(allQuestsSQL);
+
+            while(result.next()) {
+                ids.add(result.getString("id"));
+            }
+
+            return ids;
+            
+        } catch (SQLException e) {
+            System.err.println("Could not retrieve quests from database. " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Adds a quest reference to the database.
+     * @param id the ID to refer to the quest by
+     */
+    public static void addQuest(String id) {
+        if (id == null) {
+            return;
+        }
+
+        try {
+            // Add player to players table
+            String addQuestSQL = "INSERT INTO quests (id) VALUES (?);";
+
+            PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
+
+            preparedStatement.setString(1, id); // parameterIndex starts at 1
+
+            preparedStatement.execute();
+
+            getConnection().close();
+
+        } catch (SQLException e) {
+            System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+        }
     }
 }

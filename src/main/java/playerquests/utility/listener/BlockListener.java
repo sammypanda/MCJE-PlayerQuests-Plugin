@@ -68,7 +68,7 @@ public class BlockListener implements Listener {
 
         // unset the NPC, as the NPC (block) has been reclaimed
         questBuilder.removeNPC(npc);
-        questBuilder.save();
+        questBuilder.build().save();
     }
     
     @EventHandler
