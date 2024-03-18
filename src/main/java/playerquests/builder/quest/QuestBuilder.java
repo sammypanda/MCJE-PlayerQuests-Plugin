@@ -180,7 +180,7 @@ public class QuestBuilder {
         }
 
         // set this quest as the npc parent
-        npc.setQuest(this);
+        npc.setQuest(this.build());
 
         // run checks
         if (!npc.isValid()) {

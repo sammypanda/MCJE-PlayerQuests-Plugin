@@ -207,4 +207,30 @@ public class Database {
             System.err.println("Could not add the quest " + id + ". " + e.getMessage());
         }
     }
+
+    /**
+     * Removes a quest reference from the database.
+     * @param id the ID to refer to the quest by
+     */
+    public static void removeQuest(String id) {
+        if (id == null) {
+            return;
+        }
+
+        try {
+            // Remove quest from quests table
+            String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
+
+            PreparedStatement preparedStatement = getConnection().prepareStatement(removeQuestSQL);
+
+            preparedStatement.setString(1, id);
+
+            preparedStatement.execute();
+
+            getConnection().close();
+        
+        } catch (SQLException e) {
+            System.err.println("Could not remove the quest " + id + ". " + e.getMessage());
+        }
+    }
 }

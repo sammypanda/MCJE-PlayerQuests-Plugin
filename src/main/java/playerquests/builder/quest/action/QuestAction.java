@@ -61,6 +61,12 @@ public abstract class QuestAction {
     private String action;
 
     /**
+     * The string representation of the type.
+     */
+    @JsonProperty("type")
+    private String type;
+
+    /**
      * Default constructor (for Jackson)
     */
     public QuestAction() {}
@@ -76,6 +82,7 @@ public abstract class QuestAction {
         this.stage = stage;
         this.action = "action_-1";
         this.actionOptions = this.initOptions();
+        this.type = this.getClass().getSimpleName();
     }
 
     /**
@@ -100,9 +107,9 @@ public abstract class QuestAction {
      * Gets the string representation of the type.
      * @return current action type as a string
      */
-    @JsonProperty("type")
+    @JsonIgnore
     public String getType() {
-        return this.getClass().getSimpleName();
+        return this.type;
     }
 
     /** 

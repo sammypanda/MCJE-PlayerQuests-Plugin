@@ -105,6 +105,9 @@ public class QuestRegistry {
      * @param quest the quest to remove.
      */
     public void remove(Quest quest) {
+        // remove ref from database
+        Database.removeQuest(quest.getID());
+
         registry.remove(quest.getID());
 
         questers.values().stream().forEach(quester -> {

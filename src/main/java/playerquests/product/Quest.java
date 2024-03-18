@@ -87,9 +87,13 @@ public class Quest {
         if (stages != null) {
             for (QuestStage stage : stages.values()) {
                 stage.setQuest(this);
+            }
+        }
 
-                System.out.println(this); // this is null
-                System.out.println(":0 quest npcs: " + this.getNPCs());
+        // Set Quest dependency for each QuestNPC instead of custom deserialize
+        if (npcs != null) {
+            for (QuestNPC npc : npcs.values()) {
+                npc.setQuest(this);
             }
         }
     }
