@@ -9,6 +9,11 @@ import playerquests.utility.singleton.PlayerQuests;
 
 public class BlockNPC extends NPCType {
 
+    /**
+     * Defaut constructor (for Jackson)
+    */
+    public BlockNPC() {}
+
     public BlockNPC(String value, QuestNPC npc) {
         super(value, npc);
     }
