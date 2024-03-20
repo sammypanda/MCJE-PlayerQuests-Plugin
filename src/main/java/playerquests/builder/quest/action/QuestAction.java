@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes; // defines sub types of an
 import com.fasterxml.jackson.annotation.JsonTypeInfo; // where to find type definition
 
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
+import playerquests.builder.quest.data.ConnectionsData; // indicates where this action is in the quest
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 import playerquests.client.quest.QuestClient; // the quester themselves
@@ -65,6 +66,12 @@ public abstract class QuestAction {
      */
     @JsonProperty("type")
     private String type;
+
+    /**
+     * The connections for the quest action.
+     */
+    @JsonProperty("connections")
+    private ConnectionsData connections = new ConnectionsData();
 
     /**
      * Default constructor (for Jackson)

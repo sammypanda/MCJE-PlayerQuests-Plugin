@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.None; // default QuestAction type
 import playerquests.builder.quest.action.QuestAction; // abstract class for quest actions
+import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -48,6 +49,12 @@ public class QuestStage {
      */
     @JsonProperty("entry")
     private String entryPoint;
+
+    /**
+     * The connections for the quest stage.
+     */
+    @JsonProperty("connections")
+    private ConnectionsData connections = new ConnectionsData();
 
     /**
      * Default constructor (for Jackson)
