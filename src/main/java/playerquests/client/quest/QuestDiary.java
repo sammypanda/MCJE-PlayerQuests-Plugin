@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -81,7 +82,7 @@ public class QuestDiary {
         ConnectionsData connections = new ConnectionsData();
 
         try {
-            String getQuestProgressSQL = "SELECT * FROM quest_progress WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT * FROM diary_quests WHERE quest = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
@@ -103,14 +104,25 @@ public class QuestDiary {
             Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
             QuestStage stage = quest.getStages().get(stageResult);
 
-            // set generic current
+            // set default connections
             connections = stage.getConnections();
+
+            // in case connections aren't set properly in the stage
+            if (connections.getCurr() == null) {
+                connections.setCurr(stage.getID());
+            }
 
             // drill down specific current if available
             if (actionResult != null) {
                 QuestAction action = stage.getActions().get(actionResult);
+                ConnectionsData actionConnections = action.getConnections();
 
-                connections = action.getConnections();
+                if (actionConnections.getCurr() == null) {
+                    connections.setCurr(action.getID());
+                } else {
+                    connections = actionConnections;
+                }
+
             }
 
             return connections;
@@ -123,6 +135,8 @@ public class QuestDiary {
     public void setQuestProgress(String questID, ConnectionsData connections) {
         Player player = this.getPlayer(this.dbPlayerID);
         Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
+        Map<String, QuestAction> actions = quest.getActions();
+        System.out.println("quest progress quest (" + questID + "): " + quest);
 
         if (player == null) {
             System.err.println("No player found for this QuestDiary, cannot try to set Quest progress.");
@@ -144,18 +158,20 @@ public class QuestDiary {
             // get the current quest stage or action
             String currentConnection = connections.getCurr();
 
+            if (currentConnection != null) {
             // stage-based current
-            if (currentConnection.contains("stage")) {
-                preparedStatement.setString(2, currentConnection);
-                preparedStatement.setString(3, null);
-            }
+                if (currentConnection.contains("stage")) {
+                    preparedStatement.setString(2, currentConnection);
+                    preparedStatement.setString(3, null);
+                }
 
-            // action-based current
-            if (currentConnection.contains("action")) {
-                String stageID = quest.getActions().get(currentConnection).getStage().getID();
+                // action-based current
+                if (currentConnection.contains("action") && actions.containsKey(currentConnection)) {
+                    String stageID = actions.get(currentConnection).getStage().getID();
 
-                preparedStatement.setString(2, stageID);
-                preparedStatement.setString(3, currentConnection);
+                    preparedStatement.setString(2, stageID);
+                    preparedStatement.setString(3, currentConnection);
+                }
             }
             
             // set remaining values
@@ -199,6 +215,10 @@ public class QuestDiary {
             System.err.println("Could not get diary ID, from player with the database ID: " + dbPlayerID + ": " + e.getMessage());
             return null;
         }
+    }
+
+    public void addQuest(String questID) {
+        this.setQuestProgress(questID, new ConnectionsData());
     }
     
 }

@@ -17,6 +17,7 @@ import org.bukkit.scheduler.BukkitTask; // object for scheduled tasks
 
 import playerquests.Core; // access to singletons
 import playerquests.builder.quest.action.QuestAction; // represents quest actions
+import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData; // data object containing all location info
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages 
@@ -194,6 +195,9 @@ public class QuestClient {
             // put the NPCs from entry actions
             QuestNPC npc = action.getNPC();
             this.npcActions.put(npc, action);
+
+            // add quest to diary
+            this.diary.addQuest(quest.getID());
         });
 
         // update main map of all quests available to this quester
@@ -212,13 +216,39 @@ public class QuestClient {
     }
 
     public void interact(QuestNPC npc) {
-        // check if is at stage (using quest diary)
-        // QuestAction action = this.npcActions.get(npc);
-        // QuestStage stage = action.getStage();
-        // Quest quest = stage.getQuest();
+        QuestAction action = this.npcActions.get(npc);
+        String next_action = action.getConnections().getNext();
+        QuestStage stage = action.getStage();
+        Quest quest = stage.getQuest();
 
-        // this.diary.getProgressID(quest.getID())
+        // read current position in quest
+        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest.getID());
+        System.out.println("diaryConnections for current: " + diaryConnections);
+        String current = diaryConnections.getCurr();
+        
+        // if action or stage associated with NPC is the same as the current
+        if (current.equals(action.getID()) || current.equals(stage.getID())) {
+            this.npcActions.get(npc).Run(this);
 
-        this.npcActions.get(npc).Run(this);
+            if (next_action != null) {
+                // move forward through connections
+                ConnectionsData updatedConnections = new ConnectionsData();
+                updatedConnections.setPrev(current);
+                updatedConnections.setCurr(next_action);
+
+                // update the diary with progress
+                this.diary.setQuestProgress(quest.getID(), updatedConnections);
+                stage.setEntryPoint(next_action);
+                this.update();
+            }
+        }
+    }
+
+    /**
+     * Get the quest diary for this quest client.
+     * @return a quest diary
+     */
+    public QuestDiary getDiary() {
+        return this.diary;
     }
 }

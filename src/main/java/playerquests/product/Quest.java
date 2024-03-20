@@ -195,6 +195,7 @@ public class Quest {
         return "Quest Builder: '" + this.title + "' was saved";
     }
 
+    @JsonIgnore
     public Map<String, QuestAction> getActions() {
         Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
 
