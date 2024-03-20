@@ -215,4 +215,13 @@ public class QuestStage {
             this.entryPoint = newActionInstance.getID();
         }
     }
+
+    /**
+     * Get what quest stages/actions are connected to the current one.
+     * @return quest connections object
+     */
+    @JsonIgnore
+    public ConnectionsData getConnections() {
+        return this.connections;
+    }
 }

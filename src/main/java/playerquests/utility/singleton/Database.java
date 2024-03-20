@@ -10,6 +10,8 @@ import java.util.ArrayList; // array list type
 import java.util.List; // generic list type
 import java.util.UUID; // how users are identified
 
+import javax.xml.crypto.Data;
+
 import org.bukkit.Bukkit; // the Bukkit API
 
 /**
@@ -52,6 +54,24 @@ public class Database {
                 + "id TEXT PRIMARY KEY);";
             statement.execute(questsTableSQL);
 
+            // Create diaries table
+            String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "player INTEGER UNIQUE,"
+                + "FOREIGN KEY (player) REFERENCES players(id));";
+            statement.execute(diariesTableSQL);
+
+            // Create diary_quests table
+            String diary_questsTableSQL = "CREATE TABLE IF NOT EXISTS diary_quests ("
+                + "id TEXT PRIMARY KEY,"
+                + "stage TEXT NOT NULL,"
+                + "action TEXT,"
+                + "quest TEXT,"
+                + "diary INTEGER,"
+                + "FOREIGN KEY (quest) REFERENCES quests(id)"
+                + "FOREIGN KEY (diary) REFERENCES diaries(id));";
+            statement.execute(diary_questsTableSQL);
+
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
         }
@@ -93,10 +113,13 @@ public class Database {
     /**
      * Adds a player to the database.
      * @param uuid the player UUID
+     * @return the player ID in database
      */
-    public static void addPlayer(UUID uuid) {
-        if (getPlayer(uuid) != null) {
-            return;
+    public Integer addPlayer(UUID uuid) {
+        Integer id = getPlayer(uuid);
+
+        if (id != null) {
+            return id;
         }
 
         try {
@@ -107,12 +130,17 @@ public class Database {
 
             preparedStatement.setString(1, uuid.toString()); // parameterIndex starts at 1
 
-            preparedStatement.execute();
+            ResultSet results = preparedStatement.executeQuery();
+            id = results.getInt("id");
+            System.out.println("database returned: " + id);
 
             getConnection().close();
 
+            return id;
+
         } catch (SQLException e) {
             System.err.println("Could not add the user " + Bukkit.getServer().getPlayer(uuid).getName() + ". " + e.getMessage());
+            return null;
         }
     }
 
@@ -191,6 +219,10 @@ public class Database {
             return;
         }
 
+        if (getQuest(id) != null) {
+            return;
+        }
+
         try {
             // Add player to players table
             String addQuestSQL = "INSERT INTO quests (id) VALUES (?);";
@@ -205,6 +237,36 @@ public class Database {
 
         } catch (SQLException e) {
             System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+        }
+    }
+
+    /**
+     * Adds a quest reference to the database.
+     * @param id the ID to refer to the quest by
+     */
+    public static String getQuest(String id) {
+        if (id == null) {
+            return null;
+        }
+
+        try {
+            // Add player to players table
+            String addQuestSQL = "SELECT * FROM quests WHERE id = ?;";
+
+            PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
+
+            preparedStatement.setString(1, id); // parameterIndex starts at 1
+
+            ResultSet results = preparedStatement.executeQuery();
+            String quest = results.getString("id");
+
+            getConnection().close();
+
+            return quest;
+
+        } catch (SQLException e) {
+            System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+            return null;
         }
     }
 

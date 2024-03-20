@@ -68,6 +68,11 @@ public class QuestClient {
     private Map<QuestNPC, BukkitTask> npcParticles = new HashMap<QuestNPC, BukkitTask>();
 
     /**
+     * Quest diary API for this player.
+     */
+    private QuestDiary diary;
+
+    /**
      * Creates a new quest client to act on behalf of a player.
      * <p>
      * A quest client enables interactions. It keeps track of 
@@ -77,8 +82,11 @@ public class QuestClient {
     public QuestClient(Player player) {
         this.player = player;
 
-        // put player in database
-        Database.addPlayer(player.getUniqueId());
+        // put player in database (and store the established ID)
+        Integer dbPlayerID = Database.getInstance().addPlayer(player.getUniqueId());
+
+        // create and/or establish quest diary for this player
+        this.diary = new QuestDiary(dbPlayerID);
 
         // initiate personal quest world state
         this.showFX(); // visual quest indicators
@@ -204,6 +212,13 @@ public class QuestClient {
     }
 
     public void interact(QuestNPC npc) {
+        // check if is at stage (using quest diary)
+        // QuestAction action = this.npcActions.get(npc);
+        // QuestStage stage = action.getStage();
+        // Quest quest = stage.getQuest();
+
+        // this.diary.getProgressID(quest.getID())
+
         this.npcActions.get(npc).Run(this);
     }
 }

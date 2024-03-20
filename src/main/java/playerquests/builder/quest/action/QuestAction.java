@@ -213,4 +213,13 @@ public abstract class QuestAction {
      * What is done when this quest action is called.
      */
     public abstract void Run(QuestClient quester);
+
+    /**
+     * Get what quest stages/actions are connected to the current one.
+     * @return quest connections object
+     */
+    @JsonIgnore
+    public ConnectionsData getConnections() {
+        return this.connections;
+    }
 }

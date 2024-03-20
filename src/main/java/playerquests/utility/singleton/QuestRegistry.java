@@ -58,12 +58,9 @@ public class QuestRegistry {
         // add to the registry map
         registry.put(quest.getID(), quest);
 
-        System.out.println("adding quest with the npcs: " + quest.getNPCs());
-
         // place the NPCs in the world
         quest.getNPCs().entrySet().stream()
             .forEach(entry -> {
-                System.out.println("placing npc in world: " + entry);
                 QuestNPC npc = entry.getValue();
                 npc.place();
             });

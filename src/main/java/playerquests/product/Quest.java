@@ -1,11 +1,13 @@
 package playerquests.product;
 
 import java.io.IOException; // thrown if Quest cannot be saved
+import java.util.HashMap;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
 import org.bukkit.Bukkit; // Bukkit API
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // configures ignoring unknown fields
 import com.fasterxml.jackson.annotation.JsonManagedReference; // refers to the parent of a back reference
 import com.fasterxml.jackson.annotation.JsonProperty; // how a property is serialised
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/seria
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
 import playerquests.Core; // the main class of this plugin
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
@@ -190,5 +193,17 @@ public class Quest {
         // asume enabled and submit (adds the quest to the world)
         Core.getQuestRegistry().submit(this);
         return "Quest Builder: '" + this.title + "' was saved";
+    }
+
+    public Map<String, QuestAction> getActions() {
+        Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
+
+        this.getStages().forEach((stage_id, stage) -> {
+            stage.getActions().forEach((action_id, action) -> {
+                actions.put(action_id, action);
+            });
+        });
+        
+        return actions;   
     }
 }
