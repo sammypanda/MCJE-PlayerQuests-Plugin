@@ -137,9 +137,9 @@ public class QuestClient {
 
         // add interact sparkle to each starting/entry-point NPC
         this.npcActions.keySet().stream().forEach(npc -> {
-            if (npc == null || this.npcParticles.containsKey(npc)) {
-                return;
-            }
+            // TODO: remove logging
+            System.out.println("sparkles for " + npc.getName());
+            System.out.println("entry npcs: " + this.npcActions);
 
             LocationData location = npc.getLocation();
 
@@ -223,7 +223,6 @@ public class QuestClient {
 
         // read current position in quest
         ConnectionsData diaryConnections = this.diary.getQuestProgress(quest.getID());
-        System.out.println("diaryConnections for current: " + diaryConnections);
         String current = diaryConnections.getCurr();
         
         // if action or stage associated with NPC is the same as the current
@@ -239,6 +238,11 @@ public class QuestClient {
                 // update the diary with progress
                 this.diary.setQuestProgress(quest.getID(), updatedConnections);
                 stage.setEntryPoint(next_action);
+
+                // remove from list of npcs who would be pending a sparkle
+                npcActions.remove(npc);
+
+                // continue
                 this.update();
             }
         }
