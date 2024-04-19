@@ -147,4 +147,9 @@ public class QuestRegistry {
     public Map<String, Quest> getAllQuests() {
         return this.registry;
     }
+
+    public void clear() {
+        this.registry.clear();
+        this.questers.clear();
+    }
 }

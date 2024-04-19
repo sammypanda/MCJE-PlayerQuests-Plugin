@@ -32,6 +32,11 @@ public class ServerListener implements Listener {
 
     @EventHandler
     public void onLoad(ServerLoadEvent event) {
+        if (event.getEventName().equals("RELOAD")) {
+            Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
+            QuestRegistry.getInstance().clear();
+        }
+
         ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
         
         // configure the mapper
