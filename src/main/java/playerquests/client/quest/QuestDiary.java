@@ -130,6 +130,84 @@ public class QuestDiary {
         }
     }
 
+    /**
+     * Gets the current stage the player is up to
+     * in the quest.
+     * @param questID quest ID to find the action on
+     * @return quest stage object
+     */
+    public QuestStage getStage(String questID) {
+        QuestStage stage;
+
+        try {
+            String getQuestProgressSQL = "SELECT quest, stage FROM diary_quests WHERE quest = ?";
+
+            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
+
+            preparedStatement.setString(1, questID);
+
+            ResultSet results = preparedStatement.executeQuery();
+            String stageResult = results.getString("stage");
+            String questResult = results.getString("quest");
+
+            Database.getConnection().close();
+
+            // if no quest progress made for this quest ID
+            if (questResult == null) {
+                return null;
+            }
+
+            // retrieve quest details
+            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
+            stage = quest.getStages().get(stageResult);
+
+        } catch (SQLException e) {
+            System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
+            return null;
+        }
+
+        return stage;
+    }
+
+    /**
+     * Gets the current action the player is up to
+     * in the quest.
+     * @param questID quest ID to find the action on
+     * @return quest action object
+     */
+    public QuestAction getAction(String questID) {
+        QuestAction action;
+
+        try {
+            String getQuestProgressSQL = "SELECT quest, action FROM diary_quests WHERE quest = ?";
+
+            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
+
+            preparedStatement.setString(1, questID);
+
+            ResultSet results = preparedStatement.executeQuery();
+            String actionResult = results.getString("action");
+            String questResult = results.getString("quest");
+
+            Database.getConnection().close();
+
+            // if no quest progress made for this quest ID
+            if (questResult == null) {
+                return null;
+            }
+
+            // retrieve quest details
+            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
+            action = quest.getActions().get(actionResult);
+
+        } catch (SQLException e) {
+            System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
+            return null;
+        }
+
+        return action;
+    }
+
     public void setQuestProgress(String questID, ConnectionsData connections) {
         Player player = this.getPlayer(this.dbPlayerID);
         Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);

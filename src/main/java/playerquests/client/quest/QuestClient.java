@@ -28,9 +28,6 @@ import playerquests.utility.singleton.QuestRegistry; // where available quests a
 /**
  * Quest tracking and interactions for each player.
  */
-// TODO: create persistent quest diary for the quester
-// TODO: replace available quests with their ongoing versions from this quester
-// TODO: add playing/starting quests
 public class QuestClient {
 
     /**
@@ -175,8 +172,8 @@ public class QuestClient {
      */
     public void update() {
         // create a set for local available quests and questregistry available quests
-        List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values());
-        List<Quest> localList =  new ArrayList<>(this.availableQuests.values());
+        List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values()); // current all quests
+        List<Quest> localList =  new ArrayList<>(this.availableQuests.values()); // previous all quests
 
         Set<Quest> questSet = new HashSet<Quest>();
         questSet.addAll(registryList);
@@ -184,15 +181,33 @@ public class QuestClient {
 
         // update helper maps
         questSet.stream().forEach(quest -> {
-            // put the entry stages
-            QuestStage stage = quest.getStages().get(quest.getEntry());
-            this.entryStages.put(quest, stage);
+            // get quest id to check available quests against the diary
+            String questID = quest.getID();
 
-            // put the actions from entry stages
-            QuestAction action = stage.getEntryPoint();
-            this.entryActions.put(stage, action);
+            // get object of current points (curr, prev, )
+            ConnectionsData questFromDiary = this.diary.getQuestProgress(questID);
 
-            // put the NPCs from entry actions
+            // the action to be found, used to derive world NPCs from
+            QuestAction action;
+
+            if (questFromDiary != null) {
+                // put the entry stage
+                this.entryStages.put(quest, this.diary.getStage(questID));
+
+                // put the entry action
+                action = this.diary.getAction(questID);
+                this.entryActions.put(action.getStage(), action);
+            } else {
+                // put the entry stage
+                QuestStage stage = quest.getStages().get(quest.getEntry());
+                this.entryStages.put(quest, stage);
+
+                // put the entry action from the entry stage
+                action = stage.getEntryPoint();
+                this.entryActions.put(stage, action);
+            }
+
+            // put the NPC from entry action
             QuestNPC npc = action.getNPC();
             this.npcActions.put(npc, action);
 
@@ -200,7 +215,7 @@ public class QuestClient {
             this.diary.addQuest(quest.getID());
         });
 
-        // update main map of all quests available to this quester
+        // merge previous and current map of all quests, as main list of quests available to this quester
         this.availableQuests = questSet.stream()
                                 .collect(Collectors.toMap(quest -> quest.getID(), quest -> quest));
 
