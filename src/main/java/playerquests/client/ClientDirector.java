@@ -6,8 +6,6 @@ import org.bukkit.entity.HumanEntity; // the player who controls the client
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
 import playerquests.builder.quest.QuestBuilder; // class to control and get Quest product
-import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.stage.QuestStage;
 
 /**
  * Class which provides simple abstractions for clients to use.
@@ -26,20 +24,15 @@ public class ClientDirector {
     HumanEntity player;
 
     /**
-     * Run operations when this class is instantiated
-     */
-    {
-        // validate the current instances map is correct/has everything
-        this.validateCurrentInstances();
-    }
-
-    /**
      * Constructs a new ClientDirector instance.
      * @param humanEntity the player controlling the client.
      */
     public ClientDirector(HumanEntity humanEntity) {
         // set the player to enact on behalf of
         this.player = humanEntity;
+
+        // validate the current instances map is correct/has everything
+        this.validateCurrentInstances();
     }
 
     /**

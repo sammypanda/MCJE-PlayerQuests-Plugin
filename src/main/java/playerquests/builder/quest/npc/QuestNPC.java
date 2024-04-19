@@ -6,13 +6,16 @@ import org.bukkit.Material; // for if NPC is a block
 import org.bukkit.World; // world the NPC exists in
 import org.bukkit.entity.HumanEntity; // the player
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
 import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.product.Quest;
 import playerquests.utility.ChatUtils; // sends error messages to player
 import playerquests.utility.annotation.Key; // key-value pair annottation
 
@@ -40,8 +43,8 @@ public class QuestNPC {
     /**
      * The parent quest.
      */
-    @JsonIgnore
-    private QuestBuilder quest;
+    @JsonBackReference
+    private Quest quest;
 
     /**
      * The parent director.
@@ -53,6 +56,7 @@ public class QuestNPC {
      * What the NPC is assigned to.
      */
     @JsonProperty("assigned")
+    @JsonManagedReference
     private NPCType assigned;
 
     /**
@@ -86,7 +90,6 @@ public class QuestNPC {
      * Gets the ID for the quest NPC.
      * @return the quest NPC ID
      */
-    @JsonIgnore
     public String getID() {
         return this.id;
     }
@@ -133,7 +136,7 @@ public class QuestNPC {
     @JsonIgnore
     public Boolean save(QuestBuilder quest, QuestNPC npc) {
         // set the parent quest and director
-        this.quest = quest;
+        this.quest = quest.build();
         this.director = quest.getDirector();
 
         // try to save this NPC to the quest list
@@ -155,7 +158,11 @@ public class QuestNPC {
      */
     @JsonIgnore
     public boolean isValid() {
-        HumanEntity player = quest.getDirector().getPlayer(); // the player to send invalid npc messages to
+        HumanEntity player = Bukkit.getPlayer(quest.getCreator()); // the player to send invalid npc messages to
+
+        if (player == null) { // if player not available
+            return false;
+        }
 
         if (this.name == null) {
             ChatUtils.sendError(player, "The NPC name must be set");
@@ -246,17 +253,17 @@ public class QuestNPC {
 
     /**
      * Gets the quest this NPC belongs to.
-     * @return the quest builder which created this NPC.
+     * @return the quest which created this NPC.
      */
-    public QuestBuilder getQuest() {
+    public Quest getQuest() {
         return this.quest;
     }
 
     /**
      * Set the quest this NPC should belong to.
-     * @param questBuilder the quest builder which owns this NPC.
+     * @param quest the quest which owns this NPC.
      */
-    public void setQuest(QuestBuilder questBuilder) {
-        this.quest = questBuilder;
+    public void setQuest(Quest quest) {
+        this.quest = quest;
     }
 }

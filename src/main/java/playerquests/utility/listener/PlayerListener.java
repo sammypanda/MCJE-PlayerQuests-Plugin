@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerJoinEvent; // called when players have load
 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.utility.singleton.QuestRegistry; // where available quests are stored
 
 /**
  * Listens out for all player-related events to inform 

@@ -79,13 +79,22 @@ public class QuestRegistry {
         HumanEntity creator = Bukkit.getPlayer(quest.getCreator());
 
         if (registry.get(questID) != null) {
-            creator.sendMessage("[Updating the quest]");
+            if (creator != null) {
+                creator.sendMessage("[Updating the quest]");
+            }
             this.replace(questID, quest);
             return;
         }
 
+        // store ref to database
+        Database.addQuest(questID);
+
+        // store ref to registry
         this.add(quest);
-        creator.sendMessage("[Submitted]");
+
+        if (creator != null) {
+            creator.sendMessage("[Submitted]");
+        }
     }
 
     /**
@@ -93,6 +102,9 @@ public class QuestRegistry {
      * @param quest the quest to remove.
      */
     public void remove(Quest quest) {
+        // remove ref from database
+        Database.removeQuest(quest.getID());
+
         registry.remove(quest.getID());
 
         questers.values().stream().forEach(quester -> {
@@ -117,6 +129,7 @@ public class QuestRegistry {
      */
     public void addQuester(QuestClient quester) {
         questers.put(Bukkit.getPlayer(quester.getPlayer().getUniqueId()), quester);
+        quester.update(); // add quests from registry
     }
 
     /**
@@ -133,5 +146,10 @@ public class QuestRegistry {
      */
     public Map<String, Quest> getAllQuests() {
         return this.registry;
+    }
+
+    public void clear() {
+        this.registry.clear();
+        this.questers.clear();
     }
 }

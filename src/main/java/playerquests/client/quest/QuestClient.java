@@ -17,18 +17,17 @@ import org.bukkit.scheduler.BukkitTask; // object for scheduled tasks
 
 import playerquests.Core; // access to singletons
 import playerquests.builder.quest.action.QuestAction; // represents quest actions
+import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData; // data object containing all location info
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages 
 import playerquests.product.Quest; // represents a player quest
+import playerquests.utility.singleton.Database; // where game data is stored
 import playerquests.utility.singleton.QuestRegistry; // where available quests are stored
 
 /**
  * Quest tracking and interactions for each player.
  */
-// TODO: create persistent quest diary for the quester
-// TODO: replace available quests with their ongoing versions from this quester
-// TODO: add playing/starting quests
 public class QuestClient {
 
     /**
@@ -67,6 +66,11 @@ public class QuestClient {
     private Map<QuestNPC, BukkitTask> npcParticles = new HashMap<QuestNPC, BukkitTask>();
 
     /**
+     * Quest diary API for this player.
+     */
+    private QuestDiary diary;
+
+    /**
      * Creates a new quest client to act on behalf of a player.
      * <p>
      * A quest client enables interactions. It keeps track of 
@@ -75,6 +79,12 @@ public class QuestClient {
      */
     public QuestClient(Player player) {
         this.player = player;
+
+        // put player in database (and store the established ID)
+        Integer dbPlayerID = Database.getInstance().addPlayer(player.getUniqueId());
+
+        // create and/or establish quest diary for this player
+        this.diary = new QuestDiary(dbPlayerID);
 
         // initiate personal quest world state
         this.showFX(); // visual quest indicators
@@ -124,9 +134,9 @@ public class QuestClient {
 
         // add interact sparkle to each starting/entry-point NPC
         this.npcActions.keySet().stream().forEach(npc -> {
-            if (npc == null || this.npcParticles.containsKey(npc)) {
-                return;
-            }
+            // TODO: remove logging
+            System.out.println("sparkles for " + npc.getName());
+            System.out.println("entry npcs: " + this.npcActions);
 
             LocationData location = npc.getLocation();
 
@@ -162,8 +172,8 @@ public class QuestClient {
      */
     public void update() {
         // create a set for local available quests and questregistry available quests
-        List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values());
-        List<Quest> localList =  new ArrayList<>(this.availableQuests.values());
+        List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values()); // current all quests
+        List<Quest> localList =  new ArrayList<>(this.availableQuests.values()); // previous all quests
 
         Set<Quest> questSet = new HashSet<Quest>();
         questSet.addAll(registryList);
@@ -171,20 +181,41 @@ public class QuestClient {
 
         // update helper maps
         questSet.stream().forEach(quest -> {
-            // put the entry stages
-            QuestStage stage = quest.getStages().get(quest.getEntry());
-            this.entryStages.put(quest, stage);
+            // get quest id to check available quests against the diary
+            String questID = quest.getID();
 
-            // put the actions from entry stages
-            QuestAction action = stage.getEntryPoint();
-            this.entryActions.put(stage, action);
+            // get object of current points (curr, prev, )
+            ConnectionsData questFromDiary = this.diary.getQuestProgress(questID);
 
-            // put the NPCs from entry actions
+            // the action to be found, used to derive world NPCs from
+            QuestAction action;
+
+            if (questFromDiary != null) {
+                // put the entry stage
+                this.entryStages.put(quest, this.diary.getStage(questID));
+
+                // put the entry action
+                action = this.diary.getAction(questID);
+                this.entryActions.put(action.getStage(), action);
+            } else {
+                // put the entry stage
+                QuestStage stage = quest.getStages().get(quest.getEntry());
+                this.entryStages.put(quest, stage);
+
+                // put the entry action from the entry stage
+                action = stage.getEntryPoint();
+                this.entryActions.put(stage, action);
+            }
+
+            // put the NPC from entry action
             QuestNPC npc = action.getNPC();
             this.npcActions.put(npc, action);
+
+            // add quest to diary
+            this.diary.addQuest(quest.getID());
         });
 
-        // update main map of all quests available to this quester
+        // merge previous and current map of all quests, as main list of quests available to this quester
         this.availableQuests = questSet.stream()
                                 .collect(Collectors.toMap(quest -> quest.getID(), quest -> quest));
 
@@ -200,6 +231,43 @@ public class QuestClient {
     }
 
     public void interact(QuestNPC npc) {
-        this.npcActions.get(npc).Run(this);
+        QuestAction action = this.npcActions.get(npc);
+        String next_action = action.getConnections().getNext();
+        QuestStage stage = action.getStage();
+        Quest quest = stage.getQuest();
+
+        // read current position in quest
+        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest.getID());
+        String current = diaryConnections.getCurr();
+        
+        // if action or stage associated with NPC is the same as the current
+        if (current.equals(action.getID()) || current.equals(stage.getID())) {
+            this.npcActions.get(npc).Run(this);
+
+            if (next_action != null) {
+                // move forward through connections
+                ConnectionsData updatedConnections = new ConnectionsData();
+                updatedConnections.setPrev(current);
+                updatedConnections.setCurr(next_action);
+
+                // update the diary with progress
+                this.diary.setQuestProgress(quest.getID(), updatedConnections);
+                stage.setEntryPoint(next_action);
+
+                // remove from list of npcs who would be pending a sparkle
+                npcActions.remove(npc);
+
+                // continue
+                this.update();
+            }
+        }
+    }
+
+    /**
+     * Get the quest diary for this quest client.
+     * @return a quest diary
+     */
+    public QuestDiary getDiary() {
+        return this.diary;
     }
 }

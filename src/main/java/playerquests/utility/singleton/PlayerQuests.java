@@ -27,7 +27,7 @@ public class PlayerQuests {
      * @param blockNPC the block details of an npc
      */
     public void putBlockNPC(BlockNPC blockNPC) {
-        if (blockNPC.getNPC().getLocation() == null) {
+        if (blockNPC.getNPC() == null || blockNPC.getNPC().getLocation() == null) {
             blockListener.unregisterBlockNPC(blockNPC);
             return; // if no location has been set, don't try to put
         }

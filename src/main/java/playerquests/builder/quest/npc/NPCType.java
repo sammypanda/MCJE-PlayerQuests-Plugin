@@ -3,8 +3,11 @@ package playerquests.builder.quest.npc;
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisation
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Passes and handles the quest npc 'types'.
@@ -12,12 +15,19 @@ import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisati
  * Quest NPCs are how quests are interacted
  * with in-game.
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = BlockNPC.class, name = "Block")
+})
 public class NPCType {
 
     /**
      * The NPC this BlockNPC type belongs to.
      */
-    @JsonIgnore
+    @JsonBackReference
     protected QuestNPC npc;
 
     /**
@@ -34,11 +44,23 @@ public class NPCType {
     }
 
     /**
+     * Type of this NPC.
+     * <p>
+     * Such as, 'Block'.
+     */
+    protected String type;
+
+    /**
      * Value of this NPC type.
      * <p>
      * Such as, the block name.
      */
     protected String value;
+
+    /**
+     * Defaut constructor (for Jackson)
+    */
+    public NPCType() {}
 
     /**
      * Not intended to be created directly, is abstract class for NPC types.
@@ -67,7 +89,12 @@ public class NPCType {
     @Override
     @JsonProperty("type")
     public String toString() {
-        return "NPCType";
+        return this.type;
+    }
+
+    @JsonProperty("type")
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**
