@@ -31,11 +31,7 @@ public class ServerListener implements Listener {
     }
 
     @EventHandler
-    public void onReload(ServerLoadEvent event) {
-        if (!event.getType().equals(ServerLoadEvent.LoadType.RELOAD)) {
-            return;
-        }
-
+    public void onLoad(ServerLoadEvent event) {
         ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
         
         // configure the mapper
