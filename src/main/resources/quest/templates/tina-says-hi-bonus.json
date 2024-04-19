@@ -1,0 +1,66 @@
+{
+    "title": "Tina Says, Hi!",
+    "owner": null,
+    "entry": "stage_0",
+    "npcs": {
+        "npc_0": {
+            "name": "Tina"
+        }
+    },
+    "stages": {
+        "stage_0": {
+            "notable": true,
+            "label": "NPC Says Hi",
+            "entry": "action_0",
+            "actions": {
+                "action_0": { 
+                    "name": "Speak", 
+                    "params": ["Hi!", "npc_0"], 
+                    "connections": {
+                        "next": "action_1",
+                        "curr": "action_1",
+                        "prev": null
+                    }
+                },
+                "action_1": {
+                    "name": "RequestItem", 
+                    "params": ["FLOWER", 3],
+                    "connections": {
+                        "next": "action_3",
+                        "curr": "action_0",
+                        "prev": null
+                    }
+                },
+                "action_4": {
+                    "name": "ChangeQuestEntry",
+                    "params": ["action_1"],
+                    "connections": {
+                        "next": "action_3",
+                        "curr": "action_1",
+                        "prev": "action_0"
+                    }
+                }
+            },
+            "connections": {
+                "next": null,
+                "curr": "action_0",
+                "prev": null
+            }
+        },
+        "stage_1": {
+            "notable": true,
+            "entry": "action_3",
+            "label": "Surprise Gift!",
+            "actions": {
+                "action_3": {
+                    "name": "Speak",
+                    "params": ["You got me flowers?!", "npc_0"],
+                    "connections": {
+                        "next": null,
+                        "prev": "stage_0"
+                    }
+                }
+            }
+        }
+    }
+}
