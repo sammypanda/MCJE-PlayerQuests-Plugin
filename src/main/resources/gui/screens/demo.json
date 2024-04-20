@@ -8,7 +8,7 @@
             "label": "Test",
             "functions": [
                 { "name": "Test", "params": ["hi"] },
-                { "name": "UpdateScreen", "params": ["hi"] }
+                { "name": "UpdateScreenFile", "params": ["hi"] }
             ],
             "actions": [
                 { "name": "Example", "params": [] }

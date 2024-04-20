@@ -4,7 +4,7 @@
 
   <groupId>moe.sammypanda</groupId>
   <artifactId>playerquests</artifactId>
-  <version>0.3</version>
+  <version>0.2.1</version>
 
   <packaging>jar</packaging>
 
@@ -68,12 +68,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- SQLite Driver -->
-    <dependency>
-      <groupId>org.xerial</groupId>
-      <artifactId>sqlite-jdbc</artifactId>
-      <version>3.45.2.0</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -85,27 +79,34 @@
     </resources>
 
     <plugins>
-      <!-- overwriting default maven-surefire-plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.3</version>
-      </plugin>
 
-      <!-- maven-shade-plugin (for bundling dependencies in final jar) -->
+      <!-- maven-dependency-plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.1</version>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
         <executions>
           <execution>
+            <id>copy</id>
             <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>copy</goal>
             </goals>
           </execution>
         </executions>
-      </plugin> 
+        <configuration>
+          <artifactItems>
+            <artifactItem>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${project.version}</version>
+              <type>${project.packaging}</type>
+              <outputDirectory>test-server/plugins</outputDirectory>
+              <destFileName>${project.artifactId}.jar</destFileName>
+            </artifactItem>
+          </artifactItems>
+        </configuration>
+      </plugin>
 
       <!-- maven-dependency-plugin (for bundling dependencies in final jar) -->
       <plugin>
@@ -144,32 +145,11 @@
         </configuration>
       </plugin>
 
-      <!-- maven-dependency-plugin -->
+      <!-- overwriting default maven-surefire-plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.6.1</version>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <artifactItems>
-            <artifactItem>
-              <groupId>${project.groupId}</groupId>
-              <artifactId>${project.artifactId}</artifactId>
-              <version>${project.version}</version>
-              <type>${project.packaging}</type>
-              <outputDirectory>test-server/plugins</outputDirectory>
-              <destFileName>${project.artifactId}.jar</destFileName>
-            </artifactItem>
-          </artifactItems>
-        </configuration>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.3</version>
       </plugin>
     </plugins>
   </build>
