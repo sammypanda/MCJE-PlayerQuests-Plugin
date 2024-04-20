@@ -12,6 +12,11 @@ import playerquests.utility.listener.ServerListener; // for server-related event
 
 public class PlayerQuests {
 
+    /**
+     * Singleton for persistent data
+     */
+    private static Database database = Database.getInstance();
+
     private static PlayerQuests instance = new PlayerQuests();
     private BlockListener blockListener = new BlockListener();
     private PlayerListener playerListener = new PlayerListener();
