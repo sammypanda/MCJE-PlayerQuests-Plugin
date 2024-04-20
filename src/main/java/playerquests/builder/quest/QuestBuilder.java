@@ -85,6 +85,34 @@ public class QuestBuilder {
     }
 
     /**
+     * Returns a new quest from an existing quest
+     * product object.
+     * @param director used to control the plugin
+     * @param product the quest template to create a new builder from
+     */
+    public QuestBuilder(ClientDirector director, Quest product) {
+        this.director = director;
+
+        // add the entry point stage from the product
+        this.entryPoint = product.getStages().get(product.getEntry());
+        director.setCurrentInstance(this.entryPoint); // make it modifiable
+
+        // add the stages from the product
+        this.questPlan = product.getStages();
+
+        // add the NPCs from the product
+        this.questNPCs = product.getNPCs();
+
+        // set the new quest title the same as the product quest title
+        this.title = product.getTitle();
+        System.out.println("title: " + product.getTitle());
+
+        // set as the current quest in the director
+        director.setCurrentInstance(this);
+        this.build();
+    }
+
+    /**
      * Title for the quest.
      * <p>
      * Also used as the ID: [Title]_[Owner Player ID]

@@ -39,18 +39,18 @@ public class Dynamicquesteditor extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
-        String questTitle = questBuilder.getTitle();
         GUIFrame guiFrame = gui.getFrame();
+        String questTitle = questBuilder.getTitle();
+
+        // set the GUI size
+        guiFrame.setSize(9);
 
         // set the GUI title as: Edit Quest ([quest title])
         guiFrame.setTitle(
             String.format("Edit Quest %s", 
-                questTitle != null ? "("+questBuilder.getTitle()+")" : null
+                questTitle != null ? "("+questTitle+")" : null
             )
         );
-
-        // set the GUI size
-        guiFrame.setSize(9);
 
         // add the buttons
         new GUISlot(gui, 1) // back button

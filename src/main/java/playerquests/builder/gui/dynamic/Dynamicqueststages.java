@@ -78,10 +78,16 @@ public class Dynamicqueststages extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
-            questSlot.addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList("queststage")), 
-                director
-            ));
+            questSlot.onClick(() -> {
+                // set the stage as the current instance to modify
+                this.director.setCurrentInstance(this.questBuilder.getQuestPlan().get(stage));
+
+                // change to the quest stage GUI screen
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("queststage")), 
+                    director
+                ).execute();;
+            });
 
             return false; // continue the loop
         });

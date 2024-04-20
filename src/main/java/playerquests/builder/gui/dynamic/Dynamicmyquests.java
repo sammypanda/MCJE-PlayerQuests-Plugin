@@ -12,7 +12,9 @@ import java.util.stream.IntStream; // fills slots procedually
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 'main' screen
+import playerquests.builder.quest.QuestBuilder;
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic GUI listing the players quests.
@@ -157,6 +159,16 @@ public class Dynamicmyquests extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("BOOK");
             questSlot.setLabel(quest.split("_")[0]);
+            questSlot.onClick(() -> {
+                // get questbuilder from a quest product (it sets itself as the current)
+                new QuestBuilder(director, QuestRegistry.getInstance().getAllQuests().get(quest));
+
+                // update the GUI screen
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("questeditor")), 
+                    director
+                ).execute();;
+            });
 
             return false; // continue the loop
         });
