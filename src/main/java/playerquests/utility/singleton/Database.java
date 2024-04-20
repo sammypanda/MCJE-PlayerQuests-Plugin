@@ -124,7 +124,7 @@ public class Database {
 
         try {
             // Add player to players table
-            String addPlayerSQL = "INSERT INTO players (uuid) VALUES (?);";
+            String addPlayerSQL = "INSERT INTO players (uuid) VALUES (?) RETURNING *;";
 
             PreparedStatement preparedStatement = getConnection().prepareStatement(addPlayerSQL);
 
@@ -132,7 +132,6 @@ public class Database {
 
             ResultSet results = preparedStatement.executeQuery();
             id = results.getInt("id");
-            System.out.println("database returned: " + id);
 
             getConnection().close();
 

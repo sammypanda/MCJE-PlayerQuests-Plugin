@@ -1,5 +1,6 @@
 package playerquests.utility.listener;
 
+import java.io.File;
 import java.io.IOException; // thrown when a file operation fails, like reading
 
 import org.bukkit.Bukkit; // bukkit API
@@ -32,6 +33,15 @@ public class ServerListener implements Listener {
 
     @EventHandler
     public void onLoad(ServerLoadEvent event) {
+        // create plugin folder if it doesn't exist
+        File f = new File(Core.getPlugin().getDataFolder() + "/");
+        if (!f.exists()) {
+            f.mkdir();
+        }
+
+        // initialise the database
+        Database.getInstance().init();
+
         if (event.getEventName().equals("RELOAD")) {
             Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
             QuestRegistry.getInstance().clear();
