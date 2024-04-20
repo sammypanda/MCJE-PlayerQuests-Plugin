@@ -1,6 +1,5 @@
 package playerquests.builder.quest;
 
-import java.io.IOException; // thrown if a file cannot be created
 import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
 import java.util.List; // generic list type
@@ -10,9 +9,6 @@ import java.util.stream.IntStream; // used to iterate over a range
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
-import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot serialise
-import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
-import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
@@ -20,13 +16,11 @@ import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
-import playerquests.utility.FileUtils; // creates files
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
  * For creating and managing a Quest.
  */
-// TODO: create QuestAction outline
 public class QuestBuilder {
 
     /**
@@ -99,6 +93,11 @@ public class QuestBuilder {
 
         // add the stages from the product
         this.questPlan = product.getStages();
+
+        // recurse submission of stages to KeyHandler registry
+        this.questPlan.values().stream().forEach(stage -> {
+            Core.getKeyHandler().registerInstance(stage);
+        });
 
         // add the NPCs from the product
         this.questNPCs = product.getNPCs();
