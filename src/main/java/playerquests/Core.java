@@ -1,5 +1,7 @@
 package playerquests;
 
+import java.io.File;
+
 import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
@@ -37,11 +39,6 @@ public class Core extends JavaPlugin {
     private static QuestRegistry questRegistry = QuestRegistry.getInstance();
 
     /**
-     * Singleton for persistent data
-     */
-    private static Database database = Database.getInstance();
-
-    /**
      * Core class, to be instantiated by server.
      */
     public Core() {}
@@ -49,9 +46,6 @@ public class Core extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-
-        // initialise the database
-        database.init();
 
         // call the playerquests game class
         PlayerQuests.getInstance();
@@ -85,13 +79,5 @@ public class Core extends JavaPlugin {
      */
     public static QuestRegistry getQuestRegistry() {
         return questRegistry;
-    }
-
-    /**
-     * Gets the database as an API for working with persistent data.
-     * @return the singleton instance of the game database API.
-     */
-    public static Database getDatabase() {
-        return database;
     }
 }
