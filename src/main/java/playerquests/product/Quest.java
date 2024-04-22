@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference; // refers to the p
 import com.fasterxml.jackson.annotation.JsonProperty; // how a property is serialised
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json is invalid
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/serialise this class
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
@@ -113,6 +114,7 @@ public class Quest {
         ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
         
         // configure the mapper
+        jsonObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
         jsonObjectMapper.setSerializationInclusion(Include.NON_NULL);
 
