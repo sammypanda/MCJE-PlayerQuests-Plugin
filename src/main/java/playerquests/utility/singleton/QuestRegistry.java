@@ -1,5 +1,6 @@
 package playerquests.utility.singleton;
 
+import java.io.IOException;
 import java.util.HashMap; // hash table map
 import java.util.Map; // generic map type
 
@@ -11,6 +12,7 @@ import playerquests.builder.quest.npc.QuestNPC; // describes quest NPCs
 import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
+import playerquests.utility.FileUtils;
 
 
 /**
@@ -36,6 +38,11 @@ public class QuestRegistry {
      * The map holding the quest clients (questers).
      */
     private final Map<Player, QuestClient> questers = new HashMap<Player, QuestClient>();
+
+    /**
+     * The resource folder quests are in
+     */
+    private final String questPath = "quest/templates";
 
     /**
      * Private constructor to prevent instantiation.
@@ -151,5 +158,36 @@ public class QuestRegistry {
     public void clear() {
         this.registry.clear();
         this.questers.clear();
+    }
+
+    /**
+     * Get a quest from the quest registry.
+     * If fails from quest registry, it will
+     * search the questPath (resources folder).
+     * @param questID the quest ID
+     * @return the quest object
+     */
+    public Quest getQuest(String questID) {
+        Quest result = this.getAllQuests().get(questID);
+
+        if (result == null) {
+            System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the resources quest template files.");
+
+            // attempt finding it in the files and uploading to database
+            try {
+                result = Quest.fromTemplateString(FileUtils.get(this.questPath + "/" + questID + ".json"));
+
+                // if everything is okay, submit the quest to the database 
+                // to avoid having to search for it again like this.
+                if (result != null) {
+                    this.submit(result);
+                }
+
+            } catch (IOException e) {
+                throw new RuntimeException("Could not find the quest with ID: " + questID, e);
+            }
+        }
+
+        return result;
     }
 }

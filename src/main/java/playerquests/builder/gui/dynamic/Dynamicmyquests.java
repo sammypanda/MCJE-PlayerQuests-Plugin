@@ -161,7 +161,7 @@ public class Dynamicmyquests extends GUIDynamic {
             questSlot.setLabel(quest.split("_")[0]);
             questSlot.onClick(() -> {
                 // get questbuilder from a quest product (it sets itself as the current)
-                new QuestBuilder(director, QuestRegistry.getInstance().getAllQuests().get(quest));
+                new QuestBuilder(director, QuestRegistry.getInstance().getQuest(quest));
 
                 // update the GUI screen
                 new UpdateScreen(

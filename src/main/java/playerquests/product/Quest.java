@@ -11,7 +11,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // configures ignoring unknown fields
 import com.fasterxml.jackson.annotation.JsonManagedReference; // refers to the parent of a back reference
 import com.fasterxml.jackson.annotation.JsonProperty; // how a property is serialised
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json is invalid
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/serialise this class
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
@@ -99,6 +101,31 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
+    }
+
+    /**
+     * Creates a quest product from a string template.
+     * @param questTemplate the (json) string quest template
+     * @return the quest product created from the quest template
+     */
+    public static Quest fromTemplateString(String questTemplate) {
+        Quest quest = null;
+        ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
+        
+        // configure the mapper
+        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
+        jsonObjectMapper.setSerializationInclusion(Include.NON_NULL);
+
+        // create the quest product
+        try {
+            quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException("Could not map the quest template string to a valid quest product.", e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Malformed JSON attempted as a quest template string.", e);
+        }
+
+        return quest;
     }
 
     /**
