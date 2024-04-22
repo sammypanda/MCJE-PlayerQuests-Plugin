@@ -87,12 +87,10 @@ public class NPCType {
     }
 
     @Override
-    @JsonProperty("type")
     public String toString() {
         return this.type;
     }
 
-    @JsonProperty("type")
     public void setType(String type) {
         this.type = type;
     }

@@ -64,7 +64,6 @@ public abstract class QuestAction {
     /**
      * The string representation of the type.
      */
-    @JsonProperty("type")
     private String type;
 
     /**
