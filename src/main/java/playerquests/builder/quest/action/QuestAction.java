@@ -123,7 +123,7 @@ public abstract class QuestAction {
      * Gets this action's ID in the stage.
      * @return current action ID (name)
     */
-    @JsonProperty("name")
+    @JsonProperty("id")
     public String getID() {
         return this.action;
     }
