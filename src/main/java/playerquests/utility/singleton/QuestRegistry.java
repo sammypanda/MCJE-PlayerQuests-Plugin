@@ -65,6 +65,9 @@ public class QuestRegistry {
         // add to the registry map
         registry.put(quest.getID(), quest);
 
+        // store ref to database
+        Database.addQuest(quest.getID());
+
         // place the NPCs in the world
         quest.getNPCs().entrySet().stream()
             .forEach(entry -> {
@@ -93,10 +96,7 @@ public class QuestRegistry {
             return;
         }
 
-        // store ref to database
-        Database.addQuest(questID);
-
-        // store ref to registry
+        // store ref
         this.add(quest);
 
         if (creator != null) {

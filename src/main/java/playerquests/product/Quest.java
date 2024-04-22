@@ -205,10 +205,9 @@ public class Quest {
     /**
      * Saves a quest into the QuestBuilder.savePath.
      * @return the response message
-     * @throws IllegalArgumentException when saving is not safe/possible
      */
     @Key("quest")
-    public String save() throws IllegalArgumentException {
+    public String save() {
         try {
             FileUtils.create( // create the template json file
                 "quest/templates/" + this.title + "_" + this.creator.toString() + ".json", // name pattern
