@@ -277,13 +277,18 @@ public class Database {
         }
 
         try {
+            PreparedStatement preparedStatement;
+
             // Remove quest from quests table
             String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
-
-            PreparedStatement preparedStatement = getConnection().prepareStatement(removeQuestSQL);
-
+            preparedStatement = getConnection().prepareStatement(removeQuestSQL);
             preparedStatement.setString(1, id);
+            preparedStatement.execute();
 
+            // Remove quest reference from quest diaries
+            String removeDiaryQuestSQL = "DELETE FROM diary_quests WHERE quest = ?;";
+            preparedStatement = getConnection().prepareStatement(removeDiaryQuestSQL);
+            preparedStatement.setString(1, id);
             preparedStatement.execute();
 
             getConnection().close();
