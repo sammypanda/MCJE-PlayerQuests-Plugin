@@ -171,6 +171,12 @@ public class QuestClient {
      * Refresh all values.
      */
     public void update() {
+        // clear the byproduct lists
+        entryStages.clear();
+        entryActions.clear();
+        npcActions.clear();
+        // npcParticles.clear(); // don't need to clear this list, showFX() understands removed entries
+
         // create a set for local available quests and questregistry available quests
         List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values()); // current all quests
         List<Quest> localList =  new ArrayList<>(this.availableQuests.values()); // previous all quests
