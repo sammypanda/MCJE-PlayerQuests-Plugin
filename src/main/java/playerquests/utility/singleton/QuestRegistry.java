@@ -120,7 +120,7 @@ public class QuestRegistry {
         // if submitted quest has an NPC found colliding with existing,
         if (collidingNPC.isPresent()) {
             LocationData questNPCLocation = collidingNPC.get().getLocation();
-            questNPCLocation.setX(questNPCLocation.getX() + 1); // put the NPC above the existing one
+            questNPCLocation.setY(questNPCLocation.getY() + 1); // put the NPC above the existing one
             this.submit(quest); // resubmit the quest to test if new location collides
 
             // do not continue if an npc already exists at the crucial npc.location
