@@ -86,8 +86,14 @@ public class QuestRegistry {
      */
     public void submit(Quest quest) {
         String questID = quest.getID();
-        HumanEntity creator = Bukkit.getPlayer(quest.getCreator());
+        HumanEntity creator = null;
+        
+        // get the creator if it's not a universal quest (missing or null creator)
+        if (quest.getCreator() != null) {
+            creator = Bukkit.getPlayer(quest.getCreator());
+        }
 
+        // replace if already found in registry
         if (registry.get(questID) != null) {
             if (creator != null) {
                 creator.sendMessage("[Updating the quest]");
