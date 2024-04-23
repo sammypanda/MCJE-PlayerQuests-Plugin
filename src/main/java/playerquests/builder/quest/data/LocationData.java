@@ -159,5 +159,18 @@ public class LocationData {
                 ", yaw=" + yaw +
                 '}';
     }
+
+    /**
+     * Determines whether an NPC exists at the location specified.
+     * @param otherLocation the location to check this LocationData against
+     * @return whether or not there is a collision
+     */
+    public Boolean collidesWith(LocationData otherLocation) {
+        // Check if each crucial property is equal
+        return this.x == otherLocation.getX() &&
+               this.y == otherLocation.getY() &&
+               this.z == otherLocation.getZ() &&
+               this.getWorld().equals(otherLocation.getWorld());
+    }
 }
 

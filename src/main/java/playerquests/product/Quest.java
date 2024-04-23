@@ -180,7 +180,10 @@ public class Quest {
      */
     @JsonProperty("id") 
     public String getID() {
-        return String.format("%s_%s" , title, creator);
+        return String.format("%s%s", 
+            title, 
+            creator != null ? "_"+creator : ""
+        );
     }
 
     /**
@@ -210,7 +213,7 @@ public class Quest {
     public String save() {
         try {
             FileUtils.create( // create the template json file
-                "quest/templates/" + this.title + "_" + this.creator.toString() + ".json", // name pattern
+                "quest/templates/" + this.getID() + ".json", // name pattern
                 this.toTemplateString().getBytes() // put the content in the file
             );
         } catch (IOException e) {

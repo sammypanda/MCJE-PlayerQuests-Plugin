@@ -2,12 +2,16 @@ package playerquests.utility.singleton;
 
 import java.io.IOException;
 import java.util.HashMap; // hash table map
+import java.util.List;
 import java.util.Map; // generic map type
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit; // accessing Bukkit API
 import org.bukkit.entity.HumanEntity; // representing players and other humanoid entities
 import org.bukkit.entity.Player; // representing players
 
+import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC; // describes quest NPCs
 import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
@@ -99,6 +103,27 @@ public class QuestRegistry {
                 creator.sendMessage("[Updating the quest]");
             }
             this.replace(questID, quest);
+            return;
+        }
+
+        // load up a list of NPC locations to help figure if an npc already exists at the npc.location
+        List<LocationData> registryNPCLocations = this.registry.values().stream().flatMap(
+            registryQuest -> registryQuest.getNPCs().values().stream().map(QuestNPC::getLocation)
+        ).collect(Collectors.toList());
+
+        // check each registry NPC location against current NPC in submitted quest
+        Optional<QuestNPC> collidingNPC = quest.getNPCs().values().stream()
+            .filter(questNPC -> registryNPCLocations.stream()
+                .anyMatch(location -> location.collidesWith(questNPC.getLocation()))
+            ).findFirst();
+
+        // if submitted quest has an NPC found colliding with existing,
+        if (collidingNPC.isPresent()) {
+            LocationData questNPCLocation = collidingNPC.get().getLocation();
+            questNPCLocation.setX(questNPCLocation.getX() + 1); // put the NPC above the existing one
+            this.submit(quest); // resubmit the quest to test if new location collides
+
+            // do not continue if an npc already exists at the crucial npc.location
             return;
         }
 
