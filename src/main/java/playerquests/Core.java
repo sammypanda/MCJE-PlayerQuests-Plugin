@@ -54,7 +54,7 @@ public class Core extends JavaPlugin {
         new Commandplayerquest();
 
         // Save the demo quest to the server
-        saveResource("quest/templates/tina-says-hi-bonus.json", true);
+        saveResource("quest/templates/beans-tester-bonus.json", true);
     }
 
     /**
