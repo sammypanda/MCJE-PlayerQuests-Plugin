@@ -12,9 +12,10 @@ import java.util.stream.IntStream; // fills slots procedually
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 'main' screen
-import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.QuestBuilder; // the class which constructs a quest product
 import playerquests.client.ClientDirector; // for controlling the plugin
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.product.Quest; // a quest product used to play and track quests
+import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
 
 /**
  * Shows a dynamic GUI listing the players quests.
@@ -161,11 +162,19 @@ public class Dynamicmyquests extends GUIDynamic {
             questSlot.setLabel(quest.split("_")[0]);
             questSlot.onClick(() -> {
                 // get questbuilder from a quest product (it sets itself as the current)
-                new QuestBuilder(director, QuestRegistry.getInstance().getQuest(quest));
+                QuestBuilder questBuilder = new QuestBuilder(director, QuestRegistry.getInstance().getQuest(quest));
+                Quest questProduct = questBuilder.build();
+                ArrayList<Object> screen;
+
+                if (questProduct.getCreator() == this.director.getPlayer().getUniqueId()) {
+                    screen = new ArrayList<>(Arrays.asList("myquest"));
+                } else {
+                    screen = new ArrayList<>(Arrays.asList("theirquest"));
+                }
 
                 // update the GUI screen
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("questeditor")), 
+                    screen, 
                     director
                 ).execute();;
             });
