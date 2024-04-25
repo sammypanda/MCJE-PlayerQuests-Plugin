@@ -24,6 +24,11 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 public class QuestBuilder {
 
     /**
+     * Whether the plugin has a creator/is universal
+     */
+    private Boolean universal = false;
+
+    /**
      * Used to access plugin functionality.
      */
     private ClientDirector director;
@@ -106,8 +111,15 @@ public class QuestBuilder {
         this.title = product.getTitle();
         System.out.println("title: " + product.getTitle());
 
-        // set as the current quest in the director
-        director.setCurrentInstance(this);
+        if (product.getCreator() == null) {
+            // set the quest as a universal one
+            this.universal = true;
+        } else {
+            // set as the current quest in the director
+            director.setCurrentInstance(this);
+        }
+
+        // create quest product from this builder
         this.build();
     }
 
@@ -259,15 +271,20 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public Quest build() {
+        // compose the quest product from the builder state
         Quest product = new Quest(
             this.title,
             this.entryPoint,
             this.questNPCs,
             this.questPlan,
-            this.director.getPlayer().getUniqueId()
+            this.universal ? null : this.director.getPlayer().getUniqueId()
         );
 
-        director.setCurrentInstance(product);
+        // set this quest as in-focus to the creator
+        if (!universal) {
+            director.setCurrentInstance(product);
+        }
+
         return product;
     }
 }

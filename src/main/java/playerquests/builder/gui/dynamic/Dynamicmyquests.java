@@ -85,7 +85,7 @@ public class Dynamicmyquests extends GUIDynamic {
 
                 // list of acceptable quest owners
                 List<String> questOwnerList = Arrays.asList(
-                    "null", 
+                    null, 
                     this.director.getPlayer().getUniqueId().toString()
                 );
 
@@ -96,7 +96,7 @@ public class Dynamicmyquests extends GUIDynamic {
                         questOwner = questTemplateNameFragments.get(1);
                         break;
                     default:
-                        questOwner = "null";
+                        questOwner = null;
                         break;
                 }
 
