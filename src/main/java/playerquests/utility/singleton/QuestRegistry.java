@@ -143,11 +143,16 @@ public class QuestRegistry {
         // remove ref from database
         Database.removeQuest(quest.getID());
 
+        // remove ref from registry
         registry.remove(quest.getID());
 
+        // remove ref from questers
         questers.values().stream().forEach(quester -> {
             quester.removeQuest(quest);
         });
+
+        // remove traces from world
+        PlayerQuests.remove(quest);
     }
 
     /**

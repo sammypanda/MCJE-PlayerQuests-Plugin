@@ -1,5 +1,8 @@
 package playerquests.builder.quest.data;
 
+import org.bukkit.Bukkit; // Bukkit API
+import org.bukkit.Location; // defines a bukkit world location
+
 /**
  * Represents a location in a three-dimensional space.
  */
@@ -171,6 +174,22 @@ public class LocationData {
                this.y == otherLocation.getY() &&
                this.z == otherLocation.getZ() &&
                this.getWorld().equals(otherLocation.getWorld());
+    }
+
+    /**
+     * Gets a normal bukkit location object from  
+     * this PlayerQuests location object.
+     * @return location of block represented in bukkit location format
+     */
+    public Location toBukkitLocation() {
+        return new Location(
+            Bukkit.getWorld(this.world), 
+            this.x, 
+            this.y, 
+            this.z,
+            this.yaw,
+            this.pitch
+        );
     }
 }
 
