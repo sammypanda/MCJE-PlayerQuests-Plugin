@@ -156,6 +156,27 @@ public class QuestRegistry {
     }
 
     /**
+     * Deletes a quest from the plugin.
+     * @param quest the quest to delete
+     * @return whether the operation was successful or not
+     */
+    public Boolean delete(Quest quest) {
+        // try to remove from files
+        try {
+            FileUtils.delete(this.questPath + "/" + quest.getID() + ".json");
+            
+            // remove from registry
+            this.remove(quest);
+
+        } catch (IOException e) {
+            ChatUtils.sendError(Bukkit.getPlayer(quest.getCreator()), "Could not delete the " + quest.getTitle() + " quest", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Replaces a quest in the registry with a new one.
      * @param originalQuestID the ID of the original quest.
      * @param quest the new quest.

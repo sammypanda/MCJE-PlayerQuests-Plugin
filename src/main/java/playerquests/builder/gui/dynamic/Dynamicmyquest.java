@@ -8,6 +8,7 @@ import playerquests.builder.gui.component.GUISlot; // inventory slots representi
 import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
 import playerquests.builder.quest.QuestBuilder; // for quest management
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
+import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
 public class Dynamicmyquest extends GUIDynamic {
 
@@ -58,6 +59,23 @@ public class Dynamicmyquest extends GUIDynamic {
                 new ArrayList<>(Arrays.asList("questeditor")), 
                 director
             ));
+
+        // create remove quest button
+        new GUISlot(gui, 8)
+            .setItem("RED_DYE")
+            .setLabel("Delete")
+            .onClick(() -> {
+                // delete the quest
+                Boolean deleted = QuestRegistry.getInstance().delete(questBuilder.build());
+
+                // go back if successful
+                if (deleted) {
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList(previousScreen)), 
+                        director
+                    ).execute();
+                }
+            });
     }
     
 }
