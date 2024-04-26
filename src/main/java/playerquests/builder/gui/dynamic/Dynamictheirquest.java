@@ -1,6 +1,11 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList; // list array type
+import java.util.Arrays; // generic array type
+
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
+import playerquests.builder.gui.component.GUISlot; // creates a GUI button
+import playerquests.builder.gui.function.UpdateScreen; // changes the GUI to another
 import playerquests.client.ClientDirector; // backend for a player client
 import playerquests.product.Quest; // quest product to view
 
@@ -35,6 +40,15 @@ public class Dynamictheirquest extends GUIDynamic {
                 questTitle.length() > questTitleLimit - 1 ? questTitle.substring(0, questTitleLimit) + "..." : questTitle
             )
         );
+
+        // create back button
+        new GUISlot(gui, 1)
+            .setLabel("Back")
+            .setItem("OAK_DOOR")
+            .addFunction(new UpdateScreen(
+                new ArrayList<>(Arrays.asList(previousScreen)), 
+                director
+            ));
     }
     
 }
