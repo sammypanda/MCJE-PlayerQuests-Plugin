@@ -125,6 +125,22 @@ public class QuestBuilder {
     }
 
     /**
+     * Add a creator to an otherwise universal quest.
+     * @param director the client director to refer to the creator via
+     */
+    public QuestBuilder setDirector(ClientDirector director) {
+        this.director = director;
+        
+        if (director != null) {
+            director.setCurrentInstance(this);
+            this.universal = false;
+            this.build();
+        }
+
+        return this;
+    }
+
+    /**
      * Title for the quest.
      * <p>
      * Also used as the ID: [Title]_[Owner Player ID]

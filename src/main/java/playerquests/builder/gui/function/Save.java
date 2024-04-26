@@ -52,7 +52,10 @@ public class Save extends GUIFunction {
         }
 
         if (this.errored) {
-            ChatUtils.sendError(this.director.getPlayer(), response.toString());
+            if (response != null) {
+                ChatUtils.sendError(this.director.getPlayer(), response.toString());
+            }
+            
             this.finished(); // running onFinish code
             return;
         }
