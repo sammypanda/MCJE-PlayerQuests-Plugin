@@ -41,8 +41,17 @@ public class Dynamicmyquest extends GUIDynamic {
             )
         );
 
-        // create edit button
+        // create back button
         new GUISlot(gui, 1)
+            .setItem("OAK_DOOR")
+            .setLabel("Back")
+            .addFunction(new UpdateScreen(
+                new ArrayList<>(Arrays.asList(previousScreen)), 
+                director
+            ));
+
+        // create edit button
+        new GUISlot(gui, 3)
             .setItem("WRITABLE_BOOK")
             .setLabel("Edit")
             .addFunction(new UpdateScreen(

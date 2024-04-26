@@ -58,7 +58,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Back")
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("main")), 
+                    new ArrayList<>(Arrays.asList(previousScreen)), 
                     director
                 )
             );
