@@ -1,6 +1,11 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList; // list array type
+import java.util.Arrays; // generic arrays type
+
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI window
+import playerquests.builder.gui.component.GUISlot; // inventory slots representing GUI buttons
+import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
 import playerquests.builder.quest.QuestBuilder; // for quest management
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
 
@@ -35,6 +40,15 @@ public class Dynamicmyquest extends GUIDynamic {
                 questTitle.length() > questTitleLimit - 1 ? questTitle.substring(0, questTitleLimit) + "..." : questTitle
             )
         );
+
+        // create edit button
+        new GUISlot(gui, 1)
+            .setItem("WRITABLE_BOOK")
+            .setLabel("Edit")
+            .addFunction(new UpdateScreen(
+                new ArrayList<>(Arrays.asList("questeditor")), 
+                director
+            ));
     }
     
 }
