@@ -114,6 +114,7 @@ public class QuestBuilder {
         if (product.getCreator() == null) {
             // set the quest as a universal one
             this.universal = true;
+            director.setCurrentInstance(this.build());
         } else {
             // set as the current quest in the director
             director.setCurrentInstance(this);
