@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitScheduler; // schedules tasks/code/jobs on plu
 import org.bukkit.scheduler.BukkitTask; // object for scheduled tasks
 
 import playerquests.Core; // access to singletons
+import playerquests.builder.quest.action.None; // empty quest action
 import playerquests.builder.quest.action.QuestAction; // represents quest actions
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData; // data object containing all location info
@@ -134,10 +135,6 @@ public class QuestClient {
 
         // add interact sparkle to each starting/entry-point NPC
         this.npcActions.keySet().stream().forEach(npc -> {
-            // TODO: remove logging
-            System.out.println("sparkles for " + npc.getName());
-            System.out.println("entry npcs: " + this.npcActions);
-
             LocationData location = npc.getLocation();
 
             BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> {
@@ -215,7 +212,9 @@ public class QuestClient {
 
             // put the NPC from entry action
             QuestNPC npc = action.getNPC();
-            this.npcActions.put(npc, action);
+            if (npc != null || action.getClass() != None.class) {
+                this.npcActions.put(npc, action);
+            }
 
             // add quest to diary
             this.diary.addQuest(quest.getID());
