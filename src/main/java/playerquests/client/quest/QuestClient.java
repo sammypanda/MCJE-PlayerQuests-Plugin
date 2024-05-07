@@ -237,6 +237,13 @@ public class QuestClient {
 
     public void interact(QuestNPC npc) {
         QuestAction action = this.npcActions.get(npc);
+
+        // don't continue if there is no action
+        // for this interaction
+        if (action == null) {
+            return;
+        }
+
         String next_action = action.getConnections().getNext();
         QuestStage stage = action.getStage();
         Quest quest = stage.getQuest();
