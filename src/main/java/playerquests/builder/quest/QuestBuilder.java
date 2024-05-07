@@ -109,7 +109,6 @@ public class QuestBuilder {
 
         // set the new quest title the same as the product quest title
         this.title = product.getTitle();
-        System.out.println("title: " + product.getTitle());
 
         if (product.getCreator() == null) {
             // set the quest as a universal one

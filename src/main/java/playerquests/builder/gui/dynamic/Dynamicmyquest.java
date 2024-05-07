@@ -17,6 +17,11 @@ public class Dynamicmyquest extends GUIDynamic {
      */
     QuestBuilder questBuilder;
 
+    /**
+     * Whether to show delete confirmation button
+     */
+    Boolean confirm_delete = false;
+
     public Dynamicmyquest(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -60,22 +65,32 @@ public class Dynamicmyquest extends GUIDynamic {
                 director
             ));
 
-        // create remove quest button
-        new GUISlot(gui, 8)
-            .setItem("RED_DYE")
-            .setLabel("Delete")
-            .onClick(() -> {
-                // delete the quest
-                Boolean deleted = QuestRegistry.getInstance().delete(questBuilder.build());
+        // create remove quest button (with confirmation check)
+        if (confirm_delete.equals(false)) {
+            new GUISlot(gui, 8)
+                .setItem("RED_DYE")
+                .setLabel("Delete")
+                .onClick(() -> {
+                    this.confirm_delete = true;
+                    this.execute();
+                });
+        } else {
+            new GUISlot(gui, 8)
+                .setItem("RED_WOOL")
+                .setLabel("Delete (Confirm)")
+                .onClick(() -> {
+                    // delete the quest
+                    Boolean deleted = QuestRegistry.getInstance().delete(questBuilder.build());
 
-                // go back if successful
-                if (deleted) {
-                    new UpdateScreen(
-                        new ArrayList<>(Arrays.asList(previousScreen)), 
-                        director
-                    ).execute();
-                }
-            });
+                    // go back if successful
+                    if (deleted) {
+                        new UpdateScreen(
+                            new ArrayList<>(Arrays.asList(previousScreen)), 
+                            director
+                        ).execute();
+                    }
+                });
+        }
     }
     
 }
