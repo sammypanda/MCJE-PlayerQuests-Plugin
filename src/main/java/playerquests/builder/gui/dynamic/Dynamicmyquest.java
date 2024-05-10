@@ -8,6 +8,7 @@ import playerquests.builder.gui.component.GUISlot; // inventory slots representi
 import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
 import playerquests.builder.quest.QuestBuilder; // for quest management
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
+import playerquests.product.Quest; // complete quest objects
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
 public class Dynamicmyquest extends GUIDynamic {
@@ -16,6 +17,11 @@ public class Dynamicmyquest extends GUIDynamic {
      * The current quest
      */
     QuestBuilder questBuilder;
+
+    /**
+     * The quest product
+     */
+    Quest quest;
 
     /**
      * Whether to show delete confirmation button
@@ -30,6 +36,7 @@ public class Dynamicmyquest extends GUIDynamic {
     protected void setUp_custom() {
         // retrieve the current quest from the client director
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
+        this.quest = questBuilder.build();
     }
 
     @Override
@@ -93,20 +100,22 @@ public class Dynamicmyquest extends GUIDynamic {
         }
 
         // create quest toggle button
+        // to toggle on
+        GUISlot toggleButton = new GUISlot(gui, 9)
+            .setItem("GRAY_STAINED_GLASS_PANE")
+            .setLabel("Toggle On");
+
         if (quest.isToggled()) {
             // to toggle off
-            GUISlot toggleButton = new GUISlot(gui, 9)
+            toggleButton
                 .setItem("GREEN_STAINED_GLASS_PANE")
-                .setLabel("Toggle Off")
-        } else {
-            // to toggle on
-            GUISlot toggleButton = new GUISlot(gui, 9)
-                .setItem("GRAY_STAINED_GLASS_PANE")
-                .setLabel("Toggle On")
+                .setLabel("Toggle Off");
         }
+
         toggleButton.onClick(() -> {
             quest.toggle();
-        })
+            this.execute(); // refresh UI
+        });
     }
     
 }

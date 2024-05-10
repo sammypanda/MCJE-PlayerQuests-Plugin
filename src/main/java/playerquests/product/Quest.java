@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
+import javax.xml.crypto.Data;
+
 import org.bukkit.Bukkit; // Bukkit API
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,6 +27,7 @@ import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
+import playerquests.utility.singleton.Database;
 
 /**
  * The Quest product containing all the information 
@@ -237,5 +240,16 @@ public class Quest {
         });
         
         return actions;   
+    }
+
+    public boolean isToggled() {
+        return Database.getQuestToggled(this.getID());
+    }
+
+    public void toggle() {
+        Database.setQuestToggled(
+            this.getID(),
+            !Database.getQuestToggled(this.getID())
+        );
     }
 }
