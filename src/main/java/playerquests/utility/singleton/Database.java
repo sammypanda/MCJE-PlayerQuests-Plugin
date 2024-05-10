@@ -132,6 +132,7 @@ public class Database {
                 preparedStatement.setString(1, "PlayerQuests"); // parameterIndex starts at 1
                 preparedStatement.setString(2, version);
                 preparedStatement.execute();
+                System.out.println("Migrated/patched database: added plugin database table");
 
                 getConnection().close();
             } catch (SQLException e) {
@@ -142,7 +143,7 @@ public class Database {
         try {
             Statement statement = getConnection().createStatement();
 
-            switch (version_db) {
+            switch (version) {
                 case "0.4":
                     String addToggledSQL = "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;";
                     statement.execute(addToggledSQL);
