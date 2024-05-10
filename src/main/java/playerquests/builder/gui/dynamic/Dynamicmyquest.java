@@ -91,6 +91,22 @@ public class Dynamicmyquest extends GUIDynamic {
                     }
                 });
         }
+
+        // create quest toggle button
+        if (quest.isToggled()) {
+            // to toggle off
+            GUISlot toggleButton = new GUISlot(gui, 9)
+                .setItem("GREEN_STAINED_GLASS_PANE")
+                .setLabel("Toggle Off")
+        } else {
+            // to toggle on
+            GUISlot toggleButton = new GUISlot(gui, 9)
+                .setItem("GRAY_STAINED_GLASS_PANE")
+                .setLabel("Toggle On")
+        }
+        toggleButton.onClick(() -> {
+            quest.toggle();
+        })
     }
     
 }
