@@ -49,4 +49,19 @@ public class FileUtils {
             throw new IOException("Could not read the '" + filename + "' file.", e);
         }
     }
+
+    /**
+     * Deletes a file at the specified path.
+     * @param filename relative child path + filename
+     * @throws IOException when the file cannot be deleted
+     */
+    public static void delete(String filename) throws IOException {
+        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+
+        try {
+            Files.delete(fullPath);
+        } catch (IOException e) {
+            throw new IOException("Could not delete the '" + filename + "' file.", e);
+        }
+    }
 }

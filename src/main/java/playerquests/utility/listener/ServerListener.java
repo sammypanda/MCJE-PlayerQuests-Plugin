@@ -1,5 +1,6 @@
 package playerquests.utility.listener;
 
+import java.io.File;
 import java.io.IOException; // thrown when a file operation fails, like reading
 
 import org.bukkit.Bukkit; // bukkit API
@@ -32,21 +33,24 @@ public class ServerListener implements Listener {
 
     @EventHandler
     public void onLoad(ServerLoadEvent event) {
+        // create plugin folder if it doesn't exist
+        File f = new File(Core.getPlugin().getDataFolder() + "/");
+        if (!f.exists()) {
+            f.mkdir();
+        }
+
+        // initialise the database
+        Database.getInstance().init();
+
         if (event.getEventName().equals("RELOAD")) {
             Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
             QuestRegistry.getInstance().clear();
         }
 
-        ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
-        
-        // configure the mapper
-        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
-        jsonObjectMapper.setSerializationInclusion(Include.NON_NULL);
-
         // try to submit database quests to quest registry
         Database.getInstance().getAllQuests().forEach(id -> {
             try {
-                Quest newQuest = jsonObjectMapper.readValue(FileUtils.get("quest/templates/" + id + ".json"), Quest.class);
+                Quest newQuest = Quest.fromTemplateString(FileUtils.get("quest/templates/" + id + ".json"));
                 QuestRegistry.getInstance().submit(newQuest);
             } catch (JsonMappingException e) {
                 System.err.println("Could not accurately map template: " + id + ", to the Quest object. " + e);

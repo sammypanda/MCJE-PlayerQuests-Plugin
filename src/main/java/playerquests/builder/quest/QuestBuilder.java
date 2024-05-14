@@ -1,6 +1,5 @@
 package playerquests.builder.quest;
 
-import java.io.IOException; // thrown if a file cannot be created
 import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
 import java.util.List; // generic list type
@@ -10,9 +9,6 @@ import java.util.stream.IntStream; // used to iterate over a range
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
-import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot serialise
-import com.fasterxml.jackson.databind.ObjectMapper; // turns objects into json
-import com.fasterxml.jackson.databind.SerializationFeature; // configures json serialisation 
 
 import playerquests.Core; // gets the KeyHandler singleton
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
@@ -20,14 +16,17 @@ import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
-import playerquests.utility.FileUtils; // creates files
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
  * For creating and managing a Quest.
  */
-// TODO: create QuestAction outline
 public class QuestBuilder {
+
+    /**
+     * Whether the plugin has a creator/is universal
+     */
+    private Boolean universal = false;
 
     /**
      * Used to access plugin functionality.
@@ -82,6 +81,62 @@ public class QuestBuilder {
         // set as the current quest in the director
         director.setCurrentInstance(this);
         this.build(); // build default product
+    }
+
+    /**
+     * Returns a new quest from an existing quest
+     * product object.
+     * @param director used to control the plugin
+     * @param product the quest template to create a new builder from
+     */
+    public QuestBuilder(ClientDirector director, Quest product) {
+        this.director = director;
+
+        // add the entry point stage from the product
+        this.entryPoint = product.getStages().get(product.getEntry());
+        director.setCurrentInstance(this.entryPoint); // make it modifiable
+
+        // add the stages from the product
+        this.questPlan = product.getStages();
+
+        // recurse submission of stages to KeyHandler registry
+        this.questPlan.values().stream().forEach(stage -> {
+            Core.getKeyHandler().registerInstance(stage);
+        });
+
+        // add the NPCs from the product
+        this.questNPCs = product.getNPCs();
+
+        // set the new quest title the same as the product quest title
+        this.title = product.getTitle();
+
+        if (product.getCreator() == null) {
+            // set the quest as a universal one
+            this.universal = true;
+            director.setCurrentInstance(this.build());
+        } else {
+            // set as the current quest in the director
+            director.setCurrentInstance(this);
+        }
+
+        // create quest product from this builder
+        this.build();
+    }
+
+    /**
+     * Add a creator to an otherwise universal quest.
+     * @param director the client director to refer to the creator via
+     */
+    public QuestBuilder setDirector(ClientDirector director) {
+        this.director = director;
+        
+        if (director != null) {
+            director.setCurrentInstance(this);
+            this.universal = false;
+            this.build();
+        }
+
+        return this;
     }
 
     /**
@@ -232,15 +287,20 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public Quest build() {
+        // compose the quest product from the builder state
         Quest product = new Quest(
             this.title,
             this.entryPoint,
             this.questNPCs,
             this.questPlan,
-            this.director.getPlayer().getUniqueId()
+            this.universal ? null : this.director.getPlayer().getUniqueId()
         );
 
-        director.setCurrentInstance(product);
+        // set this quest as in-focus to the creator
+        if (!universal) {
+            director.setCurrentInstance(product);
+        }
+
         return product;
     }
 }

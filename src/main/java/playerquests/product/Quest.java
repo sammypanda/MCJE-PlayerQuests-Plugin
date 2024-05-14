@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
+import javax.xml.crypto.Data;
+
 import org.bukkit.Bukkit; // Bukkit API
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // configures ignoring unknown fields
 import com.fasterxml.jackson.annotation.JsonManagedReference; // refers to the parent of a back reference
 import com.fasterxml.jackson.annotation.JsonProperty; // how a property is serialised
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json is invalid
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/serialise this class
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
@@ -22,6 +27,7 @@ import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
+import playerquests.utility.singleton.Database;
 
 /**
  * The Quest product containing all the information 
@@ -102,6 +108,32 @@ public class Quest {
     }
 
     /**
+     * Creates a quest product from a string template.
+     * @param questTemplate the (json) string quest template
+     * @return the quest product created from the quest template
+     */
+    public static Quest fromTemplateString(String questTemplate) {
+        Quest quest = null;
+        ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
+        
+        // configure the mapper
+        jsonObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
+        jsonObjectMapper.setSerializationInclusion(Include.NON_NULL);
+
+        // create the quest product
+        try {
+            quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException("Could not map the quest template string to a valid quest product.", e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Malformed JSON attempted as a quest template string.", e);
+        }
+
+        return quest;
+    }
+
+    /**
      * Gets the label of this quest.
      * @return the label of this quest
      */
@@ -151,7 +183,10 @@ public class Quest {
      */
     @JsonProperty("id") 
     public String getID() {
-        return String.format("%s_%s" , title, creator);
+        return String.format("%s%s", 
+            title, 
+            creator != null ? "_"+creator : ""
+        );
     }
 
     /**
@@ -176,13 +211,12 @@ public class Quest {
     /**
      * Saves a quest into the QuestBuilder.savePath.
      * @return the response message
-     * @throws IllegalArgumentException when saving is not safe/possible
      */
     @Key("quest")
-    public String save() throws IllegalArgumentException {
+    public String save() {
         try {
             FileUtils.create( // create the template json file
-                "quest/templates/" + this.title + "_" + this.creator.toString() + ".json", // name pattern
+                "quest/templates/" + this.getID() + ".json", // name pattern
                 this.toTemplateString().getBytes() // put the content in the file
             );
         } catch (IOException e) {
@@ -206,5 +240,16 @@ public class Quest {
         });
         
         return actions;   
+    }
+
+    public boolean isToggled() {
+        return Database.getQuestToggled(this);
+    }
+
+    public void toggle() {
+        Database.setQuestToggled(
+            this,
+            !Database.getQuestToggled(this)
+        );
     }
 }

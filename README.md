@@ -59,7 +59,7 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
             "actions": { // directory of all this stage's actions
                 "action_0": {  // Action ID (automatically generated)
                     "type": String, // Quest Action type
-                    "name": String, // Quest Action name
+                    "id": String, // Quest Action ID
                     "npc": String, // NPC ID (if applicable)
                     "dialogue": String Array // Dialogue lines (if applicable) 
                     "connections": { // defining where the action is in the stage

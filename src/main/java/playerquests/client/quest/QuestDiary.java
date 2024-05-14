@@ -212,7 +212,6 @@ public class QuestDiary {
         Player player = this.getPlayer(this.dbPlayerID);
         Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
         Map<String, QuestAction> actions = quest.getActions();
-        System.out.println("quest progress quest (" + questID + "): " + quest);
 
         if (player == null) {
             System.err.println("No player found for this QuestDiary, cannot try to set Quest progress.");

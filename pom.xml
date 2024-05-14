@@ -4,7 +4,7 @@
 
   <groupId>moe.sammypanda</groupId>
   <artifactId>playerquests</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
 
   <packaging>jar</packaging>
 
@@ -73,6 +73,13 @@
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
       <version>3.45.2.0</version>
+    </dependency>
+
+    <!-- Maven library -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <version>3.3.9</version>
     </dependency>
 
   </dependencies>
