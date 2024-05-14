@@ -243,13 +243,13 @@ public class Quest {
     }
 
     public boolean isToggled() {
-        return Database.getQuestToggled(this.getID());
+        return Database.getQuestToggled(this);
     }
 
     public void toggle() {
         Database.setQuestToggled(
-            this.getID(),
-            !Database.getQuestToggled(this.getID())
+            this,
+            !Database.getQuestToggled(this)
         );
     }
 }

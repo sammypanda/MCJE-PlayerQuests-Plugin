@@ -24,6 +24,7 @@ import org.bukkit.util.FileUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import playerquests.Core;
+import playerquests.product.Quest;
 
 /**
  * API representing and providing access to the game database.
@@ -385,14 +386,14 @@ public class Database {
         }
     }
 
-    public static Boolean getQuestToggled(String id) {
+    public static Boolean getQuestToggled(Quest quest) {
         try {
             // Add player to players table
             String addQuestSQL = "SELECT toggled FROM quests WHERE id = ?;";
 
             PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
 
-            preparedStatement.setString(1, id); // parameterIndex starts at 1
+            preparedStatement.setString(1, quest.getID()); // parameterIndex starts at 1
 
             ResultSet results = preparedStatement.executeQuery();
             Boolean state = results.getBoolean("toggled");
@@ -402,12 +403,12 @@ public class Database {
             return state;
 
         } catch (SQLException e) {
-            System.err.println("Could not get the quest to toggle " + id + ". " + e.getMessage());
+            System.err.println("Could not get the quest to toggle " + quest.toString() + ". " + e.getMessage());
             return null;
         }
     }
 
-    public static void setQuestToggled(String id, Boolean state) {
+    public static void setQuestToggled(Quest quest, Boolean state) {
         try {
             // Add player to players table
             String addQuestSQL = "UPDATE quests SET toggled = ? WHERE id = ?;";
@@ -415,13 +416,19 @@ public class Database {
             PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
 
             preparedStatement.setBoolean(1, state); // parameterIndex starts at 1
-            preparedStatement.setString(2, id);
+            preparedStatement.setString(2, quest.getID());
             preparedStatement.execute();
 
             getConnection().close();
 
+            if (state) {
+                QuestRegistry.getInstance().submit(quest);
+            } else {
+                QuestRegistry.getInstance().remove(quest);
+            }
+
         } catch (SQLException e) {
-            System.err.println("Could not toggle the quest " + id + ". " + e.getMessage());
+            System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
         }
     }
 
