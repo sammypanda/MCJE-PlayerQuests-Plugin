@@ -82,7 +82,7 @@ public class Dynamicqueststage extends GUIDynamic {
         });
 
         // add new action button
-        GUISlot newActionButton = new GUISlot(this.gui, 9);
+        GUISlot newActionButton = new GUISlot(this.gui, 8);
         newActionButton.setLabel("New Action");
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
@@ -90,6 +90,11 @@ public class Dynamicqueststage extends GUIDynamic {
             this.gui.clearSlots(); // clear to prevent duplicates
             this.execute(); // re-run to see new action in list
         });
+
+        // re-arrange button
+        new GUISlot(gui, 9)
+            .setItem("STICKY_PISTON")
+            .setLabel("Re-arrange");
     }
     
 }

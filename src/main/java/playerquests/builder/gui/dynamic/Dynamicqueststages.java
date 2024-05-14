@@ -91,5 +91,10 @@ public class Dynamicqueststages extends GUIDynamic {
 
             return false; // continue the loop
         });
+
+        // re-arrange button
+        new GUISlot(gui, 9)
+            .setItem("STICKY_PISTON")
+            .setLabel("Re-arrange");
     }
 }
