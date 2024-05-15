@@ -7,6 +7,7 @@ import java.util.regex.Pattern; // creating regex pattern
 import com.fasterxml.jackson.databind.JsonNode; // type to interpret json objects
 
 import playerquests.Core; // getting the keyhandler
+import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.client.ClientDirector; // controlling the plugin
 
 /**
@@ -28,6 +29,11 @@ public class GUIFrame {
      * Number of slots in the GUI.
      */
     Integer size = 9;
+
+    /**
+     * How the GUI can currently be interacted with.
+     */
+    GUIMode mode = GUIMode.CLICK;
 
     /**
      * Construct a GUI frame with default content.
@@ -111,6 +117,23 @@ public class GUIFrame {
      */
     public Integer getSize() {
         return this.size;
+    }
+
+    /**
+     * Sets the mode the GUI is in.
+     * @param mode how the GUI can be interacted with
+     */
+    public void setMode(GUIMode mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * Get the mode the GUI is in.
+     * @see #GUIMode
+     * @return whether the GUI can be interacted with in a certain way
+     */
+    public GUIMode getMode() {
+        return this.mode;
     }
 
 }

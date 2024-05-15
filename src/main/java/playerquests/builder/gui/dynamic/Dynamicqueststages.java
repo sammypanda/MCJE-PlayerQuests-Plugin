@@ -5,6 +5,7 @@ import java.util.Arrays; // working with literal arrays
 import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
+import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
 import playerquests.client.ClientDirector; // for controlling the plugin
@@ -95,6 +96,9 @@ public class Dynamicqueststages extends GUIDynamic {
         // re-arrange button
         new GUISlot(gui, 9)
             .setItem("STICKY_PISTON")
-            .setLabel("Re-arrange");
+            .setLabel("Re-arrange")
+            .onClick(() -> {
+                this.gui.getFrame().setMode(GUIMode.ARRANGE);
+            });
     }
 }

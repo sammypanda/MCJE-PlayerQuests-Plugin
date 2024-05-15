@@ -6,6 +6,7 @@ import java.util.List; // generic list type
 import java.util.stream.IntStream; // used to iterate over a series
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
+import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.stage.QuestStage;
@@ -94,7 +95,10 @@ public class Dynamicqueststage extends GUIDynamic {
         // re-arrange button
         new GUISlot(gui, 9)
             .setItem("STICKY_PISTON")
-            .setLabel("Re-arrange");
+            .setLabel("Re-arrange")
+            .onClick(() -> {
+                this.gui.getFrame().setMode(GUIMode.ARRANGE);
+            });
     }
     
 }

@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryType; // used to check if the clicked
 
 import playerquests.builder.gui.GUIBuilder; // used to control the GUIs
 import playerquests.builder.gui.component.GUISlot; // contains GUI slot functions/content
+import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.product.GUI; // the GUI product itself
 
 /**
@@ -79,6 +80,11 @@ public class GUIListener implements Listener {
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
 
         if (this.isGUI(event) && !this.isEmptySlot(slotPosition)) { // if it's valid to register a GUI Slot click.
+            if (this.builder.getFrame().getMode().equals(GUIMode.ARRANGE)) {
+                // TODO: restrict placing objects into own inventory
+                // TODO: ask/doctor which items can be dragged and which will cancel [?]
+                return;
+            }
             event.setCancelled(true); // disallow taking slot items from GUI
 
             GUISlot slot = this.builder.getSlot(slotPosition);
