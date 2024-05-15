@@ -50,19 +50,14 @@ public class GUIListener implements Listener {
     }
 
     /**
-     * Utility to check if the GUI is not null and
-     * if the player is clicking the actual GUI itself.
-     * @return if in a GUI clicking in the GUI (CHEST inventory) area.
+     * Utility to check if the player is clicking the actual GUI itself.
+     * @return
      */
-    private Boolean isGUI(InventoryClickEvent event) {
-
-        Boolean validInventory = Optional.ofNullable(
+    private Boolean isGUIInventory(InventoryClickEvent event) {
+        return Optional.ofNullable(
             event.getClickedInventory()).map(inventory -> { // get the clicked inventory
                 return (inventory.getType() == InventoryType.CHEST); // check if the inventory type is a CHEST
             }).orElse(false);
-
-        // if the null GUI check and this GUI check pass.
-        return (this.isGUI() && validInventory);
     }
 
     private Boolean isEmptySlot(Integer slotPosition) {
@@ -79,17 +74,34 @@ public class GUIListener implements Listener {
     public void onClickItem(InventoryClickEvent event) {
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
 
-        if (this.isGUI(event) && !this.isEmptySlot(slotPosition)) { // if it's valid to register a GUI Slot click.
-            if (this.builder.getFrame().getMode().equals(GUIMode.ARRANGE)) {
-                // TODO: restrict placing objects into own inventory
-                // TODO: ask/doctor which items can be dragged and which will cancel [?]
-                return;
-            }
-            event.setCancelled(true); // disallow taking slot items from GUI
+        // if no GUI visible
+        if (!this.isGUI()) {
+            return;
+        }
 
-            GUISlot slot = this.builder.getSlot(slotPosition);
-            slot.execute(event.getWhoClicked()); // run the functions for this slot
-            slot.clicked(); // register that this slot has been pressed
+        switch (this.builder.getFrame().getMode()) {
+            case CLICK:
+
+                if (this.isGUIInventory(event) && !this.isEmptySlot(slotPosition)) {
+                    GUISlot slot = this.builder.getSlot(slotPosition);
+
+                    event.setCancelled(true); // disallow taking slot items from GUI
+                    slot.execute(event.getWhoClicked()); // run the functions for this slot
+                    slot.clicked(); // register that this slot has been pressed
+                }
+
+                break;
+
+            case ARRANGE:
+
+                if (!this.isGUIInventory(event)) { // if not the GUI..
+                    event.setCancelled(true); // disallow placing GUI items into own inventory
+                }
+
+                break;
+
+            default:
+                break;
         }
     }
 
