@@ -10,7 +10,9 @@ import org.bukkit.inventory.InventoryView; // the view of the GUI
 import org.bukkit.inventory.ItemFlag; // modifying item meta attributes
 import org.bukkit.inventory.ItemStack; // to visually represent buttons
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
+import org.bukkit.persistence.PersistentDataType; // tagging GUI items with GUI=true
 
+import playerquests.Core; // getting the GUI NamespacedKey
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
 import playerquests.builder.gui.component.GUISlot; // GUI buttons
@@ -135,8 +137,8 @@ public class GUI {
             itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 
             // Edit the ItemMeta
-            // Set the slot label
-            itemMeta.setDisplayName(slot.getLabel());
+            itemMeta.setDisplayName(slot.getLabel()); // set the slot label
+            itemMeta.getPersistentDataContainer().set(Core.getGUIKey(), PersistentDataType.STRING, "true"); // set GUI=true
 
             // Return the ItemMeta to the ItemStack
             item.setItemMeta(itemMeta);
