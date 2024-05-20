@@ -80,6 +80,10 @@ public class Dynamicqueststages extends GUIDynamic {
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
             questSlot.onClick(() -> {
+                if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+                    return;
+                }
+
                 // set the stage as the current instance to modify
                 this.director.setCurrentInstance(this.questBuilder.getQuestPlan().get(stage));
 
@@ -94,11 +98,28 @@ public class Dynamicqueststages extends GUIDynamic {
         });
 
         // re-arrange button
-        new GUISlot(gui, 9)
-            .setItem("STICKY_PISTON")
-            .setLabel("Re-arrange")
-            .onClick(() -> {
-                this.gui.getFrame().setMode(GUIMode.ARRANGE);
-            });
+        if (this.gui.getFrame().getMode() == null || this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+            new GUISlot(gui, 9)
+                .setItem("STICKY_PISTON")
+                .setLabel("Re-arrange")
+                .onClick(() -> {
+                    this.gui.getFrame().setMode(GUIMode.ARRANGE);
+                    this.gui.clearSlots(); // clear the auto-generated slots
+                    this.execute();
+                });
+        } else {
+            new GUISlot(gui, 9)
+                .setItem("GREEN_WOOL")
+                .setLabel("Done")
+                .onClick(() -> {
+                    // TODO: CALCULATE and SET the sequence in the quest
+                    
+                    this.gui.getFrame().setMode(GUIMode.CLICK);
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList("queststages")), 
+                        director
+                    ).execute();
+                });
+        }
     }
 }

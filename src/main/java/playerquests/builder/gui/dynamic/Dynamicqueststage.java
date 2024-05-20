@@ -9,6 +9,7 @@ import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.action.None;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 
@@ -23,6 +24,11 @@ public class Dynamicqueststage extends GUIDynamic {
     QuestStage questStage;
 
     /**
+     * Listing current actions
+     */
+    List<String> actionKeys;
+
+    /**
      * Creates a dynamic GUI to edit a quest stage.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -35,6 +41,9 @@ public class Dynamicqueststage extends GUIDynamic {
     protected void setUp_custom() {
         // set the quest stage instance
         this.questStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
+
+        // set actionKeys
+        this.actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
     }
 
     @Override
@@ -51,7 +60,6 @@ public class Dynamicqueststage extends GUIDynamic {
         ));
 
         // produce slots listing current actions
-        List<String> actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
         IntStream.range(0, actionKeys.size()).anyMatch(index -> {
 
             String action = actionKeys.get(index);
@@ -68,6 +76,10 @@ public class Dynamicqueststage extends GUIDynamic {
             }
 
             actionSlot.onClick(() -> {
+                if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+                    return;
+                }
+
                 // set the action as the current action to modify
                 this.questStage.setActionToEdit(actionKeys.get(index));
                 // prep the screen to be updated
@@ -88,17 +100,37 @@ public class Dynamicqueststage extends GUIDynamic {
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
             new None(this.questStage).submit(); // create the new action to present
-            this.gui.clearSlots(); // clear to prevent duplicates
             this.execute(); // re-run to see new action in list
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("queststage")), 
+                director
+            ).execute();
         });
 
         // re-arrange button
-        new GUISlot(gui, 9)
-            .setItem("STICKY_PISTON")
-            .setLabel("Re-arrange")
-            .onClick(() -> {
-                this.gui.getFrame().setMode(GUIMode.ARRANGE);
-            });
+        if (this.gui.getFrame().getMode() == null || this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+            new GUISlot(gui, 9)
+                .setItem("STICKY_PISTON")
+                .setLabel("Re-arrange")
+                .onClick(() -> {
+                    this.gui.getFrame().setMode(GUIMode.ARRANGE);
+                    this.gui.clearSlots(); // clear the auto-generated slots
+                    this.execute();
+                });
+        } else {
+            new GUISlot(gui, 9)
+                .setItem("GREEN_WOOL")
+                .setLabel("Done")
+                .onClick(() -> {
+                    // TODO: CALCULATE and SET the sequence in the quest
+                    
+                    this.gui.getFrame().setMode(GUIMode.CLICK);
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList("queststage")), 
+                        director
+                    ).execute();
+                });
+        }
     }
     
 }

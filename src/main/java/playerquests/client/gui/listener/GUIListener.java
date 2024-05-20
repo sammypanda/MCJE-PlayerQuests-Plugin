@@ -157,9 +157,10 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onClickItem(InventoryClickEvent event) {
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
+        GUISlot slot = this.builder.getSlot(slotPosition); // get the slot data
 
-        // if no GUI visible
-        if (!this.isGUI()) {
+        // if no GUI visible or no slot clicked
+        if (!this.isGUI() || slot == null) {
             return;
         }
 
@@ -167,11 +168,7 @@ public class GUIListener implements Listener {
             case CLICK:
 
                 if (this.isGUIInventory(event) && !this.isEmptySlot(slotPosition)) {
-                    GUISlot slot = this.builder.getSlot(slotPosition);
-
                     event.setCancelled(true); // disallow taking slot items from GUI
-                    slot.execute(event.getWhoClicked()); // run the functions for this slot
-                    slot.clicked(); // register that this slot has been pressed
                 }
 
                 break;
@@ -187,6 +184,10 @@ public class GUIListener implements Listener {
             default:
                 break;
         }
+
+        // running GUI functions
+        slot.execute(event.getWhoClicked()); // run the functions for this slot
+        slot.clicked(); // register that this slot has been pressed
     }
 
     /**
