@@ -49,15 +49,28 @@ public class Dynamicqueststage extends GUIDynamic {
     @Override
     protected void execute_custom() {
         this.gui.getFrame().setTitle("{QuestStage} Editor");
+        this.gui.getFrame().setSize(18);
 
         // the back button
-        GUISlot exitButton = new GUISlot(this.gui, 1);
+        GUISlot exitButton = new GUISlot(this.gui, 10);
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList("queststages")), // set the previous screen 
             director // set the client director
         ));
+
+        // left side dividers
+        new GUISlot(this.gui, 2)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+
+        new GUISlot(this.gui, 11)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+
+        // sequence editor button
+        new GUISlot(this.gui, 1)
+            .setItem("STICKY_PISTON")
+            .setLabel("Change Sequence");
 
         // produce slots listing current actions
         IntStream.range(0, actionKeys.size()).anyMatch(index -> {
@@ -95,7 +108,7 @@ public class Dynamicqueststage extends GUIDynamic {
         });
 
         // add new action button
-        GUISlot newActionButton = new GUISlot(this.gui, 8);
+        GUISlot newActionButton = new GUISlot(this.gui, 18);
         newActionButton.setLabel("New Action");
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
