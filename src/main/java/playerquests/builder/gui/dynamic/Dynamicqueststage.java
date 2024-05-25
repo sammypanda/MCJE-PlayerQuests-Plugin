@@ -106,31 +106,6 @@ public class Dynamicqueststage extends GUIDynamic {
                 director
             ).execute();
         });
-
-        // re-arrange button
-        if (this.gui.getFrame().getMode() == null || this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
-            new GUISlot(gui, 9)
-                .setItem("STICKY_PISTON")
-                .setLabel("Re-arrange")
-                .onClick(() -> {
-                    this.gui.getFrame().setMode(GUIMode.ARRANGE);
-                    this.gui.clearSlots(); // clear the auto-generated slots
-                    this.execute();
-                });
-        } else {
-            new GUISlot(gui, 9)
-                .setItem("GREEN_WOOL")
-                .setLabel("Done")
-                .onClick(() -> {
-                    // TODO: CALCULATE and SET the sequence in the quest
-                    
-                    this.gui.getFrame().setMode(GUIMode.CLICK);
-                    new UpdateScreen(
-                        new ArrayList<>(Arrays.asList("queststage")), 
-                        director
-                    ).execute();
-                });
-        }
     }
     
 }
