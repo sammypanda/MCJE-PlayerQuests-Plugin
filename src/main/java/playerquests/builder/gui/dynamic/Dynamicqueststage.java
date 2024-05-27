@@ -70,7 +70,15 @@ public class Dynamicqueststage extends GUIDynamic {
         // sequence editor button
         new GUISlot(this.gui, 1)
             .setItem("STICKY_PISTON")
-            .setLabel("Change Sequence");
+            .setLabel("Change Sequence")
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.questStage.getConnections());
+
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    director
+                ).execute();
+            });
 
         // produce slots listing current actions
         IntStream.range(0, actionKeys.size()).anyMatch(index -> {
