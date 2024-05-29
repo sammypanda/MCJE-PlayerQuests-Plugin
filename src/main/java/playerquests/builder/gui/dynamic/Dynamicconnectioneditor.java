@@ -1,6 +1,10 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.client.ClientDirector;
 
@@ -37,7 +41,13 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                     prev != null ? "Change Previous Step" : "Set Previous Step",
                     prev != null ? "("+prev+")" : ""
                 )
-            );
+            )
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    director
+                ).execute();
+            });
 
         new GUISlot(gui, 2)
             .setItem("PISTON")
@@ -46,7 +56,13 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                     curr != null ? "Change Current Step" : "Set Current Step",
                     curr != null ? "("+curr+")" : ""
                 )
-            );
+            )
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    director
+                ).execute();
+            });
 
         new GUISlot(gui, 3)
             .setItem("PISTON")
@@ -55,7 +71,13 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                     next != null ? "Change Next Step" : "Set Next Step",
                     next != null ? "("+next+")" : ""
                 )
-            );
+            )
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    director
+                ).execute();
+            });
     }
     
 }
