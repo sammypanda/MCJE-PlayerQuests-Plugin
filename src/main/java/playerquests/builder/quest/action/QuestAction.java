@@ -62,11 +62,6 @@ public abstract class QuestAction {
     private String action;
 
     /**
-     * The string representation of the type.
-     */
-    private String type;
-
-    /**
      * The connections for the quest action.
      */
     @JsonProperty("connections")
@@ -88,7 +83,6 @@ public abstract class QuestAction {
         this.stage = stage;
         this.action = "action_-1";
         this.actionOptions = this.initOptions();
-        this.type = this.getClass().getSimpleName();
     }
 
     /**
@@ -115,7 +109,7 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public String getType() {
-        return this.type;
+        return this.getClass().getSimpleName();
     }
 
     /** 

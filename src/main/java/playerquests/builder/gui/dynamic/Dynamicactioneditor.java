@@ -101,10 +101,12 @@ public class Dynamicactioneditor extends GUIDynamic {
         GUISlot typeButton = new GUISlot(this.gui, 1);
         typeButton.setItem("FIREWORK_ROCKET");
         typeButton.setLabel("Change Type (" + this.action.toString() + ")");
-        typeButton.addFunction(new UpdateScreen(
-            new ArrayList<>(Arrays.asList("actiontypes")),
-            director
-        ));
+        typeButton.onClick(() -> {
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("actiontypes")),
+                director
+            ).execute();
+        });
 
         // setting current as stage entry point button
         GUISlot entrypointButton = new GUISlot(this.gui, 2);
