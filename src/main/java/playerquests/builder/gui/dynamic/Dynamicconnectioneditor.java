@@ -26,8 +26,6 @@ public class Dynamicconnectioneditor extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
-        this.director.getPlayer().sendMessage(this.connections.toString());
-
         String prev = this.connections.getPrev();
         String curr = this.connections.getCurr();
         String next = this.connections.getNext();
