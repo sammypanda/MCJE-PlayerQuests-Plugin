@@ -46,6 +46,16 @@ public class Dynamicselectconnection extends GUIDynamic {
             new GUISlot(gui, 1)
                 .setLabel("Just Select This Stage")
                 .setItem("YELLOW_DYE");
+
+            new GUISlot(gui, 19)
+                .setLabel("Back")
+                .setItem("OAK_DOOR")
+                .onClick(() -> {
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList(previousScreen)),
+                        director
+                    ).execute();
+                });
         } else {
             // show the quest stages //
 
