@@ -18,6 +18,11 @@ public class Dynamicselectconnection extends GUIDynamic {
      * The quest we are editing.
      */
     QuestBuilder questBuilder;
+    
+    /**
+     * The stage that has been selected.
+     */
+    QuestStage selectedStage = null;
 
     public Dynamicselectconnection(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
@@ -35,31 +40,46 @@ public class Dynamicselectconnection extends GUIDynamic {
         frame.setTitle("Select Connection");
         frame.setSize(27);
 
-        int rangeOffset = 1; // the amount to subtract from the slot number, to get an index from 0
-        List<String> stages = questBuilder.getStages();
-        IntStream.range(1, 19).forEach((int slot) -> {
-            int i = slot - rangeOffset;
+        if (this.selectedStage != null) { // if user has selected a stage
+            // show the stage actions //
 
-            if (stages.size() < i + 1) {
-                return;
-            }
+            new GUISlot(gui, 1)
+                .setLabel("Just Select This Stage")
+                .setItem("YELLOW_DYE");
+        } else {
+            // show the quest stages //
 
-            QuestStage stage = questBuilder.getQuestPlan().get(stages.get(i));
+            int rangeOffset = 1; // the amount to subtract from the slot number, to get an index from 0
+            List<String> stages = questBuilder.getStages();
+            IntStream.range(1, 19).forEach((int slot) -> {
+                int i = slot - rangeOffset;
 
-            new GUISlot(gui, slot)
-                .setLabel(stage.getTitle())
-                .setItem("CHEST");
-        });
+                if (stages.size() < i + 1) {
+                    return;
+                }
 
-        new GUISlot(gui, 19)
-            .setLabel("Back")
-            .setItem("OAK_DOOR")
-            .onClick(() -> {
-                new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(previousScreen)),
-                    director
-                ).execute();
+                QuestStage stage = questBuilder.getQuestPlan().get(stages.get(i));
+
+                new GUISlot(gui, slot)
+                    .setLabel(stage.getTitle())
+                    .setItem("CHEST")
+                    .onClick(() -> {
+                        this.selectedStage = stage;
+                        gui.clearSlots();
+                        this.execute();
+                    });
             });
+
+            new GUISlot(gui, 19)
+                .setLabel("Back")
+                .setItem("OAK_DOOR")
+                .onClick(() -> {
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList(previousScreen)),
+                        director
+                    ).execute();
+                });
+        }
     }
     
 }

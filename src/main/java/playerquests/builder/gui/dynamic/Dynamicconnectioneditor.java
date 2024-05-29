@@ -35,6 +35,16 @@ public class Dynamicconnectioneditor extends GUIDynamic {
         this.gui.getFrame().setTitle("Sequence Editor");
 
         new GUISlot(gui, 1)
+            .setLabel("Back")
+            .setItem("OAK_DOOR")
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList(previousScreen)),
+                    director
+                ).execute();
+            });
+
+        new GUISlot(gui, 2)
             .setItem("PISTON")
             .setLabel(
                 String.format("%s %s", 
@@ -49,7 +59,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                 ).execute();
             });
 
-        new GUISlot(gui, 2)
+        new GUISlot(gui, 3)
             .setItem("PISTON")
             .setLabel(
                 String.format("%s %s", 
@@ -64,7 +74,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                 ).execute();
             });
 
-        new GUISlot(gui, 3)
+        new GUISlot(gui, 4)
             .setItem("PISTON")
             .setLabel(
                 String.format("%s %s", 
