@@ -2,6 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
@@ -24,6 +25,12 @@ public class Dynamicselectconnection extends GUIDynamic {
         
         frame.setTitle("Select Connection");
         frame.setSize(27);
+
+        IntStream.range(1, 19).forEach((int slot) -> {
+            new GUISlot(gui, slot)
+                .setLabel("[A Stage]")
+                .setItem("CHEST");
+        });
 
         new GUISlot(gui, 19)
             .setLabel("Back")
