@@ -9,6 +9,7 @@ import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 
 public class Dynamicselectconnection extends GUIDynamic {
@@ -43,8 +44,10 @@ public class Dynamicselectconnection extends GUIDynamic {
                 return;
             }
 
+            QuestStage stage = questBuilder.getQuestPlan().get(stages.get(i));
+
             new GUISlot(gui, slot)
-                .setLabel("[A Stage]")
+                .setLabel(stage.getTitle())
                 .setItem("CHEST");
         });
 
