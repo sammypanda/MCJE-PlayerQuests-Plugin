@@ -9,6 +9,7 @@ import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 
@@ -46,6 +47,22 @@ public class Dynamicselectconnection extends GUIDynamic {
             new GUISlot(gui, 1)
                 .setLabel("Just Select This Stage")
                 .setItem("YELLOW_DYE");
+
+            int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
+            List<String> actions = new ArrayList<>(selectedStage.getActions().keySet());
+            IntStream.range(2, 19).forEach((int slot) -> {
+                int i = slot - rangeOffset;
+
+                if (actions.size() < i + 1) {
+                    return;
+                }
+
+                QuestAction action = selectedStage.getActions().get(actions.get(i));
+
+                new GUISlot(gui, slot)
+                    .setLabel(action.getID())
+                    .setItem("DETECTOR_RAIL");
+            });
 
             new GUISlot(gui, 19)
                 .setLabel("Back")
