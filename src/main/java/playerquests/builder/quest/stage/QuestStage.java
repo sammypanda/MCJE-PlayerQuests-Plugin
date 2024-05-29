@@ -224,4 +224,9 @@ public class QuestStage {
     public ConnectionsData getConnections() {
         return this.connections;
     }
+
+    @Override
+    public String toString() {
+        return this.stageID;
+    }
 }

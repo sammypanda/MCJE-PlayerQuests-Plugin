@@ -106,7 +106,7 @@ public abstract class QuestAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return this.action;
     }
 
     /**

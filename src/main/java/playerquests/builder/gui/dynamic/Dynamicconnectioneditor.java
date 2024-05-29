@@ -53,10 +53,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                 )
             )
             .onClick(() -> {
-                new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("selectconnection")), 
-                    director
-                ).execute();
+                this.selectMenu("prev").execute();
             });
 
         new GUISlot(gui, 3)
@@ -68,10 +65,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                 )
             )
             .onClick(() -> {
-                new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("selectconnection")), 
-                    director
-                ).execute();
+                this.selectMenu("curr").execute();
             });
 
         new GUISlot(gui, 4)
@@ -83,11 +77,34 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                 )
             )
             .onClick(() -> {
-                new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("selectconnection")), 
-                    director
-                ).execute();
+                this.selectMenu("next").execute();
             });
+    }
+
+    UpdateScreen selectMenu(String connection) {
+        return (UpdateScreen) new UpdateScreen(
+            new ArrayList<>(Arrays.asList("selectconnection")), 
+            director
+        ).onFinish(function -> {
+            UpdateScreen functionUpdateScreen = (UpdateScreen) function;
+            Dynamicselectconnection connectionSelector = (Dynamicselectconnection) functionUpdateScreen.getDynamicGUI();
+
+            connectionSelector.onSelect((selectionObject) -> {
+                String selection = selectionObject.toString();
+
+                switch (connection) {
+                    case "prev":
+                        this.connections.setPrev(selection);
+                        break;
+                    case "curr":
+                        this.connections.setCurr(selection);
+                        break;
+                    case "next":
+                        this.connections.setNext(selection);
+                        break;
+                }
+            });
+        });
     }
     
 }

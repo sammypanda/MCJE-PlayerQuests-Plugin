@@ -3,6 +3,7 @@ package playerquests.builder.gui.dynamic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import playerquests.builder.gui.component.GUIFrame;
@@ -25,6 +26,16 @@ public class Dynamicselectconnection extends GUIDynamic {
      */
     QuestStage selectedStage = null;
 
+    /**
+     * The action that has been selected.
+     */
+    QuestAction selectedAction = null;
+
+    /**
+     * The code to run on connection select.
+     */
+    private Consumer<Object> onSelect;
+
     public Dynamicselectconnection(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -46,7 +57,10 @@ public class Dynamicselectconnection extends GUIDynamic {
 
             new GUISlot(gui, 1)
                 .setLabel("Just Select This Stage")
-                .setItem("YELLOW_DYE");
+                .setItem("YELLOW_DYE")
+                .onClick(() -> {
+                    this.select(this.selectedStage);
+                });
 
             int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
             List<String> actions = new ArrayList<>(selectedStage.getActions().keySet());
@@ -61,7 +75,10 @@ public class Dynamicselectconnection extends GUIDynamic {
 
                 new GUISlot(gui, slot)
                     .setLabel(action.getID())
-                    .setItem("DETECTOR_RAIL");
+                    .setItem("DETECTOR_RAIL")
+                    .onClick(() -> {
+                        this.select(action);
+                    });
             });
 
             new GUISlot(gui, 19)
@@ -107,6 +124,32 @@ public class Dynamicselectconnection extends GUIDynamic {
                     ).execute();
                 });
         }
+    }
+
+    /**
+     * Called when a connection is selected.
+     * @param object the selected stage/action
+     */
+    private void select(Object connection) {
+        if (this.onSelect != null) {
+            onSelect.accept(connection);
+        }
+
+        new UpdateScreen(
+            new ArrayList<>(Arrays.asList(this.previousScreen)), 
+            director
+        ).execute();
+    }
+
+    /**
+     * Code to run when a connection 
+     * (QuestAction or QuestStage) is selected.
+     * @param onSelect code operation
+     * @return the connection that was selected
+     */
+    public Object onSelect(Consumer<Object> onSelect) {
+        this.onSelect = onSelect;
+        return this.selectedAction;
     }
     
 }
