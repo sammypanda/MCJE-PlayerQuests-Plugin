@@ -49,11 +49,11 @@ public class Dynamicselectconnection extends GUIDynamic {
     protected void execute_custom() {
         GUIFrame frame = gui.getFrame();
         
-        frame.setTitle("Select Connection");
         frame.setSize(27);
 
         if (this.selectedStage != null) { // if user has selected a stage
             // show the stage actions //
+            frame.setTitle("Select Action");
 
             new GUISlot(gui, 1)
                 .setLabel("Just Select This Stage")
@@ -92,6 +92,7 @@ public class Dynamicselectconnection extends GUIDynamic {
                 });
         } else {
             // show the quest stages //
+            frame.setTitle("Select Stage");
 
             int rangeOffset = 1; // the amount to subtract from the slot number, to get an index from 0
             List<String> stages = questBuilder.getStages();

@@ -168,12 +168,22 @@ public class QuestBuilder {
     /**
      * Gets the entry point ID.
      * <p>
-     * Either an action or a stage.
+     * Should be a stage.
      * @return the string representation for the entry point
      */
     @JsonProperty("entry")
     public String getEntryPointString() {
         return this.entryPoint.getID();
+    }
+
+    /**
+     * Sets the entry point for this quest.
+     * <p>
+     * Should be a stage.
+     * @param stage what the entry point stage is
+     */
+    public void setEntryPoint(QuestStage stage) {
+        this.entryPoint = stage;
     }
 
     /**

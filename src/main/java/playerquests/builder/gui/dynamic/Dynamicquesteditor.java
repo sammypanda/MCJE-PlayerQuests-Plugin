@@ -10,6 +10,7 @@ import playerquests.builder.gui.function.Save; // saves data via GUI button
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.client.ClientDirector; // accessing the client state
+import playerquests.product.Quest;
 
 /**
  * Shows a dynamic GUI used for editing a quest.
@@ -92,6 +93,22 @@ public class Dynamicquesteditor extends GUIDynamic {
                     director
                 )
             );
+
+        new GUISlot(gui, 6) // change entry point
+            .setItem("ENDER_EYE")
+            .setLabel("Choose An Entry Point")
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    director
+                ).onFinish((f) -> {
+                    UpdateScreen function = (UpdateScreen) f;
+                    Dynamicselectconnection selector = (Dynamicselectconnection) function.getDynamicGUI();
+
+                    questBuilder.setEntryPoint(selector.selectedStage);
+                    selector.selectedStage.setEntryPoint(selector.selectedAction.getID());
+                }).execute();
+            });
 
         new GUISlot(gui, 9) // save quest button
             .setItem("GREEN_DYE")
