@@ -105,8 +105,13 @@ public class Dynamicquesteditor extends GUIDynamic {
                     UpdateScreen function = (UpdateScreen) f;
                     Dynamicselectconnection selector = (Dynamicselectconnection) function.getDynamicGUI();
 
-                    questBuilder.setEntryPoint(selector.selectedStage);
-                    selector.selectedStage.setEntryPoint(selector.selectedAction.getID());
+                    selector.onSelect((selected) -> {
+                        questBuilder.setEntryPoint(selector.selectedStage);
+
+                        if (selector.selectedAction != null) {
+                            selector.selectedStage.setEntryPoint(selector.selectedAction.getID());
+                        }
+                    });
                 }).execute();
             });
 

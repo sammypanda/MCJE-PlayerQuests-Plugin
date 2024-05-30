@@ -77,6 +77,7 @@ public class Dynamicselectconnection extends GUIDynamic {
                     .setLabel(action.getID())
                     .setItem("DETECTOR_RAIL")
                     .onClick(() -> {
+                        this.selectedAction = action;
                         this.select(action);
                     });
             });
