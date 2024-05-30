@@ -41,13 +41,13 @@ public class Dynamicqueststage extends GUIDynamic {
     protected void setUp_custom() {
         // set the quest stage instance
         this.questStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
-
-        // set actionKeys
-        this.actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
     }
 
     @Override
     protected void execute_custom() {
+        // set actionKeys
+        this.actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
+
         this.gui.getFrame().setTitle("{QuestStage} Editor");
         this.gui.getFrame().setSize(18);
 
@@ -120,12 +120,9 @@ public class Dynamicqueststage extends GUIDynamic {
         newActionButton.setLabel("New Action");
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
-            new None(this.questStage).submit(); // create the new action to present
+            new None(this.questStage).submit(); // create the new action
+            this.gui.clearSlots();
             this.execute(); // re-run to see new action in list
-            new UpdateScreen(
-                new ArrayList<>(Arrays.asList("queststage")), 
-                director
-            ).execute();
         });
     }
     
