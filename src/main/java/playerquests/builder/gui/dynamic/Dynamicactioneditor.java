@@ -79,8 +79,21 @@ public class Dynamicactioneditor extends GUIDynamic {
             director // set the client director
         ));
 
-        // the delete button
+        // connection editor
         new GUISlot(this.gui, 11)
+            .setItem("STICKY_PISTON")
+            .setLabel("Change Sequence")
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.action.getConnections());
+
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    director
+                ).execute();
+            });
+
+        // the delete button
+        new GUISlot(this.gui, 18)
             .setLabel("Delete Action")
             .setItem("RED_DYE")
             .onClick(() -> {
