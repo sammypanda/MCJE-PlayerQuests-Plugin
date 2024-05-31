@@ -39,7 +39,7 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
         "npc_0": { // NPC ID (automatically generated)
             "name": String, // the name of the NPC
             "assigned": {
-                "type": String, // type the NPC is assigned to (options: "Block")
+                "type": String, // type the NPC is assigned to (options: "BlockNPC")
                 "value": String // (options: block material)
             },
             "location": {

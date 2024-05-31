@@ -5,7 +5,7 @@
     "npc_0" : {
       "name" : "Beans",
       "assigned" : {
-        "type" : "Block",
+        "type" : "BlockNPC",
         "value" : "ACACIA_LOG"
       },
       "location" : {
@@ -20,7 +20,7 @@
     "npc_1" : {
       "name" : "(Sneaky Imposter) Beans",
       "assigned" : {
-        "type" : "Block",
+        "type" : "BlockNPC",
         "value" : "ACACIA_LOG"
       },
       "location" : {
