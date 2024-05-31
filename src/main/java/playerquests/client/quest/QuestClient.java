@@ -250,6 +250,12 @@ public class QuestClient {
 
         // read current position in quest
         ConnectionsData diaryConnections = this.diary.getQuestProgress(quest.getID());
+
+        // retrieve new diary connections from quest entry point
+        if (diaryConnections == null) {
+            diaryConnections = quest.getStages().get(quest.getEntry()).getConnections();
+        }
+
         String current = diaryConnections.getCurr();
         
         // if action or stage associated with NPC is the same as the current
