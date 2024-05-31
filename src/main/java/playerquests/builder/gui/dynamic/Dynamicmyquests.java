@@ -158,20 +158,24 @@ public class Dynamicmyquests extends GUIDynamic {
             String quest = remainingTemplates.get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
-            questSlot.setItem("BOOK");
+            ArrayList<Object> screen;
+
+            // get questbuilder from a quest product (it sets itself as the current)
+            QuestBuilder questBuilder = new QuestBuilder(director, QuestRegistry.getInstance().getQuest(quest));
+            Quest questProduct = questBuilder.build();
+
             questSlot.setLabel(quest.split("_")[0]);
+
+            if (questProduct.getCreator() == this.director.getPlayer().getUniqueId()) {
+                screen = new ArrayList<>(Arrays.asList("myquest"));
+                questSlot.setItem("BOOK");
+            } else {
+                screen = new ArrayList<>(Arrays.asList("theirquest"));
+                questSlot.setItem("ENCHANTED_BOOK");
+                questSlot.setLabel(questSlot.getLabel() + " (Shared)");
+            }
+
             questSlot.onClick(() -> {
-                // get questbuilder from a quest product (it sets itself as the current)
-                QuestBuilder questBuilder = new QuestBuilder(director, QuestRegistry.getInstance().getQuest(quest));
-                Quest questProduct = questBuilder.build();
-                ArrayList<Object> screen;
-
-                if (questProduct.getCreator() == this.director.getPlayer().getUniqueId()) {
-                    screen = new ArrayList<>(Arrays.asList("myquest"));
-                } else {
-                    screen = new ArrayList<>(Arrays.asList("theirquest"));
-                }
-
                 // update the GUI screen
                 new UpdateScreen(
                     screen, 
