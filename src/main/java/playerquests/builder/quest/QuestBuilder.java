@@ -105,7 +105,10 @@ public class QuestBuilder {
         });
 
         // add the NPCs from the product
-        this.questNPCs = product.getNPCs();
+        product.getNPCs().forEach((id, npc) -> {
+            npc.setID(id);
+            this.questNPCs.put(id, npc);
+        });
 
         // set the new quest title the same as the product quest title
         this.title = product.getTitle();
