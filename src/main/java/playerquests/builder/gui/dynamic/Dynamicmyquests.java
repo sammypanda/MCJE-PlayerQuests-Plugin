@@ -188,7 +188,7 @@ public class Dynamicmyquests extends GUIDynamic {
 
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
-        exitButton.setLabel("Exit");
+        exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
