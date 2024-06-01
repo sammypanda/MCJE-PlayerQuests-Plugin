@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
-import javax.xml.crypto.Data;
-
 import org.bukkit.Bukkit; // Bukkit API
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,6 +26,7 @@ import playerquests.utility.ChatUtils; // helpers for in-game chat
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * The Quest product containing all the information 
@@ -224,8 +223,14 @@ public class Quest {
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
+        // remove before re-submitting, to remove from world and quest diaries
+        QuestRegistry questRegistry = Core.getQuestRegistry();
+        if (questRegistry.getAllQuests().containsValue(this)) {
+            questRegistry.remove(questRegistry.getQuest(this.getID()));
+        }
+
         // asume enabled and submit (adds the quest to the world)
-        Core.getQuestRegistry().submit(this);
+        questRegistry.submit(this);
         return "Quest Builder: '" + this.title + "' was saved";
     }
 

@@ -152,7 +152,7 @@ public class QuestRegistry {
         });
 
         // remove traces from world
-        PlayerQuests.remove(quest);
+        PlayerQuests.getInstance().remove(quest);
     }
 
     /**
