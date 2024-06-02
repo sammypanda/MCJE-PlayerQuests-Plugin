@@ -193,7 +193,7 @@ public class Quest {
      * @return this quest as a json object
      * @throws JsonProcessingException when the json cannot seralise
      */
-    private String toTemplateString() throws JsonProcessingException {
+    public String toTemplateString() throws JsonProcessingException {
         // get the product of this builder
         Quest product = this;
 
