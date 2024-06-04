@@ -58,13 +58,22 @@ public class Dynamicqueststages extends GUIDynamic {
         this.gui.getFrame().setTitle(this.guiTitle); // set the GUI title
         this.gui.getFrame().setSize( // set number of slots in the GUI
             Math.min( // get up to 54 (maximum slots)
-                (this.questBuilder.getStages().size() + 8) / 9 * 9, // only multiples of 9
+                (this.questBuilder.getStages().size() + 9) / 9 * 9, // only multiples of 9
                 54 // 54 maximum slots
             )
         );
+
+        // dividers (first two rows)
+        IntStream.iterate(1, n -> n + 9).limit(54/9).forEach((divSlot) -> {
+            new GUISlot(this.gui, divSlot)
+                .setItem("BLACK_STAINED_GLASS_PANE");
+
+            new GUISlot(this.gui, divSlot + 1)
+                .setItem("BLACK_STAINED_GLASS_PANE");
+        });
         
         // when the exit button is pressed
-        GUISlot exitButton = new GUISlot(this.gui, 1);
+        GUISlot exitButton = new GUISlot(this.gui, this.gui.getFrame().getSize() - 8);
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
