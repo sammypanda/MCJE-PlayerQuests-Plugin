@@ -316,4 +316,11 @@ public class QuestBuilder {
 
         return product;
     }
+
+    public QuestStage addStage(QuestStage questStage) {
+        this.getQuestPlan().put(questStage.getID(), questStage);
+        this.build(); // push to quest product
+
+        return questStage;
+    }
 }

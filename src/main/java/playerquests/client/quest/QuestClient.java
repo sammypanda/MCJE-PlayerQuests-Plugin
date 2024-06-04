@@ -201,6 +201,7 @@ public class QuestClient {
                 action = this.diary.getAction(questID);
                 this.entryActions.put(action.getStage(), action);
             } else {
+                // TODO: use stage_x.action_x to discriminate stage for actions
                 // put the entry stage
                 QuestStage stage = quest.getStages().get(quest.getEntry());
                 this.entryStages.put(quest, stage);

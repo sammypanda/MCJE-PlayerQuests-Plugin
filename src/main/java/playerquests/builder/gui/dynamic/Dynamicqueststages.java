@@ -8,6 +8,7 @@ import playerquests.builder.gui.component.GUISlot; // for managing gui slots
 import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**
@@ -80,6 +81,23 @@ public class Dynamicqueststages extends GUIDynamic {
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
             director // set the client director
         ));
+
+        // add new stage button
+        new GUISlot(this.gui, this.gui.getFrame().getSize())
+            .setLabel("Add Stage")
+            .setItem("LIME_DYE")
+            .onClick(() -> {
+                questBuilder.addStage(
+                    new QuestStage(
+                        this.questBuilder.build(), 
+                        Integer.parseInt(this.questBuilder.getStages().getLast().substring(6) + 1)
+                    )
+                );
+
+                this.gui.clearSlots();
+
+                this.execute(); // rebuild GUI
+            });
 
         IntStream.range(0, this.questBuilder.getStages().size()).anyMatch(index -> {
 
