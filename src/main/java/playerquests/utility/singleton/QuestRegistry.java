@@ -238,6 +238,7 @@ public class QuestRegistry {
                 // to avoid having to search for it again like this.
                 if (result != null) {
                     this.submit(result);
+                    result.toggle(false); // toggle off when found (opposite of default)
                 }
 
             } catch (IOException e) {

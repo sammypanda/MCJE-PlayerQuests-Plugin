@@ -247,14 +247,29 @@ public class Quest {
         return actions;   
     }
 
+    /**
+     * Checks if the quest is toggled/enabled.
+     * @return whether the quest is enabled/being shown
+     */
     public boolean isToggled() {
         return Database.getQuestToggled(this);
     }
 
+    /**
+     * Toggle function as a switch.
+     */
     public void toggle() {
         Database.setQuestToggled(
             this,
             !Database.getQuestToggled(this)
         );
+    }
+
+    /**
+     * Toggle function but with discrete choice.
+     * @param toEnable whether to show/enable the quest
+     */
+    public void toggle(boolean toEnable) {
+        Database.setQuestToggled(this, toEnable);
     }
 }
