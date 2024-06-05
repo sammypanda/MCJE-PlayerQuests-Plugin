@@ -1,6 +1,8 @@
 package playerquests.product;
 
 import java.util.ArrayList; // array type of list
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 
@@ -138,6 +140,13 @@ public class GUI {
 
             // Edit the ItemMeta
             itemMeta.setDisplayName(slot.getLabel()); // set the slot label
+
+            if (!slot.getDescription().isBlank()) {
+                itemMeta.setLore( // set the slot description
+                    Arrays.asList(slot.getDescription()) // list: each line of the description
+                );
+            }
+
             itemMeta.getPersistentDataContainer().set(Core.getGUIKey(), PersistentDataType.STRING, "true"); // set GUI=true
 
             // Return the ItemMeta to the ItemStack
