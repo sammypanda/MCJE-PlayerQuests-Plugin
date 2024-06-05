@@ -72,7 +72,7 @@ public class Dynamicqueststages extends GUIDynamic {
             new GUISlot(this.gui, divSlot + 1)
                 .setItem("BLACK_STAINED_GLASS_PANE");
         });
-        
+
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, this.gui.getFrame().getSize() - 8);
         exitButton.setLabel("Back");

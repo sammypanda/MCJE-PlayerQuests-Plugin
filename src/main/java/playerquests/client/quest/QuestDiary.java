@@ -197,8 +197,7 @@ public class QuestDiary {
             }
 
             // retrieve quest details
-            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
-            action = quest.getActions().get(actionResult);
+            action = this.getStage(questID).getActions().get(actionResult);
 
         } catch (SQLException e) {
             System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
@@ -237,7 +236,7 @@ public class QuestDiary {
             // stage-based current
                 if (currentConnection.contains("stage")) {
                     preparedStatement.setString(2, currentConnection);
-                    preparedStatement.setString(3, null);
+                    preparedStatement.setString(3, quest.getStages().get(currentConnection).getEntryPoint().getID()); // get the ID of the entry action
                 }
 
                 // action-based current
