@@ -323,4 +323,33 @@ public class QuestBuilder {
 
         return questStage;
     }
+
+    /**
+     * Remove a stage from the quest
+     * @param questStage the stage to remove
+     * @return whether the stage can be removed
+     */
+    public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
+        Boolean canRemove = true; // whether the stage is safe to remove
+
+        // tests to determine if the quest is dependent on this stage
+        canRemove = this.questPlan.get(questStage.getID()).getConnections().isEmpty();
+        
+        if (dryRun) { // if just to test if removable
+            return canRemove; // don't continue
+        }
+
+        // remove the stage
+        this.questPlan.remove(questStage.getID());
+        
+        return canRemove;
+    }
+
+    /**
+     * Remove a stage from the quest
+     * @param questStage the stage to remove
+     */
+    public Boolean removeStage(QuestStage questStage) {
+        return this.removeStage(questStage, false);
+    }
 }

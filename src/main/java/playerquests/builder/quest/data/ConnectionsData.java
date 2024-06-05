@@ -88,4 +88,11 @@ public class ConnectionsData {
                 ", prev=" + prev +
                 '}';
     }
+
+    public Boolean isEmpty() {
+        return 
+            this.curr == null && 
+            this.next == null && 
+            this.prev == null;
+    }
 }

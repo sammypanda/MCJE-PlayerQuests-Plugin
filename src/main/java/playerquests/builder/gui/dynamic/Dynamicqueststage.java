@@ -8,6 +8,7 @@ import java.util.stream.IntStream; // used to iterate over a series
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
+import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
@@ -29,6 +30,16 @@ public class Dynamicqueststage extends GUIDynamic {
     List<String> actionKeys;
 
     /**
+     * Staging to delete the stage
+     */
+    Boolean confirm_delete = false;
+
+    /**
+     * The builder object for this quest
+     */
+    QuestBuilder questBuilder;
+
+    /**
      * Creates a dynamic GUI to edit a quest stage.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -41,6 +52,9 @@ public class Dynamicqueststage extends GUIDynamic {
     protected void setUp_custom() {
         // set the quest stage instance
         this.questStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
+
+        // get the quest builder
+        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
     }
 
     @Override
@@ -115,8 +129,38 @@ public class Dynamicqueststage extends GUIDynamic {
             return false; // continue the loop
         });
 
-        // add new action button
-        GUISlot newActionButton = new GUISlot(this.gui, 18);
+        // add 'delete stage' button (with confirm)
+        if (!this.confirm_delete) { // if delete hasn't been confirmed
+            new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
+                .setItem("RED_DYE")
+                .setLabel("Delete Stage")
+                .onClick(() -> {
+                    this.confirm_delete = true;
+                    this.execute();
+                });
+        } else {
+            new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
+                .setItem("RED_WOOL")
+                .setLabel("Delete")
+                .onClick(() -> {
+                    if (this.questBuilder.removeStage(this.questStage)) { // if quest was removed
+                        new UpdateScreen(
+                            new ArrayList<>(Arrays.asList(previousScreen)), 
+                            this.director
+                        ).execute();
+                    }
+                });
+        }
+
+        if (!this.questBuilder.removeStage(this.questStage, true)) { // if cannot delete the stage
+            new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
+                .setItem("GRAY_DYE")
+                .setLabel("Cannot Delete")
+                .setDescription("This stage is connected to other stages and actions.");
+        }
+
+        // add 'new action' button
+        GUISlot newActionButton = new GUISlot(this.gui, this.gui.getFrame().getSize());
         newActionButton.setLabel("Add Action");
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
