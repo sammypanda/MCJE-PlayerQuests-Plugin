@@ -2,6 +2,7 @@ package playerquests.builder.quest;
 
 import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
+import java.util.LinkedList;
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
@@ -194,8 +195,8 @@ public class QuestBuilder {
      * @return list of the stage IDs
      */
     @JsonIgnore
-    public List<String> getStages() {
-        return new ArrayList<String>(this.questPlan.keySet());
+    public LinkedList<String> getStages() {
+        return new LinkedList<String>(this.questPlan.keySet());
     }
 
     /**
