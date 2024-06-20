@@ -64,6 +64,11 @@ public class GUISlot {
     private Runnable onClick;
 
     /**
+     * Little number indicating 2-64
+     */
+    private Integer stackCount = 1; // 1 default, being no number shown
+
+    /**
      * Constructs a new GUISlot with the specified parent GUIBuilder.
      * <p>
      * This should not be accessed directly. Use GUIBuilder.newSlot() instead.
@@ -303,5 +308,22 @@ public class GUISlot {
      */
     public String getDescription() {
         return this.description;
+    }
+
+    /**
+     * Sets the size of the ItemStack, probably up to 64.
+     * Useful for indicating a count of something.
+     * @param count
+     */
+    public void setCount(Integer count) {
+        this.stackCount = count;
+    }
+
+    /**
+     * Gets the size of the ItemStack.
+     * @return
+     */
+    public Integer getCount() {
+        return this.stackCount;
     }
 }

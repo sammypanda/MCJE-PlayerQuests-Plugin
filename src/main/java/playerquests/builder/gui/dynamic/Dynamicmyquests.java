@@ -40,7 +40,12 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * maximum auto-generated slots per page
      */
-    private Integer slotsPerPage = 36;
+    private Integer slotsPerPage = 35;
+
+    /**
+     * count of malformed quests
+     */
+    private Integer invalidQuests = 0;
 
     /**
      * Creates a dynamic GUI with a list of 'my quests'.
@@ -139,6 +144,15 @@ public class Dynamicmyquests extends GUIDynamic {
             this.guiTitle, // set the default title
             pageNumber != 1 ? " [Page " + pageNumber + "]" : "" // add page number when not page one
         ));
+
+        // false button for amount of invalid quests (malformed json or otherwise malformed data)
+        new GUISlot(this.gui, 43)
+            .setItem("RED_STAINED_GLASS")
+            .setLabel(String.format("Unreadable Quests: %s", 
+                this.invalidQuests >= 64 ? "(More than 64)" : this.invalidQuests
+            ))
+            .setDescription("An unreadable quest, is a quest that is corrupt/malformed/incorrect.")
+            .setCount(this.invalidQuests);
     }
 
     /**
@@ -164,6 +178,8 @@ public class Dynamicmyquests extends GUIDynamic {
             Quest quest = QuestRegistry.getInstance().getQuest(questID);
 
             if (quest == null) { // cannot parse quest at all
+                this.gui.removeSlot(nextEmptySlot);
+                this.invalidQuests+= 1;
                 return false;
             }
 

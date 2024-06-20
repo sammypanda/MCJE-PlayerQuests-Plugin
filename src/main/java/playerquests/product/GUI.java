@@ -147,6 +147,8 @@ public class GUI {
                 );
             }
 
+            item.setAmount(slot.getCount());
+
             itemMeta.getPersistentDataContainer().set(Core.getGUIKey(), PersistentDataType.STRING, "true"); // set GUI=true
 
             // Return the ItemMeta to the ItemStack
