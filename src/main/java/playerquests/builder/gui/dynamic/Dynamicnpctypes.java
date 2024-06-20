@@ -118,9 +118,9 @@ public class Dynamicnpctypes extends GUIDynamic {
             String.format("%s", 
                 (this.npc.getLocation() == null) ? 
                     ((this.npc.isAssigned()) ? 
-                    "Place NPC (" + this.npc.getAssigned().toString() + ")" : 
+                    "Place NPC (" + this.npc.getAssigned().getType() + ")" : 
                     "Cannot place before assigning") :
-                "Relocate NPC (" + this.npc.getAssigned().toString() + ")"
+                "Relocate NPC (" + this.npc.getAssigned().getType() + ")"
             )
         );
         placeButton.setItem(

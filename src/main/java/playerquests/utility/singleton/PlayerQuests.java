@@ -64,25 +64,9 @@ public class PlayerQuests {
      * @param quest the quest to remove traces of
      */
     // TODO: store and revert to previous block state @ the location
-    public static void remove(Quest quest) {
+    public void remove(Quest quest) {
         // remove all NPCs
-        BlockData replacementBlock = Material.AIR.createBlockData();
-        quest.getNPCs().values().stream().forEach(npc -> {
-
-            // remove NPC blocks:
-            if (npc.getAssigned().getClass().equals(BlockNPC.class)) {
-                // establish NPC values
-                Location npcLocation = npc.getLocation().toBukkitLocation();
-                World npcWorld = npcLocation.getWorld();
-
-                // replace the NPC block
-                npcWorld.setBlockData(
-                    npcLocation, 
-                    replacementBlock
-                );
-            }
-            
-        });
+        blockListener.remove(quest);
     }
     
 }

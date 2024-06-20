@@ -109,7 +109,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
 
         // add back button
         GUISlot backButton = new GUISlot(this.gui, 46);
-        backButton.setLabel("Exit");
+        backButton.setLabel("Back");
         backButton.setItem("OAK_DOOR");
         backButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 

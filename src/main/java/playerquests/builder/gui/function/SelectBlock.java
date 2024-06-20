@@ -82,10 +82,6 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
-            if (deniedMethods.contains(SelectMethod.CHAT)) {
-                return; // do not continue
-            }
-
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
@@ -93,7 +89,9 @@ public class SelectBlock extends GUIFunction {
                     this.parentClass.setCancelled(true);
                     this.parentClass.execute(); // run with cancellation
                 } else { // if trying to set a block using the chat box
-                    this.parentClass.setResponse(event.getMessage());
+                    if (!deniedMethods.contains(SelectMethod.CHAT)) { // if CHAT mode enabled
+                        this.parentClass.setResponse(event.getMessage()); // set
+                    }
                 }
             });
             

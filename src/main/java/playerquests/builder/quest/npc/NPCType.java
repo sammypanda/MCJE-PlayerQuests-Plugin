@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = BlockNPC.class, name = "Block")
+    @JsonSubTypes.Type(value = BlockNPC.class, name = "BlockNPC")
 })
 public class NPCType {
 
@@ -86,13 +86,13 @@ public class NPCType {
         return npcTypes;
     }
 
-    @Override
-    public String toString() {
-        return this.type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    /**
+     * Gets the string representation of the type.
+     * @return current action type as a string
+     */
+    @JsonIgnore
+    public String getType() {
+        return this.getClass().getSimpleName();
     }
 
     /**

@@ -40,7 +40,12 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * maximum auto-generated slots per page
      */
-    private Integer slotsPerPage = 36;
+    private Integer slotsPerPage = 35;
+
+    /**
+     * count of malformed quests
+     */
+    private Integer invalidQuests = 0;
 
     /**
      * Creates a dynamic GUI with a list of 'my quests'.
@@ -139,6 +144,15 @@ public class Dynamicmyquests extends GUIDynamic {
             this.guiTitle, // set the default title
             pageNumber != 1 ? " [Page " + pageNumber + "]" : "" // add page number when not page one
         ));
+
+        // false button for amount of invalid quests (malformed json or otherwise malformed data)
+        new GUISlot(this.gui, 43)
+            .setItem("RED_STAINED_GLASS")
+            .setLabel(String.format("Unreadable Quests: %s", 
+                this.invalidQuests >= 64 ? "(More than 64)" : this.invalidQuests
+            ))
+            .setDescription("An unreadable quest, is a quest that is corrupt/malformed/incorrect.")
+            .setCount(this.invalidQuests);
     }
 
     /**
@@ -152,26 +166,59 @@ public class Dynamicmyquests extends GUIDynamic {
 
         IntStream.range(0, slotCount).anyMatch(index -> { // only built 42 slots
             if (remainingTemplates.isEmpty() || remainingTemplates.get(index) == null) {
-                return true; // exit the loop
+                return true; // exit the loop (marked as 'found match' to exit)
             }
 
-            String quest = remainingTemplates.get(index);
+            String questID = remainingTemplates.get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
-            questSlot.setItem("BOOK");
-            questSlot.setLabel(quest.split("_")[0]);
+            ArrayList<Object> screen;
+
+            // get questbuilder from a quest product (it sets itself as the current)
+            Quest quest = QuestRegistry.getInstance().getQuest(questID);
+
+            if (quest == null) { // cannot parse quest at all
+                this.gui.removeSlot(nextEmptySlot);
+                this.invalidQuests+= 1;
+                return false;
+            }
+
+            QuestBuilder questBuilder = new QuestBuilder(director, quest);
+
+            // Don't show if user is not the creator (unless it's null, then it's probably a global quest).
+            if (!this.director.getPlayer().getUniqueId().equals(questBuilder.getOriginalCreator()) && questBuilder.getOriginalCreator() != null) {
+                this.gui.removeSlot(nextEmptySlot); // remove slot, no need to show in this case
+                return false;
+            }
+
+            // ---- If the quest is considered invalid ---- //
+            if (questBuilder == null || !questBuilder.isValid()) {
+                questSlot.setLabel(
+                    String.format("%s (Invalid)",
+                        questBuilder.getTitle() != null ? questBuilder.getTitle() : "Quest"
+                    )
+                );
+
+                questSlot.setItem("RED_STAINED_GLASS_PANE");
+
+                return false; // return if this quest is broken (false for match not found, continue to check next)
+            }
+            // --------
+
+            Quest questProduct = questBuilder.build();
+
+            questSlot.setLabel(questID.split("_")[0]);
+
+            if (questProduct.getCreator() == this.director.getPlayer().getUniqueId()) {
+                screen = new ArrayList<>(Arrays.asList("myquest"));
+                questSlot.setItem("BOOK");
+            } else {
+                screen = new ArrayList<>(Arrays.asList("theirquest"));
+                questSlot.setItem("ENCHANTED_BOOK");
+                questSlot.setLabel(questSlot.getLabel() + " (Shared)");
+            }
+
             questSlot.onClick(() -> {
-                // get questbuilder from a quest product (it sets itself as the current)
-                QuestBuilder questBuilder = new QuestBuilder(director, QuestRegistry.getInstance().getQuest(quest));
-                Quest questProduct = questBuilder.build();
-                ArrayList<Object> screen;
-
-                if (questProduct.getCreator() == this.director.getPlayer().getUniqueId()) {
-                    screen = new ArrayList<>(Arrays.asList("myquest"));
-                } else {
-                    screen = new ArrayList<>(Arrays.asList("theirquest"));
-                }
-
                 // update the GUI screen
                 new UpdateScreen(
                     screen, 
@@ -179,12 +226,12 @@ public class Dynamicmyquests extends GUIDynamic {
                 ).execute();;
             });
 
-            return false; // continue the loop
+            return false; // continue the loop (as in match not found, continue)
         });
 
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
-        exitButton.setLabel("Exit");
+        exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 

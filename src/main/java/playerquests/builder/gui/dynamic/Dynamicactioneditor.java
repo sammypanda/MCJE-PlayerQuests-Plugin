@@ -79,8 +79,21 @@ public class Dynamicactioneditor extends GUIDynamic {
             director // set the client director
         ));
 
-        // the delete button
+        // connection editor
         new GUISlot(this.gui, 11)
+            .setItem("STICKY_PISTON")
+            .setLabel("Change Sequence")
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.action.getConnections());
+
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    director
+                ).execute();
+            });
+
+        // the delete button
+        new GUISlot(this.gui, 18)
             .setLabel("Delete Action")
             .setItem("RED_DYE")
             .onClick(() -> {
@@ -101,10 +114,12 @@ public class Dynamicactioneditor extends GUIDynamic {
         GUISlot typeButton = new GUISlot(this.gui, 1);
         typeButton.setItem("FIREWORK_ROCKET");
         typeButton.setLabel("Change Type (" + this.action.toString() + ")");
-        typeButton.addFunction(new UpdateScreen(
-            new ArrayList<>(Arrays.asList("actiontypes")),
-            director
-        ));
+        typeButton.onClick(() -> {
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("actiontypes")),
+                director
+            ).execute();
+        });
 
         // setting current as stage entry point button
         GUISlot entrypointButton = new GUISlot(this.gui, 2);

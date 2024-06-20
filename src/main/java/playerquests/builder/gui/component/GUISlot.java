@@ -42,6 +42,11 @@ public class GUISlot {
      * label of the item in the slot (requires whitespace to show as empty)
      */
     private String label = " ";
+    
+    /**
+     * description of the item in the slot
+     */
+    private String description = "";
 
     /**
      * list of functions associated with this slot/button.
@@ -57,6 +62,11 @@ public class GUISlot {
      * function that can be set to run when this slot is clicked
      */
     private Runnable onClick;
+
+    /**
+     * Little number indicating 2-64
+     */
+    private Integer stackCount = 1; // 1 default, being no number shown
 
     /**
      * Constructs a new GUISlot with the specified parent GUIBuilder.
@@ -177,7 +187,7 @@ public class GUISlot {
      * Sets the hover label for this instance of {@link GUISlot}.
      * <p>
      * Includes some processing/formatting of the label.
-     * @param label the desription of what the element does/is for.
+     * @param label the title for what the button does/is for.
      * @return the modified instance of the slot builder
      */
     public GUISlot setLabel(String label) {
@@ -213,7 +223,7 @@ public class GUISlot {
 
     /**
      * Gets the hover label for this instance of {@link GUISlot}.
-     * @return label the label when hovering over the slot.
+     * @return the label when hovering over the slot.
      */
     public String getLabel() {
         return this.label;
@@ -270,4 +280,50 @@ public class GUISlot {
         }
     }
 
+    /**
+     * Sets the hover subtitle/description for this instance of {@link GUISlot}.
+     * <p>
+     * Includes some processing/formatting of the label.
+     * @param description the description of the button
+     * @return the modified instance of the slot builder
+     */
+    public GUISlot setDescription(String description) {
+        String errorDescription = "";
+
+        // Evaluate label for error prefix and avoid malformatting labels
+        description = String.format("%s%s%s%s", 
+            ChatColor.RESET, // remove the italics set when changing from default item display name
+            this.hasError() ? errorDescription : "", // add an error notice if applicable
+            this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
+            this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
+        );
+        
+        this.description = description;
+        return this;
+    }
+
+    /**
+     * Gets the hover description for this instance of {@link GUISlot}.
+     * @return the description when hovering over the slot.
+     */
+    public String getDescription() {
+        return this.description;
+    }
+
+    /**
+     * Sets the size of the ItemStack, probably up to 64.
+     * Useful for indicating a count of something.
+     * @param count
+     */
+    public void setCount(Integer count) {
+        this.stackCount = count;
+    }
+
+    /**
+     * Gets the size of the ItemStack.
+     * @return
+     */
+    public Integer getCount() {
+        return this.stackCount;
+    }
 }
