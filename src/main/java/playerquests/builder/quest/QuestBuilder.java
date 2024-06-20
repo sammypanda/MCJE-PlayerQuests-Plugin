@@ -112,19 +112,6 @@ public class QuestBuilder {
             // set the new quest title the same as the product quest title
             this.title = product.getTitle();
 
-            if (product.getCreator() == null) {
-                // set the quest as a universal one
-                this.universal = true;
-                director.setCurrentInstance(this.build());
-            } else {
-                if (product.getCreator() != director.getPlayer().getUniqueId()) {
-                    this.originalCreator = product.getCreator();
-                }
-                
-                // set as the current quest in the director
-                director.setCurrentInstance(this);
-            }
-
             // add the entry point stage from the product
             this.entryPoint = product.getStages().get(product.getEntry());
             director.setCurrentInstance(this.entryPoint); // make it modifiable
@@ -142,6 +129,19 @@ public class QuestBuilder {
                 npc.setID(id);
                 this.questNPCs.put(id, npc);
             });
+
+            if (product.getCreator() == null) {
+                // set the quest as a universal one
+                this.universal = true;
+                director.setCurrentInstance(this.build());
+            } else {
+                if (product.getCreator() != director.getPlayer().getUniqueId()) {
+                    this.originalCreator = product.getCreator();
+                }
+                
+                // set as the current quest in the director
+                director.setCurrentInstance(this);
+            }
 
             // create quest product from this builder
             this.build();
