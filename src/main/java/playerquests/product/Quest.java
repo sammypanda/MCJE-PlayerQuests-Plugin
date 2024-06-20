@@ -6,6 +6,7 @@ import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
 import org.bukkit.Bukkit; // Bukkit API
+import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // configures ignoring unknown fields
@@ -38,29 +39,29 @@ public class Quest {
     /**
      * The label of this quest.
      */
-    private String title;
+    private String title = null;
 
     /**
      * The starting/entry point stage ID for this quest.
      */
-    private String entry;
+    private String entry = null;
 
     /**
      * The map of NPCs used in this quest, by their ID.
      */
     @JsonManagedReference
-    private Map<String, QuestNPC> npcs;
+    private Map<String, QuestNPC> npcs = null;
 
     /**
      * The map of stages used in this quest, by the stage ID.
      */
     @JsonManagedReference
-    private Map<String, QuestStage> stages;
+    private Map<String, QuestStage> stages = null;
 
     /**
      * The UUID of the player who created this quest.
      */
-    private UUID creator;
+    private UUID creator = null;
     
     /**
      * Creates a quest instance for playing and viewing!
@@ -81,7 +82,6 @@ public class Quest {
         Core.getKeyHandler().registerInstance(this);
 
         this.title = title;
-        this.entry = "stage_-1";
         
         if (entry != null) {
             this.entry = entry.getID();
@@ -124,9 +124,9 @@ public class Quest {
         try {
             quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
         } catch (JsonMappingException e) {
-            throw new RuntimeException("Could not map the quest template string to a valid quest product.", e);
+            System.err.println("Could not map a quest template string to a valid quest product.");
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Malformed JSON attempted as a quest template string.", e);
+            System.err.println("Malformed JSON attempted as a quest template string.");
         }
 
         return quest;
@@ -271,5 +271,35 @@ public class Quest {
      */
     public void toggle(boolean toEnable) {
         Database.setQuestToggled(this, toEnable);
+    }
+
+    public Boolean isValid() {
+        UUID uuid = this.creator;
+        Player player = uuid != null ? Bukkit.getPlayer(uuid) : null; // the player to send invalid npc messages to
+
+        if (uuid != null && player == null) {
+            return false;
+        }
+
+        if (uuid == null) { // universal quests exist, so not having a player cannot be a failure
+            return true;
+        }
+
+        if (this.title == null) {
+            ChatUtils.sendError(player, "A quest has no title");
+            return false;
+        }
+
+        if (this.entry == null) {
+            ChatUtils.sendError(player, String.format("The %s quest has no starting point", this.title));
+            return false;
+        } else {
+            if (this.stages == null || this.stages.isEmpty()) {
+                ChatUtils.sendError(player, String.format("The %s quest has no stages", this.title));
+                return false;
+            }
+        }
+
+        return true;
     }
 }

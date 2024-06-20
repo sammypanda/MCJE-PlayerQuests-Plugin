@@ -5,8 +5,13 @@ import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
+import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
 import java.util.stream.IntStream; // used to iterate over a range
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
@@ -23,6 +28,11 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
  * For creating and managing a Quest.
  */
 public class QuestBuilder {
+
+    /**
+     * Whether the quest is valid
+     */
+    private Boolean isValid = true;
 
     /**
      * Whether the plugin has a creator/is universal
@@ -58,6 +68,11 @@ public class QuestBuilder {
     private Map<String, QuestStage> questPlan = new HashMap<String, QuestStage>();
 
     /**
+     * The original creator of this quest.
+     */
+    private UUID originalCreator;
+
+    /**
      * Operations to run whenever the class is instantiated.
      */
     {
@@ -66,7 +81,7 @@ public class QuestBuilder {
     }
 
     /**
-     * Returns a new default Quest.
+     * Creates and returns a new default Quest.
      * @param director used to control the plugin
      */
     public QuestBuilder(ClientDirector director) {
@@ -91,40 +106,57 @@ public class QuestBuilder {
      * @param product the quest template to create a new builder from
      */
     public QuestBuilder(ClientDirector director, Quest product) {
-        this.director = director;
+        try {
+            this.director = director;
 
-        // add the entry point stage from the product
-        this.entryPoint = product.getStages().get(product.getEntry());
-        director.setCurrentInstance(this.entryPoint); // make it modifiable
+            // set the new quest title the same as the product quest title
+            this.title = product.getTitle();
 
-        // add the stages from the product
-        this.questPlan = product.getStages();
+            if (product.getCreator() == null) {
+                // set the quest as a universal one
+                this.universal = true;
+                director.setCurrentInstance(this.build());
+            } else {
+                if (product.getCreator() != director.getPlayer().getUniqueId()) {
+                    this.originalCreator = product.getCreator();
+                }
+                
+                // set as the current quest in the director
+                director.setCurrentInstance(this);
+            }
 
-        // recurse submission of stages to KeyHandler registry
-        this.questPlan.values().stream().forEach(stage -> {
-            Core.getKeyHandler().registerInstance(stage);
-        });
+            // add the entry point stage from the product
+            this.entryPoint = product.getStages().get(product.getEntry());
+            director.setCurrentInstance(this.entryPoint); // make it modifiable
 
-        // add the NPCs from the product
-        product.getNPCs().forEach((id, npc) -> {
-            npc.setID(id);
-            this.questNPCs.put(id, npc);
-        });
+            // add the stages from the product
+            this.questPlan = product.getStages();
 
-        // set the new quest title the same as the product quest title
-        this.title = product.getTitle();
+            // recurse submission of stages to KeyHandler registry
+            this.questPlan.values().stream().forEach(stage -> {
+                Core.getKeyHandler().registerInstance(stage);
+            });
 
-        if (product.getCreator() == null) {
-            // set the quest as a universal one
-            this.universal = true;
-            director.setCurrentInstance(this.build());
-        } else {
-            // set as the current quest in the director
-            director.setCurrentInstance(this);
+            // add the NPCs from the product
+            product.getNPCs().forEach((id, npc) -> {
+                npc.setID(id);
+                this.questNPCs.put(id, npc);
+            });
+
+            // create quest product from this builder
+            this.build();
+        } catch (Exception e) {
+            this.isValid = false;
         }
+    }
 
-        // create quest product from this builder
-        this.build();
+    /**
+     * Get the player who originally created this quest.
+     * @return the original creators player UUID.
+     */
+    @JsonIgnore
+    public UUID getOriginalCreator() {
+        return this.originalCreator;
     }
 
     /**
@@ -352,5 +384,18 @@ public class QuestBuilder {
      */
     public Boolean removeStage(QuestStage questStage) {
         return this.removeStage(questStage, false);
+    }
+
+    /**
+     * Checks if everything is correctly set and formed.
+     * @return if the NPC object is valid
+     */
+    @JsonIgnore
+    public boolean isValid() {
+        if (!this.isValid) {
+            return false;
+        }
+
+        return this.build().isValid();
     }
 }
