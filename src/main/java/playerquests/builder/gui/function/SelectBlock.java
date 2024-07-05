@@ -74,7 +74,7 @@ public class SelectBlock extends GUIFunction {
                 if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
                     return; // Ignore if the clicked item is null or air
                 }
-        
+                
                 event.getView().close();
                 parentClass.setResponse(event.getCurrentItem().getType());
             });
@@ -330,8 +330,7 @@ public class SelectBlock extends GUIFunction {
      * Cleaning and finishing the function.
      */
     private void exit() {
-        HandlerList.unregisterAll(this.blockListener); // remove listeners
-        this.director.getGUI().getResult().open(); // re-open GUI
+        HandlerList.unregisterAll(this.blockListener); // remove private handlers
         this.finished(); // execute onFinish code
     }
 

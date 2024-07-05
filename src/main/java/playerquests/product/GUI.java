@@ -64,14 +64,12 @@ public class GUI {
      * Draws and displays a fresh instance of the current GUI on the viewers screen.
      */
     public void open() {
-        this.locked = false; 
-
         this.inventory = Bukkit.createInventory( // create inventory
             this.builder.getDirector().getPlayer(), // the player who should see the inventory view
             this.frame.getSize() // the count of slots in the inventory
         );
 
-        this.display(); // opening the inventory window (InventoryView)
+        this.display(); // opening (and unlocking) the inventory window (InventoryView)
 
         this.draw(); // function containing all the builder components of the GUI
     }
@@ -178,9 +176,9 @@ public class GUI {
      * Opens the GUI on the screen.
      */
     public void display() {
-        this.locked = false; // unlock gui for potential deletion
-
         this.view = builder.getDirector().getPlayer().openInventory(this.inventory); // open the GUI window
+
+        this.locked = false; // unlock gui for potential deletion
     }
 
     /**
