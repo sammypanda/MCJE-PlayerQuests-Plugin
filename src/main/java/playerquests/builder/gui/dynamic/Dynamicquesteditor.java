@@ -10,12 +10,10 @@ import playerquests.builder.gui.function.Save; // saves data via GUI button
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.client.ClientDirector; // accessing the client state
-import playerquests.product.Quest;
 
 /**
  * Shows a dynamic GUI used for editing a quest.
  */
-// TODO: add toggling quest availability
 public class Dynamicquesteditor extends GUIDynamic {
 
     /**

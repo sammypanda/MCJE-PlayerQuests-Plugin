@@ -18,7 +18,6 @@ import playerquests.utility.singleton.QuestRegistry; // the registry of quest pr
  * </ul>
  * </ul> 
  */
-// TODO: automatically initiate the plugin commands
 public class Core extends JavaPlugin {
 
     /**

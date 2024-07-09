@@ -10,7 +10,6 @@ import java.util.stream.IntStream; // functional loops
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.ChatPrompt; // prompts the user for input
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
-import playerquests.builder.quest.QuestBuilder; // used to edit a quest
 import playerquests.builder.quest.action.QuestAction; // describes a quest action
 import playerquests.builder.quest.data.ActionOption; // a setting that can be set for an action
 import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
@@ -21,10 +20,6 @@ import playerquests.utility.ChatUtils; // working with in-game chat
 /**
  * Shows a dynamic GUI used for editing a quest action.
  */
-// TODO: pagination for action options
-// TODO: replacing entry point setter button with action name changer button
-// TODO: conditional back and forward buttons in slots 10,11 for params list
-// TODO: divider on the right side of the GUI for setting: as entry point, next, current and prev connections
 public class Dynamicactioneditor extends GUIDynamic {
 
     /**
@@ -165,7 +160,6 @@ public class Dynamicactioneditor extends GUIDynamic {
     }
 
     private void putOptionSlot(Integer slot, ActionOption option) {
-        QuestBuilder quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
         QuestNPC currentNPC = this.action.getNPC();
         GUISlot optionSlot = new GUISlot(gui, slot)
                                 .setLabel(option.getLabel())

@@ -16,7 +16,6 @@ import org.bukkit.scheduler.BukkitScheduler; // schedules tasks/code/jobs on plu
 import org.bukkit.scheduler.BukkitTask; // object for scheduled tasks
 
 import playerquests.Core; // access to singletons
-import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.None; // empty quest action
 import playerquests.builder.quest.action.QuestAction; // represents quest actions
 import playerquests.builder.quest.data.ConnectionsData;

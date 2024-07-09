@@ -10,7 +10,6 @@ import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted w
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.None;
-import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 

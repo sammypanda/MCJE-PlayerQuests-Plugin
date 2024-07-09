@@ -5,7 +5,6 @@ import java.util.List; // generic list type
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisation
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -93,6 +92,15 @@ public class NPCType {
     @JsonIgnore
     public String getType() {
         return this.getClass().getSimpleName();
+    }
+
+    /**
+     * Gets list of NPC types.
+     * @return list of possible NPC types
+     */
+    @JsonIgnore
+    public List<String> getTypes() {
+        return this.npcTypes;
     }
 
     /**

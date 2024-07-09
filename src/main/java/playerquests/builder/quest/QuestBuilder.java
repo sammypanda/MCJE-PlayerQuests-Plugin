@@ -1,17 +1,11 @@
 package playerquests.builder.quest;
 
-import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
-import java.util.List; // generic list type
 import java.util.Map; // generic map type
 import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
 import java.util.stream.IntStream; // used to iterate over a range
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property

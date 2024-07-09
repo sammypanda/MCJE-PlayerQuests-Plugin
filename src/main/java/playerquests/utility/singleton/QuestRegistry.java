@@ -22,10 +22,6 @@ import playerquests.utility.FileUtils;
 /**
  * Singleton for putting and accessing quest products from anywhere.
  */
-// TODO: event listeners?
-// TODO: (on remove) warn if someone is currently playing the quest
-// TODO: (on remove) if called twice, forces removal even if someone is playing the quest (deletion waiting list)
-// TODO: (on quest completion) tell quest creators in deletion waiting list the quest is safe to remove
 public class QuestRegistry {
     
     /**

@@ -13,7 +13,6 @@ import playerquests.client.quest.QuestClient; // the quester themselves
 /**
  * Makes an NPC speak to the quester.
  */
-// TODO: decorate dialogue
 public class Speak extends QuestAction {
 
     /**

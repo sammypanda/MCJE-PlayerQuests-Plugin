@@ -2,7 +2,6 @@ package playerquests.product;
 
 import java.util.ArrayList; // array type of list
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 

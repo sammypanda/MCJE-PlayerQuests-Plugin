@@ -26,7 +26,6 @@ import playerquests.product.GUI; // the GUI product itself
  * <li>Inventory Click Events
  * </ul>
  */
-// TODO: implement different inventory types; then compare to what the gui is set as instead of hardcoding as CHEST.
 public class GUIListener implements Listener {
 
     /**

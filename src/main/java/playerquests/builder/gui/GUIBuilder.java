@@ -43,7 +43,6 @@ import playerquests.product.GUI; // GUI product this class builds
  * </code>
  * </pre>
  */
-// TODO: deserialise json automatically instead of custom parse (requires refactoring dynamic guis and gui functions)
 public class GUIBuilder implements Builder {
 
     /**

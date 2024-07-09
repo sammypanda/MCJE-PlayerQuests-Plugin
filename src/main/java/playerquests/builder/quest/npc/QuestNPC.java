@@ -3,7 +3,6 @@ package playerquests.builder.quest.npc;
 import org.bukkit.Bukkit; // bukkit singleton
 import org.bukkit.Location;
 import org.bukkit.Material; // for if NPC is a block
-import org.bukkit.World; // world the NPC exists in
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonBackReference;

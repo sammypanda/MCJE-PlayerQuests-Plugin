@@ -8,11 +8,8 @@ import org.bukkit.event.EventHandler; // indicate that a method is wanting to ha
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
 import org.bukkit.event.server.ServerLoadEvent; // when a server is reloaded or started up
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include; // for configuring json serialisation
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot be processed
 import com.fasterxml.jackson.databind.JsonMappingException; // thrown when json is malformed
-import com.fasterxml.jackson.databind.ObjectMapper; // used to work with with json objects
-import com.fasterxml.jackson.databind.SerializationFeature; // for configuring json serialisation
 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking

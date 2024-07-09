@@ -1,7 +1,5 @@
 package playerquests.utility.singleton;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,10 +18,8 @@ import java.util.UUID; // how users are identified
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.bukkit.Bukkit; // the Bukkit API
-import org.bukkit.util.FileUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-import playerquests.Core;
 import playerquests.product.Quest;
 
 /**
