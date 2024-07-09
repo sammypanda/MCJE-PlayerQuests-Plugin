@@ -112,4 +112,13 @@ public class ClientDirector {
         // get the player set on this instance
         return this.player;
     }
+
+    /**
+     * Remove all from current instances,
+     * good clean up step.
+     */
+    public void clearCurrentInstances() {
+        this.currentInstances.clear();
+        this.validateCurrentInstances();
+    }
 }
