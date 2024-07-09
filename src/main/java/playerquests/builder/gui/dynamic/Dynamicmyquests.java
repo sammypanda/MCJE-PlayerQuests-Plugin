@@ -219,6 +219,9 @@ public class Dynamicmyquests extends GUIDynamic {
             }
 
             questSlot.onClick(() -> {
+                this.director.setCurrentInstance(quest);
+                this.director.setCurrentInstance(questBuilder);
+
                 // update the GUI screen
                 new UpdateScreen(
                     screen, 
