@@ -1,6 +1,7 @@
 package playerquests.client.gui.listener;
 
-import java.util.Map; // map data type
+import java.util.HashMap; // hash map data type
+import java.util.Map; // generic map data type
 import java.util.Optional; // for handling when values may be null
 
 import org.bukkit.Bukkit; // class for interacting with Bukkit API
@@ -33,7 +34,7 @@ public class GUIListener implements Listener {
     /**
      * the GUI builder attached to a player
      */
-    private Map<Player, GUIBuilder> builders;
+    private Map<Player, GUIBuilder> builders = new HashMap<Player, GUIBuilder>();
 
     /**
      * Constructs a new GUIListener.
