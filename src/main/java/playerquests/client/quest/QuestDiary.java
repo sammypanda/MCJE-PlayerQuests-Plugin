@@ -80,11 +80,12 @@ public class QuestDiary {
         ConnectionsData connections = new ConnectionsData();
 
         try {
-            String getQuestProgressSQL = "SELECT * FROM diary_quests WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT * FROM diary_quests WHERE quest = ? AND diary = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
             preparedStatement.setString(1, questID);
+            preparedStatement.setInt(2, this.dbDiaryID);
 
             ResultSet results = preparedStatement.executeQuery();
             String stageResult = results.getString("stage");
@@ -140,11 +141,12 @@ public class QuestDiary {
         QuestStage stage;
 
         try {
-            String getQuestProgressSQL = "SELECT quest, stage FROM diary_quests WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT quest, stage FROM diary_quests WHERE quest = ? AND diary = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
             preparedStatement.setString(1, questID);
+            preparedStatement.setInt(2, this.dbDiaryID);
 
             ResultSet results = preparedStatement.executeQuery();
             String stageResult = results.getString("stage");
@@ -179,11 +181,12 @@ public class QuestDiary {
         QuestAction action;
 
         try {
-            String getQuestProgressSQL = "SELECT quest, action FROM diary_quests WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT quest, action FROM diary_quests WHERE quest = ? AND diary = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
             preparedStatement.setString(1, questID);
+            preparedStatement.setInt(2, this.dbDiaryID);
 
             ResultSet results = preparedStatement.executeQuery();
             String actionResult = results.getString("action");
