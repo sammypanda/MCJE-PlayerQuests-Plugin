@@ -1,8 +1,10 @@
 package playerquests.client.gui.listener;
 
+import java.util.Map; // map data type
 import java.util.Optional; // for handling when values may be null
 
-import org.bukkit.Bukkit;
+import org.bukkit.Bukkit; // class for interacting with Bukkit API
+import org.bukkit.entity.Player; // object representing a player
 import org.bukkit.event.EventHandler; // used to register methods as events for the listener
 import org.bukkit.event.Listener; // listener type to implement this class with
 import org.bukkit.event.inventory.InventoryClickEvent; // called when player clicks in an inventory
@@ -29,28 +31,31 @@ import playerquests.product.GUI; // the GUI product itself
 public class GUIListener implements Listener {
 
     /**
-     * the GUI builder this listener reports back to
+     * the GUI builder attached to a player
      */
-    private GUIBuilder builder;
+    private Map<Player, GUIBuilder> builders;
 
     /**
      * Constructs a new GUIListener.
      * @param builder the gui builder it should send events to.
      */
     public GUIListener(GUIBuilder builder) {
-        this.builder = builder;
+        Player player = Bukkit.getPlayer(builder.getDirector().getPlayer().getUniqueId());
+        this.builders.put(player, builder);
     }
 
     /**
      * Utility to check if the GUI is not null.
      * @return whether there is a GUI open or not.
      */
-    private Boolean isGUI() {
-        if (this.builder != null) {
+    private Boolean isGUI(Player player) {
+        GUIBuilder builder = this.builders.get(player);
+
+        if (builder != null) {
             return true;
-        } else {
-            return false;
         }
+        
+        return false;
     }
 
     /**
@@ -65,8 +70,10 @@ public class GUIListener implements Listener {
             }).orElse(false);
     }
 
-    private Boolean isEmptySlot(Integer slotPosition) {
-        return this.builder.getSlot(slotPosition) == null;
+    private Boolean isEmptySlot(Integer slotPosition, Player player) {
+        GUIBuilder builder = this.builders.get(player);
+
+        return builder.getSlot(slotPosition) == null;
     }
 
     /**
@@ -75,8 +82,10 @@ public class GUIListener implements Listener {
      */
     @EventHandler 
     public void onDragItem(InventoryDragEvent event) {
+        Player player = Bukkit.getPlayer(event.getView().getPlayer().getUniqueId());
+
         // if is in a GUI, then cancel (see onDropItem)
-        if (this.isGUI()) {
+        if (this.isGUI(player)) {
             event.setCancelled(true);
             return;
         }
@@ -85,8 +94,10 @@ public class GUIListener implements Listener {
     
     @EventHandler
     public void onGUIClose(InventoryCloseEvent event) {
+        Player player = Bukkit.getPlayer(event.getPlayer().getUniqueId());
+
         // if is not in a GUI, then don't continue
-        if (!this.isGUI()) {
+        if (!this.isGUI(player)) {
             return;
         }
 
@@ -105,7 +116,7 @@ public class GUIListener implements Listener {
                 return;
             }
 
-            PlayerInventory playerInventory = event.getPlayer().getInventory();
+            PlayerInventory playerInventory = player.getInventory();
             playerInventory.forEach(item -> {
                 // don't continue if is an empty slot
                 if (item == null) {
@@ -121,7 +132,7 @@ public class GUIListener implements Listener {
                 // if candidate is tagged with GUI=true
                 if (guiKey.equals("true")) {
                     // remove from the inventory
-                    event.getPlayer().getInventory().remove(item);
+                    playerInventory.remove(item);
                 }
             });
         });
@@ -133,10 +144,11 @@ public class GUIListener implements Listener {
      */
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
+        Player player = event.getPlayer();
         
         // if is in a GUI and dropped item tagged as GUI=true, then cancel (see onDragItem)
         if (
-            this.isGUI() && 
+            this.isGUI(player) && 
             event.getItemDrop().getItemStack().getItemMeta().getPersistentDataContainer().get(
                 Core.getGUIKey(),
                 PersistentDataType.STRING
@@ -156,17 +168,19 @@ public class GUIListener implements Listener {
     @EventHandler
     public void onClickItem(InventoryClickEvent event) {
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
-        GUISlot slot = this.builder.getSlot(slotPosition); // get the slot data
+        Player player = Bukkit.getPlayer(event.getView().getPlayer().getUniqueId());
+        GUIBuilder builder = builders.get(player);
+        GUISlot slot = builder.getSlot(slotPosition); // get the slot data
 
         // if no GUI visible or no slot clicked
-        if (!this.isGUI() || slot == null) {
+        if (!this.isGUI(player) || slot == null) {
             return;
         }
 
-        switch (this.builder.getFrame().getMode()) {
+        switch (builder.getFrame().getMode()) {
             case CLICK:
 
-                if (this.isGUIInventory(event) && !this.isEmptySlot(slotPosition)) {
+                if (this.isGUIInventory(event) && !this.isEmptySlot(slotPosition, player)) {
                     event.setCancelled(true); // disallow taking slot items from GUI
                 }
 
@@ -196,8 +210,11 @@ public class GUIListener implements Listener {
      */
     @EventHandler
     public void onCloseGUI(InventoryCloseEvent event) {
-        if (this.isGUI() && !this.builder.getResult().isLocked()) {
-            this.builder.dispose(); // remove gui and builder.
+        Player player = Bukkit.getPlayer(event.getPlayer().getUniqueId());
+        GUIBuilder builder = this.builders.get(player);
+
+        if (this.isGUI(player) && !builder.getResult().isLocked()) {
+            builder.dispose(); // remove gui and builder.
         }
     }
 }
