@@ -168,6 +168,10 @@ public class GUIListener implements Listener {
      */
     @EventHandler
     public void onClickItem(InventoryClickEvent event) {
+        if (!this.isGUIInventory(event)) {
+            return; // exit if the inventory is GUI
+        }
+
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
         Player player = Bukkit.getPlayer(event.getView().getPlayer().getUniqueId());
         GUIBuilder builder = builders.get(player);
@@ -181,7 +185,7 @@ public class GUIListener implements Listener {
         switch (builder.getFrame().getMode()) {
             case CLICK:
 
-                if (this.isGUIInventory(event) && !this.isEmptySlot(slotPosition, player)) {
+                if (!this.isEmptySlot(slotPosition, player)) {
                     event.setCancelled(true); // disallow taking slot items from GUI
                 }
 
@@ -189,9 +193,7 @@ public class GUIListener implements Listener {
 
             case ARRANGE:
 
-                if (!this.isGUIInventory(event)) { // if not the GUI..
-                    event.setCancelled(true); // disallow placing GUI items into own inventory
-                }
+                event.setCancelled(true); // disallow placing GUI items into own inventory
 
                 break;
 
