@@ -194,7 +194,7 @@ public class Dynamicactioneditor extends GUIDynamic {
                     optionSlot.setLabel(
                         String.format("%s (%s...)", 
                             option.getLabel(), 
-                            dialogue.length() >= 5 ? dialogue.substring(0, 5) : dialogue
+                            dialogue.length() >= 8 ? dialogue.substring(0, 8) : dialogue
                         )
                     );
                 }
