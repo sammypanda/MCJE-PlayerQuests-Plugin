@@ -2,6 +2,7 @@ package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
@@ -215,4 +216,10 @@ public abstract class QuestAction {
     public ConnectionsData getConnections() {
         return this.connections;
     }
+
+    /**
+     * Used to test the validity of a QuestAction.
+     * @return empty if valid; an error message if invalid
+     */
+    public abstract Optional<String> validate();
 }

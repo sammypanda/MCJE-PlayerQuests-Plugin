@@ -3,6 +3,7 @@ package playerquests.builder.quest.action;
 import java.util.ArrayList; // array list type
 import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
+import java.util.Optional;
 
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.entity.Player; // represents a bukkit player
@@ -56,5 +57,14 @@ public class Speak extends QuestAction {
                 String.format("> %s: \"%s\"", this.getNPC().getName(), line)
             );
         });
+    }
+
+    @Override
+    public Optional<String> validate() {
+        if (this.npc == null) {
+            return Optional.of("NPC needs to be selected");
+        }
+        
+        return Optional.empty();
     }
 }

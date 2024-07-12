@@ -4,6 +4,7 @@ import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
+import java.util.Optional; // for a value that may be null
 import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
 
@@ -69,10 +70,21 @@ public class Dynamicactioneditor extends GUIDynamic {
         GUISlot exitButton = new GUISlot(this.gui, 10);
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
-            director // set the client director
-        ));
+        exitButton.onClick(() -> {
+            Optional<String> validity = action.validate(); // check if action is valid
+
+            // exit and send error if action is invalid
+            if (!validity.isEmpty()) {
+                ChatUtils.sendError(director.getPlayer(), validity.get());
+                return;
+            }
+
+            // switch GUI
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
+                director // set the client director
+            ).execute();
+        });
 
         // connection editor
         new GUISlot(this.gui, 11)
