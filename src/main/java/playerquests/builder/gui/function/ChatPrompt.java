@@ -16,7 +16,7 @@ import playerquests.utility.ChatUtils; // used to clear chat lines for a better 
 import playerquests.utility.PluginUtils; // used to validate function params
 
 /**
- * Meta action to swiftly move to another GUI screen based on another template JSON file. 
+ * Creates a prompt for user input. 
  */
 public class ChatPrompt extends GUIFunction {
 

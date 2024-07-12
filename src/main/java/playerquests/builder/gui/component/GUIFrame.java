@@ -1,10 +1,7 @@
 package playerquests.builder.gui.component;
 
-import java.util.Optional; // handling nullable values
 import java.util.regex.Matcher; // matching string to regex pattern
 import java.util.regex.Pattern; // creating regex pattern
-
-import com.fasterxml.jackson.databind.JsonNode; // type to interpret json objects
 
 import playerquests.Core; // getting the keyhandler
 import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
@@ -77,30 +74,6 @@ public class GUIFrame {
         }
 
         return title;
-    }
-
-    /**
-     * Take the 'title' template key and set it as the title for the gui.
-     * @param template the template as a jsonnode object
-     */
-    public void parseTitle(JsonNode template) {
-        String title = Optional.ofNullable(template.get("title")) // get title field if it exists
-            .map(JsonNode::asText) // if exists get it as text (String)
-            .orElse(this.getTitle()); // if not set it as the default title
-
-        this.setTitle(title);
-    }
-
-    /**
-     * Take the 'size' template key and set as the total slots of the gui.
-     * @param template the template as a jsonnode object
-     */
-    public void parseSize(JsonNode template) {
-        int size = Optional.ofNullable(template.get("size")) // get size field if it exists
-            .map(JsonNode::asInt) // if exists get it as Int (int)
-            .orElse(9); // if not set it as the default size
-        
-        this.setSize(size);
     }
 
     /**

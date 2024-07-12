@@ -1,18 +1,17 @@
 package playerquests.builder.gui.function;
 
-import java.io.IOException; // thrown of replacement GUI screen template file not found
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList; // used to store the params for this meta action
 import java.util.List; // generic list type
 
-import playerquests.builder.gui.GUIBuilder; // used to parse the GUI screen template
+import playerquests.builder.gui.GUIBuilder; // used to work with the GUI screen
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to send error message in-game
 import playerquests.utility.PluginUtils; // used to validate function params
 
 /**
- * Changes the GUI screen to a different template file.
+ * Changes the GUI screen to a different GUI.
  */
 public class UpdateScreen extends GUIFunction {
 
@@ -52,8 +51,8 @@ public class UpdateScreen extends GUIFunction {
     private GUIDynamic dynamicGUI;
 
     /**
-     * Switches the GUI screen to another template.
-     * @param params 1. the template file
+     * Switches the GUI screen to another GUI.
+     * @param params 1. the name of the GUI (with 'dynamic' omitted)
      * @param director to control the plugin
      */
     public UpdateScreen(ArrayList<Object> params, ClientDirector director) {
@@ -61,7 +60,7 @@ public class UpdateScreen extends GUIFunction {
     }
 
     /**
-     * Replaces an old GUI window with a new one as described by a template file.
+     * Replaces an old GUI window with a new one.
      */
     @Override
     public void execute() {
@@ -104,12 +103,11 @@ public class UpdateScreen extends GUIFunction {
             this.screenName_previous = screenNames_previous.get(screenNames_previous.size() - 1);
         }
 
-        // try screenName as dynamic GUI, otherwise as a template GUI
+        // try screenName as dynamic GUI, otherwise error
         if (this.screenName_dynamic != null) { // if a dynamic screen of this name exists
             this.fromDynamic();
-        } else { // check if template file of screenName exists
-            this.error = null;
-            this.fromFile();
+        } else { // report could not load the GUI
+            this.error = "Could not load dynamic GUI (static GUI's are deprecated)";
         }
 
         if (this.error != null) {
@@ -118,20 +116,6 @@ public class UpdateScreen extends GUIFunction {
         }
 
         this.finished(); // running onFinish code
-    }
-
-    /**
-     * Try to load the GUI screen from file
-     * @return if errored
-     */
-    private void fromFile() {
-        try {
-            this.guiBuilder.load(this.screenName); // load this next screen
-            this.director.getGUI().getResult().open(); // open the next GUI
-        } catch (IOException e) {
-            this.error = "Could not load GUI screen at: " + screenName + ", will cancel rest of functions";
-            this.exception = e;
-        }
     }
 
     /**

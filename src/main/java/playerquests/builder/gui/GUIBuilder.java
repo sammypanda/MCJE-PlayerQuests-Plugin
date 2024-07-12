@@ -1,22 +1,14 @@
 package playerquests.builder.gui;
 
-import java.io.IOException; // thrown if a file is not found or invalid
-import java.io.InputStream; // stream of file contents
 import java.util.ArrayList; // array list type
 import java.util.HashMap; // holds and manages info about the GUI slots
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
-import java.util.Optional; // used to check and work with nullable values
 import java.util.Set; // used to retrieve the key values for this.slots
-import java.util.function.Consumer; // used to execute code on a result of method
 import java.util.stream.IntStream; // used to find the next possible empty slot 
 
 import org.bukkit.Bukkit; // used to refer to base spigot/bukkit methods
 import org.bukkit.event.HandlerList; // list of event handlers; used to unload a listener
-
-import com.fasterxml.jackson.core.JsonProcessingException; // thrown if json is invalid
-import com.fasterxml.jackson.databind.JsonNode; // type for interpreting json in java
-import com.fasterxml.jackson.databind.ObjectMapper; // used to convert json string to jsonnode
 
 import playerquests.Core; // used to get the Plugin/KeyHandler instances
 import playerquests.builder.Builder; // builder interface
@@ -66,17 +58,12 @@ public class GUIBuilder implements Builder {
     private GUIFrame guiFrame;
 
     /**
-     * handles JSON objects
-     */
-    private ObjectMapper jsonObjectMapper = new ObjectMapper();
-
-    /**
      * event listener for gui events
      */
     private GUIListener guiListener;
 
     /**
-     * The names of this screen (dynamic/templated) GUIs, and the ones before.
+     * The names of this screen GUIs, and the ones before.
      */
     private String screenName;
 
@@ -142,101 +129,6 @@ public class GUIBuilder implements Builder {
     public void dispose() {
         HandlerList.unregisterAll(this.guiListener); // unregister the listeners, don't need them if there is no GUI
         Core.getKeyHandler().deregisterInstance(this); // remove the current instance from key-pair handler
-    }
-
-    @Override
-    public void load(String templateFile) throws IOException {
-        // Set the screen name
-        this.screenName = templateFile;
-
-        // Init variable where the JSON string will be put
-        String templateString = new String();
-
-        // Define the path where screens can be found and
-        // Attach the templateFile parameter to the path
-        String path = "/gui/screens/" + templateFile + ".json";
-
-        // Pull out the json file as a string
-        try (InputStream inputStream = getClass().getResourceAsStream(path)) {
-            
-            if (inputStream != null) {
-                templateString = new String(inputStream.readAllBytes());
-                
-                // Process the template into a real GUI screen
-                this.parse(templateString);
-            } else {
-                throw new IOException("nothing to read in " + path);
-            }
-        } catch (IOException e) { // On an I/O failure such as the file not being found
-            throw new IOException("not able to read " + path, e);
-        }
-    }
-
-    @Override
-    public void parse(String templateJSONString) {
-        // Init variable where the GUITemplate object will be put
-        JsonNode template;
-
-        // Convert the JSON string into a GUITemplate object
-        // This makes it easier to pull values out of the JSON 
-        try {
-            // readValue(String content, Class<T> valueType)
-            // Method to deserialize JSON content from given JSON content String.
-            template = this.jsonObjectMapper.readTree(templateJSONString);
-
-            // flexibly set the values from keys to.. 
-            // the GUI screen 
-            this.guiFrame.parseTitle(template);
-            // the inventory slots size
-            this.guiFrame.parseSize(template);
-            // the content of the slots
-            this.parseMultiple(template.get("slots"), slot -> this.newSlot(slot));
-
-        } catch (JsonProcessingException e) { // Encapsulates all JSON processing errors that could occur
-            throw new IllegalArgumentException("the JSON is malformed in the template: " + templateJSONString, e);
-        }
-    }
-
-    /**
-     * Parsing JSON arrays into single objects.
-     * <p>
-     * Usage:
-     * <code>
-     * parseMultiple(jsonNodeArray, element -> parseObject(element))     
-     * </code>
-     * </pre>
-     * @param node the json field with multiple elements
-     * @param consumer the consumer to execute code on each lone jsonnode element retrieved
-     */
-    private void parseMultiple(JsonNode node, Consumer<JsonNode> consumer) {
-        Optional.ofNullable(node) // tolerate if value is null
-            .map(JsonNode::elements) // map to a JsonNode iterator
-            .ifPresent(slots -> slots.forEachRemaining(slot -> { // for each slot
-                consumer.accept(slot); // do as determined by method caller
-            }));
-    }
-
-    /**
-     * Creates a new GUI slot.
-     * @param slot json object for this slot.
-     */
-    public void newSlot(JsonNode slot) {
-        GUISlot guiSlot = new GUISlot(this, -1); // set the pre-prepared gui slot
-
-        Optional.ofNullable(slot.get("slot")) // get slot field if it exists
-            .map(JsonNode::asInt) // if exists get it as Int (int)
-            .ifPresent(position -> guiSlot.setPosition(position)); // set the slot position in the GUI
-
-        Optional.ofNullable(slot.get("item")) // get item to fill slot if exists
-            .map(JsonNode::asText) // if exists get it as Text (String)
-            .ifPresent(item -> guiSlot.setItem(item)); // set the GUI slot item
-
-        Optional.ofNullable(slot.get("label")) // get label for slot if exists
-            .map(JsonNode::asText) // if exists get it as Text (String)
-            .ifPresent(label -> guiSlot.setLabel(label)); // set the GUI slot label
-
-        Optional.ofNullable(slot.get("functions")) // get functions for slot if exists
-            .ifPresent(functions -> guiSlot.parseFunctions(functions)); // parse all the functions in the object
     }
 
     /**
@@ -330,7 +222,7 @@ public class GUIBuilder implements Builder {
 
     /**
      * Get the real screen name of the GUI
-     * @return the gui template or dynamic gui name
+     * @return the dynamic gui name
      */
     public String getScreenName() {
         return this.screenName;
@@ -338,7 +230,7 @@ public class GUIBuilder implements Builder {
 
     /**
      * Set the real screen name of the GUI
-     * @param name the gui template or dynamic gui name
+     * @param name the dynamic gui name
      */
     public void setScreenName(String name) {
         this.screenName = name;

@@ -5,12 +5,12 @@
 
 # How To Get Functionality: 'Actions'
 ###### How pre-defined but flexible functionality is actually associated with buttons and other behaviours.
-Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. But when creating GUI template files (usually with 'Meta Actions' or 'Functions') there isn't much option to select from a list of actions, so here is a list for devs or if you're a very brave user.
+Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. Here is a list for devs or if you're a very brave user.
 
 ###### Meta Actions (Functions)
 | Function (How to refer to) | Parameters (How to customise)                                                                                 | Purpose (What it does)                                                    |
 |----------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| UpdateScreen               | 1: the template filename (without .json)                                                                      | Changes the current GUI screen to a different GUI template/dynamic GUI    |
+| UpdateScreen               | 1: the dynamic GUI name                                                                                       | Changes the current GUI screen to a different GUI                         |
 | ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "none", "gui.title", "quest.title") | Prompts the user to sets a text value (by typing in the chat box)         |
 | Save                       | 1. key of instance to save (options: "quest")                                                                 | Calls the defined save processes for instances                            |
 | SelectBlock                | 1. the prompt to show the user<br>2. list of denied blocks<br>3. list of denied methods                       | Prompts the user to select a block (by hitting or selecting in inventory) |
@@ -85,7 +85,6 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
 
 | Folder                           | Purpose                          |
 |----------------------------------|----------------------------------|
-| ../../resources/gui/screens/     | GUI templates in JSON            |
 | ../../resources/quest/templates/ | Quest templates in JSON          |
 | builder/                         | Produce product instances        |
 | product/                         | The product instances            |
@@ -94,26 +93,6 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
 | utility/annotation               | Custom code annotations          |
 
 <br>
-
-###### GUI templates are parsed as JSON strings
-TODO: It is built in such a way that even if fields are missing, it should still succeed as much as possible. It does this by efficiently using the information the plugin has so far.
-
-- The GUIBuilder class stores slots array items into a List of GUISlot instances.
-
-| Key-Value Pair  | Behaviour When Missing                       |
-|-----------------|----------------------------------------------|
-| title           | Uses an empty string                         |
-| size            | Uses 9 slots                                 |
-| slots           | Provides all {size} slots as empty           |
-| slots.slot      | Defaults to the next slot which is not taken |
-| slots.item      | Uses an air or grey stained glass item/block |
-| slots.label     | Uses an empty string                         |
-| slots.functions | Does nothing when slot is interacted with    |
-
-<br>
-
-###### GUI screen templating layout (JSON)
-Where all the manually generated GUI screens are (src/main/resources/gui/screens/*.json).
 
 ```json
 {
