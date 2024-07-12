@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array list type
+import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
 
 import org.bukkit.Bukkit; // bukkit API
@@ -42,6 +43,14 @@ public class Speak extends QuestAction {
     public void Run(QuestClient quester) {
         Player player = Bukkit.getPlayer(quester.getPlayer().getUniqueId());
 
+        // insert empty dialogue if none set
+        if (this.dialogue == null) {
+            this.dialogue = new ArrayList<>(
+                Arrays.asList("...")
+            );
+        }
+
+        // produce dialogue
         dialogue.forEach(line -> {
             player.sendMessage(
                 String.format("> %s: \"%s\"", this.getNPC().getName(), line)
