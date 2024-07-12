@@ -188,6 +188,17 @@ public class Dynamicactioneditor extends GUIDynamic {
                 });
                 break;
             case DIALOGUE:
+                if (this.action.getDialogue() != null) {
+                    String dialogue = action.getDialogue().get(0);
+                    
+                    optionSlot.setLabel(
+                        String.format("%s (%s...)", 
+                            option.getLabel(), 
+                            dialogue.length() >= 5 ? dialogue.substring(0, 5) : dialogue
+                        )
+                    );
+                }
+
                 optionSlot.onClick(() -> { 
                     new ChatPrompt(
                         new ArrayList<>(Arrays.asList("Enter the dialogue", "none")), 
@@ -199,20 +210,8 @@ public class Dynamicactioneditor extends GUIDynamic {
                             return;
                         }
                         
-                        QuestAction action = this.action.setDialogue(Arrays.asList(prompt.getResponse())); // set dialogue with prompt response
-
-                        if (action.getDialogue() != null) {
-                            String dialogue = action.getDialogue().get(0);
-                            
-                            optionSlot.setLabel(
-                                String.format("%s (%s...)", 
-                                    option.getLabel(), 
-                                    dialogue.length() >= 5 ? dialogue.substring(0, 5) : dialogue
-                                )
-                            );
-                        }
-
-                        this.execute(); // show label change
+                        this.action.setDialogue(Arrays.asList(prompt.getResponse())); // set dialogue with prompt response
+                        new UpdateScreen(new ArrayList<>(Arrays.asList("actioneditor")), director).execute(); // refresh actioneditor to see dialogue
                     }).execute();
                 });
         }
