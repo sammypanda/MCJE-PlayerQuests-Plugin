@@ -5,6 +5,7 @@ import java.util.HashMap; // hash table map
 import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean; // modify boolean state in a stream operation
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit; // accessing Bukkit API
@@ -87,6 +88,7 @@ public class QuestRegistry {
     public void submit(Quest quest) {
         String questID = quest.getID();
         HumanEntity creator = null;
+        AtomicBoolean isQuestValid = new AtomicBoolean(true); // start with assumption the quest is valid
         
         // get the creator if it's not a universal quest (missing or null creator)
         if (quest.getCreator() != null) {
@@ -110,8 +112,22 @@ public class QuestRegistry {
         // check each registry NPC location against current NPC in submitted quest
         Optional<QuestNPC> collidingNPC = quest.getNPCs().values().stream()
             .filter(questNPC -> registryNPCLocations.stream()
-                .anyMatch(location -> location.collidesWith(questNPC.getLocation()))
+                .anyMatch(existingLocation -> {
+                    LocationData submittedLocation = questNPC.getLocation();
+
+                    if (!questNPC.isValid()) {
+                        isQuestValid.set(false);
+                        return false; // invalid, so no use displacing
+                    }
+
+                    return existingLocation.collidesWith(submittedLocation);
+                })
             ).findFirst();
+
+        // do not continue if npc has no LocationData
+        if (!isQuestValid.get()) {
+            return;
+        }
 
         // if submitted quest has an NPC found colliding with existing,
         if (collidingNPC.isPresent()) {

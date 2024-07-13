@@ -173,6 +173,11 @@ public class QuestNPC {
             return false;
         }
 
+        if (this.location == null) {
+            ChatUtils.sendError(player, "The NPC must be placed at a location");
+            return false;
+        }
+
         return true;
     }
     
