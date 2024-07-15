@@ -50,8 +50,14 @@ public class ServerListener implements Listener {
             
             try {
                 Quest newQuest = Quest.fromTemplateString(FileUtils.get("quest/templates/" + id + ".json"));
+
+                if (newQuest == null) {
+                    return;
+                }
+
                 QuestRegistry.getInstance().submit(newQuest);
                 err = false;
+
             } catch (JsonMappingException e) {
                 System.err.println("Could not accurately map template: " + id + ", to the Quest object. " + e);
             } catch (JsonProcessingException e) {

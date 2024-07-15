@@ -31,7 +31,7 @@ public class BlockNPC extends NPCType {
      */
     @JsonIgnore
     public BlockData getBlock() {
-        BlockData finalBlockData;
+        BlockData finalBlockData = Material.RED_WOOL.createBlockData(); // fallback block
 
         try {
             finalBlockData = Bukkit.getServer().createBlockData(value);
@@ -41,14 +41,10 @@ public class BlockNPC extends NPCType {
             // try to get as a material (the old value type)
             Material fallbackMaterial = Material.getMaterial(value);
             if (fallbackMaterial != null) {
-                BlockData fallbackBlockData = fallbackMaterial.createBlockData(); 
-                this.value = fallbackBlockData.getAsString();
-                return fallbackBlockData;
+                finalBlockData = fallbackMaterial.createBlockData(); 
             }
 
-            // give up and give them a fallback block
-            finalBlockData = Material.RED_WOOL.createBlockData();
-            this.value = finalBlockData.getAsString();
+            this.value = finalBlockData.getAsString(true);
         }
 
         return finalBlockData;
