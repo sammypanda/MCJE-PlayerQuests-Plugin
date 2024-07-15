@@ -249,13 +249,13 @@ public class SelectBlock extends GUIFunction {
 
     @Override
     public void execute() {
-        // clear the chat
-        ChatUtils.clearChat(this.player);
-
         if (!this.wasSetUp) {
             this.setUp();
             return;
         }
+
+        // clear the chat
+        ChatUtils.clearChat(this.player);
 
         if (this.cancelled) {
             this.player.sendMessage(
