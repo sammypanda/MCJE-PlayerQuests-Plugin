@@ -250,7 +250,7 @@ public class SelectBlock extends GUIFunction {
     @Override
     public void execute() {
         // clear the chat
-        ChatUtils.clearChat();
+        ChatUtils.clearChat(this.player);
 
         if (!this.wasSetUp) {
             this.setUp();
