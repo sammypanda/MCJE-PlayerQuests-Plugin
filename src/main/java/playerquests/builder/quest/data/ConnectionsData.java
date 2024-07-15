@@ -1,5 +1,7 @@
 package playerquests.builder.quest.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // used to ignore fields in serialisation
+
 /**
  * Represents a map of quest connections 
  * to form a network/quest plan.
@@ -77,7 +79,6 @@ public class ConnectionsData {
 
     /**
      * Returns a string representation of the Location object.
-     *
      * @return a string representation of the Location object
      */
     @Override
@@ -89,6 +90,7 @@ public class ConnectionsData {
                 '}';
     }
 
+    @JsonIgnore
     public Boolean isEmpty() {
         return 
             this.curr == null && 

@@ -1,8 +1,10 @@
 package playerquests.builder.quest.npc;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit; // bukkit singleton
-import org.bukkit.Location;
 import org.bukkit.Material; // for if NPC is a block
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -157,9 +159,16 @@ public class QuestNPC {
      */
     @JsonIgnore
     public boolean isValid() {
-        HumanEntity player = Bukkit.getPlayer(quest.getCreator()); // the player to send invalid npc messages to
+        UUID questCreator = quest.getCreator();
+        HumanEntity player = null;
 
-        if (player == null) { // if player not available
+        // when there is a quest creator, try set player object from creator UUID
+        if (questCreator != null) {
+            player = Bukkit.getPlayer(quest.getCreator()); // the player to send invalid npc messages to
+        }
+
+        // when player not findable
+        if (player == null) {
             return false;
         }
 
@@ -211,13 +220,13 @@ public class QuestNPC {
      * Gets a material which represents this NPC.
      */
     @JsonIgnore
-    public Material getMaterial() {
+    public BlockData getBlock() {
         if (this.assigned instanceof BlockNPC) {
             BlockNPC npc = (BlockNPC) this.assigned;
             return npc.getBlock();
         }
 
-        return Material.RED_STAINED_GLASS; // default to unset
+        return Material.RED_STAINED_GLASS.createBlockData(); // default to unset
     }
 
     /**
@@ -244,15 +253,6 @@ public class QuestNPC {
     @JsonIgnore
     public void place() {
         this.assigned.place();
-    }
-
-    public Location toBukkitLocation() {
-        return new Location(
-            Bukkit.getWorld(this.location.getWorld()), 
-            location.getX(), 
-            location.getY(), 
-            location.getZ()
-        );
     }
 
     /**

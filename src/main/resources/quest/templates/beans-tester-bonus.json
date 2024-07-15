@@ -6,7 +6,7 @@
       "name" : "Beans",
       "assigned" : {
         "type" : "BlockNPC",
-        "value" : "ACACIA_LOG"
+        "value" : "minecraft:acacia_log"
       },
       "location" : {
         "world" : "world",
@@ -21,7 +21,7 @@
       "name" : "(Sneaky Imposter) Beans",
       "assigned" : {
         "type" : "BlockNPC",
-        "value" : "ACACIA_LOG"
+        "value" : "minecraft:acacia_log"
       },
       "location" : {
         "world" : "world",

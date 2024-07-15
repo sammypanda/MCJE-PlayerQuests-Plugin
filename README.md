@@ -40,7 +40,7 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
             "name": String, // the name of the NPC
             "assigned": {
                 "type": String, // type the NPC is assigned to (options: "BlockNPC")
-                "value": String // (options: block material)
+                "value": String // the standard minecraft block string (like: minecraft:acacia_log)
             },
             "location": {
                 "x": Double,
@@ -91,23 +91,3 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
 | client/                          | Ways to control the plugin       |
 | utility/                         | Tools for reducing repeated code |
 | utility/annotation               | Custom code annotations          |
-
-<br>
-
-```json
-{
-    "title": String, // title of the GUI window
-    "size": int, // how many slots are in the inventory GUI (multiples of 9 only) 
-    "slots": [ // list of slots
-        {
-            "slot": Integer, // position of the GUI slot
-            "item": String, // item that should show in the slot
-            "label": String, // hover tooltip on the slot
-            "functions": [ // list of functions
-                { "name": String, "params": [] }, // a function with list of params
-                { "name": String, "params": [] } // ..
-            ]
-        }
-    ]
-}
-```

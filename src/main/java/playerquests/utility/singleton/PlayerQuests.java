@@ -75,13 +75,13 @@ public class PlayerQuests {
         }
 
         QuestNPC npc = blockNPC.getNPC();
-        Location npcBukkitLocation = npc.toBukkitLocation();
+        Location npcBukkitLocation = npc.getLocation().toBukkitLocation();
         World npcWorld = npcBukkitLocation.getWorld();
 
         // set the block in the world for this NPC to register to
         npcWorld.setBlockData(
             npcBukkitLocation,
-            blockNPC.getBlock().createBlockData()
+            blockNPC.getBlock()
         );
 
         // get the block to use it to efficiently find match in BlockListener

@@ -46,15 +46,23 @@ public class ServerListener implements Listener {
 
         // try to submit database quests to quest registry
         Database.getInstance().getAllQuests().forEach(id -> {
+            Boolean err = true; // assume errored (avoids repeating it for each catch)
+            
             try {
                 Quest newQuest = Quest.fromTemplateString(FileUtils.get("quest/templates/" + id + ".json"));
                 QuestRegistry.getInstance().submit(newQuest);
+                err = false;
             } catch (JsonMappingException e) {
                 System.err.println("Could not accurately map template: " + id + ", to the Quest object. " + e);
             } catch (JsonProcessingException e) {
                 System.err.println("JSON in template: " + id + ", is malformed. " + e);
             } catch (IOException e) {
                 System.err.println("Could not read file: " + id + ".json. " + e);
+            }
+
+            // remove the quest if unreadable
+            if (err) {
+                Database.removeQuest(id);
             }
         });
 
