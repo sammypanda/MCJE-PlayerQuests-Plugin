@@ -9,12 +9,16 @@ import java.util.List; // store temporary lists (like: string splitting)
 import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
+import org.bukkit.event.server.ServerLoadEvent; // emulating server load event
+import org.bukkit.event.server.ServerLoadEvent.LoadType; // param for ^
+
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 'main' screen
 import playerquests.builder.quest.QuestBuilder; // the class which constructs a quest product
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest; // a quest product used to play and track quests
+import playerquests.utility.singleton.PlayerQuests; // used to get plugin listeners
 import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
 
 /**
@@ -70,6 +74,14 @@ public class Dynamicmyquests extends GUIDynamic {
     public void setUp_custom() {
         // get the list of all quest templates with owner: null or owner: player UUID
         File questTemplatesDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
+
+        if (!questTemplatesDir.exists()) {
+            PlayerQuests.getServerListener().onLoad(new ServerLoadEvent(LoadType.RELOAD)).onFinish(() -> {
+                // imitate reload to retry plugin set-up
+                this.setUp_custom();
+            });
+            return;
+        }
 
         // modify the new GUI to show the quests in
         this.gui.getFrame().setSize(45);

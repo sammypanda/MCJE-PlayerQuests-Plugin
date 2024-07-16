@@ -49,9 +49,6 @@ public class Core extends JavaPlugin {
 
         // initiate /playerquests command
         new Commandplayerquest();
-
-        // Save the demo quest to the server
-        saveResource("quest/templates/beans-tester-bonus.json", true);
     }
 
     /**

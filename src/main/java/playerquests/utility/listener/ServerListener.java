@@ -28,13 +28,22 @@ public class ServerListener implements Listener {
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
     }
 
+    /**
+     * Ran whenever the server is started or reloaded.
+     * Use [return value].onFinish(() -> {}) for callback.
+     * @param event the LoadType
+     * @return the ServerListener itself
+     */
     @EventHandler
-    public void onLoad(ServerLoadEvent event) {
+    public ServerListener onLoad(ServerLoadEvent event) {
         // create plugin folder if it doesn't exist
         File f = new File(Core.getPlugin().getDataFolder() + "/");
         if (!f.exists()) {
             f.mkdir();
         }
+
+        // Save the demo quest to the server
+        Core.getPlugin().saveResource("quest/templates/beans-tester-bonus.json", true);
 
         // initialise the database
         Database.getInstance().init();
@@ -81,5 +90,18 @@ public class ServerListener implements Listener {
                 QuestClient quester = new QuestClient(player);
                 QuestRegistry.getInstance().addQuester(quester);
             });
+
+        // function chaining reasons:
+        return this;
+    }
+
+    /**
+     * Sets code to be executed when the function is finished.
+     * @param runnable the code to run when the function completes
+     */
+    public void onFinish(Runnable runnable) {
+        if (runnable != null) {
+            runnable.run();
+        }
     }
 }
