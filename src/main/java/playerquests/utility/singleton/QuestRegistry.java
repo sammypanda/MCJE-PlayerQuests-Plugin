@@ -254,6 +254,7 @@ public class QuestRegistry {
     public Quest getQuest(String questID) {
         Quest result = this.getAllQuests().get(questID);
 
+        // search in filesystem
         if (result == null) {
             System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the resources quest template files.");
 

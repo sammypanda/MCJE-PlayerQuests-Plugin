@@ -185,7 +185,13 @@ public class QuestClient {
 
         // update 'helper maps'
         questSet.stream().forEach(quest -> {
+            // don't continue if quest is invalid
             if (!quest.isValid()) {
+                return;
+            }
+
+            // don't continue if quest isn't toggled
+            if (!quest.isToggled()) {
                 return;
             }
 
