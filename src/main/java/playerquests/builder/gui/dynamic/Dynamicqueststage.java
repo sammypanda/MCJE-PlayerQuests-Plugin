@@ -39,6 +39,11 @@ public class Dynamicqueststage extends GUIDynamic {
     QuestBuilder questBuilder;
 
     /**
+     * Specify if actionKeys has already been looped through
+     */
+    private boolean confirm_actionKeys = false;
+
+    /**
      * Creates a dynamic GUI to edit a quest stage.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -94,39 +99,44 @@ public class Dynamicqueststage extends GUIDynamic {
             });
 
         // produce slots listing current actions
-        IntStream.range(0, actionKeys.size()).anyMatch(index -> {
+        if (!confirm_actionKeys) {
+            IntStream.range(0, actionKeys.size()).anyMatch(index -> {
 
-            String action = actionKeys.get(index);
-            Integer nextEmptySlot = this.gui.getEmptySlot();
-            GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
+                String action = actionKeys.get(index);
+                Integer nextEmptySlot = this.gui.getEmptySlot();
+                GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
 
-            // identify which action is the stage entry point
-            if (this.questStage.getEntryPoint().getID().equals(action)) { // if this action is the entry point
-                actionSlot.setLabel(action.toString() + " (Entry Point)");
-                actionSlot.setItem("POWERED_RAIL");
-            } else { // if it's not the entry point
-                actionSlot.setLabel(action.toString());
-                actionSlot.setItem("DETECTOR_RAIL");
-            }
-
-            actionSlot.onClick(() -> {
-                if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
-                    return;
+                // identify which action is the stage entry point
+                if (this.questStage.getEntryPoint().getID().equals(action)) { // if this action is the entry point
+                    actionSlot.setLabel(action.toString() + " (Entry Point)");
+                    actionSlot.setItem("POWERED_RAIL");
+                } else { // if it's not the entry point
+                    actionSlot.setLabel(action.toString());
+                    actionSlot.setItem("DETECTOR_RAIL");
                 }
 
-                // set the action as the current action to modify
-                this.questStage.setActionToEdit(actionKeys.get(index));
-                // prep the screen to be updated
-                actionSlot.addFunction(new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("actioneditor")), 
-                    director
-                ));
-                // manually start the slot functions (updating of the screen)
-                actionSlot.execute(this.director.getPlayer());
+                actionSlot.onClick(() -> {
+                    if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+                        return;
+                    }
+
+                    // set the action as the current action to modify
+                    this.questStage.setActionToEdit(actionKeys.get(index));
+                    // prep the screen to be updated
+                    actionSlot.addFunction(new UpdateScreen(
+                        new ArrayList<>(Arrays.asList("actioneditor")), 
+                        director
+                    ));
+                    // manually start the slot functions (updating of the screen)
+                    actionSlot.execute(this.director.getPlayer());
+                });
+
+                return false; // continue the loop
             });
 
-            return false; // continue the loop
-        });
+            // set actionKeys as confirmed
+            this.confirm_actionKeys = true;
+        }
 
         // add 'delete stage' button (with confirm)
         if (!this.confirm_delete) { // if delete hasn't been confirmed
@@ -164,6 +174,7 @@ public class Dynamicqueststage extends GUIDynamic {
         newActionButton.setItem("LIME_DYE");
         newActionButton.onClick(() -> {
             new None(this.questStage).submit(); // create the new action
+            this.confirm_actionKeys = false; // set actionKeys to be looped through again
             this.gui.clearSlots();
             this.execute(); // re-run to see new action in list
         });
