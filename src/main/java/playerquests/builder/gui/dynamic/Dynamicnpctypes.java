@@ -108,16 +108,8 @@ public class Dynamicnpctypes extends GUIDynamic {
                     );
                 }
 
-                // I have been losing my mind and time over how to resolve what was,
-                // seemingly, a race condition with bringing back the GUI after it
-                // was minimised by SelectBlock. Wherein selecting certain single blocks
-                // had no issue. And other blocks or stacks of blocks when selected would break
-                // the GUI.
-                //
-                // Doing this instead has no issue.
-                // I cannot do this in SelectBlock as it would destroy it's modularity hardcoding this step to it.
-                // All i can say is; meh.
-                new UpdateScreen(new ArrayList<>(Arrays.asList("npctypes")), this.director).execute();
+                this.gui.getResult().display();
+                this.execute();
             }).execute();
         });
 
