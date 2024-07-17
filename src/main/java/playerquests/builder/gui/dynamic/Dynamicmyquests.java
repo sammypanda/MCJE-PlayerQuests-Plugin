@@ -18,6 +18,8 @@ import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 
 import playerquests.builder.quest.QuestBuilder; // the class which constructs a quest product
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest; // a quest product used to play and track quests
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.PlayerQuests; // used to get plugin listeners
 import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
 
@@ -80,6 +82,10 @@ public class Dynamicmyquests extends GUIDynamic {
                 // imitate reload to retry plugin set-up
                 this.setUp_custom();
             });
+            ChatUtils.message("Setting up for the first time")
+                .type(MessageType.NOTIF)
+                .player(this.director.getPlayer())
+                .send();
             return;
         }
 

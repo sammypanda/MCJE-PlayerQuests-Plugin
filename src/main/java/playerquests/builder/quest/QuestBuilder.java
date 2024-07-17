@@ -16,6 +16,7 @@ import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
@@ -178,7 +179,10 @@ public class QuestBuilder {
     @Key("quest.title")
     public void setTitle(String title) {
         if (title.contains("_")) {
-            ChatUtils.sendError(this.director.getPlayer(), "Quest label '" + this.title + "' not allowed underscores.");
+            ChatUtils.message("Quest label '" + this.title + "' not allowed underscores.")
+                .player(this.director.getPlayer())
+                .type(MessageType.ERROR)
+                .send();
             return;
         }
 

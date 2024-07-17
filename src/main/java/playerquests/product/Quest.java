@@ -24,6 +24,7 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database;
@@ -219,7 +220,11 @@ public class Quest {
                 this.toTemplateString().getBytes() // put the content in the file
             );
         } catch (IOException e) {
-            ChatUtils.sendError(Bukkit.getPlayer(this.creator), e.getMessage(), e);
+            ChatUtils.message(e.getMessage())
+                .player(Bukkit.getPlayer(this.creator))
+                .type(MessageType.ERROR)
+                .send();
+            System.err.println(e);
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
@@ -286,16 +291,25 @@ public class Quest {
         }
 
         if (this.title == null) {
-            ChatUtils.sendError(player, "A quest has no title");
+            ChatUtils.message("A quest has no title")
+                .player(player)
+                .type(MessageType.ERROR)
+                .send();
             return false;
         }
 
         if (this.entry == null) {
-            ChatUtils.sendError(player, String.format("The %s quest has no starting point", this.title));
+            ChatUtils.message(String.format("The %s quest has no starting point", this.title))
+                .player(player)
+                .type(MessageType.ERROR)
+                .send();
             return false;
         } else {
             if (this.stages == null || this.stages.isEmpty()) {
-                ChatUtils.sendError(player, String.format("The %s quest has no stages", this.title));
+                ChatUtils.message(String.format("The %s quest has no stages", this.title))
+                    .player(player)
+                    .type(MessageType.ERROR)
+                    .send();
                 return false;
             }
         }

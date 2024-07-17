@@ -17,6 +17,7 @@ import playerquests.Core;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.PluginUtils;
 
 /**
@@ -98,7 +99,10 @@ public class SelectLocation extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.player, e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // set params

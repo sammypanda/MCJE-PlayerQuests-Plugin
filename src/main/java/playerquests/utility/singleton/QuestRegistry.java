@@ -18,6 +18,7 @@ import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
 import playerquests.utility.FileUtils;
+import playerquests.utility.ChatUtils.MessageType;
 
 
 /**
@@ -192,7 +193,10 @@ public class QuestRegistry {
             this.remove(quest);
 
         } catch (IOException e) {
-            ChatUtils.sendError(Bukkit.getPlayer(quest.getCreator()), "Could not delete the " + quest.getTitle() + " quest", e);
+            ChatUtils.message("Could not delete the " + quest.getTitle() + " quest")
+                .player(Bukkit.getPlayer(quest.getCreator()))
+                .type(MessageType.ERROR)
+                .send();
             return false;
         }
 

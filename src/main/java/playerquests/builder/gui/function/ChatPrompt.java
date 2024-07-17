@@ -117,7 +117,10 @@ public class ChatPrompt extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class, String.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.player, e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.player)
+                .type(ChatUtils.MessageType.ERROR)
+                .send();
         }
 
         // temporarily close the existing GUI but don't dispose
@@ -138,7 +141,7 @@ public class ChatPrompt extends GUIFunction {
      * <p>
      * Messages defined in ChatPrompt.putPredefinedMessage().
      */
-    public enum MessageType {
+    private enum MessageType {
         /**
          * Sends the prompt to the user. 
          */
@@ -191,7 +194,10 @@ public class ChatPrompt extends GUIFunction {
                     Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
                     Core.getKeyHandler().setValue(instance, this.key, this.value); // set the value
                 } catch (IllegalArgumentException e) {
-                    ChatUtils.sendError(this.player, e.getMessage());
+                    ChatUtils.message(e.getMessage())
+                        .player(this.player)
+                        .type(ChatUtils.MessageType.ERROR)
+                        .send();
                     this.errored = true;
                 }
             }

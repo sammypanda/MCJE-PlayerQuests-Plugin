@@ -17,6 +17,7 @@ import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.ChatUtils; // working with in-game chat
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Shows a dynamic GUI used for editing a quest action.
@@ -75,7 +76,10 @@ public class Dynamicactioneditor extends GUIDynamic {
 
             // exit and send error if action is invalid
             if (!validity.isEmpty()) {
-                ChatUtils.sendError(director.getPlayer(), validity.get());
+                ChatUtils.message(validity.get())
+                    .player(this.director.getPlayer())
+                    .type(MessageType.WARN)
+                    .send();
                 return;
             }
 
@@ -105,7 +109,10 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setItem("RED_DYE")
             .onClick(() -> {
                 if (stage.getEntryPoint().equals(action)) {
-                    ChatUtils.sendError(director.getPlayer(), "Cannot remove the stage starting point action.");
+                    ChatUtils.message("Cannot remove the stage starting point action.")
+                        .player(this.director.getPlayer())
+                        .type(MessageType.WARN)
+                        .send();
                     return;
                 }
 

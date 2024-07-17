@@ -8,6 +8,7 @@ import playerquests.builder.gui.GUIBuilder; // used to work with the GUI screen
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.client.ClientDirector; // powers functionality for functions
 import playerquests.utility.ChatUtils; // used to send error message in-game
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.PluginUtils; // used to validate function params
 
 /**
@@ -68,7 +69,10 @@ public class UpdateScreen extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.director.getPlayer(), e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.director.getPlayer())
+                .type(MessageType.ERROR)
+                .send();
         }
 
         this.director.getGUI().getResult().close();
@@ -111,7 +115,11 @@ public class UpdateScreen extends GUIFunction {
         }
 
         if (this.error != null) {
-            ChatUtils.sendError(director.getPlayer(), this.error, this.exception);
+            ChatUtils.message(this.error)
+                .player(this.director.getPlayer())
+                .type(MessageType.ERROR)
+                .send();
+            System.err.println(this.exception);
             return;
         }
 

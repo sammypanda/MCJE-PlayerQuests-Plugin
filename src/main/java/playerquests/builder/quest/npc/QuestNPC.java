@@ -18,6 +18,7 @@ import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils; // sends error messages to player
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // key-value pair annottation
 
 /**
@@ -173,17 +174,26 @@ public class QuestNPC {
         }
 
         if (this.name == null) {
-            ChatUtils.sendError(player, "The NPC name must be set");
+            ChatUtils.message("The NPC name must be set")
+                .player(player)
+                .type(MessageType.WARN)
+                .send();
             return false;
         }
 
         if (this.assigned == null) {
-            ChatUtils.sendError(player, "The NPC must be assigned to a type");
+            ChatUtils.message("The NPC must be assigned to a type")
+                .player(player)
+                .type(MessageType.ERROR)
+                .send();
             return false;
         }
 
         if (this.location == null) {
-            ChatUtils.sendError(player, "The NPC must be placed at a location");
+            ChatUtils.message("The NPC must be placed at a location")
+                .player(player)
+                .type(MessageType.ERROR)
+                .send();
             return false;
         }
 

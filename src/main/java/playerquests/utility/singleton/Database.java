@@ -21,6 +21,9 @@ import org.bukkit.Bukkit; // the Bukkit API
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * API representing and providing access to the game database.
@@ -55,6 +58,8 @@ public class Database {
             if (inputStream != null) {
                 MavenXpp3Reader reader = new MavenXpp3Reader();
                 Model model = reader.read(new InputStreamReader(inputStream));
+
+                // get the actual version from the POM
                 version = model.getVersion();
             } else {
                 System.err.println("Error: Resource not found.");
@@ -152,9 +157,13 @@ public class Database {
 
         // update plugin version in db
         Database.setPluginVersion(version);
+        ChatUtils.message("You're on v" + version + "! https://sammypanda.moe/docs/playerquests/v" + version)
+            .target(MessageTarget.WORLD)
+            .type(MessageType.NOTIF)
+            .send();
     }
 
-    private static String getPluginVersion() {
+    public static String getPluginVersion() {
         if (!Files.exists(Paths.get("plugins/PlayerQuests/playerquests.db"))) {
             // Don't try to continue with fetching version if no database
             return "0.0";

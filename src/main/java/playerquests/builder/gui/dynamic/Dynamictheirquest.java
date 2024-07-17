@@ -12,6 +12,7 @@ import playerquests.builder.quest.QuestBuilder; // for creating and modifying qu
 import playerquests.client.ClientDirector; // backend for a player client
 import playerquests.product.Quest; // quest product to view
 import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 
 public class Dynamictheirquest extends GUIDynamic {
 
@@ -67,7 +68,10 @@ public class Dynamictheirquest extends GUIDynamic {
                         Quest.fromTemplateString(this.questProduct.toTemplateString())
                     ).setDirector(this.director);
                 } catch (JsonProcessingException e) {
-                    ChatUtils.sendError(this.director.getPlayer(), "Could not clone this quest, the quest template is invalid.");
+                    ChatUtils.message("Could not clone this quest, the quest template is invalid.")
+                        .player(this.director.getPlayer())
+                        .type(MessageType.ERROR)
+                        .send();
                 }
 
                 // enter editing mode for cloned quest

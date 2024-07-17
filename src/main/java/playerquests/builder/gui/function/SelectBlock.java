@@ -20,6 +20,7 @@ import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.ChatUtils; // send error to player if block is invalid
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.PluginUtils; // used to validate function params 
 
 /**
@@ -167,7 +168,10 @@ public class SelectBlock extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class, List.class, List.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.player, e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // set params
@@ -210,7 +214,10 @@ public class SelectBlock extends GUIFunction {
             .map(itemString -> { // transform each item to String
                 Material material = Material.matchMaterial((String) itemString);
                 if (material == null) { // if material string couldn't be matched
-                    ChatUtils.sendError(this.player, String.format("Invalid item in deniedBlocks: %s", itemString));
+                ChatUtils.message(String.format("Invalid item in deniedBlocks: %s", itemString))
+                    .player(this.player)
+                    .type(MessageType.ERROR)
+                    .send();
                 }
                 return material;
             }) 
@@ -289,13 +296,19 @@ public class SelectBlock extends GUIFunction {
      */
     public void setResponse(Material material) {
         if (this.deniedBlocks.contains(material)) {
-            ChatUtils.sendError(this.player, "This item is denied from being set as an NPC block.");
+            ChatUtils.message("This item is denied from being set as an NPC block.")
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
             this.result = null;
             return;
         }
 
         if (!material.isBlock()) {
-            ChatUtils.sendError(this.player, "Could not set this item as an NPC block.");
+            ChatUtils.message("Could not set this item as an NPC block.")
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
             this.result = null;
             return; // keep trying
         }
@@ -312,7 +325,10 @@ public class SelectBlock extends GUIFunction {
         result = Material.matchMaterial(material);
 
         if (result == null) {
-            ChatUtils.sendError(this.player, String.format("Could not find %s block to set, try to be more specific.", material));
+            ChatUtils.message(String.format("Could not find %s block to set, try to be more specific.", material))
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
         } else {
             setResponse(result); // set the block the user selected
         }

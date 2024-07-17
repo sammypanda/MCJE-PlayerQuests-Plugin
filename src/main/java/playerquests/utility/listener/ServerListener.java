@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.JsonMappingException; // thrown when json 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
 import playerquests.product.Quest; // quest product class
+import playerquests.utility.ChatUtils; // for sending cute-ified messages
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.singleton.Database; // API for game persistent data
 import playerquests.utility.singleton.QuestRegistry; // place where quests are stored
@@ -40,6 +43,10 @@ public class ServerListener implements Listener {
         File f = new File(Core.getPlugin().getDataFolder() + "/");
         if (!f.exists()) {
             f.mkdir();
+            ChatUtils.message("Welcome!")
+                .target(MessageTarget.WORLD)
+                .type(MessageType.NOTIF)
+                .send();
         }
 
         // Save the demo quest to the server
