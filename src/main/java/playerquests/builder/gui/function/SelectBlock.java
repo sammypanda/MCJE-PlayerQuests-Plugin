@@ -298,7 +298,7 @@ public class SelectBlock extends GUIFunction {
         if (this.deniedBlocks.contains(material)) {
             ChatUtils.message("This item is denied from being set as an NPC block.")
                 .player(this.player)
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
             this.result = null;
             return;
@@ -307,7 +307,7 @@ public class SelectBlock extends GUIFunction {
         if (!material.isBlock()) {
             ChatUtils.message("Could not set this item as an NPC block.")
                 .player(this.player)
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
             this.result = null;
             return; // keep trying
@@ -327,7 +327,7 @@ public class SelectBlock extends GUIFunction {
         if (result == null) {
             ChatUtils.message(String.format("Could not find %s block to set, try to be more specific.", material))
                 .player(this.player)
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
         } else {
             setResponse(result); // set the block the user selected

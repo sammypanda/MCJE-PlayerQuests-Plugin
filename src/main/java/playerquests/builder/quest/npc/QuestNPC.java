@@ -184,7 +184,7 @@ public class QuestNPC {
         if (this.assigned == null) {
             ChatUtils.message("The NPC must be assigned to a type")
                 .player(player)
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
             return false;
         }
@@ -192,7 +192,7 @@ public class QuestNPC {
         if (this.location == null) {
             ChatUtils.message("The NPC must be placed at a location")
                 .player(player)
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
             return false;
         }

@@ -181,7 +181,7 @@ public class QuestBuilder {
         if (title.contains("_")) {
             ChatUtils.message("Quest label '" + this.title + "' not allowed underscores.")
                 .player(this.director.getPlayer())
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
             return;
         }
