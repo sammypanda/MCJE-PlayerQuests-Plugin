@@ -152,8 +152,19 @@ public class QuestRegistry {
      * @param quest the quest to remove.
      */
     public void remove(Quest quest) {
+        this.remove(quest, false);
+    }
+
+    /**
+     * Removes a quest from the registry.
+     * @param quest the quest to remove
+     * @param preserveInDatabase whether to keep untoggled in db; just remove from world
+     */
+    public void remove(Quest quest, Boolean preserveInDatabase) {
         // remove ref from database
-        Database.removeQuest(quest.getID());
+        if (!preserveInDatabase) {
+            Database.removeQuest(quest.getID());
+        }
 
         // remove ref from registry
         registry.remove(quest.getID());

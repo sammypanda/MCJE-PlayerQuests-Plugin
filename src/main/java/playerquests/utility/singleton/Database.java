@@ -331,6 +331,7 @@ public class Database {
             return;
         }
 
+        // if the quest already exists in the db, don't continue
         if (getQuest(id) != null) {
             return;
         }
@@ -377,7 +378,7 @@ public class Database {
             return quest;
 
         } catch (SQLException e) {
-            System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+            System.err.println("Could not get the quest " + id + ". " + e.getMessage());
             return null;
         }
     }
@@ -420,7 +421,7 @@ public class Database {
             if (state) {
                 QuestRegistry.getInstance().submit(quest);
             } else {
-                QuestRegistry.getInstance().remove(quest);
+                QuestRegistry.getInstance().remove(quest, true);
             }
 
         } catch (SQLException e) {
