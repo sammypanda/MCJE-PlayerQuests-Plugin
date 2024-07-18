@@ -5,8 +5,10 @@ import java.util.Arrays; // working with literal arrays
 import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
+import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
 
 /**
@@ -57,19 +59,45 @@ public class Dynamicqueststages extends GUIDynamic {
         this.gui.getFrame().setTitle(this.guiTitle); // set the GUI title
         this.gui.getFrame().setSize( // set number of slots in the GUI
             Math.min( // get up to 54 (maximum slots)
-                (this.questBuilder.getStages().size() + 8) / 9 * 9, // only multiples of 9
+                (this.questBuilder.getStages().size() + 9) / 9 * 9, // only multiples of 9
                 54 // 54 maximum slots
             )
         );
-        
+
+        // dividers (first two rows)
+        IntStream.iterate(1, n -> n + 9).limit(54/9).forEach((divSlot) -> {
+            new GUISlot(this.gui, divSlot)
+                .setItem("BLACK_STAINED_GLASS_PANE");
+
+            new GUISlot(this.gui, divSlot + 1)
+                .setItem("BLACK_STAINED_GLASS_PANE");
+        });
+
         // when the exit button is pressed
-        GUISlot exitButton = new GUISlot(this.gui, 1);
-        exitButton.setLabel("Exit");
+        GUISlot exitButton = new GUISlot(this.gui, this.gui.getFrame().getSize() - 8);
+        exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
             director // set the client director
         ));
+
+        // add new stage button
+        new GUISlot(this.gui, this.gui.getFrame().getSize())
+            .setLabel("Add Stage")
+            .setItem("LIME_DYE")
+            .onClick(() -> {
+                questBuilder.addStage(
+                    new QuestStage(
+                        this.questBuilder.build(), 
+                        this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().substring(6) + 1)
+                    )
+                );
+
+                this.gui.clearSlots();
+
+                this.execute(); // rebuild GUI
+            });
 
         IntStream.range(0, this.questBuilder.getStages().size()).anyMatch(index -> {
 
@@ -78,10 +106,20 @@ public class Dynamicqueststages extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
             questSlot.setLabel(stage);
-            questSlot.addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList("queststage")), 
-                director
-            ));
+            questSlot.onClick(() -> {
+                if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+                    return;
+                }
+
+                // set the stage as the current instance to modify
+                this.director.setCurrentInstance(this.questBuilder.getQuestPlan().get(stage));
+
+                // change to the quest stage GUI screen
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("queststage")), 
+                    director
+                ).execute();;
+            });
 
             return false; // continue the loop
         });

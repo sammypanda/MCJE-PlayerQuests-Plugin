@@ -4,16 +4,20 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.Material; // used to create fallback BlockData
+import org.bukkit.block.Block; // data object representing a placed block
+import org.bukkit.block.data.BlockData; // data object representing the metadata of a block
+import org.bukkit.entity.HumanEntity; // usually the player
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockPlaceEvent; // event which captures what block was placed
 
 import playerquests.Core;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.PluginUtils;
 
 /**
@@ -38,7 +42,9 @@ public class SelectLocation extends GUIFunction {
         @EventHandler
         private void onBlockPlace(BlockPlaceEvent event) {
             event.setCancelled(true);
-            this.parentClass.setResponse(event.getBlockPlaced().getLocation());
+
+            Block blockPlaced = event.getBlockPlaced();
+            this.parentClass.setResponse(blockPlaced.getLocation(), blockPlaced.getBlockData());
         }
     }
 
@@ -67,6 +73,11 @@ public class SelectLocation extends GUIFunction {
      */
     private Listener locationListener;
 
+    /**
+     * The block chosen
+     */
+    private BlockData blockData;
+
     /** 
      * Provides input as a user selected world location.
      * <ul>
@@ -88,7 +99,10 @@ public class SelectLocation extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.player, e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // set params
@@ -113,13 +127,13 @@ public class SelectLocation extends GUIFunction {
 
     @Override
     public void execute() {
-        // clear the chat
-        ChatUtils.clearChat();
-
         if (!this.wasSetUp) {
             this.setUp();
             return;
         }
+
+        // clear the chat
+        ChatUtils.clearChat(this.player);
 
         if (this.location == null) {
             this.player.sendMessage(
@@ -135,7 +149,8 @@ public class SelectLocation extends GUIFunction {
      * Setting the location the user decides as PlayerQuests Location object.
      * @param location Bukkit world location the user selected
      */
-    public void setResponse(org.bukkit.Location location) {
+    public void setResponse(org.bukkit.Location location, BlockData blockData) {
+        // create the location data
         this.location = new LocationData(
             location.getWorld().getName(),
             location.getX(),
@@ -145,6 +160,10 @@ public class SelectLocation extends GUIFunction {
             location.getYaw()
         );
 
+        // add the block represented
+        this.blockData = blockData;
+
+        // finish line
         this.execute();
     }
 
@@ -154,6 +173,19 @@ public class SelectLocation extends GUIFunction {
      */
     public LocationData getResult() {
         return this.location;
+    }
+
+    /**
+     * Gets the data of the block the user used to select location.
+     * @return a bukkit BlockData type
+     */
+    public BlockData getBlockData() {
+        if (this.blockData != null) {
+            return this.blockData;
+        }
+
+        System.err.println("The block was requested from LocationData, without a block having been set.");
+        return Material.BARRIER.createBlockData(); // give a default, instead of failing
     }
 
     /**

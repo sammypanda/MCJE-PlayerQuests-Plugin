@@ -1,12 +1,10 @@
 package playerquests.builder.gui.component;
 
-import java.util.Optional; // handling nullable values
 import java.util.regex.Matcher; // matching string to regex pattern
 import java.util.regex.Pattern; // creating regex pattern
 
-import com.fasterxml.jackson.databind.JsonNode; // type to interpret json objects
-
 import playerquests.Core; // getting the keyhandler
+import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.client.ClientDirector; // controlling the plugin
 
 /**
@@ -28,6 +26,11 @@ public class GUIFrame {
      * Number of slots in the GUI.
      */
     Integer size = 9;
+
+    /**
+     * How the GUI can currently be interacted with.
+     */
+    GUIMode mode = GUIMode.CLICK;
 
     /**
      * Construct a GUI frame with default content.
@@ -74,30 +77,6 @@ public class GUIFrame {
     }
 
     /**
-     * Take the 'title' template key and set it as the title for the gui.
-     * @param template the template as a jsonnode object
-     */
-    public void parseTitle(JsonNode template) {
-        String title = Optional.ofNullable(template.get("title")) // get title field if it exists
-            .map(JsonNode::asText) // if exists get it as text (String)
-            .orElse(this.getTitle()); // if not set it as the default title
-
-        this.setTitle(title);
-    }
-
-    /**
-     * Take the 'size' template key and set as the total slots of the gui.
-     * @param template the template as a jsonnode object
-     */
-    public void parseSize(JsonNode template) {
-        int size = Optional.ofNullable(template.get("size")) // get size field if it exists
-            .map(JsonNode::asInt) // if exists get it as Int (int)
-            .orElse(9); // if not set it as the default size
-        
-        this.setSize(size);
-    }
-
-    /**
      * Set's the number of slots in the GUI screen.
      * @param size the number of slots (has to be a multiple of 9. Like 9 or 18
      */
@@ -111,6 +90,23 @@ public class GUIFrame {
      */
     public Integer getSize() {
         return this.size;
+    }
+
+    /**
+     * Sets the mode the GUI is in.
+     * @param mode how the GUI can be interacted with
+     */
+    public void setMode(GUIMode mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * Get the mode the GUI is in.
+     * @see #GUIMode
+     * @return whether the GUI can be interacted with in a certain way
+     */
+    public GUIMode getMode() {
+        return this.mode;
     }
 
 }

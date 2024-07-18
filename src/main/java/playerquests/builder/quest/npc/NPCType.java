@@ -5,7 +5,6 @@ import java.util.List; // generic list type
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty; // well-formed serialisation
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -20,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = BlockNPC.class, name = "Block")
+    @JsonSubTypes.Type(value = BlockNPC.class, name = "BlockNPC")
 })
 public class NPCType {
 
@@ -86,15 +85,22 @@ public class NPCType {
         return npcTypes;
     }
 
-    @Override
-    @JsonProperty("type")
-    public String toString() {
-        return this.type;
+    /**
+     * Gets the string representation of the type.
+     * @return current action type as a string
+     */
+    @JsonIgnore
+    public String getType() {
+        return this.getClass().getSimpleName();
     }
 
-    @JsonProperty("type")
-    public void setType(String type) {
-        this.type = type;
+    /**
+     * Gets list of NPC types.
+     * @return list of possible NPC types
+     */
+    @JsonIgnore
+    public List<String> getTypes() {
+        return this.npcTypes;
     }
 
     /**

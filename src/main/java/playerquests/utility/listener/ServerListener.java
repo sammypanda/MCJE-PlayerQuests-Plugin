@@ -8,15 +8,15 @@ import org.bukkit.event.EventHandler; // indicate that a method is wanting to ha
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
 import org.bukkit.event.server.ServerLoadEvent; // when a server is reloaded or started up
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include; // for configuring json serialisation
 import com.fasterxml.jackson.core.JsonProcessingException; // thrown when json cannot be processed
 import com.fasterxml.jackson.databind.JsonMappingException; // thrown when json is malformed
-import com.fasterxml.jackson.databind.ObjectMapper; // used to work with with json objects
-import com.fasterxml.jackson.databind.SerializationFeature; // for configuring json serialisation
 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
 import playerquests.product.Quest; // quest product class
+import playerquests.utility.ChatUtils; // for sending cute-ified messages
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.singleton.Database; // API for game persistent data
 import playerquests.utility.singleton.QuestRegistry; // place where quests are stored
@@ -31,13 +31,26 @@ public class ServerListener implements Listener {
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
     }
 
+    /**
+     * Ran whenever the server is started or reloaded.
+     * Use [return value].onFinish(() -> {}) for callback.
+     * @param event the LoadType
+     * @return the ServerListener itself
+     */
     @EventHandler
-    public void onLoad(ServerLoadEvent event) {
+    public ServerListener onLoad(ServerLoadEvent event) {
         // create plugin folder if it doesn't exist
         File f = new File(Core.getPlugin().getDataFolder() + "/");
         if (!f.exists()) {
             f.mkdir();
+            ChatUtils.message("Welcome!")
+                .target(MessageTarget.WORLD)
+                .type(MessageType.NOTIF)
+                .send();
         }
+
+        // Save the demo quest to the server
+        Core.getPlugin().saveResource("quest/templates/beans-tester-bonus.json", true);
 
         // initialise the database
         Database.getInstance().init();
@@ -47,23 +60,31 @@ public class ServerListener implements Listener {
             QuestRegistry.getInstance().clear();
         }
 
-        ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
-        
-        // configure the mapper
-        jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
-        jsonObjectMapper.setSerializationInclusion(Include.NON_NULL);
-
         // try to submit database quests to quest registry
         Database.getInstance().getAllQuests().forEach(id -> {
+            Boolean err = true; // assume errored (avoids repeating it for each catch)
+            
             try {
-                Quest newQuest = jsonObjectMapper.readValue(FileUtils.get("quest/templates/" + id + ".json"), Quest.class);
+                Quest newQuest = Quest.fromTemplateString(FileUtils.get("quest/templates/" + id + ".json"));
+
+                if (newQuest == null) {
+                    return;
+                }
+
                 QuestRegistry.getInstance().submit(newQuest);
+                err = false;
+
             } catch (JsonMappingException e) {
                 System.err.println("Could not accurately map template: " + id + ", to the Quest object. " + e);
             } catch (JsonProcessingException e) {
                 System.err.println("JSON in template: " + id + ", is malformed. " + e);
             } catch (IOException e) {
                 System.err.println("Could not read file: " + id + ".json. " + e);
+            }
+
+            // remove the quest if unreadable
+            if (err) {
+                Database.removeQuest(id);
             }
         });
 
@@ -76,5 +97,18 @@ public class ServerListener implements Listener {
                 QuestClient quester = new QuestClient(player);
                 QuestRegistry.getInstance().addQuester(quester);
             });
+
+        // function chaining reasons:
+        return this;
+    }
+
+    /**
+     * Sets code to be executed when the function is finished.
+     * @param runnable the code to run when the function completes
+     */
+    public void onFinish(Runnable runnable) {
+        if (runnable != null) {
+            runnable.run();
+        }
     }
 }

@@ -92,7 +92,7 @@ public class Dynamicnpceditor extends GUIDynamic {
                 this.npc.getName() != null ? this.npc.getName() : "NPC" // put NPC name if available, otherwise "NPC"
             )
         );
-        assignButton.setItem(this.npc.getMaterial().toString());
+        assignButton.setItem(this.npc.getBlock().getMaterial().toString());
         assignButton.addFunction(
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList("npctypes")), 

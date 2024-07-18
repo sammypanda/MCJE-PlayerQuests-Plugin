@@ -14,7 +14,6 @@ import playerquests.client.ClientDirector; // accessing the client state
 /**
  * Shows a dynamic GUI used for editing a quest.
  */
-// TODO: add toggling quest availability
 public class Dynamicquesteditor extends GUIDynamic {
 
     /**
@@ -39,18 +38,18 @@ public class Dynamicquesteditor extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
-        String questTitle = questBuilder.getTitle();
         GUIFrame guiFrame = gui.getFrame();
+        String questTitle = questBuilder.getTitle();
+
+        // set the GUI size
+        guiFrame.setSize(9);
 
         // set the GUI title as: Edit Quest ([quest title])
         guiFrame.setTitle(
             String.format("Edit Quest %s", 
-                questTitle != null ? "("+questBuilder.getTitle()+")" : null
+                questTitle != null ? "("+questTitle+")" : null
             )
         );
-
-        // set the GUI size
-        guiFrame.setSize(9);
 
         // add the buttons
         new GUISlot(gui, 1) // back button
@@ -58,7 +57,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Back")
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("main")), 
+                    new ArrayList<>(Arrays.asList(previousScreen)), 
                     director
                 )
             );
@@ -92,6 +91,27 @@ public class Dynamicquesteditor extends GUIDynamic {
                     director
                 )
             );
+
+        new GUISlot(gui, 6) // change entry point
+            .setItem("ENDER_EYE")
+            .setLabel("Choose An Entry Point")
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    director
+                ).onFinish((f) -> {
+                    UpdateScreen function = (UpdateScreen) f;
+                    Dynamicselectconnection selector = (Dynamicselectconnection) function.getDynamicGUI();
+
+                    selector.onSelect((selected) -> {
+                        questBuilder.setEntryPoint(selector.selectedStage);
+
+                        if (selector.selectedAction != null) {
+                            selector.selectedStage.setEntryPoint(selector.selectedAction.getID());
+                        }
+                    });
+                }).execute();
+            });
 
         new GUISlot(gui, 9) // save quest button
             .setItem("GREEN_DYE")

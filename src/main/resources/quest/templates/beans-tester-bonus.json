@@ -1,0 +1,74 @@
+{
+  "title" : "beans-tester-bonus",
+  "entry" : "stage_0",
+  "npcs" : {
+    "npc_0" : {
+      "name" : "Beans",
+      "assigned" : {
+        "type" : "BlockNPC",
+        "value" : "minecraft:acacia_log"
+      },
+      "location" : {
+        "world" : "world",
+        "x" : -11.0,
+        "y" : -60.0,
+        "z" : -1.0,
+        "pitch" : 0.0,
+        "yaw" : 0.0
+      }
+    },
+    "npc_1" : {
+      "name" : "(Sneaky Imposter) Beans",
+      "assigned" : {
+        "type" : "BlockNPC",
+        "value" : "minecraft:acacia_log"
+      },
+      "location" : {
+        "world" : "world",
+        "x" : -11.0,
+        "y" : -60.0,
+        "z" : 1.0,
+        "pitch" : 0.0,
+        "yaw" : 0.0
+      }
+    }
+  },
+  "stages" : {
+    "stage_0" : {
+      "id" : "stage_0",
+      "actions" : {
+        "action_0" : {
+          "type" : "Speak",
+          "options" : [ "NPC", "DIALOGUE" ],
+          "npc" : "npc_0",
+          "dialogue" : [ "I'm Beans the Acacia Log (^^)" ],
+          "connections" : {
+            "next" : "action_1",
+            "curr" : null,
+            "prev" : null
+          },
+          "id" : "action_0"
+        },
+        "action_1" : {
+          "type" : "Speak",
+          "options" : [ "NPC", "DIALOGUE" ],
+          "npc" : "npc_1",
+          "dialogue" : [ "No! I'm the real Beans!!" ],
+          "connections" : {
+            "next" : "action_0",
+            "curr" : null,
+            "prev" : null
+          },
+          "id" : "action_1"
+        }
+      },
+      "entry" : "action_0",
+      "connections" : {
+        "next" : null,
+        "curr" : "action_0",
+        "prev" : null
+      }
+    }
+  },
+  "id" : "beans-tester-bonus"
+}

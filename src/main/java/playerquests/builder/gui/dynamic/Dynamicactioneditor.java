@@ -4,27 +4,24 @@ import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
+import java.util.Optional; // for a value that may be null
 import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.ChatPrompt; // prompts the user for input
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
-import playerquests.builder.quest.QuestBuilder; // used to edit a quest
 import playerquests.builder.quest.action.QuestAction; // describes a quest action
 import playerquests.builder.quest.data.ActionOption; // a setting that can be set for an action
 import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.ChatUtils; // working with in-game chat
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Shows a dynamic GUI used for editing a quest action.
  */
-// TODO: pagination for action options
-// TODO: replacing entry point setter button with action name changer button
-// TODO: conditional back and forward buttons in slots 10,11 for params list
-// TODO: divider on the right side of the GUI for setting: as entry point, next, current and prev connections
 public class Dynamicactioneditor extends GUIDynamic {
 
     /**
@@ -74,18 +71,48 @@ public class Dynamicactioneditor extends GUIDynamic {
         GUISlot exitButton = new GUISlot(this.gui, 10);
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
-            director // set the client director
-        ));
+        exitButton.onClick(() -> {
+            Optional<String> validity = action.validate(); // check if action is valid
+
+            // exit and send error if action is invalid
+            if (!validity.isEmpty()) {
+                ChatUtils.message(validity.get())
+                    .player(this.director.getPlayer())
+                    .type(MessageType.WARN)
+                    .send();
+                return;
+            }
+
+            // switch GUI
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
+                director // set the client director
+            ).execute();
+        });
+
+        // connection editor
+        new GUISlot(this.gui, 11)
+            .setItem("STICKY_PISTON")
+            .setLabel("Change Sequence")
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.action.getConnections());
+
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    director
+                ).execute();
+            });
 
         // the delete button
-        new GUISlot(this.gui, 11)
+        new GUISlot(this.gui, 18)
             .setLabel("Delete Action")
             .setItem("RED_DYE")
             .onClick(() -> {
                 if (stage.getEntryPoint().equals(action)) {
-                    ChatUtils.sendError(director.getPlayer(), "Cannot remove the stage starting point action.");
+                    ChatUtils.message("Cannot remove the stage starting point action.")
+                        .player(this.director.getPlayer())
+                        .type(MessageType.WARN)
+                        .send();
                     return;
                 }
 
@@ -101,10 +128,12 @@ public class Dynamicactioneditor extends GUIDynamic {
         GUISlot typeButton = new GUISlot(this.gui, 1);
         typeButton.setItem("FIREWORK_ROCKET");
         typeButton.setLabel("Change Type (" + this.action.toString() + ")");
-        typeButton.addFunction(new UpdateScreen(
-            new ArrayList<>(Arrays.asList("actiontypes")),
-            director
-        ));
+        typeButton.onClick(() -> {
+            new UpdateScreen(
+                new ArrayList<>(Arrays.asList("actiontypes")),
+                director
+            ).execute();
+        });
 
         // setting current as stage entry point button
         GUISlot entrypointButton = new GUISlot(this.gui, 2);
@@ -150,7 +179,6 @@ public class Dynamicactioneditor extends GUIDynamic {
     }
 
     private void putOptionSlot(Integer slot, ActionOption option) {
-        QuestBuilder quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
         QuestNPC currentNPC = this.action.getNPC();
         GUISlot optionSlot = new GUISlot(gui, slot)
                                 .setLabel(option.getLabel())
@@ -179,6 +207,17 @@ public class Dynamicactioneditor extends GUIDynamic {
                 });
                 break;
             case DIALOGUE:
+                if (this.action.getDialogue() != null) {
+                    String dialogue = action.getDialogue().get(0);
+                    
+                    optionSlot.setLabel(
+                        String.format("%s (%s...)", 
+                            option.getLabel(), 
+                            dialogue.length() >= 8 ? dialogue.substring(0, 8) : dialogue
+                        )
+                    );
+                }
+
                 optionSlot.onClick(() -> { 
                     new ChatPrompt(
                         new ArrayList<>(Arrays.asList("Enter the dialogue", "none")), 
@@ -190,20 +229,8 @@ public class Dynamicactioneditor extends GUIDynamic {
                             return;
                         }
                         
-                        QuestAction action = this.action.setDialogue(Arrays.asList(prompt.getResponse())); // set dialogue with prompt response
-
-                        if (action.getDialogue() != null) {
-                            String dialogue = action.getDialogue().get(0);
-                            
-                            optionSlot.setLabel(
-                                String.format("%s (%s...)", 
-                                    option.getLabel(), 
-                                    dialogue.length() >= 5 ? dialogue.substring(0, 5) : dialogue
-                                )
-                            );
-                        }
-
-                        this.execute(); // show label change
+                        this.action.setDialogue(Arrays.asList(prompt.getResponse())); // set dialogue with prompt response
+                        new UpdateScreen(new ArrayList<>(Arrays.asList("actioneditor")), director).execute(); // refresh actioneditor to see dialogue
                     }).execute();
                 });
         }

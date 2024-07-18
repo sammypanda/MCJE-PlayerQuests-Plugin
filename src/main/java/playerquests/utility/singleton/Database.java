@@ -1,5 +1,10 @@
 package playerquests.utility.singleton;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection; // object describing connection to a database
 import java.sql.DriverManager; // loads a database driver
 import java.sql.PreparedStatement; // represents prepared SQL statements
@@ -10,9 +15,15 @@ import java.util.ArrayList; // array list type
 import java.util.List; // generic list type
 import java.util.UUID; // how users are identified
 
-import javax.xml.crypto.Data;
-
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.bukkit.Bukkit; // the Bukkit API
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+
+import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * API representing and providing access to the game database.
@@ -40,8 +51,32 @@ public class Database {
      * Creates tables if they do not already exist.
      */
     public Database init() {
+        String version = "0.0";
+        String version_db = Database.getPluginVersion();
+
+        try (InputStream inputStream = getClass().getResourceAsStream("/META-INF/maven/moe.sammypanda/playerquests/pom.xml")) {
+            if (inputStream != null) {
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                Model model = reader.read(new InputStreamReader(inputStream));
+
+                // get the actual version from the POM
+                version = model.getVersion();
+            } else {
+                System.err.println("Error: Resource not found.");
+            }
+        } catch (IOException | XmlPullParserException e) {
+            System.err.println("Error reading pom.xml: " + e.getMessage());
+        }
+
         try {
             Statement statement = getConnection().createStatement();
+
+            // Create plugin table (for storing info)
+            String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
+            + "plugin TEXT PRIMARY KEY,"    
+            + "version TEXT NOT NULL,"
+            + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
+            statement.execute(pluginTableSQL);
 
             // Create players table
             String playersTableSQL = "CREATE TABLE IF NOT EXISTS players ("
@@ -51,7 +86,8 @@ public class Database {
 
             // Create quests table
             String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
-                + "id TEXT PRIMARY KEY);";
+                + "id TEXT PRIMARY KEY,"
+                + "toggled BOOLEAN NOT NULL DEFAULT TRUE);";
             statement.execute(questsTableSQL);
 
             // Create diaries table
@@ -72,11 +108,97 @@ public class Database {
                 + "FOREIGN KEY (diary) REFERENCES diaries(id));";
             statement.execute(diary_questsTableSQL);
 
+            statement.close();
+            getConnection().close();
+
+            Database.migrate(version, version_db);
+
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
         }
 
         return this;
+    }
+
+    private static void migrate(String version, String version_db) {
+        if (version_db.equals(version)) {
+            // Nothing to migrate/update
+            return;
+        }
+
+        if (version_db.equals("0.0")) {
+            try {
+                // Insert PlayerQuests version from plugin table
+                String setPluginSQL = "INSERT INTO plugin (plugin, version) VALUES (?, ?);";
+                PreparedStatement preparedStatement = getConnection().prepareStatement(setPluginSQL);
+                preparedStatement.setString(1, "PlayerQuests"); // parameterIndex starts at 1
+                preparedStatement.setString(2, version);
+                preparedStatement.execute();
+                System.out.println("Migrated/patched database: added plugin database table");
+
+                getConnection().close();
+            } catch (SQLException e) {
+                System.err.println("Could not insert plugin data to db " + e.getMessage());
+            }
+        }
+
+        try {
+            Statement statement = getConnection().createStatement();
+
+            switch (version) {
+                case "0.4":
+                    String addToggledSQL = "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;";
+                    statement.execute(addToggledSQL);
+                    break;
+            }
+        } catch (SQLException e) {
+            System.err.println("Could not patch/migrate database " + e.getMessage());
+        }
+
+        // update plugin version in db
+        Database.setPluginVersion(version);
+        ChatUtils.message("You're on v" + version + "! https://sammypanda.moe/docs/playerquests/v" + version)
+            .target(MessageTarget.WORLD)
+            .type(MessageType.NOTIF)
+            .send();
+    }
+
+    public static String getPluginVersion() {
+        if (!Files.exists(Paths.get("plugins/PlayerQuests/playerquests.db"))) {
+            // Don't try to continue with fetching version if no database
+            return "0.0";
+        }
+
+        try {
+            Statement statement = getConnection().createStatement();
+
+            // Get PlayerQuests version from plugin table
+            String getVersionSQL = "SELECT version FROM plugin WHERE plugin = 'PlayerQuests';";
+            ResultSet results = statement.executeQuery(getVersionSQL);
+            String version = results.getString("version");
+
+            getConnection().close();
+            return version;
+        
+        } catch (SQLException e) {
+            System.err.println("Could not find the quest version in the db " + e.getMessage());
+            return "0.0";
+        }
+    }
+
+    private static void setPluginVersion(String version) {
+        try {
+            // Set PlayerQuests version in plugin table
+            String setVersionSQL = "UPDATE plugin SET version = ? WHERE plugin = 'PlayerQuests';";
+            PreparedStatement preparedStatement = getConnection().prepareStatement(setVersionSQL);
+            preparedStatement.setString(1, version);
+            preparedStatement.execute();
+
+            getConnection().close();
+        
+        } catch (SQLException e) {
+            System.err.println("Could not set the quest version in the db " + e.getMessage());
+        }
     }
 
     /**
@@ -218,6 +340,7 @@ public class Database {
             return;
         }
 
+        // if the quest already exists in the db, don't continue
         if (getQuest(id) != null) {
             return;
         }
@@ -250,7 +373,7 @@ public class Database {
 
         try {
             // Add player to players table
-            String addQuestSQL = "SELECT * FROM quests WHERE id = ?;";
+            String addQuestSQL = "SELECT id FROM quests WHERE id = ?;";
 
             PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
 
@@ -264,8 +387,54 @@ public class Database {
             return quest;
 
         } catch (SQLException e) {
-            System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+            System.err.println("Could not get the quest " + id + ". " + e.getMessage());
             return null;
+        }
+    }
+
+    public static Boolean getQuestToggled(Quest quest) {
+        try {
+            // Add player to players table
+            String addQuestSQL = "SELECT toggled FROM quests WHERE id = ?;";
+
+            PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
+
+            preparedStatement.setString(1, quest.getID()); // parameterIndex starts at 1
+
+            ResultSet results = preparedStatement.executeQuery();
+            Boolean state = results.getBoolean("toggled");
+
+            getConnection().close();
+
+            return state;
+
+        } catch (SQLException e) {
+            System.err.println("Could not get the quest to toggle " + quest.toString() + ". " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void setQuestToggled(Quest quest, Boolean state) {
+        try {
+            // Add player to players table
+            String addQuestSQL = "UPDATE quests SET toggled = ? WHERE id = ?;";
+
+            PreparedStatement preparedStatement = getConnection().prepareStatement(addQuestSQL);
+
+            preparedStatement.setBoolean(1, state); // parameterIndex starts at 1
+            preparedStatement.setString(2, quest.getID());
+            preparedStatement.execute();
+
+            getConnection().close();
+
+            if (state) {
+                QuestRegistry.getInstance().submit(quest);
+            } else {
+                QuestRegistry.getInstance().remove(quest, true);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
         }
     }
 
@@ -279,13 +448,18 @@ public class Database {
         }
 
         try {
+            PreparedStatement preparedStatement;
+
             // Remove quest from quests table
             String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
-
-            PreparedStatement preparedStatement = getConnection().prepareStatement(removeQuestSQL);
-
+            preparedStatement = getConnection().prepareStatement(removeQuestSQL);
             preparedStatement.setString(1, id);
+            preparedStatement.execute();
 
+            // Remove quest reference from quest diaries
+            String removeDiaryQuestSQL = "DELETE FROM diary_quests WHERE quest = ?;";
+            preparedStatement = getConnection().prepareStatement(removeDiaryQuestSQL);
+            preparedStatement.setString(1, id);
             preparedStatement.execute();
 
             getConnection().close();

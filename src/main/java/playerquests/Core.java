@@ -1,12 +1,10 @@
 package playerquests;
 
-import java.io.File;
-
+import org.bukkit.NamespacedKey; // custom object data/metadata
 import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
 import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
-import playerquests.utility.singleton.Database; // API for game persistent data
 import playerquests.utility.singleton.KeyHandler; // special class for using keys to reference any method
 import playerquests.utility.singleton.PlayerQuests; // for cross-communication of game/plugin components
 import playerquests.utility.singleton.QuestRegistry; // the registry of quest products
@@ -20,7 +18,6 @@ import playerquests.utility.singleton.QuestRegistry; // the registry of quest pr
  * </ul>
  * </ul> 
  */
-// TODO: automatically initiate the plugin commands
 public class Core extends JavaPlugin {
 
     /**
@@ -52,9 +49,6 @@ public class Core extends JavaPlugin {
 
         // initiate /playerquests command
         new Commandplayerquest();
-
-        // Save the demo quest to the server
-        saveResource("quest/templates/tina-says-hi-bonus.json", true);
     }
 
     /**
@@ -79,5 +73,13 @@ public class Core extends JavaPlugin {
      */
     public static QuestRegistry getQuestRegistry() {
         return questRegistry;
+    }
+
+    /**
+     * Returns a NamspacedKey for the GUI persistent metadata.
+     * @return a NamespacedKey for metadata specifying a candidate as part of a GUI
+     */
+    public static NamespacedKey getGUIKey() {
+        return new NamespacedKey(plugin, "GUI"); // values: true, false
     }
 }

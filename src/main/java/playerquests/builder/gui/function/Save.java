@@ -31,7 +31,10 @@ public class Save extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.director.getPlayer(), e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.director.getPlayer())
+                .type(ChatUtils.MessageType.ERROR)
+                .send();
         }
 
         String key = (String) this.params.get(0);
@@ -52,7 +55,13 @@ public class Save extends GUIFunction {
         }
 
         if (this.errored) {
-            ChatUtils.sendError(this.director.getPlayer(), response.toString());
+            if (response != null) {
+                ChatUtils.message(response.toString())
+                    .player(this.director.getPlayer())
+                    .type(ChatUtils.MessageType.ERROR)
+                    .send();
+            }
+            
             this.finished(); // running onFinish code
             return;
         }

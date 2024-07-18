@@ -20,6 +20,7 @@ import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.ChatUtils; // send error to player if block is invalid
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.PluginUtils; // used to validate function params 
 
 /**
@@ -74,7 +75,7 @@ public class SelectBlock extends GUIFunction {
                 if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
                     return; // Ignore if the clicked item is null or air
                 }
-        
+                
                 event.getView().close();
                 parentClass.setResponse(event.getCurrentItem().getType());
             });
@@ -82,10 +83,6 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
-            if (deniedMethods.contains(SelectMethod.CHAT)) {
-                return; // do not continue
-            }
-
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
@@ -93,7 +90,9 @@ public class SelectBlock extends GUIFunction {
                     this.parentClass.setCancelled(true);
                     this.parentClass.execute(); // run with cancellation
                 } else { // if trying to set a block using the chat box
-                    this.parentClass.setResponse(event.getMessage());
+                    if (!deniedMethods.contains(SelectMethod.CHAT)) { // if CHAT mode enabled
+                        this.parentClass.setResponse(event.getMessage()); // set
+                    }
                 }
             });
             
@@ -169,7 +168,10 @@ public class SelectBlock extends GUIFunction {
             PluginUtils.validateParams(this.params, String.class, List.class, List.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
-            ChatUtils.sendError(this.player, e.getMessage());
+            ChatUtils.message(e.getMessage())
+                .player(this.player)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // set params
@@ -212,7 +214,10 @@ public class SelectBlock extends GUIFunction {
             .map(itemString -> { // transform each item to String
                 Material material = Material.matchMaterial((String) itemString);
                 if (material == null) { // if material string couldn't be matched
-                    ChatUtils.sendError(this.player, String.format("Invalid item in deniedBlocks: %s", itemString));
+                ChatUtils.message(String.format("Invalid item in deniedBlocks: %s", itemString))
+                    .player(this.player)
+                    .type(MessageType.ERROR)
+                    .send();
                 }
                 return material;
             }) 
@@ -251,13 +256,13 @@ public class SelectBlock extends GUIFunction {
 
     @Override
     public void execute() {
-        // clear the chat
-        ChatUtils.clearChat();
-
         if (!this.wasSetUp) {
             this.setUp();
             return;
         }
+
+        // clear the chat
+        ChatUtils.clearChat(this.player);
 
         if (this.cancelled) {
             this.player.sendMessage(
@@ -291,13 +296,19 @@ public class SelectBlock extends GUIFunction {
      */
     public void setResponse(Material material) {
         if (this.deniedBlocks.contains(material)) {
-            ChatUtils.sendError(this.player, "This item is denied from being set as an NPC block.");
+            ChatUtils.message("This item is denied from being set as an NPC block.")
+                .player(this.player)
+                .type(MessageType.WARN)
+                .send();
             this.result = null;
             return;
         }
 
         if (!material.isBlock()) {
-            ChatUtils.sendError(this.player, "Could not set this item as an NPC block.");
+            ChatUtils.message("Could not set this item as an NPC block.")
+                .player(this.player)
+                .type(MessageType.WARN)
+                .send();
             this.result = null;
             return; // keep trying
         }
@@ -314,7 +325,10 @@ public class SelectBlock extends GUIFunction {
         result = Material.matchMaterial(material);
 
         if (result == null) {
-            ChatUtils.sendError(this.player, String.format("Could not find %s block to set, try to be more specific.", material));
+            ChatUtils.message(String.format("Could not find %s block to set, try to be more specific.", material))
+                .player(this.player)
+                .type(MessageType.WARN)
+                .send();
         } else {
             setResponse(result); // set the block the user selected
         }
@@ -332,8 +346,7 @@ public class SelectBlock extends GUIFunction {
      * Cleaning and finishing the function.
      */
     private void exit() {
-        HandlerList.unregisterAll(this.blockListener); // remove listeners
-        this.director.getGUI().getResult().open(); // re-open GUI
+        HandlerList.unregisterAll(this.blockListener); // remove private handlers
         this.finished(); // execute onFinish code
     }
 

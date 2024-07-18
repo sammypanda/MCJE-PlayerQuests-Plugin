@@ -2,6 +2,8 @@ package playerquests.utility;
 
 import java.util.stream.IntStream; // to dynamically create a sized array
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit; // used to get server logger
 import org.bukkit.ChatColor; // used to colour and format the chat messages!
 import org.bukkit.entity.HumanEntity; // identifies a player to send messages to  
@@ -12,6 +14,153 @@ import playerquests.Core; // used to access the plugin and get all online player
  * Helpful tools which can reduce the verbosity of Chat-related classes and methods.
  */
 public class ChatUtils {
+
+    /**
+     * What should be sent
+     */
+    public enum MessageType {
+        NOTIF("[PlayerQuests]", ChatColor.GRAY),
+        WARN("[PlayerQuests] ⚠ Help", ChatColor.YELLOW),
+        ERROR("[PlayerQuests] 🚫 Error", ChatColor.RED);
+
+        private final String prefix;
+        private final ChatColor color;
+
+        MessageType(String prefix, ChatColor color) {
+            this.prefix = prefix;
+            this.color = color;
+        }
+    }
+
+    /**
+     * Who it should be send to
+     */
+    public enum MessageTarget {
+        CONSOLE {
+            @Override
+            public void send(String formattedMessage, @Nullable HumanEntity player) {
+                Bukkit.getConsoleSender().sendMessage(formattedMessage);
+            }
+        },
+        WORLD {
+            @Override
+            public void send(String formattedMessage, @Nullable HumanEntity player) {
+                Bukkit.broadcastMessage(formattedMessage);
+            }
+        },        
+        PLAYER {
+            @Override
+            public void send(String formattedMessage, @Nullable HumanEntity player) {
+                if (player == null) {
+                    ChatUtils.message("MessageTarget.PLAYER did not pass in player, for message: " + formattedMessage)
+                        .type(MessageType.ERROR)
+                        .send();
+                    return;
+                }
+
+                player.sendMessage(formattedMessage);
+            }
+        };        
+        
+        public abstract void send(String formattedMessage, @Nullable HumanEntity player);
+    }
+
+    /**
+     * How it should look
+     */
+    public enum MessageStyle {
+        PRETTY {
+            @Override
+            public String formatMessage(String content, MessageType type) {
+                return String.format("\n%s%s:%s %s%s\n", 
+                    ChatColor.BOLD,
+                    type.prefix,
+                    type.color,
+                    content,
+                    ChatColor.RESET
+                );
+            }
+        },
+        SIMPLE {
+            @Override
+            public String formatMessage(String content, MessageType type) {
+                return String.format("%s:%s %s%s",
+                    type.prefix,
+                    type.color,
+                    content,
+                    ChatColor.RESET
+                );
+            }
+        },
+        PLAIN {
+            @Override
+            public String formatMessage(String content, MessageType type) {
+                return String.format("%s: %s",
+                    type.prefix,
+                    content
+                );
+            }
+        };
+        
+        public abstract String formatMessage(String content, MessageType type);
+    }
+
+    /**
+     * MessageBuilder inner class
+     */
+    public static class MessageBuilder {
+        private String content;
+        private MessageType type = MessageType.NOTIF; // Default
+        private MessageTarget target = MessageTarget.WORLD; // Default
+        private MessageStyle style = MessageStyle.PRETTY; // Default
+        private HumanEntity player = null; // Default
+
+        /**
+         * Constructer for the message.
+         * Defaults to: NOTIF, WORLD, PRETTY.
+         * @param content the message to send
+         */
+        public MessageBuilder(String content) {
+            this.content = content;
+        }
+
+        /**
+         * For adding a message type
+         * @param messageType the MessageType enum
+         * @return the MessageBuilder to chain next function.
+         */
+        public MessageBuilder type(MessageType messageType) {
+            this.type = messageType;
+            return this;
+        }
+
+        public MessageBuilder target(MessageTarget messageTarget) {
+            this.target = messageTarget;
+            return this;
+        }
+
+        /**
+         * Sets the player to send a message to.
+         * Assumes MessageTarget is PLAYER.
+         * @param player the HumanEntity which represents a player
+         * @return this MessageBuilder
+         */
+        public MessageBuilder player(HumanEntity player) {
+            this.target = MessageTarget.PLAYER;
+            this.player = player;
+            return this;
+        }
+
+        public MessageBuilder style(MessageStyle messageStyle) {
+            this.style = messageStyle;
+            return this;
+        }
+
+        public void send() {
+            String formattedMessage = style.formatMessage(content, type);
+            target.send(formattedMessage, this.player);
+        }
+    }
 
     /**
      * ChatUtils should not be instantiated.
@@ -70,26 +219,26 @@ public class ChatUtils {
      */
     public static void clearChat(HumanEntity player, Integer lines) {
         player.sendMessage(newlineArray(0, lines));
-    } 
-
-    /**
-     * Formatting for an error message to a player.
-     * @param player the player to send error message to
-     * @param content what the error message should say
-     */
-    public static void sendError(HumanEntity player, String content) {
-        System.err.println("sent error: " + content + " to player " + player.getName());
-        player.sendMessage("\n" + ChatColor.BOLD + "Error: " + ChatColor.RED + content + ChatColor.RESET + "\n");
     }
 
     /**
-     * Formatting for an error message to a player and logging more details.
-     * @param player the player to send error message to
-     * @param content what the error message should say
-     * @param exception the error itself
+     * Sends a message with the bare minimum input.
+     * If you would like to customise what is being sent
+     * use ChatUtils.message() to access the MessageBuilder
+     * @param content what message to send (sends as the 
+     * MessageBuilder defaults)
      */
-    public static void sendError(HumanEntity player, String content, Exception exception) {
-        sendError(player, content);
-        Bukkit.getLogger().warning("more context: " + exception.toString());
+    public static void send(String content) {
+        ChatUtils.message(content)
+            .send();
+    }
+
+    /**
+     * Neatly accesses the message builder.
+     * @param content the bare minimum message
+     * @return a message builder to customise the message
+     */
+    public static MessageBuilder message(String content) {
+        return new MessageBuilder(content);
     }
 }
