@@ -5,13 +5,13 @@
     "npc_0" : {
       "name" : "Beans",
       "assigned" : {
-        "type" : "Block",
-        "value" : "ACACIA_LOG"
+        "type" : "BlockNPC",
+        "value" : "minecraft:acacia_log"
       },
       "location" : {
         "world" : "world",
         "x" : -11.0,
-        "y" : -59.0,
+        "y" : -60.0,
         "z" : -1.0,
         "pitch" : 0.0,
         "yaw" : 0.0
@@ -20,8 +20,8 @@
     "npc_1" : {
       "name" : "(Sneaky Imposter) Beans",
       "assigned" : {
-        "type" : "Block",
-        "value" : "ACACIA_LOG"
+        "type" : "BlockNPC",
+        "value" : "minecraft:acacia_log"
       },
       "location" : {
         "world" : "world",

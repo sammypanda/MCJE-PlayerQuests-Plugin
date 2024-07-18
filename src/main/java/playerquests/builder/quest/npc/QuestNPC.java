@@ -1,9 +1,10 @@
 package playerquests.builder.quest.npc;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit; // bukkit singleton
-import org.bukkit.Location;
 import org.bukkit.Material; // for if NPC is a block
-import org.bukkit.World; // world the NPC exists in
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.HumanEntity; // the player
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -17,6 +18,7 @@ import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils; // sends error messages to player
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // key-value pair annottation
 
 /**
@@ -158,19 +160,40 @@ public class QuestNPC {
      */
     @JsonIgnore
     public boolean isValid() {
-        HumanEntity player = Bukkit.getPlayer(quest.getCreator()); // the player to send invalid npc messages to
+        UUID questCreator = quest.getCreator();
+        HumanEntity player = null;
 
-        if (player == null) { // if player not available
+        // when there is a quest creator, try set player object from creator UUID
+        if (questCreator != null) {
+            player = Bukkit.getPlayer(quest.getCreator()); // the player to send invalid npc messages to
+        }
+
+        // when player not findable
+        if (player == null) {
             return false;
         }
 
         if (this.name == null) {
-            ChatUtils.sendError(player, "The NPC name must be set");
+            ChatUtils.message("The NPC name must be set")
+                .player(player)
+                .type(MessageType.WARN)
+                .send();
             return false;
         }
 
         if (this.assigned == null) {
-            ChatUtils.sendError(player, "The NPC must be assigned to a type");
+            ChatUtils.message("The NPC must be assigned to a type")
+                .player(player)
+                .type(MessageType.WARN)
+                .send();
+            return false;
+        }
+
+        if (this.location == null) {
+            ChatUtils.message("The NPC must be placed at a location")
+                .player(player)
+                .type(MessageType.WARN)
+                .send();
             return false;
         }
 
@@ -207,13 +230,13 @@ public class QuestNPC {
      * Gets a material which represents this NPC.
      */
     @JsonIgnore
-    public Material getMaterial() {
+    public BlockData getBlock() {
         if (this.assigned instanceof BlockNPC) {
             BlockNPC npc = (BlockNPC) this.assigned;
             return npc.getBlock();
         }
 
-        return Material.RED_STAINED_GLASS; // default to unset
+        return Material.RED_STAINED_GLASS.createBlockData(); // default to unset
     }
 
     /**
@@ -240,15 +263,6 @@ public class QuestNPC {
     @JsonIgnore
     public void place() {
         this.assigned.place();
-    }
-
-    public Location toBukkitLocation() {
-        return new Location(
-            Bukkit.getWorld(this.location.getWorld()), 
-            location.getX(), 
-            location.getY(), 
-            location.getZ()
-        );
     }
 
     /**

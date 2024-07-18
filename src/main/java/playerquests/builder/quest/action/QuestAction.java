@@ -2,6 +2,7 @@ package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
@@ -62,11 +63,6 @@ public abstract class QuestAction {
     private String action;
 
     /**
-     * The string representation of the type.
-     */
-    private String type;
-
-    /**
      * The connections for the quest action.
      */
     @JsonProperty("connections")
@@ -88,7 +84,6 @@ public abstract class QuestAction {
         this.stage = stage;
         this.action = "action_-1";
         this.actionOptions = this.initOptions();
-        this.type = this.getClass().getSimpleName();
     }
 
     /**
@@ -106,7 +101,7 @@ public abstract class QuestAction {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return this.action;
     }
 
     /**
@@ -115,7 +110,7 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public String getType() {
-        return this.type;
+        return this.getClass().getSimpleName();
     }
 
     /** 
@@ -221,4 +216,10 @@ public abstract class QuestAction {
     public ConnectionsData getConnections() {
         return this.connections;
     }
+
+    /**
+     * Used to test the validity of a QuestAction.
+     * @return empty if valid; an error message if invalid
+     */
+    public abstract Optional<String> validate();
 }

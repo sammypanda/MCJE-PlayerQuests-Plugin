@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
-import javax.xml.crypto.Data;
-
 import org.bukkit.Bukkit; // Bukkit API
+import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // configures ignoring unknown fields
@@ -25,9 +24,11 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * The Quest product containing all the information 
@@ -39,29 +40,29 @@ public class Quest {
     /**
      * The label of this quest.
      */
-    private String title;
+    private String title = null;
 
     /**
      * The starting/entry point stage ID for this quest.
      */
-    private String entry;
+    private String entry = null;
 
     /**
      * The map of NPCs used in this quest, by their ID.
      */
     @JsonManagedReference
-    private Map<String, QuestNPC> npcs;
+    private Map<String, QuestNPC> npcs = null;
 
     /**
      * The map of stages used in this quest, by the stage ID.
      */
     @JsonManagedReference
-    private Map<String, QuestStage> stages;
+    private Map<String, QuestStage> stages = null;
 
     /**
      * The UUID of the player who created this quest.
      */
-    private UUID creator;
+    private UUID creator = null;
     
     /**
      * Creates a quest instance for playing and viewing!
@@ -82,7 +83,6 @@ public class Quest {
         Core.getKeyHandler().registerInstance(this);
 
         this.title = title;
-        this.entry = "stage_-1";
         
         if (entry != null) {
             this.entry = entry.getID();
@@ -125,9 +125,9 @@ public class Quest {
         try {
             quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
         } catch (JsonMappingException e) {
-            throw new RuntimeException("Could not map the quest template string to a valid quest product.", e);
+            System.err.println("Could not map a quest template string to a valid quest product.");
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Malformed JSON attempted as a quest template string.", e);
+            System.err.println("Malformed JSON attempted as a quest template string.");
         }
 
         return quest;
@@ -194,7 +194,7 @@ public class Quest {
      * @return this quest as a json object
      * @throws JsonProcessingException when the json cannot seralise
      */
-    private String toTemplateString() throws JsonProcessingException {
+    public String toTemplateString() throws JsonProcessingException {
         // get the product of this builder
         Quest product = this;
 
@@ -220,12 +220,22 @@ public class Quest {
                 this.toTemplateString().getBytes() // put the content in the file
             );
         } catch (IOException e) {
-            ChatUtils.sendError(Bukkit.getPlayer(this.creator), e.getMessage(), e);
+            ChatUtils.message(e.getMessage())
+                .player(Bukkit.getPlayer(this.creator))
+                .type(MessageType.ERROR)
+                .send();
+            System.err.println(e);
             return "Quest Builder: '" + this.title + "' could not save.";
         }
 
+        // remove before re-submitting, to remove from world and quest diaries
+        QuestRegistry questRegistry = Core.getQuestRegistry();
+        if (questRegistry.getAllQuests().containsValue(this)) {
+            questRegistry.remove(questRegistry.getQuest(this.getID()));
+        }
+
         // asume enabled and submit (adds the quest to the world)
-        Core.getQuestRegistry().submit(this);
+        questRegistry.submit(this);
         return "Quest Builder: '" + this.title + "' was saved";
     }
 
@@ -242,14 +252,68 @@ public class Quest {
         return actions;   
     }
 
+    /**
+     * Checks if the quest is toggled/enabled.
+     * @return whether the quest is enabled/being shown
+     */
     public boolean isToggled() {
         return Database.getQuestToggled(this);
     }
 
+    /**
+     * Toggle function as a switch.
+     */
     public void toggle() {
         Database.setQuestToggled(
             this,
             !Database.getQuestToggled(this)
         );
+    }
+
+    /**
+     * Toggle function but with discrete choice.
+     * @param toEnable whether to show/enable the quest
+     */
+    public void toggle(boolean toEnable) {
+        Database.setQuestToggled(this, toEnable);
+    }
+
+    public Boolean isValid() {
+        UUID uuid = this.creator;
+        Player player = uuid != null ? Bukkit.getPlayer(uuid) : null; // the player to send invalid npc messages to
+
+        if (uuid != null && player == null) {
+            return false;
+        }
+
+        if (uuid == null) { // universal quests exist, so not having a player cannot be a failure
+            return true;
+        }
+
+        if (this.title == null) {
+            ChatUtils.message("A quest has no title")
+                .player(player)
+                .type(MessageType.ERROR)
+                .send();
+            return false;
+        }
+
+        if (this.entry == null) {
+            ChatUtils.message(String.format("The %s quest has no starting point", this.title))
+                .player(player)
+                .type(MessageType.ERROR)
+                .send();
+            return false;
+        } else {
+            if (this.stages == null || this.stages.isEmpty()) {
+                ChatUtils.message(String.format("The %s quest has no stages", this.title))
+                    .player(player)
+                    .type(MessageType.ERROR)
+                    .send();
+                return false;
+            }
+        }
+
+        return true;
     }
 }

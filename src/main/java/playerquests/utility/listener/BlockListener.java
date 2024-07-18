@@ -5,7 +5,11 @@ import java.util.Map; // generic map type
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block; // the one and only great block type
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
 import org.bukkit.event.block.Action; // identifying what action was done to a block
@@ -14,7 +18,6 @@ import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts w
 import org.bukkit.inventory.EquipmentSlot; // identifies which hand was used to interact
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.builder.quest.QuestBuilder; // for editing a quest
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC; // the core information about an NPC
 import playerquests.client.quest.QuestClient; // player quest state
@@ -102,5 +105,21 @@ public class BlockListener implements Listener {
 
         BlockNPC npc = this.activeBlockNPCs.get(brokenBlock);
         this.unregisterBlockNPC(npc);
+    }
+
+    public void remove(Quest quest) {
+        BlockData replacementBlock = Material.AIR.createBlockData();
+        this.activeBlockNPCs.entrySet().stream()
+            .filter(e -> e.getValue().getNPC().getQuest().getID().equals(quest.getID()))
+            .forEach(entry -> {
+                Location npcLocation = entry.getKey().getLocation();
+                World npcWorld = npcLocation.getWorld();
+
+                // replace the NPC block
+                npcWorld.setBlockData(
+                    npcLocation, 
+                    replacementBlock
+                );
+            });
     }
 }

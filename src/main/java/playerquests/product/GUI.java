@@ -1,6 +1,7 @@
 package playerquests.product;
 
 import java.util.ArrayList; // array type of list
+import java.util.Arrays;
 import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 
@@ -10,7 +11,9 @@ import org.bukkit.inventory.InventoryView; // the view of the GUI
 import org.bukkit.inventory.ItemFlag; // modifying item meta attributes
 import org.bukkit.inventory.ItemStack; // to visually represent buttons
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
+import org.bukkit.persistence.PersistentDataType; // tagging GUI items with GUI=true
 
+import playerquests.Core; // getting the GUI NamespacedKey
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
 import playerquests.builder.gui.component.GUISlot; // GUI buttons
@@ -60,14 +63,12 @@ public class GUI {
      * Draws and displays a fresh instance of the current GUI on the viewers screen.
      */
     public void open() {
-        this.locked = false; 
-
         this.inventory = Bukkit.createInventory( // create inventory
             this.builder.getDirector().getPlayer(), // the player who should see the inventory view
             this.frame.getSize() // the count of slots in the inventory
         );
 
-        this.display(); // opening the inventory window (InventoryView)
+        this.display(); // opening (and unlocking) the inventory window (InventoryView)
 
         this.draw(); // function containing all the builder components of the GUI
     }
@@ -135,8 +136,17 @@ public class GUI {
             itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 
             // Edit the ItemMeta
-            // Set the slot label
-            itemMeta.setDisplayName(slot.getLabel());
+            itemMeta.setDisplayName(slot.getLabel()); // set the slot label
+
+            if (!slot.getDescription().isBlank()) {
+                itemMeta.setLore( // set the slot description
+                    Arrays.asList(slot.getDescription()) // list: each line of the description
+                );
+            }
+
+            item.setAmount(slot.getCount());
+
+            itemMeta.getPersistentDataContainer().set(Core.getGUIKey(), PersistentDataType.STRING, "true"); // set GUI=true
 
             // Return the ItemMeta to the ItemStack
             item.setItemMeta(itemMeta);
@@ -165,9 +175,9 @@ public class GUI {
      * Opens the GUI on the screen.
      */
     public void display() {
-        this.locked = false; // unlock gui for potential deletion
-
         this.view = builder.getDirector().getPlayer().openInventory(this.inventory); // open the GUI window
+
+        this.locked = false; // unlock gui for potential deletion
     }
 
     /**

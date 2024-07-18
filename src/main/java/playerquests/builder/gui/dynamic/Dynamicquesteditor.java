@@ -14,7 +14,6 @@ import playerquests.client.ClientDirector; // accessing the client state
 /**
  * Shows a dynamic GUI used for editing a quest.
  */
-// TODO: add toggling quest availability
 public class Dynamicquesteditor extends GUIDynamic {
 
     /**
@@ -92,6 +91,27 @@ public class Dynamicquesteditor extends GUIDynamic {
                     director
                 )
             );
+
+        new GUISlot(gui, 6) // change entry point
+            .setItem("ENDER_EYE")
+            .setLabel("Choose An Entry Point")
+            .onClick(() -> {
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    director
+                ).onFinish((f) -> {
+                    UpdateScreen function = (UpdateScreen) f;
+                    Dynamicselectconnection selector = (Dynamicselectconnection) function.getDynamicGUI();
+
+                    selector.onSelect((selected) -> {
+                        questBuilder.setEntryPoint(selector.selectedStage);
+
+                        if (selector.selectedAction != null) {
+                            selector.selectedStage.setEntryPoint(selector.selectedAction.getID());
+                        }
+                    });
+                }).execute();
+            });
 
         new GUISlot(gui, 9) // save quest button
             .setItem("GREEN_DYE")

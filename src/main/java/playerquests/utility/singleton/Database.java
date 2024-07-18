@@ -1,7 +1,5 @@
 package playerquests.utility.singleton;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,11 +18,12 @@ import java.util.UUID; // how users are identified
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.bukkit.Bukkit; // the Bukkit API
-import org.bukkit.util.FileUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-import playerquests.Core;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * API representing and providing access to the game database.
@@ -59,6 +58,8 @@ public class Database {
             if (inputStream != null) {
                 MavenXpp3Reader reader = new MavenXpp3Reader();
                 Model model = reader.read(new InputStreamReader(inputStream));
+
+                // get the actual version from the POM
                 version = model.getVersion();
             } else {
                 System.err.println("Error: Resource not found.");
@@ -156,9 +157,13 @@ public class Database {
 
         // update plugin version in db
         Database.setPluginVersion(version);
+        ChatUtils.message("You're on v" + version + "! https://sammypanda.moe/docs/playerquests/v" + version)
+            .target(MessageTarget.WORLD)
+            .type(MessageType.NOTIF)
+            .send();
     }
 
-    private static String getPluginVersion() {
+    public static String getPluginVersion() {
         if (!Files.exists(Paths.get("plugins/PlayerQuests/playerquests.db"))) {
             // Don't try to continue with fetching version if no database
             return "0.0";
@@ -335,6 +340,7 @@ public class Database {
             return;
         }
 
+        // if the quest already exists in the db, don't continue
         if (getQuest(id) != null) {
             return;
         }
@@ -381,7 +387,7 @@ public class Database {
             return quest;
 
         } catch (SQLException e) {
-            System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+            System.err.println("Could not get the quest " + id + ". " + e.getMessage());
             return null;
         }
     }
@@ -424,7 +430,7 @@ public class Database {
             if (state) {
                 QuestRegistry.getInstance().submit(quest);
             } else {
-                QuestRegistry.getInstance().remove(quest);
+                QuestRegistry.getInstance().remove(quest, true);
             }
 
         } catch (SQLException e) {

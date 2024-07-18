@@ -1,21 +1,13 @@
 package playerquests.builder.gui.component;
 
-import java.lang.reflect.InvocationTargetException; // used to check if a GUI function could not execute
 import java.util.ArrayList; // used to transport GUI functions
 import java.util.List; // generic list type
-import java.util.Objects; // used for easy null checking
 
 import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
 import org.bukkit.entity.HumanEntity; // refers to the player
 
-import com.fasterxml.jackson.core.JsonProcessingException; // throws if the json is invalid
-import com.fasterxml.jackson.core.type.TypeReference; // for passing in more specific types by allowing traits 
-import com.fasterxml.jackson.databind.JsonNode; // the java-friendly object for holding the JSON info
-import com.fasterxml.jackson.databind.ObjectMapper; // reads the JSON
-
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
-import playerquests.client.ClientDirector; // abstracted controls for the plugin
 import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
 
 /**
@@ -42,6 +34,11 @@ public class GUISlot {
      * label of the item in the slot (requires whitespace to show as empty)
      */
     private String label = " ";
+    
+    /**
+     * description of the item in the slot
+     */
+    private String description = "";
 
     /**
      * list of functions associated with this slot/button.
@@ -59,66 +56,18 @@ public class GUISlot {
     private Runnable onClick;
 
     /**
+     * Little number indicating 2-64
+     */
+    private Integer stackCount = 1; // 1 default, being no number shown
+
+    /**
      * Constructs a new GUISlot with the specified parent GUIBuilder.
-     * <p>
-     * This should not be accessed directly. Use GUIBuilder.newSlot() instead.
-     * 
      * @param builder a parent GUI which manages the window/screen.
      * @param slotPosition where the slot should be in the GUI window, starting at 1.
      */
     public GUISlot(GUIBuilder builder, Integer slotPosition) {
         this.builder = builder;
         this.setPosition(slotPosition);
-    }
-
-    /**
-     * Take the functions array and add each function with it's params to a list in the {@link GUISlot} instance.
-     * @param functions the functions array from the JSON template.
-     */
-    public void parseFunctions(JsonNode functions) {
-        ObjectMapper jsonObjectMapper = new ObjectMapper();
-        String slotPosition = this.position.toString();
-        String frameTitle = this.builder.getFrame().getTitle();
-
-        functions.elements().forEachRemaining(function -> {
-            JsonNode functionNameNode = Objects.requireNonNull(function.get("name"), "A function name is missing in an entry for slot " + slotPosition + " of the " + frameTitle + " screen.");
-            String functionName = functionNameNode.asText();
-
-            JsonNode paramsNode = Objects.requireNonNull(function.get("params"), "The 'params' list is missing for the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen." + " (create it even if it's empty)");
-            String params = paramsNode.toString();
-
-            ArrayList<Object> paramList;
-
-            // Learn and prepare all the params to be bundled with the GUI Function
-            try {
-                paramList = jsonObjectMapper.readValue(params, new TypeReference<ArrayList<Object>>() {});
-            } catch (JsonProcessingException e) {
-                throw new IllegalArgumentException("The 'params' list invalid or empty for the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
-            }
-
-            // construct a GUIFunction and add it to the GUI Slot instance
-            try {
-                Class<?> classRef = Class.forName("playerquests.builder.gui.function." + functionName);
-                try {
-                    GUIFunction guiFunction = (GUIFunction) classRef
-                        .getDeclaredConstructor(ArrayList.class, ClientDirector.class)
-                        .newInstance(paramList, this.builder.getDirector()); // create an instance of whichever function class
-                    guiFunction.onFinish((f) -> {
-                        this.executeNext(this.builder.getDirector().getPlayer()); // run the next function
-                    });
-                    this.addFunction(guiFunction); // ship the packaged GUI Function to be kept in the current GUI Slot instance
-                    // NOTE: now we could run these parsed functions we put in the GUI Slot with: currentSlot.execute();
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    throw new RuntimeException("Error instantiating or invoking the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.", e);
-                }
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Class not found for the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
-            } catch (SecurityException e) {
-                throw new RuntimeException("Security exception while accessing the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid arguments passed to the " + functionName + " function, in slot " + slotPosition + " of the " + frameTitle + " screen template.");
-            }
-        });
     }
 
     /**
@@ -177,7 +126,7 @@ public class GUISlot {
      * Sets the hover label for this instance of {@link GUISlot}.
      * <p>
      * Includes some processing/formatting of the label.
-     * @param label the desription of what the element does/is for.
+     * @param label the title for what the button does/is for.
      * @return the modified instance of the slot builder
      */
     public GUISlot setLabel(String label) {
@@ -213,7 +162,7 @@ public class GUISlot {
 
     /**
      * Gets the hover label for this instance of {@link GUISlot}.
-     * @return label the label when hovering over the slot.
+     * @return the label when hovering over the slot.
      */
     public String getLabel() {
         return this.label;
@@ -270,4 +219,50 @@ public class GUISlot {
         }
     }
 
+    /**
+     * Sets the hover subtitle/description for this instance of {@link GUISlot}.
+     * <p>
+     * Includes some processing/formatting of the label.
+     * @param description the description of the button
+     * @return the modified instance of the slot builder
+     */
+    public GUISlot setDescription(String description) {
+        String errorDescription = "";
+
+        // Evaluate label for error prefix and avoid malformatting labels
+        description = String.format("%s%s%s%s", 
+            ChatColor.RESET, // remove the italics set when changing from default item display name
+            this.hasError() ? errorDescription : "", // add an error notice if applicable
+            this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
+            this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
+        );
+        
+        this.description = description;
+        return this;
+    }
+
+    /**
+     * Gets the hover description for this instance of {@link GUISlot}.
+     * @return the description when hovering over the slot.
+     */
+    public String getDescription() {
+        return this.description;
+    }
+
+    /**
+     * Sets the size of the ItemStack, probably up to 64.
+     * Useful for indicating a count of something.
+     * @param count
+     */
+    public void setCount(Integer count) {
+        this.stackCount = count;
+    }
+
+    /**
+     * Gets the size of the ItemStack.
+     * @return
+     */
+    public Integer getCount() {
+        return this.stackCount;
+    }
 }

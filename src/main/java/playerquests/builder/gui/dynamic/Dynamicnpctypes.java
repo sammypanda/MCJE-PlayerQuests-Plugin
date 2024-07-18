@@ -4,6 +4,7 @@ import java.util.ArrayList; // list type of array
 import java.util.Arrays; // generic type of array
 
 import org.bukkit.Material; // identifying block of 'Block' NPC type
+import org.bukkit.block.data.BlockData; // managing the details of the NPC block
 import org.bukkit.entity.HumanEntity; // the player type
 import org.bukkit.inventory.ItemStack; // how items are identified and stored in inventories
 import org.bukkit.inventory.PlayerInventory; // the player inventory type
@@ -103,11 +104,12 @@ public class Dynamicnpctypes extends GUIDynamic {
                     player.getInventory().removeItem(penaltyBlock);
 
                     this.npc.assign( // set this npc as:
-                        new BlockNPC(block, this.npc)
+                        new BlockNPC(block.createBlockData(), this.npc)
                     );
                 }
 
-                this.execute(); // re-draw to see changes
+                this.gui.getResult().display();
+                this.execute();
             }).execute();
         });
 
@@ -118,14 +120,14 @@ public class Dynamicnpctypes extends GUIDynamic {
             String.format("%s", 
                 (this.npc.getLocation() == null) ? 
                     ((this.npc.isAssigned()) ? 
-                    "Place NPC (" + this.npc.getAssigned().toString() + ")" : 
+                    "Place NPC (" + this.npc.getAssigned().getType() + ")" : 
                     "Cannot place before assigning") :
-                "Relocate NPC (" + this.npc.getAssigned().toString() + ")"
+                "Relocate NPC (" + this.npc.getAssigned().getType() + ")"
             )
         );
         placeButton.setItem(
             String.format("%s",
-                this.npc.isAssigned() ? this.npc.getMaterial().toString() : "BARRIER"  
+                this.npc.isAssigned() ? this.npc.getBlock().getMaterial().toString() : "BARRIER"  
             )
         );
         placeButton.onClick(() -> {
@@ -138,7 +140,7 @@ public class Dynamicnpctypes extends GUIDynamic {
 
             // give the player the block to place
             playerInventory.setItemInMainHand(
-                MaterialUtils.toItemStack(this.npc.getMaterial().toString())
+                MaterialUtils.toItemStack(this.npc.getBlock().getMaterial().toString())
             );
 
             new SelectLocation(
@@ -150,9 +152,14 @@ public class Dynamicnpctypes extends GUIDynamic {
                 // get the block that was selected
                 SelectLocation function = (SelectLocation) f;
                 LocationData location = function.getResult();
+                BlockData block = function.getBlockData();
 
                 if (location != null) {
                     this.npc.setLocation(location);
+                }
+
+                if (block != null) {
+                    this.npc.assign(new BlockNPC(block, this.npc));
                 }
 
                 // return the players old inventory

@@ -2,6 +2,7 @@ package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array list type
 import java.util.List; // generic list type
+import java.util.Optional;
 
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.stage.QuestStage; // refers to a stage which this action may belong to
@@ -32,4 +33,9 @@ public class None extends QuestAction {
 
     @Override
     public void Run(QuestClient quester) {}
+
+    @Override
+    public Optional<String> validate() {
+        return Optional.empty(); // valid
+    }
 }

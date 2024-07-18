@@ -9,6 +9,7 @@ import java.util.stream.IntStream; // fills slots procedually
 
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen; // used to go back to other screens
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
@@ -159,7 +160,10 @@ public class Dynamicactiontypes extends GUIDynamic {
                 typeButton.setItem("COAL");
                 typeButton.setLabel(type + " (Unimplemented)");
                 typeButton.onClick(() -> { // show error if trying to use unimplemented action
-                    ChatUtils.sendError(this.director.getPlayer(), "Could not change this action to an unimplemented action type.");
+                    ChatUtils.message("Could not change this action to an unimplemented action type.")
+                        .type(MessageType.WARN)
+                        .player(this.director.getPlayer())
+                        .send();
                 });
             }
             
@@ -168,7 +172,7 @@ public class Dynamicactiontypes extends GUIDynamic {
 
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
-        exitButton.setLabel("Exit");
+        exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 

@@ -1,9 +1,9 @@
 package playerquests.builder.quest;
 
-import java.util.ArrayList; // array list type
 import java.util.HashMap; // hash table map type
-import java.util.List; // generic list type
+import java.util.LinkedList;
 import java.util.Map; // generic map type
+import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
 import java.util.stream.IntStream; // used to iterate over a range
 
@@ -16,12 +16,18 @@ import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
  * For creating and managing a Quest.
  */
 public class QuestBuilder {
+
+    /**
+     * Whether the quest is valid
+     */
+    private Boolean isValid = true;
 
     /**
      * Whether the plugin has a creator/is universal
@@ -57,6 +63,11 @@ public class QuestBuilder {
     private Map<String, QuestStage> questPlan = new HashMap<String, QuestStage>();
 
     /**
+     * The original creator of this quest.
+     */
+    private UUID originalCreator;
+
+    /**
      * Operations to run whenever the class is instantiated.
      */
     {
@@ -65,7 +76,7 @@ public class QuestBuilder {
     }
 
     /**
-     * Returns a new default Quest.
+     * Creates and returns a new default Quest.
      * @param director used to control the plugin
      */
     public QuestBuilder(ClientDirector director) {
@@ -90,37 +101,57 @@ public class QuestBuilder {
      * @param product the quest template to create a new builder from
      */
     public QuestBuilder(ClientDirector director, Quest product) {
-        this.director = director;
+        try {
+            this.director = director;
 
-        // add the entry point stage from the product
-        this.entryPoint = product.getStages().get(product.getEntry());
-        director.setCurrentInstance(this.entryPoint); // make it modifiable
+            // set the new quest title the same as the product quest title
+            this.title = product.getTitle();
 
-        // add the stages from the product
-        this.questPlan = product.getStages();
+            // add the entry point stage from the product
+            this.entryPoint = product.getStages().get(product.getEntry());
+            director.setCurrentInstance(this.entryPoint); // make it modifiable
 
-        // recurse submission of stages to KeyHandler registry
-        this.questPlan.values().stream().forEach(stage -> {
-            Core.getKeyHandler().registerInstance(stage);
-        });
+            // add the stages from the product
+            this.questPlan = product.getStages();
 
-        // add the NPCs from the product
-        this.questNPCs = product.getNPCs();
+            // recurse submission of stages to KeyHandler registry
+            this.questPlan.values().stream().forEach(stage -> {
+                Core.getKeyHandler().registerInstance(stage);
+            });
 
-        // set the new quest title the same as the product quest title
-        this.title = product.getTitle();
+            // add the NPCs from the product
+            product.getNPCs().forEach((id, npc) -> {
+                npc.setID(id);
+                this.questNPCs.put(id, npc);
+            });
 
-        if (product.getCreator() == null) {
-            // set the quest as a universal one
-            this.universal = true;
-            director.setCurrentInstance(this.build());
-        } else {
-            // set as the current quest in the director
-            director.setCurrentInstance(this);
+            if (product.getCreator() == null) {
+                // set the quest as a universal one
+                this.universal = true;
+                director.setCurrentInstance(this.build());
+            } else {
+                if (product.getCreator() != director.getPlayer().getUniqueId()) {
+                    this.originalCreator = product.getCreator();
+                }
+                
+                // set as the current quest in the director
+                director.setCurrentInstance(this);
+            }
+
+            // create quest product from this builder
+            this.build();
+        } catch (Exception e) {
+            this.isValid = false;
         }
+    }
 
-        // create quest product from this builder
-        this.build();
+    /**
+     * Get the player who originally created this quest.
+     * @return the original creators player UUID.
+     */
+    @JsonIgnore
+    public UUID getOriginalCreator() {
+        return this.originalCreator;
     }
 
     /**
@@ -148,7 +179,10 @@ public class QuestBuilder {
     @Key("quest.title")
     public void setTitle(String title) {
         if (title.contains("_")) {
-            ChatUtils.sendError(this.director.getPlayer(), "Quest label '" + this.title + "' not allowed underscores.");
+            ChatUtils.message("Quest label '" + this.title + "' not allowed underscores.")
+                .player(this.director.getPlayer())
+                .type(MessageType.WARN)
+                .send();
             return;
         }
 
@@ -168,7 +202,7 @@ public class QuestBuilder {
     /**
      * Gets the entry point ID.
      * <p>
-     * Either an action or a stage.
+     * Should be a stage.
      * @return the string representation for the entry point
      */
     @JsonProperty("entry")
@@ -177,12 +211,22 @@ public class QuestBuilder {
     }
 
     /**
+     * Sets the entry point for this quest.
+     * <p>
+     * Should be a stage.
+     * @param stage what the entry point stage is
+     */
+    public void setEntryPoint(QuestStage stage) {
+        this.entryPoint = stage;
+    }
+
+    /**
      * Get all the stage IDs on this quest
      * @return list of the stage IDs
      */
     @JsonIgnore
-    public List<String> getStages() {
-        return new ArrayList<String>(this.questPlan.keySet());
+    public LinkedList<String> getStages() {
+        return new LinkedList<String>(this.questPlan.keySet());
     }
 
     /**
@@ -302,5 +346,54 @@ public class QuestBuilder {
         }
 
         return product;
+    }
+
+    public QuestStage addStage(QuestStage questStage) {
+        this.getQuestPlan().put(questStage.getID(), questStage);
+        this.build(); // push to quest product
+
+        return questStage;
+    }
+
+    /**
+     * Remove a stage from the quest
+     * @param questStage the stage to remove
+     * @return whether the stage can be removed
+     */
+    public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
+        Boolean canRemove = true; // whether the stage is safe to remove
+
+        // tests to determine if the quest is dependent on this stage
+        canRemove = this.questPlan.get(questStage.getID()).getConnections().isEmpty();
+        
+        if (dryRun) { // if just to test if removable
+            return canRemove; // don't continue
+        }
+
+        // remove the stage
+        this.questPlan.remove(questStage.getID());
+        
+        return canRemove;
+    }
+
+    /**
+     * Remove a stage from the quest
+     * @param questStage the stage to remove
+     */
+    public Boolean removeStage(QuestStage questStage) {
+        return this.removeStage(questStage, false);
+    }
+
+    /**
+     * Checks if everything is correctly set and formed.
+     * @return if the NPC object is valid
+     */
+    @JsonIgnore
+    public boolean isValid() {
+        if (!this.isValid) {
+            return false;
+        }
+
+        return this.build().isValid();
     }
 }

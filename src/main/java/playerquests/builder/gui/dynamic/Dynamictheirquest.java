@@ -3,12 +3,16 @@ package playerquests.builder.gui.dynamic;
 import java.util.ArrayList; // list array type
 import java.util.Arrays; // generic array type
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // creates a GUI button
 import playerquests.builder.gui.function.UpdateScreen; // changes the GUI to another
 import playerquests.builder.quest.QuestBuilder; // for creating and modifying quests
 import playerquests.client.ClientDirector; // backend for a player client
 import playerquests.product.Quest; // quest product to view
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 
 public class Dynamictheirquest extends GUIDynamic {
 
@@ -36,7 +40,7 @@ public class Dynamictheirquest extends GUIDynamic {
         Integer questTitleLimit = 12;
         guiFrame.setTitle(
             String.format(
-                "Quest: %s", 
+                "Quest: %s (Shared)", 
                 // obscure quest title in GUI frame title with '...' if character limit reached:
                 questTitle.length() > questTitleLimit - 1 ? questTitle.substring(0, questTitleLimit) + "..." : questTitle
             )
@@ -58,7 +62,17 @@ public class Dynamictheirquest extends GUIDynamic {
             .onClick(() -> {
                 // create a quest builder from the current quest
                 // (using setDirector sets it as the current quest in director)
-                new QuestBuilder(this.director, this.questProduct).setDirector(this.director);
+                try {
+                    new QuestBuilder(
+                        this.director,
+                        Quest.fromTemplateString(this.questProduct.toTemplateString())
+                    ).setDirector(this.director);
+                } catch (JsonProcessingException e) {
+                    ChatUtils.message("Could not clone this quest, the quest template is invalid.")
+                        .player(this.director.getPlayer())
+                        .type(MessageType.ERROR)
+                        .send();
+                }
 
                 // enter editing mode for cloned quest
                 new UpdateScreen(

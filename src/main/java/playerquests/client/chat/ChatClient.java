@@ -3,7 +3,6 @@ package playerquests.client.chat;
 /**
  * Controlling the plugin via the chatbox.
  */
-// TODO: implement ChatClient
 public class ChatClient {
 
     /**

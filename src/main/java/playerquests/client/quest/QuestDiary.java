@@ -80,11 +80,12 @@ public class QuestDiary {
         ConnectionsData connections = new ConnectionsData();
 
         try {
-            String getQuestProgressSQL = "SELECT * FROM diary_quests WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT * FROM diary_quests WHERE quest = ? AND diary = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
             preparedStatement.setString(1, questID);
+            preparedStatement.setInt(2, this.dbDiaryID);
 
             ResultSet results = preparedStatement.executeQuery();
             String stageResult = results.getString("stage");
@@ -140,11 +141,12 @@ public class QuestDiary {
         QuestStage stage;
 
         try {
-            String getQuestProgressSQL = "SELECT quest, stage FROM diary_quests WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT quest, stage FROM diary_quests WHERE quest = ? AND diary = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
             preparedStatement.setString(1, questID);
+            preparedStatement.setInt(2, this.dbDiaryID);
 
             ResultSet results = preparedStatement.executeQuery();
             String stageResult = results.getString("stage");
@@ -179,11 +181,12 @@ public class QuestDiary {
         QuestAction action;
 
         try {
-            String getQuestProgressSQL = "SELECT quest, action FROM diary_quests WHERE quest = ?";
+            String getQuestProgressSQL = "SELECT quest, action FROM diary_quests WHERE quest = ? AND diary = ?";
 
             PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
 
             preparedStatement.setString(1, questID);
+            preparedStatement.setInt(2, this.dbDiaryID);
 
             ResultSet results = preparedStatement.executeQuery();
             String actionResult = results.getString("action");
@@ -197,8 +200,7 @@ public class QuestDiary {
             }
 
             // retrieve quest details
-            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
-            action = quest.getActions().get(actionResult);
+            action = this.getStage(questID).getActions().get(actionResult);
 
         } catch (SQLException e) {
             System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
@@ -237,7 +239,7 @@ public class QuestDiary {
             // stage-based current
                 if (currentConnection.contains("stage")) {
                     preparedStatement.setString(2, currentConnection);
-                    preparedStatement.setString(3, null);
+                    preparedStatement.setString(3, quest.getStages().get(currentConnection).getEntryPoint().getID()); // get the ID of the entry action
                 }
 
                 // action-based current

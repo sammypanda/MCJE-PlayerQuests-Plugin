@@ -1,10 +1,8 @@
 package playerquests.utility.singleton;
 
 import org.bukkit.Location; // the minecraft location object
-import org.bukkit.Material; // enums for game blocks/items
 import org.bukkit.World; // the minecraft world
 import org.bukkit.block.Block; // the minecraft block
-import org.bukkit.block.data.BlockData; // all the information regarding a block
 
 import playerquests.builder.quest.npc.BlockNPC; // a block representing an NPC
 import playerquests.builder.quest.npc.QuestNPC; // core NPC object/data
@@ -21,12 +19,48 @@ public class PlayerQuests {
     private static Database database = Database.getInstance();
 
     private static PlayerQuests instance = new PlayerQuests();
-    private BlockListener blockListener = new BlockListener();
-    private PlayerListener playerListener = new PlayerListener();
-    private ServerListener serverListener = new ServerListener();
+    private static BlockListener blockListener = new BlockListener();
+    private static PlayerListener playerListener = new PlayerListener();
+    private static ServerListener serverListener = new ServerListener();
 
+    /**
+     * Gets the PlayerQuests instance.
+     * @return centralised plugin class
+     */
     public static PlayerQuests getInstance() {
         return instance;
+    }
+
+    /**
+     * Gets the PlayerQuests database.
+     * @return centralised data store
+     */
+    public static Database getDatabase() {
+        return database;
+    }
+
+    /**
+     * Gets the PlayerQuests in-game block listener.
+     * @return centralised block listener
+     */
+    public static BlockListener getBlockListener() {
+        return blockListener;
+    }
+
+    /**
+     * Gets the PlayerQuests in-game player listener.
+     * @return centralised player listener
+     */
+    public static PlayerListener getPlayerListener() {
+        return playerListener;
+    }
+
+    /**
+     * Gets the PlayerQuests in-game server listener.
+     * @return centralised server listener
+     */
+    public static ServerListener getServerListener() {
+        return serverListener;
     }
 
     /**
@@ -41,13 +75,13 @@ public class PlayerQuests {
         }
 
         QuestNPC npc = blockNPC.getNPC();
-        Location npcBukkitLocation = npc.toBukkitLocation();
+        Location npcBukkitLocation = npc.getLocation().toBukkitLocation();
         World npcWorld = npcBukkitLocation.getWorld();
 
         // set the block in the world for this NPC to register to
         npcWorld.setBlockData(
             npcBukkitLocation,
-            blockNPC.getBlock().createBlockData()
+            blockNPC.getBlock()
         );
 
         // get the block to use it to efficiently find match in BlockListener
@@ -63,26 +97,9 @@ public class PlayerQuests {
      * Removes traces of a quest from the world.
      * @param quest the quest to remove traces of
      */
-    // TODO: store and revert to previous block state @ the location
-    public static void remove(Quest quest) {
+    public void remove(Quest quest) {
         // remove all NPCs
-        BlockData replacementBlock = Material.AIR.createBlockData();
-        quest.getNPCs().values().stream().forEach(npc -> {
-
-            // remove NPC blocks:
-            if (npc.getAssigned().getClass().equals(BlockNPC.class)) {
-                // establish NPC values
-                Location npcLocation = npc.getLocation().toBukkitLocation();
-                World npcWorld = npcLocation.getWorld();
-
-                // replace the NPC block
-                npcWorld.setBlockData(
-                    npcLocation, 
-                    replacementBlock
-                );
-            }
-            
-        });
+        blockListener.remove(quest);
     }
     
 }
