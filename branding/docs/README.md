@@ -14,6 +14,8 @@ I'm always planning to add more quest actions, but so far:
 | Action                                  | Description                                            | Supported |
 | --------------------------------------- | ------------------------------------------------------ | --------- |
 | Speak                                   | Makes an NPC say something                             | ✅        |
+| Request Item                            | Waits for the player to return with an item            | ❌        |
+| Reward Item                             | Gives the player an item                               | ❌        |
 | None                                    | Ends the quest (default)                               | ✅        |
 
 <br>
