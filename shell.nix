@@ -3,7 +3,7 @@ with (import <nixpkgs> {});
 mkShell {
   buildInputs = [
     maven
-    jdk17
+    jdk22
     glibc
   ];
 }
