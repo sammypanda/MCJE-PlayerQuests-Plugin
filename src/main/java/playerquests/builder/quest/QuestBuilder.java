@@ -177,17 +177,18 @@ public class QuestBuilder {
      * @param title the name for the quest
      */
     @Key("quest.title")
-    public void setTitle(String title) {
+    public QuestBuilder setTitle(String title) {
         if (title.contains("_")) {
             ChatUtils.message("Quest label '" + this.title + "' not allowed underscores.")
                 .player(this.director.getPlayer())
                 .type(MessageType.WARN)
                 .send();
-            return;
+            return this;
         }
 
         this.title = title; // set the new title
         this.build();
+        return this;
     }
 
     /**
