@@ -50,13 +50,13 @@ public class Dynamicactioneditor extends GUIDynamic {
 
         // set the quest action to modify
         this.action = this.stage.getActions().get(this.stage.getActionToEdit());
-
-        // dynamically fill in option slots
-        this.putOptionSlots(Arrays.asList(1,2,3,10,11,12));
     }
 
     @Override
     protected void execute_custom() {
+        // dynamically fill in option slots
+        this.putOptionSlots(Arrays.asList(1,2,3,10,11,12));
+
         // set label
         if (this.stage.getEntryPoint().getID() == this.action.getID()) { // if this action is the entry point
             this.gui.getFrame().setTitle(this.action + " Editor (Entry Point)");
@@ -224,13 +224,17 @@ public class Dynamicactioneditor extends GUIDynamic {
                         this.director
                     ).onFinish((function) -> {
                         ChatPrompt prompt = (ChatPrompt) function; // cast the GUIFunction as ChatPrompt
+                        String response = prompt.getResponse(); // get inputted dialogue
 
-                        if (prompt.getResponse() == null) {
+                        if (response == null) {
                             return;
                         }
                         
-                        this.action.setDialogue(Arrays.asList(prompt.getResponse())); // set dialogue with prompt response
-                        new UpdateScreen(new ArrayList<>(Arrays.asList("actioneditor")), director).execute(); // refresh actioneditor to see dialogue
+                        // set dialogue with prompt response
+                        this.action.setDialogue(Arrays.asList(response));
+                        
+                        // refresh to see changes
+                        this.execute();
                     }).execute();
                 });
         }
