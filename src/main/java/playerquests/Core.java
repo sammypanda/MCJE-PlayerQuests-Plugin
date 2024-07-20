@@ -1,5 +1,6 @@
 package playerquests;
 
+import org.bstats.bukkit.Metrics; // plugin usage metrics
 import org.bukkit.NamespacedKey; // custom object data/metadata
 import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
@@ -49,6 +50,9 @@ public class Core extends JavaPlugin {
 
         // initiate /playerquests command
         new Commandplayerquest();
+
+        // mount bStats for some minimal usage info
+        new Metrics(this, 22692);
     }
 
     /**
