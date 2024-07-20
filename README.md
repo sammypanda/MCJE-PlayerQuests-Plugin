@@ -3,6 +3,7 @@
 # (Under Development) PlayerQuests ☼
 - Where survival players without cheats can create quests! (with inventories as adorable GUIs).
 - This plugin is still being improved, [see the plan](https://github.com/users/sammypanda/projects/2/views/1?layout=board)!
+- Help with the code [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)!
 
 <center>
   <a href="#add">How to add</a> |
@@ -15,9 +16,10 @@
 
 <br>
 
-<h1 id="guide">Guides! ⚛</h1>
+<h1 id="guide">How to use the plugin ⚛</h1>
 
-- You can find the pre-release guide [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/main/branding#readme). Things are subject to change, but I'm happy to answer questions on Discord.
+- You can find the pre-release guide [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/main/branding#readme). 
+    - Things are subject to change, but I'm happy to answer questions on Discord.
 
 <br>
 
@@ -61,9 +63,12 @@
 
 <br>
 
-# Get in touch to show interest ☾
+# Join the community ☾
 
 - [Join our little Discord community](http://discord.gg/EvWVSn9URf)
 - [Let me help you on GitHub](http://github.com/sammypanda/MCJE-PlayerQuests-Plugin/issues/)
+- [Contribute to the code](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)
+
+<br>
 
 ![Under development Player Quests logo](https://cdn.modrinth.com/data/N5NJr7y3/4c553e635db0e78de0720b46d15cef6f59b56c14.png)
