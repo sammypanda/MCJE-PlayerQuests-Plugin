@@ -1,93 +1,74 @@
-# How To Develop: 'Dependencies'
-- Maven (mvn)
-    - Current build command: ``mvn -f [path/to/plugin/root/directory] clean package -U -e``
-- Java (openjdk-17)
+![Player Quests Under Development Banner](https://cdn.modrinth.com/data/N5NJr7y3/images/ca3ac817e9d55bd24238766c4f746291b5d2c9ae.png)
 
-# How To Get Functionality: 'Actions'
-###### How pre-defined but flexible functionality is actually associated with buttons and other behaviours.
-Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. Here is a list for devs or if you're a very brave user.
+# (Under Development) PlayerQuests ☼
+- Where survival players without cheats can create quests! (with inventories as adorable GUIs).
+- This plugin is still being improved, [see the plan](https://github.com/users/sammypanda/projects/2/views/1?layout=board)!
+- Help with the code [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)!
 
-###### Meta Actions (Functions)
-| Function (How to refer to) | Parameters (How to customise)                                                                                 | Purpose (What it does)                                                    |
-|----------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| UpdateScreen               | 1: the dynamic GUI name                                                                                       | Changes the current GUI screen to a different GUI                         |
-| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "none", "gui.title", "quest.title") | Prompts the user to sets a text value (by typing in the chat box)         |
-| Save                       | 1. key of instance to save (options: "quest")                                                                 | Calls the defined save processes for instances                            |
-| SelectBlock                | 1. the prompt to show the user<br>2. list of denied blocks<br>3. list of denied methods                       | Prompts the user to select a block (by hitting or selecting in inventory) |
-| SelectLocation             | 1. the prompt to show the user                                                                                | Prompts the user to place a block to set it as the location               |
+<center>
+  <a href="#add">How to add</a> |
+  <a href="#configure">How to configure</a> |
+  <a href="#community">About and community</a>
+  <br><br>
+  <img src=https://cdn.modrinth.com/data/cached_images/834e035f26f53096b122b053e38fc08a72445c9c.png alt=the create quest inventory GUI.>
+  <br>
+</center>
 
-###### Quest Actions (Actions)
-TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
+<br>
 
-| Type (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
-|------------------------|-------------------------------|-------------------------------------------------|
-| None                   | N/A                           | Nothing; ignored                                |
-| Speak                  | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
-| RequestItem            | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
-| ChangeQuestEntry       | 1: stage ID or action ID      | Changes what stage or action the quest opens to |
+<h1 id="guide">How to use the plugin ⚛</h1>
 
-# How To Get Functionality: 'Templates'
-###### We have Meta and Quest Actions, but how do we actually use them?
-TODO: Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
-```json
-{
-    "title": String, // label of the entire quest
-    "entry": String, // (as in 'entry point') where the quest starts
-    "creator": UUID, // the player who created this quest
-    "id": String, // the id, composed of: [Quest Title]_[Creator UUID]
-    "npcs": { // directory of all the quest npcs
-        "npc_0": { // NPC ID (automatically generated)
-            "name": String, // the name of the NPC
-            "assigned": {
-                "type": String, // type the NPC is assigned to (options: "BlockNPC")
-                "value": String // the standard minecraft block string (like: minecraft:acacia_log)
-            },
-            "location": {
-                "x": Double,
-                "y": Double,
-                "z": Double,
-                "pitch": Double,
-                "yaw": Double
-            }
-        }
-    },
-    "stages": { // directory of all the quest stages
-        "stage_0": { // Stage ID (automatically generated)
-            "notable": Boolean, // if it would show up as a chapter in a book; a notable stage
-            "label": String, // the label for just this stage, as if it were a chapter
-            "entry": String, // where the stage starts
-            "actions": { // directory of all this stage's actions
-                "action_0": {  // Action ID (automatically generated)
-                    "type": String, // Quest Action type
-                    "id": String, // Quest Action ID
-                    "npc": String, // NPC ID (if applicable)
-                    "dialogue": String Array // Dialogue lines (if applicable) 
-                    "connections": { // defining where the action is in the stage
-                        "next": @Nullable String, // where to go if the action succeeds
-                        "curr": @Nullable String, // where to return to if the action is exited
-                        "prev": @Nullable String // where to go if the actions fails
-                    }
-                }
-            },
-            "connections": { // defining where the stage is in the quest
-                "next": @Nullable String, // where to go if the stage succeeds
-                "curr": @Nullable String, // where to return to if the stage is exited
-                "prev": @Nullable String // where to go if the stage fails
-            }
-        },
-    }
-}
-```
-*It's worth noting that just because the IDs are incremental, all starting from zero, doesn't mean they are expected to be kept/used in order or in sequence.*
+- You can find the pre-release guide [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/main/branding#readme). 
+    - Things are subject to change, but I'm happy to answer questions on Discord.
 
-# How It All Works: 'Specification'
-###### the way to visualise/think about, and implement the program.
+<br>
 
-| Folder                           | Purpose                          |
-|----------------------------------|----------------------------------|
-| ../../resources/quest/templates/ | Quest templates in JSON          |
-| builder/                         | Produce product instances        |
-| product/                         | The product instances            |
-| client/                          | Ways to control the plugin       |
-| utility/                         | Tools for reducing repeated code |
-| utility/annotation               | Custom code annotations          |
+<h1 id="add">To add to your server, follow these steps ✿</h1>
+
+- Download the latest .jar file.
+- Drag and drop the .jar file into the server 'plugins' folder.
+  - Note: Create the plugins folder if it doesn't exist.
+
+<br>
+
+<h1 id="guide">Disabling telemetry ⚛</h1>
+
+- This plugin uses [bStats](https://github.com/Bastian/bStats) to share how many servers are using the plugin.
+- To disable bStats:
+    1. Create a folder in plugins/ called ``bStats`` (case sensitive)
+    2. In it create a file called config.yml
+        - Type in it ``enabled: false``
+- To enable, delete the bStats folder and reload/restart, it'll default to ``enabled: true``.
+
+<br>
+
+<h1 id="configure">No configuration options ✎</h1>
+
+- Keeping it simple.
+
+<br>
+
+<h1 id="community">It's perfect for ☆</h1>
+
+- Cute small servers amongst friends
+- Lore and world-building enthusiasts
+- Any plugin-friendly survival servers
+- Lovely community-driven RPG servers
+
+<br>
+
+# Making things together ♡
+- Just some community highlights! Favourite magical moments, creative quests, and feedback.
+  - *None here yet! Join the [discord](https://discord.gg/EvWVSn9URf)!*
+
+<br>
+
+# Join the community ☾
+
+- [Join our little Discord community](http://discord.gg/EvWVSn9URf)
+- [Let me help you on GitHub](http://github.com/sammypanda/MCJE-PlayerQuests-Plugin/issues/)
+- [Contribute to the code](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)
+
+<br>
+
+![Under development Player Quests logo](https://cdn.modrinth.com/data/N5NJr7y3/4c553e635db0e78de0720b46d15cef6f59b56c14.png)
