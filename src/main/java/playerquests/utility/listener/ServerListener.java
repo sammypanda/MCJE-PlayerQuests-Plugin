@@ -20,6 +20,7 @@ import playerquests.Core; // accessing plugin singeltons
 import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // for sending cute-ified messages
+import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
@@ -79,8 +80,11 @@ public class ServerListener implements Listener {
                     allQuests.add(questName);
                 });
         } catch (IOException e) {
-            System.err.println("Error processing file paths");
-            e.printStackTrace();
+            ChatUtils.message("Could not process the quests template directory/path :(. " + e)
+                .target(MessageTarget.CONSOLE)
+                .style(MessageStyle.PLAIN)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // try to submit found quests to quest registry
