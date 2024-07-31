@@ -1,11 +1,8 @@
 package playerquests.builder.gui.dynamic;
 
 import java.io.File; // retrieve the template files
-import java.io.IOException; // thrown when the quest templates dir cannot be found
-import java.nio.file.Files; // manage multiple template files
 import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
-import java.util.List; // store temporary lists (like: string splitting)
 import java.util.concurrent.CompletableFuture; // async methods
 import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
@@ -22,6 +19,7 @@ import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest; // a quest product used to play and track quests
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.singleton.Database;
 import playerquests.utility.singleton.PlayerQuests; // used to get plugin listeners
 import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
 
@@ -96,61 +94,23 @@ public class Dynamicmyquests extends GUIDynamic {
                 .type(MessageType.NOTIF)
                 .player(this.director.getPlayer())
                 .send();
+                
             return;
         }
 
         // get list of quest templates
         if (!this.myquestLoaded) {
             CompletableFuture.runAsync(() -> {
-                System.out.println("run async");
-                try {
-                    Files.walk(questTemplatesDir.toPath()).forEach(questTemplateFile -> { // get all the quest templates
-                        // skip if is a directory
-                        if (questTemplateFile.toFile().isDirectory()) { return; }
-        
-                        // the quest template filename without .json
-                        String questTemplateName = questTemplateFile.toString()
-                            .replace(".json", "")
-                            .split("/templates/")[1];
-        
-                        // divide up to uncover the concatenated data in the quest template filename
-                        List<String> questTemplateNameFragments = Arrays.asList(
-                            questTemplateName.split("_")
-                        );
-        
-                        // list of acceptable quest owners
-                        List<String> questOwnerList = Arrays.asList(
-                            null, 
-                            this.director.getPlayer().getUniqueId().toString()
-                        );
-        
-                        // set the quest owner to match best to the template filename (null or the user id) 
-                        String questOwner; // can be either null or the player UUID
-                        switch (questTemplateNameFragments.size()) {
-                            case 2:
-                                questOwner = questTemplateNameFragments.get(1);
-                                break;
-                            default:
-                                questOwner = null;
-                                break;
-                        }
-        
-                        // skip if current player is not the owner of the quest template
-                        if (!questOwnerList.contains(questOwner)) { return; }
-                        
-                        // add the quest to our list
-                        this.myquestTemplates.add(questTemplateName);
-                    });
-                } catch (IOException e) {
-                    throw new RuntimeException("Could not access the " + questTemplatesDir.toString() + " path. ", e);
-                }
-                System.out.println("fin async");
+                // get quests from database
+                this.myquestTemplates.addAll(Database.getInstance().getAllQuests());
+
+            // do when quests have been gotten
             }).thenRun(() -> {
                 this.myquestLoaded = true;
-                System.out.println("is loaded? " + this.myquestLoaded);
 
                 // return to the main thread
                 Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                    // refresh the screen/remove the 'load'/show the quests; continue
                     this.execute();
                 });
                 
@@ -194,9 +154,7 @@ public class Dynamicmyquests extends GUIDynamic {
         this.gui.getFrame().setSize(45);
 
         // automatically create the page of slots/options (when ready)
-        System.out.println("body is loaded " + this.myquestLoaded);
         if (this.myquestLoaded) {
-            System.out.println("going to generate pages");
             // filter out the templates (pagination)
             ArrayList<String> remainingTemplates = (ArrayList<String>) this.myquestTemplates
                 .stream()
@@ -213,8 +171,7 @@ public class Dynamicmyquests extends GUIDynamic {
      * @param remainingTemplates the quest templates to insert
      */
     private void generatePage(ArrayList<String> remainingTemplates) {
-        System.out.println("generating pages");
-        
+
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
         exitButton.setLabel("Back");
