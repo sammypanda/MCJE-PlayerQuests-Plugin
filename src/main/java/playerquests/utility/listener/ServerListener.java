@@ -67,6 +67,7 @@ public class ServerListener implements Listener {
         // initialise the database
         Database.getInstance().init();
 
+        // cancel ongoing tasks if is a reload (handle reloading)
         if (event.getEventName().equals("RELOAD")) {
             Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
             QuestRegistry.getInstance().clear();
