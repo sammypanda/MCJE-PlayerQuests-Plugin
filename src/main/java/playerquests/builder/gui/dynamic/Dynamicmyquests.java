@@ -46,7 +46,7 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * maximum auto-generated slots per page
      */
-    private Integer slotsPerPage = 35;
+    private Integer slotsPerPage = 36;
 
     /**
      * count of malformed quests
