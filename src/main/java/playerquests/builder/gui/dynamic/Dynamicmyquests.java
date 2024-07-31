@@ -6,6 +6,7 @@ import java.nio.file.Files; // manage multiple template files
 import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
 import java.util.List; // store temporary lists (like: string splitting)
+import java.util.concurrent.CompletableFuture; // async methods
 import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
@@ -54,6 +55,16 @@ public class Dynamicmyquests extends GUIDynamic {
     private Integer invalidQuests = 0;
 
     /**
+     * get the list of all quest templates with owner: null or owner: player UUID
+     */
+    private File questTemplatesDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
+
+    /**
+     * indicate when the quests can start to load in
+     */
+    private Boolean myquestLoaded = false;
+
+    /**
      * Creates a dynamic GUI with a list of 'my quests'.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -74,10 +85,8 @@ public class Dynamicmyquests extends GUIDynamic {
      * </ul>
      */
     public void setUp_custom() {
-        // get the list of all quest templates with owner: null or owner: player UUID
-        File questTemplatesDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
-
-        if (!questTemplatesDir.exists()) {
+        // correct for missing templates directory
+        if (!this.questTemplatesDir.exists()) {
             PlayerQuests.getServerListener().onLoad(new ServerLoadEvent(LoadType.RELOAD)).onFinish(() -> {
                 // imitate reload to retry plugin set-up
                 this.setUp_custom();
@@ -89,50 +98,53 @@ public class Dynamicmyquests extends GUIDynamic {
             return;
         }
 
-        // modify the new GUI to show the quests in
-        this.gui.getFrame().setSize(45);
-
-        try { // to access the quest templates dir
-            Files.walk(questTemplatesDir.toPath()).forEach(questTemplateFile -> { // get all the quest templates
-                // skip if is a directory
-                if (questTemplateFile.toFile().isDirectory()) { return; }
-
-                // the quest template filename without .json
-                String questTemplateName = questTemplateFile.toString()
-                    .replace(".json", "")
-                    .split("/templates/")[1];
-
-                // divide up to uncover the concatenated data in the quest template filename
-                List<String> questTemplateNameFragments = Arrays.asList(
-                    questTemplateName.split("_")
-                );
-
-                // list of acceptable quest owners
-                List<String> questOwnerList = Arrays.asList(
-                    null, 
-                    this.director.getPlayer().getUniqueId().toString()
-                );
-
-                // set the quest owner to match best to the template filename (null or the user id) 
-                String questOwner; // can be either null or the player UUID
-                switch (questTemplateNameFragments.size()) {
-                    case 2:
-                        questOwner = questTemplateNameFragments.get(1);
-                        break;
-                    default:
-                        questOwner = null;
-                        break;
-                }
-
-                // skip if current player is not the owner of the quest template
-                if (!questOwnerList.contains(questOwner)) { return; }
-                
-                // add the quest to our list
-                this.myquestTemplates.add(questTemplateName);
-            });
-        } catch (IOException e) {
-            throw new RuntimeException("Could not access the " + questTemplatesDir.toString() + " path. ", e);
-        }
+        // get list of quest templates
+        CompletableFuture.runAsync(() -> {
+            try {
+                Files.walk(questTemplatesDir.toPath()).forEach(questTemplateFile -> { // get all the quest templates
+                    // skip if is a directory
+                    if (questTemplateFile.toFile().isDirectory()) { return; }
+    
+                    // the quest template filename without .json
+                    String questTemplateName = questTemplateFile.toString()
+                        .replace(".json", "")
+                        .split("/templates/")[1];
+    
+                    // divide up to uncover the concatenated data in the quest template filename
+                    List<String> questTemplateNameFragments = Arrays.asList(
+                        questTemplateName.split("_")
+                    );
+    
+                    // list of acceptable quest owners
+                    List<String> questOwnerList = Arrays.asList(
+                        null, 
+                        this.director.getPlayer().getUniqueId().toString()
+                    );
+    
+                    // set the quest owner to match best to the template filename (null or the user id) 
+                    String questOwner; // can be either null or the player UUID
+                    switch (questTemplateNameFragments.size()) {
+                        case 2:
+                            questOwner = questTemplateNameFragments.get(1);
+                            break;
+                        default:
+                            questOwner = null;
+                            break;
+                    }
+    
+                    // skip if current player is not the owner of the quest template
+                    if (!questOwnerList.contains(questOwner)) { return; }
+                    
+                    // add the quest to our list
+                    this.myquestTemplates.add(questTemplateName);
+                });
+            } catch (IOException e) {
+                throw new RuntimeException("Could not access the " + questTemplatesDir.toString() + " path. ", e);
+            }
+        }).thenRun(() -> {
+            this.myquestLoaded = true;
+            this.execute_custom();
+        });
     }
 
     /**
@@ -145,23 +157,16 @@ public class Dynamicmyquests extends GUIDynamic {
      */
     @Override
     public void execute_custom() {
-        // filter out the templates (pagination)
-        ArrayList<String> remainingTemplates = (ArrayList<String>) this.myquestTemplates
-            .stream()
-            .filter(i -> this.myquestTemplates.indexOf(i) > this.lastBuiltSlot - 1)
-            .collect(Collectors.toList());
-
-        // automatically create the page of slots/options
-        this.generatePage(remainingTemplates);
-
         // determine the page number
         Integer pageNumber = this.lastBuiltSlot/this.slotsPerPage + 1;
 
         // set the GUI title (w/ page number feature)
-        this.gui.getFrame().setTitle(String.format("%s%s",
+        this.gui.getFrame().setTitle(String.format("%s%s%s",
             this.guiTitle, // set the default title
-            pageNumber != 1 ? " [Page " + pageNumber + "]" : "" // add page number when not page one
+            pageNumber != 1 ? " [Page " + pageNumber + "]" : "", // add page number when not page one
+            !this.myquestLoaded ? " (Loading)" : "" // indicate that the page is loading
         ));
+
 
         // false button for amount of invalid quests (malformed json or otherwise malformed data)
         new GUISlot(this.gui, 43)
@@ -171,6 +176,21 @@ public class Dynamicmyquests extends GUIDynamic {
             ))
             .setDescription("An unreadable quest, is a quest that is corrupt/malformed/incorrect.")
             .setCount(this.invalidQuests);
+
+        // modify the new GUI to show the quests in
+        this.gui.getFrame().setSize(45);
+
+        // automatically create the page of slots/options (when ready)
+        if (this.myquestLoaded) {
+            // filter out the templates (pagination)
+            ArrayList<String> remainingTemplates = (ArrayList<String>) this.myquestTemplates
+                .stream()
+                .filter(i -> this.myquestTemplates.indexOf(i) > this.lastBuiltSlot - 1)
+                .collect(Collectors.toList());
+
+            // generate the paginated slots
+            this.generatePage(remainingTemplates);
+        }
     }
 
     /**
@@ -178,6 +198,39 @@ public class Dynamicmyquests extends GUIDynamic {
      * @param remainingTemplates the quest templates to insert
      */
     private void generatePage(ArrayList<String> remainingTemplates) {
+        // when the exit button is pressed
+        GUISlot exitButton = new GUISlot(this.gui, 37);
+        exitButton.setLabel("Back");
+        exitButton.setItem("OAK_DOOR");
+        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
+            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            director // set the client director
+        ));
+
+        // when the back button is pressed
+        GUISlot backButton = new GUISlot(this.gui, 44);
+        if (this.myquestTemplates.size() != remainingTemplates.size()) { // if the remaining is the same as all 
+            backButton.setLabel("Back");
+            backButton.setItem("ORANGE_STAINED_GLASS_PANE");
+            backButton.onClick(() -> {
+                this.gui.clearSlots(); // unset the old slots
+                this.lastBuiltSlot = this.lastBuiltSlot - this.slotsPerPage; // put slots for the remainingSlots
+                this.execute();
+            });
+        }
+
+        // when the next button is pressed
+        GUISlot nextButton = new GUISlot(this.gui, 45);
+        if (this.slotsPerPage <= remainingTemplates.size()) { // if the remaining is bigger or the same as the default slots per page
+            nextButton.setLabel("Next");
+            nextButton.setItem("GREEN_STAINED_GLASS_PANE");
+            nextButton.onClick(() -> {
+                this.gui.clearSlots(); // unset the old slots
+                this.lastBuiltSlot = this.lastBuiltSlot + this.slotsPerPage; // take slots for the remainingSlots
+                this.execute();
+            });
+        }
+
         Integer slotCount = remainingTemplates.size() >= this.slotsPerPage // if there are more remaining templates than the default slot limit
         ? this.slotsPerPage // use the default slot limit
         : remainingTemplates.size(); // otherwise use the number of remaining templates
@@ -192,7 +245,6 @@ public class Dynamicmyquests extends GUIDynamic {
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             ArrayList<Object> screen;
 
-            // get questbuilder from a quest product (it sets itself as the current)
             Quest quest = QuestRegistry.getInstance().getQuest(questID);
 
             if (quest == null) { // cannot parse quest at all
@@ -247,41 +299,10 @@ public class Dynamicmyquests extends GUIDynamic {
                 ).execute();;
             });
 
+            this.gui.getResult().draw(); // refresh GUI
+
             return false; // continue the loop (as in match not found, continue)
         });
-
-        // when the exit button is pressed
-        GUISlot exitButton = new GUISlot(this.gui, 37);
-        exitButton.setLabel("Back");
-        exitButton.setItem("OAK_DOOR");
-        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
-            director // set the client director
-        ));
-
-        // when the back button is pressed
-        GUISlot backButton = new GUISlot(this.gui, 44);
-        if (this.myquestTemplates.size() != remainingTemplates.size()) { // if the remaining is the same as all 
-            backButton.setLabel("Back");
-            backButton.setItem("ORANGE_STAINED_GLASS_PANE");
-            backButton.onClick(() -> {
-                this.gui.clearSlots(); // unset the old slots
-                this.lastBuiltSlot = this.lastBuiltSlot - this.slotsPerPage; // put slots for the remainingSlots
-                this.execute();
-            });
-        }
-
-        // when the next button is pressed
-        GUISlot nextButton = new GUISlot(this.gui, 45);
-        if (this.slotsPerPage <= remainingTemplates.size()) { // if the remaining is bigger or the same as the default slots per page
-            nextButton.setLabel("Next");
-            nextButton.setItem("GREEN_STAINED_GLASS_PANE");
-            nextButton.onClick(() -> {
-                this.gui.clearSlots(); // unset the old slots
-                this.lastBuiltSlot = this.lastBuiltSlot + this.slotsPerPage; // take slots for the remainingSlots
-                this.execute();
-            });
-        }
     }
     
 }

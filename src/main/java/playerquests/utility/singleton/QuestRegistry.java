@@ -165,18 +165,21 @@ public class QuestRegistry {
         // remove ref from database
         if (!preserveInDatabase) {
             Database.removeQuest(quest.getID());
-        }
 
-        // remove ref from registry
-        registry.remove(quest.getID());
+            // remove ref from registry
+            registry.remove(quest.getID());
+
+            // remove traces from world
+            PlayerQuests.getInstance().remove(quest);
+
+            // untoggle
+            quest.toggle(false);
+        }
 
         // remove ref from questers
         questers.values().stream().forEach(quester -> {
             quester.removeQuest(quest);
         });
-
-        // remove traces from world
-        PlayerQuests.getInstance().remove(quest);
     }
 
     /**
