@@ -255,10 +255,22 @@ public class QuestRegistry {
      * @return the quest object
      */
     public Quest getQuest(String questID) {
+        return this.getQuest(questID, false);
+    }
+
+    /**
+     * Get a quest from the quest registry.
+     * If fails from quest registry, you can choose
+     * for it to search the questPath (resources folder).
+     * @param questID the quest ID
+     * @param searchFS whether to try searching the FS
+     * @return the quest object
+     */
+    public Quest getQuest(String questID, Boolean searchFS) {
         Quest result = this.getAllQuests().get(questID);
 
         // search in filesystem
-        if (result == null) {
+        if (result == null && searchFS) {
             System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the resources quest template files.");
 
             // attempt finding it in the files and uploading to database

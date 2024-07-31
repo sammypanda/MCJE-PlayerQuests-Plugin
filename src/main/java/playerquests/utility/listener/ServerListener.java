@@ -2,6 +2,11 @@ package playerquests.utility.listener;
 
 import java.io.File;
 import java.io.IOException; // thrown when a file operation fails, like reading
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
@@ -60,8 +65,26 @@ public class ServerListener implements Listener {
             QuestRegistry.getInstance().clear();
         }
 
-        // try to submit database quests to quest registry
-        Database.getInstance().getAllQuests().forEach(id -> {
+        // find all quests
+        File fsQuestsDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
+        Set<String> allQuests = new HashSet<String>(); // CREATE MAIN LIST
+        allQuests.addAll(Database.getInstance().getAllQuests()); // ADD DB QUESTS
+        try (Stream<Path> paths = Files.walk(fsQuestsDir.toPath())) { // ADD FILESYTEM QUESTS
+            paths.filter(Files::isRegularFile)  // no dirs, only files
+                .filter(path -> path.toString().endsWith(".json"))  // only json files
+                .forEach(path -> {
+                    String questName = path.toString()
+                        .replace(".json", "")
+                        .split("/templates/")[1];
+                    allQuests.add(questName);
+                });
+        } catch (IOException e) {
+            System.err.println("Error processing file paths");
+            e.printStackTrace();
+        }
+
+        // try to submit found quests to quest registry
+        allQuests.forEach(id -> {
             Boolean err = true; // assume errored (avoids repeating it for each catch)
             
             try {
