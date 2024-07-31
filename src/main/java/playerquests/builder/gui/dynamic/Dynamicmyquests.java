@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.io.File; // retrieve the template files
 import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
 import java.util.concurrent.CompletableFuture; // async methods
@@ -8,8 +7,6 @@ import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
 import org.bukkit.Bukkit;
-import org.bukkit.event.server.ServerLoadEvent; // emulating server load event
-import org.bukkit.event.server.ServerLoadEvent.LoadType; // param for ^
 
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
@@ -17,10 +14,7 @@ import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 
 import playerquests.builder.quest.QuestBuilder; // the class which constructs a quest product
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest; // a quest product used to play and track quests
-import playerquests.utility.ChatUtils;
-import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.Database;
-import playerquests.utility.singleton.PlayerQuests; // used to get plugin listeners
 import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
 
 /**
@@ -54,11 +48,6 @@ public class Dynamicmyquests extends GUIDynamic {
     private Integer invalidQuests = 0;
 
     /**
-     * get the list of all quest templates with owner: null or owner: player UUID
-     */
-    private File questTemplatesDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
-
-    /**
      * indicate when the quests can start to load in
      */
     private Boolean myquestLoaded = false;
@@ -84,20 +73,6 @@ public class Dynamicmyquests extends GUIDynamic {
      * </ul>
      */
     public void setUp_custom() {
-        // correct for missing templates directory
-        if (!this.questTemplatesDir.exists()) {
-            PlayerQuests.getServerListener().onLoad(new ServerLoadEvent(LoadType.RELOAD)).onFinish(() -> {
-                // imitate reload to retry plugin set-up
-                this.setUp_custom();
-            });
-            ChatUtils.message("Setting up for the first time")
-                .type(MessageType.NOTIF)
-                .player(this.director.getPlayer())
-                .send();
-                
-            return;
-        }
-
         // get list of quest templates
         if (!this.myquestLoaded) {
             CompletableFuture.runAsync(() -> {
