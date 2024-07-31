@@ -55,6 +55,12 @@ public class ServerListener implements Listener {
                 .send();
         }
 
+        // create templates folder if it doesn't exist
+        f = new File(Core.getPlugin().getDataFolder() + "/quest/templates");
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+
         // Save the demo quest to the server
         Core.getPlugin().saveResource("quest/templates/beans-tester-bonus.json", true);
 
