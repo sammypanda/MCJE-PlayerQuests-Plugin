@@ -5,6 +5,7 @@ import java.util.HashMap; // hash table map
 import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean; // modify boolean state in a stream operation
 import java.util.stream.Collectors;
 
@@ -18,6 +19,9 @@ import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
 import playerquests.utility.FileUtils;
+import playerquests.utility.ChatUtils.MessageBuilder;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 
 
@@ -188,6 +192,8 @@ public class QuestRegistry {
      * @return whether the operation was successful or not
      */
     public Boolean delete(Quest quest) {
+        UUID creator = quest.getCreator(); // get the creator if this quest has one
+
         // try to remove from files
         try {
             FileUtils.delete(this.questPath + "/" + quest.getID() + ".json");
@@ -196,10 +202,17 @@ public class QuestRegistry {
             this.remove(quest);
 
         } catch (IOException e) {
-            ChatUtils.message("Could not delete the " + quest.getTitle() + " quest")
-                .player(Bukkit.getPlayer(quest.getCreator()))
+            MessageBuilder errorMessage = ChatUtils.message("Could not delete the " + quest.getTitle() + " quest. " + e)
                 .type(MessageType.ERROR)
-                .send();
+                .target(MessageTarget.CONSOLE);
+
+            if (creator != null) { // send the error to the player if there is a creator UUID
+                errorMessage
+                    .player(Bukkit.getPlayer(creator))
+                    .style(MessageStyle.PRETTY);
+            }
+                
+            errorMessage.send();
             return false;
         }
 

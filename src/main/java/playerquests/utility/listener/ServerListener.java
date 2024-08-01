@@ -137,9 +137,7 @@ public class ServerListener implements Listener {
             paths.filter(Files::isRegularFile) // Filter to include only files
                 .filter(path -> path.toString().endsWith(".json")) // Include only JSON files
                 .forEach(path -> {
-                    String questName = path.toString()
-                        .replace(".json", "")
-                        .split("/templates/")[1];
+                    String questName = getQuestName(path);
                     allQuests.add(questName);
                 });
         } catch (IOException e) {
@@ -154,6 +152,18 @@ public class ServerListener implements Listener {
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             submitQuestsToRegistry(allQuests);
         });
+    }
+
+    private String getQuestName(Path path) {
+        String[] questNameParts = path.toString()
+            .replace(".json", "")
+            .split("/templates/");
+
+        if (questNameParts.length < 1) {
+            return null;
+        }
+
+        return questNameParts[1];
     }
 
     /**
@@ -189,7 +199,7 @@ public class ServerListener implements Listener {
             }
         });
 
-        System.out.println("[PlayerQuests] Finished loading database quests into registry: " + QuestRegistry.getInstance().getAllQuests().keySet());
+        System.out.println("[PlayerQuests] Finished loading database quests into registry: " + quests);
     }
 
     /**
@@ -241,19 +251,26 @@ public class ServerListener implements Listener {
 
                         // Don't panic, let's handle deletion
                         if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                            System.out.println("handle file deletion here");
+                            System.out.println("figure out if an important file was deleted here");
                         }
                     
                         // Handle changes to quest templates
                         if (filename.toString().endsWith(".json")) {
+                            String questName = filename.toString().replace(".json", ""); // strip '.json' from the quest ID/filename
+                            QuestRegistry questRegistry = Core.getQuestRegistry(); // get the tracking of instances of the quests in the plugin
+
+                            if (questName == null) {
+                                return;
+                            }
+
                             switch (kind.name()) {
                                 case "ENTRY_CREATE":
-                                    // Handle file creation
-                                    System.out.println("File created: " + filename);
+                                    submitQuestsToRegistry(new HashSet<>(Set.of(questName))); // submit the quest systematically
                                     break;
                                 case "ENTRY_DELETE":
-                                    // Handle file deletion
-                                    System.out.println("File deleted: " + filename);
+                                    questRegistry.remove(
+                                        questRegistry.getQuest(questName) // find the quest object
+                                    ); // delete it systematically
                                     break;
                                 default:
                                     break;
