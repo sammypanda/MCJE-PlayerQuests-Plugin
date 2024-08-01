@@ -55,6 +55,11 @@ public class Core extends JavaPlugin {
         new Metrics(this, 22692);
     }
 
+    @Override
+    public void onDisable() {
+        PlayerQuests.getServerListener().onDisable();
+    }
+
     /**
      * Mechanism to make the Plugin accessible for other classes.
      * @return the main plugin instance

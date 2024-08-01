@@ -1,12 +1,11 @@
 package playerquests.utility.listener;
 
-import java.io.File;
+import java.io.File; // Represents a file in the filesystem
 import java.io.IOException; // Thrown when a file operation fails, such as reading
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Stream;
+import java.nio.file.*; // Provides classes and methods for file I/O operations
+import java.util.HashSet; // Implements a set that does not allow duplicate elements
+import java.util.Set; // Interface for collections that do not allow duplicate elements
+import java.util.stream.Stream; // Provides a sequence of elements supporting sequential and parallel aggregate operations
 
 import org.bukkit.Bukkit; // Bukkit API for interacting with the server
 import org.bukkit.event.EventHandler; // Annotation to mark methods as event handlers
@@ -20,18 +19,22 @@ import playerquests.Core; // Access to plugin singleton
 import playerquests.client.quest.QuestClient; // Represents a quest client for player quest tracking
 import playerquests.product.Quest; // Represents a quest product class
 import playerquests.utility.ChatUtils; // Utility for sending chat messages
-import playerquests.utility.ChatUtils.MessageStyle;
-import playerquests.utility.ChatUtils.MessageTarget;
-import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.ChatUtils.MessageStyle; // Enum for different message styles
+import playerquests.utility.ChatUtils.MessageTarget; // Enum for different message targets
+import playerquests.utility.ChatUtils.MessageType; // Enum for different message types
 import playerquests.utility.FileUtils; // Utility for file operations
 import playerquests.utility.singleton.Database; // API for managing persistent game data
 import playerquests.utility.singleton.QuestRegistry; // Registry for storing quests
 
 /**
- * This class listens for server-related events, such as server load or reload,
- * and performs necessary actions such as initializing data and processing quests.
+ * This class listens for server-related events and filesystem changes,
+ * such as server load or reload, and performs necessary actions such as 
+ * initializing data, processing quests, and setting up quest clients.
  */
 public class ServerListener implements Listener {
+
+    private WatchService watchService;
+    private Thread watchThread;
 
     /**
      * Constructor for the ServerListener class. Registers this listener
@@ -44,24 +47,47 @@ public class ServerListener implements Listener {
     /**
      * Handles the ServerLoadEvent, which is triggered when the server is
      * started or reloaded. Initializes necessary directories, processes quest
-     * templates, and sets up quest clients for online players.
+     * templates, and sets up quest clients for online players. Also starts
+     * the file watcher service if it is not already running.
      * 
      * @param event the ServerLoadEvent that contains information about the server load
-     * @return the ServerListener instance
      */
     @EventHandler
-    public ServerListener onLoad(ServerLoadEvent event) {
-        createDirectories();
-        initializeDatabase();
+    public void onLoad(ServerLoadEvent event) {
+        createDirectories(); // ensure dirs are created
+        initializeDatabase(); // init db
 
-        if (isServerReload(event)) {
-            handleServerReload();
-        }
+        // Ensure quest processing runs on the main thread
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            processQuests();
+            createQuestClients();
+        });
 
-        processQuests();
-        createQuestClients();
+        startWatchService(); // start fs watching
+    }
+    
+    /**
+     * Called when the server is being disabled (including when reloaded).
+     * Designed to handle onDisable from the Core (JavaPlugin).
+     * 
+     * This method is used to clean up resources, stop ongoing tasks, and 
+     * perform other necessary shutdown procedures.
+     */
+    public void onDisable() {
+        // Cancel all tasks scheduled by this plugin to prevent overlaps
+        Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
 
-        return this;
+        // Clear the QuestRegistry to ensure no quests are left 
+        // in memory or are in an inconsistent state after the plugin
+        // is disabled. This is for maintaining the integrity 
+        // of the quest data and preventing memory leaks.
+        QuestRegistry.getInstance().clear();
+
+        // Stop the WatchService used for monitoring file changes.
+        // This ensures that no further file watching occurs after 
+        // the plugin is disabled, and resources related to file 
+        // monitoring are properly released.
+        stopWatchService();
     }
 
     /**
@@ -100,24 +126,6 @@ public class ServerListener implements Listener {
     }
 
     /**
-     * Determines if the event represents a server reload.
-     * 
-     * @param event the ServerLoadEvent
-     * @return true if the event represents a server reload, false otherwise
-     */
-    private boolean isServerReload(ServerLoadEvent event) {
-        return "RELOAD".equals(event.getEventName());
-    }
-
-    /**
-     * Handles the server reload by canceling ongoing tasks and clearing the quest registry.
-     */
-    private void handleServerReload() {
-        Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
-        QuestRegistry.getInstance().clear();
-    }
-
-    /**
      * Processes quests from both the database and file system, and submits them to the quest registry.
      */
     private void processQuests() {
@@ -126,8 +134,8 @@ public class ServerListener implements Listener {
         allQuests.addAll(Database.getInstance().getAllQuests());
 
         try (Stream<Path> paths = Files.walk(questsDir.toPath())) {
-            paths.filter(Files::isRegularFile)  // Filter to include only files
-                .filter(path -> path.toString().endsWith(".json"))  // Include only JSON files
+            paths.filter(Files::isRegularFile) // Filter to include only files
+                .filter(path -> path.toString().endsWith(".json")) // Include only JSON files
                 .forEach(path -> {
                     String questName = path.toString()
                         .replace(".json", "")
@@ -142,7 +150,10 @@ public class ServerListener implements Listener {
                 .send();
         }
 
-        submitQuestsToRegistry(allQuests);
+        // Ensure quest submission runs on the main thread
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            submitQuestsToRegistry(allQuests);
+        });
     }
 
     /**
@@ -192,13 +203,92 @@ public class ServerListener implements Listener {
     }
 
     /**
-     * Executes the provided runnable code when the function completes.
-     * 
-     * @param runnable the code to execute upon completion
+     * Starts the WatchService to monitor the quest/templates directory for changes.
+     * This service watches for file creation, deletion, and modification events.
      */
-    public void onFinish(Runnable runnable) {
-        if (runnable != null) {
-            runnable.run();
+    private void startWatchService() {
+        try {
+            watchService = FileSystems.getDefault().newWatchService();
+            Path questTemplatesPath = Paths.get(Core.getPlugin().getDataFolder() + "/quest/templates");
+            questTemplatesPath.register(watchService, 
+                StandardWatchEventKinds.ENTRY_CREATE, 
+                StandardWatchEventKinds.ENTRY_DELETE, 
+                StandardWatchEventKinds.ENTRY_MODIFY
+            );
+
+            watchThread = new Thread(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    WatchKey key;
+                    try {
+                        key = watchService.take();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }   
+
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        WatchEvent.Kind<?> kind = event.kind();
+                    
+                        // This key is no longer valid, break out of the loop
+                        if (kind == StandardWatchEventKinds.OVERFLOW) {
+                            continue;
+                        }
+                    
+                        // Ensure the event is of type WatchEvent<Path>
+                        @SuppressWarnings("unchecked")
+                        WatchEvent<Path> ev = (WatchEvent<Path>) event;
+                        Path filename = ev.context();
+
+                        // Don't panic, let's handle deletion
+                        if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                            System.out.println("handle file deletion here");
+                        }
+                    
+                        // Handle changes to quest templates
+                        if (filename.toString().endsWith(".json")) {
+                            switch (kind.name()) {
+                                case "ENTRY_CREATE":
+                                    // Handle file creation
+                                    System.out.println("File created: " + filename);
+                                    break;
+                                case "ENTRY_DELETE":
+                                    // Handle file deletion
+                                    System.out.println("File deleted: " + filename);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+
+                    // Reset the key -- this step is critical if you want to receive further watch events.
+                    boolean valid = key.reset();
+                    if (!valid) {
+                        break;
+                    }
+                }
+            });
+            watchThread.start();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Stops the WatchService and interrupts the watch thread.
+     * Cleans up resources used by the WatchService.
+     */
+    private void stopWatchService() {
+        if (watchService != null) {
+            watchThread.interrupt();
+            try {
+                watchService.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            watchService = null;
+            watchThread = null;
         }
     }
 }
