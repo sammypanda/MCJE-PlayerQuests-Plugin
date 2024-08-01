@@ -234,8 +234,7 @@ public class Quest {
             questRegistry.remove(questRegistry.getQuest(this.getID()));
         }
 
-        // asume enabled and submit (adds the quest to the world)
-        questRegistry.submit(this);
+        // NOTE: submission is done by fs watcher in ServerListener
         return "Quest Builder: '" + this.title + "' was saved";
     }
 

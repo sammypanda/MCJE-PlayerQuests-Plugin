@@ -323,6 +323,8 @@ public class Database {
                 ids.add(result.getString("id"));
             }
 
+            getConnection().close();
+
             return ids;
             
         } catch (SQLException e) {

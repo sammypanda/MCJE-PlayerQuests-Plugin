@@ -14,7 +14,6 @@ import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 
 import playerquests.builder.quest.QuestBuilder; // the class which constructs a quest product
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest; // a quest product used to play and track quests
-import playerquests.utility.singleton.Database;
 import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
 
 /**
@@ -77,7 +76,7 @@ public class Dynamicmyquests extends GUIDynamic {
         if (!this.myquestLoaded) {
             CompletableFuture.runAsync(() -> {
                 // get quests from database
-                this.myquestTemplates.addAll(Database.getInstance().getAllQuests());
+                this.myquestTemplates.addAll(Core.getQuestRegistry().getAllQuests().keySet());
 
             // do when quests have been gotten
             }).thenRun(() -> {
