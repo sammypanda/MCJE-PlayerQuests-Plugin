@@ -151,10 +151,7 @@ public class ServerListener implements Listener {
                 .send();
         }
 
-        // Ensure quest submission runs on the main thread
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            submitQuestsToRegistry(allQuests);
-        });
+        submitQuestsToRegistry(allQuests);
     }
 
     private String getQuestName(Path path) {

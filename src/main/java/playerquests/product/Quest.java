@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.SerializationFeature; // used to configure
 
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
@@ -150,6 +151,15 @@ public class Quest {
      */
     public String getTitle() {
         return title;
+    }
+
+    /**
+     * Get the starting prev, current, next steps.
+     * @return
+     */
+    @JsonIgnore
+    public ConnectionsData getConnections() {
+        return new ConnectionsData(null, this.entry, null);
     }
 
     /**

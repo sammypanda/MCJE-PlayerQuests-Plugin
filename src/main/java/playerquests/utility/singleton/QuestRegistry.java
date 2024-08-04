@@ -1,13 +1,14 @@
 package playerquests.utility.singleton;
 
 import java.io.IOException;
+import java.util.Arrays; // generic array type
 import java.util.HashMap; // hash table map
-import java.util.List;
+import java.util.List; // generic list type
 import java.util.Map; // generic map type
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Optional; // handling if a value may be null
+import java.util.UUID; // used for in-game player UUIDs
 import java.util.concurrent.atomic.AtomicBoolean; // modify boolean state in a stream operation
-import java.util.stream.Collectors;
+import java.util.stream.Collectors; // used to turn one type of list to another
 
 import org.bukkit.Bukkit; // accessing Bukkit API
 import org.bukkit.entity.HumanEntity; // representing players and other humanoid entities
@@ -82,7 +83,7 @@ public class QuestRegistry {
             });
 
         questers.values().stream().forEach(quester -> {
-            quester.update();
+            quester.addQuests(Arrays.asList(quest));
         });
     }
 
@@ -240,8 +241,12 @@ public class QuestRegistry {
      * @param quester a quest client
      */
     public void addQuester(QuestClient quester) {
-        questers.put(Bukkit.getPlayer(quester.getPlayer().getUniqueId()), quester);
-        quester.update(); // add quests from registry
+        questers.put(quester.getPlayer(), quester);
+        quester.addQuests(
+            this.registry.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList())
+        );
     }
 
     /**

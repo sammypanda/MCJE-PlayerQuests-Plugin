@@ -12,6 +12,7 @@ import java.sql.ResultSet; // represents SQL results
 import java.sql.SQLException; // thrown when a database operation fails
 import java.sql.Statement; // represents SQL statements
 import java.util.ArrayList; // array list type
+import java.util.HashMap;
 import java.util.List; // generic list type
 import java.util.Map;
 import java.util.UUID; // how users are identified
@@ -22,8 +23,11 @@ import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.entity.Player;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ConnectionsData;
+import playerquests.builder.quest.stage.QuestStage;
+import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
@@ -34,6 +38,8 @@ import playerquests.utility.ChatUtils.MessageType;
 * API representing and providing access to the game database.
 * This when instantiated, creates and/or opens the game database.
 */
+// TODO: unrealtime-ify the database use-case/move all database things to Database, and synchronise to one thread (use transaction probs, they seem to handle concurrency)
+// TODO: ditch using id for players table, use uuid as primary key
 public class Database {
     
     /**
@@ -103,8 +109,7 @@ public class Database {
                 statement.execute(pluginTableSQL);
                 
                 String playersTableSQL = "CREATE TABLE IF NOT EXISTS players ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "uuid TEXT NOT NULL);";
+                + "uuid TEXT PRIMARY KEY NOT NULL);";
                 statement.execute(playersTableSQL);
                 
                 String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
@@ -113,9 +118,9 @@ public class Database {
                 statement.execute(questsTableSQL);
                 
                 String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "player INTEGER UNIQUE,"
-                + "FOREIGN KEY (player) REFERENCES players(id));";
+                + "id TEXT PRIMARY KEY NOT NULL,"
+                + "player TEXT UNIQUE,"
+                + "FOREIGN KEY (player) REFERENCES players(uuid));";
                 statement.execute(diariesTableSQL);
                 
                 String diary_questsTableSQL = "CREATE TABLE IF NOT EXISTS diary_quests ("
@@ -123,7 +128,7 @@ public class Database {
                 + "stage TEXT NOT NULL,"
                 + "action TEXT,"
                 + "quest TEXT,"
-                + "diary INTEGER,"
+                + "diary TEXT,"
                 + "FOREIGN KEY (quest) REFERENCES quests(id)"
                 + "FOREIGN KEY (diary) REFERENCES diaries(id));";
                 statement.execute(diary_questsTableSQL);
@@ -213,74 +218,30 @@ public class Database {
             System.err.println("Could not set the quest version in the db " + e.getMessage());
         }
     }
-    
-    // TODO: continue putting try-with-resources
-    public Integer addPlayer(UUID uuid) {
-        Integer id = getPlayer(uuid);
-        
-        if (id != null) {
-            return id;
-        }
-        
-        try {
-            String addPlayerSQL = "INSERT INTO players (uuid) VALUES (?) RETURNING *;";
-            PreparedStatement preparedStatement = getConnection().prepareStatement(addPlayerSQL);
+
+    /**
+     * Adds a new player to the database with the specified UUID.
+     * 
+     * This method inserts a new record into the `players` table of the database using the provided
+     * UUID. The UUID is converted to a string and stored in the `uuid` column. The SQL `INSERT` statement
+     * is used along with the `RETURNING *` clause to execute the query. 
+     * If an {@link SQLException} occurs, an error message is logged to
+     * the standard error stream, including the name of the player associated with the given UUID.</p>
+     * 
+     * @param uuid The unique identifier for the player, represented as a {@link UUID}. This ID is
+     *             used to insert a new record into the `players` table in the database.
+     */
+    public void addPlayer(UUID uuid) {
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (uuid) VALUES (?) RETURNING *;")) {
+            
             preparedStatement.setString(1, uuid.toString());
-            ResultSet results = preparedStatement.executeQuery();
-            Integer idResult = results.getInt("id");
+            preparedStatement.executeQuery();
+            
             getConnection().close();
-            return idResult;
+        
         } catch (SQLException e) {
             System.err.println("Could not add the user " + Bukkit.getServer().getPlayer(uuid).getName() + ". " + e.getMessage());
-            return null;
-        }
-    }
-    
-    public Integer getPlayer(UUID uuid) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM players WHERE uuid = ?;")) {
-            
-            preparedStatement.setString(1, uuid.toString());
-            
-            ResultSet results = preparedStatement.executeQuery();
-            Integer id = results.getInt("id");
-            Boolean empty = !results.next();
-            
-            getConnection().close();
-            
-            if (empty) {
-                return null;
-            }
-            
-            return id;
-            
-        } catch (SQLException e) {
-            System.err.println("Could not find the user associated with " + uuid.toString() + ". " + e.getMessage());
-            return null;
-        }
-    }
-    
-    public UUID getPlayerUUID(Integer id) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM players WHERE id = ?;")) {
-            
-            preparedStatement.setInt(1, id);
-            
-            ResultSet results = preparedStatement.executeQuery();
-            UUID uuidResult = UUID.fromString(results.getString("uuid"));
-            Boolean empty = !results.next();
-            
-            getConnection().close();
-            
-            if (empty) {
-                return null;
-            }
-            
-            return uuidResult;
-            
-        } catch (SQLException e) {
-            System.err.println("Could not find the user associated with db ID: " + id.toString() + ". " + e.getMessage());
-            return null;
         }
     }
     
@@ -319,18 +280,21 @@ public class Database {
         }
     }
     
-    public void setDiaryQuest(String questID, Player player, Integer dbDiaryID, ConnectionsData connections) {
+    public void setDiaryQuest(QuestDiary diary, Quest quest) {
+        String questID = quest.getID(); // get the quest ID
+        Map<String, QuestAction> actions = quest.getActions(); // the quest actions
+        Map<String, QuestStage> stages = quest.getStages(); // the quest stages
+        ConnectionsData connections = quest.getConnections(); // get where the player currently is in their quest
+        Player player = diary.getPlayer(); // get the player this diary represents
+
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR REPLACE INTO diary_quests (id, stage, action, quest, diary) VALUES (?, ?, ?, ?, ?)")) {
-            
-            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
-            Map<String, QuestAction> actions = quest.getActions();
             
             preparedStatement.setString(1, player.getUniqueId().toString() + "_" + questID);
             
             // default to initial values
             preparedStatement.setString(2, quest.getEntry());
-            preparedStatement.setString(3, quest.getStages().get(quest.getEntry()).getEntryPoint().getID());
+            preparedStatement.setString(3, stages.get(quest.getEntry()).getEntryPoint().getID());
             
             // get the current quest stage or action
             String currentConnection = connections.getCurr();
@@ -339,7 +303,7 @@ public class Database {
                 // stage-based current
                 if (currentConnection.contains("stage")) {
                     preparedStatement.setString(2, currentConnection);
-                    preparedStatement.setString(3, quest.getStages().get(currentConnection).getEntryPoint().getID()); // get the ID of the entry action
+                    preparedStatement.setString(3, stages.get(currentConnection).getEntryPoint().getID()); // get the ID of the entry action
                 }
                 
                 // action-based current
@@ -353,7 +317,7 @@ public class Database {
             
             // set remaining values
             preparedStatement.setString(4, questID);
-            preparedStatement.setInt(5, dbDiaryID);
+            preparedStatement.setString(5, diary.getDiaryID());
             
             preparedStatement.execute();
             
@@ -500,19 +464,63 @@ public class Database {
             System.err.println("Could not remove the quest " + id + ". " + e.getMessage());
         }
     }
-    
-    public void initDiary(Integer id) {
+
+    /**
+     * Inserts or adds a player {@link QuestDiary} to the database.
+     * 
+     * This method takes a {@link QuestDiary} object, extracts the player ID from it, and uses
+     * this ID to insert or replace an existing record in the `diaries` table of the database. The
+     * database operation is performed within a try-with-resources block to ensure proper resource
+     * management. If an {@link SQLException} occurs, an error message is logged to the standard error stream.
+     * 
+     * Note: The method assumes that the `diaries` table has a column named `player` where the
+     * player ID is stored. It uses an SQL `INSERT OR REPLACE` statement to handle both insertion of
+     * new records and updating of existing records.
+     * 
+     * @param questDiary The {@link QuestDiary} instance containing the diary information to be
+     *                   inserted or updated in the database. The player ID is extracted from this
+     *                   object and used to identify the corresponding record in the `diaries` table.
+     */
+    public void addDiary(QuestDiary questDiary) {
         try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR REPLACE INTO diaries (player) VALUES (?)")) {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR REPLACE INTO diaries (id, player) VALUES (?, ?)")) {
             
-            preparedStatement.setInt(1, id);
+            preparedStatement.setString(1, questDiary.getDiaryID());
+            preparedStatement.setString(2, questDiary.getPlayerID());
             
             preparedStatement.execute();
             
-            getConnection().close();
-            
         } catch (SQLException e) {
-            System.err.println("Could not create a diary for the " + id + " database player ID: " + e.getMessage());
+            System.err.println("Could not create a diary for: " + questDiary.getPlayerID() + ": " + e.getMessage());
         }
     }
+
+	public Map<Quest,ConnectionsData> getQuestProgress(QuestDiary questDiary) {
+        Map<Quest,ConnectionsData> progress = new HashMap<Quest,ConnectionsData>();
+        
+		try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE id = ?")) {
+            
+            preparedStatement.setString(1, questDiary.getDiaryID());
+            
+            ResultSet results = preparedStatement.executeQuery();
+
+            while (results.next()) {
+                progress.put(
+                    Core.getQuestRegistry().getQuest( // get the quest
+                        results.getString("quest") // ..from the ID
+                    ), 
+                    new ConnectionsData(null, results.getString("action"), null) // be precise and get the action, instead of the stage as the 'current' point
+                );
+            }
+
+            getConnection().close();
+
+            return progress;
+            
+        } catch (SQLException e) {
+            System.err.println("Could not find quest progress in db for " + questDiary.getPlayer() + ": " + e.getMessage());
+            return null;
+        }
+	}
 }

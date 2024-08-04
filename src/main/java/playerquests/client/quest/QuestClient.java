@@ -1,30 +1,22 @@
 package playerquests.client.quest;
 
 import java.util.ArrayList; // array list type
-import java.util.HashMap; // hash table map type
-import java.util.HashSet; // hash table set type
+import java.util.HashMap; // hash implementation of map data type
 import java.util.List; // generic list type
-import java.util.Map; // generic map type
-import java.util.Set; // generic set type
-import java.util.stream.Collectors; // translates a stream to data type
+import java.util.Map; // map data type, offers a key-value pair
 
-import org.bukkit.Bukkit; // bukkit api
-import org.bukkit.Particle; // particle effects (FX)
-import org.bukkit.entity.HumanEntity; // represents players and other humanoid entities
+import org.bukkit.Bukkit; // the minecraft server API
+import org.bukkit.Particle;
 import org.bukkit.entity.Player; // represents just players
-import org.bukkit.scheduler.BukkitScheduler; // schedules tasks/code/jobs on plugin
-import org.bukkit.scheduler.BukkitTask; // object for scheduled tasks
+import org.bukkit.scheduler.BukkitScheduler; // for doing actions later and etc
+import org.bukkit.scheduler.BukkitTask; // for particle effects (FX)
 
-import playerquests.Core; // access to singletons
-import playerquests.builder.quest.action.None; // empty quest action
-import playerquests.builder.quest.action.QuestAction; // represents quest actions
+import playerquests.Core;
+import playerquests.builder.quest.action.QuestAction; // quest action
 import playerquests.builder.quest.data.ConnectionsData;
-import playerquests.builder.quest.data.LocationData; // data object containing all location info
+import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
-import playerquests.builder.quest.stage.QuestStage; // represents quest stages 
 import playerquests.product.Quest; // represents a player quest
-import playerquests.utility.singleton.Database; // where game data is stored
-import playerquests.utility.singleton.QuestRegistry; // where available quests are stored
 
 /**
  * Quest tracking and interactions for each player.
@@ -34,42 +26,28 @@ public class QuestClient {
     /**
      * The player who is using this quest client.
      */
-    private HumanEntity player;
-
-    /**
-     * If the user has world effects on.
-     */
-    private Boolean fx = true;
-
-    /**
-     * The quests available to play (which haven't been started already).
-     */
-    private Map<String, Quest> availableQuests = new HashMap<String, Quest>();
-
-    /**
-     * The entry stage for each quest.
-     */
-    private Map<Quest, QuestStage> entryStages = new HashMap<Quest, QuestStage>();
-
-    /**
-     * The entry action for each entry stage. 
-     */
-    private Map<QuestStage, QuestAction> entryActions = new HashMap<QuestStage, QuestAction>();
-    
-    /**
-     * The NPC associated with each entry action.
-     */
-    private Map<QuestNPC, QuestAction> npcActions = new HashMap<QuestNPC, QuestAction>();
-
-    /**
-     * The particles associated with NPC.
-     */
-    private Map<QuestNPC, BukkitTask> npcParticles = new HashMap<QuestNPC, BukkitTask>();
+    private Player player;
 
     /**
      * Quest diary API for this player.
      */
     private QuestDiary diary;
+
+    /**
+     * The action associated with an NPC.
+     * Helps show an action when interacting with an NPC.
+     */
+    private Map<QuestNPC, QuestAction> actionNPC = new HashMap<QuestNPC, QuestAction>();
+
+    /**
+     * List of the running FX.
+     */
+    private List<BukkitTask> activeFX = new ArrayList<BukkitTask>();
+
+    /**
+     * Used for particle FX loops.
+     */
+    BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 
     /**
      * Creates a new quest client to act on behalf of a player.
@@ -81,24 +59,14 @@ public class QuestClient {
     public QuestClient(Player player) {
         this.player = player;
 
-        // put player in database (and store the established ID)
-        Integer dbPlayerID = Database.getInstance().addPlayer(player.getUniqueId());
-
-        // create and/or establish quest diary for this player
-        this.diary = new QuestDiary(dbPlayerID);
-
-        // initiate personal quest world state
-        this.showFX(); // visual quest indicators
-
-        // first world update
-        this.update();
+        this.diary = new QuestDiary(this);
     }
 
     /**
      * Gets the player who is using the quest client.
      * @return human entity object representing the player
      */
-    public HumanEntity getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
@@ -106,40 +74,23 @@ public class QuestClient {
      * Add a list of quests for this quest client.
      * @param questList a list of quest products.
      */
-    public void addQuests(ArrayList<Quest> questList) {
-        questList.stream().forEach(quest -> {
-            String questID = quest.getID();
-
-            if (this.availableQuests.containsKey(questID)) {
-                return; // don't continue
-            }
-
-            // put the quests
-            this.availableQuests.put(questID, quest);
+    public void addQuests(List<Quest> questList) {
+        questList.parallelStream().forEach((quest) -> {
+            this.diary.addQuest(quest);
         });
 
-        this.update();
+        this.update(); // update what the player sees
     }
 
     /**
      * Adds the quest effects in the world for this quester.
      */
     public void showFX() {
-        this.fx = true;
+        this.hideFX(); // ensure old are removed before showing
 
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        Player player = Bukkit.getServer().getPlayer(this.player.getUniqueId());
-
-        // remove particles from quest NPCs by the quests which
-        // are no longer 'available'
-        this.npcParticles.keySet().stream()
-            .filter(quest -> !this.availableQuests.containsKey(quest.getID()))
-            .forEach(quest -> scheduler.cancelTask(this.npcParticles.get(quest).getTaskId()));
-
-        // add interact sparkle to each starting/entry-point NPC
-        this.npcActions.keySet().stream().forEach(npc -> {
+        this.actionNPC.keySet().stream().forEach((npc) -> {
+            // create particle effect
             LocationData location = npc.getLocation();
-
             BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> {
                 player.spawnParticle(
                     Particle.WAX_ON,
@@ -150,7 +101,8 @@ public class QuestClient {
                 );
             }, 0, 20);
 
-            npcParticles.put(npc, task);
+            // store a reference to this effect for cancelling
+            activeFX.add(task);
         });
     }
 
@@ -158,93 +110,43 @@ public class QuestClient {
      * Removes the quest effects from the world for this quester.
      */
     public void hideFX() {
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        this.fx = false;
-
-        // remove particles already in world
-        this.npcParticles.values().stream().forEach(task -> {
+        // get all active effects and cancel
+        this.activeFX.stream().forEach((task) -> {
+            // cancel FX loops
             scheduler.cancelTask(task.getTaskId());
         });
     }
 
     /**
-     * Refresh all values.
-     * These are called 'helper maps' here,
+     * Update what the player sees.
      */
     public void update() {
-        if (this.diary == null) {
-            return;
-        }
+        // clear action-npc-associations for the refresh! (good for if a quest is deleted)
+        this.actionNPC.clear();
 
-        // clear the helper maps
-        entryStages.clear();
-        entryActions.clear();
-        npcActions.clear();
+        // NPC magic! (assigning an action to an npc based on progress in quest)
+        // get each quest progress
+        this.diary.getQuestProgress().forEach((quest, connections) -> {
 
-        // create a set for local available quests and questregistry available quests
-        List<Quest> registryList = new ArrayList<>(QuestRegistry.getInstance().getAllQuests().values()); // current all quests
-        List<Quest> localList =  new ArrayList<>(this.availableQuests.values()); // previous all quests
+            // get the action we are up to in this quest to..
+            QuestAction action = this.diary.getAction(quest);
 
-        // add quests to parse through to create a sort of index powered by the 'helper maps'
-        Set<Quest> questSet = new HashSet<Quest>();
-        questSet.addAll(registryList);
-        questSet.addAll(localList);
-
-        // update 'helper maps'
-        questSet.stream().forEach(quest -> {
-            // don't continue if quest is invalid
-            if (!quest.isValid()) {
-                return;
-            }
-
-            // don't continue if quest isn't toggled
-            if (!quest.isToggled()) {
-                return;
-            }
-
-            // get this quest id (to check available quests against the diary)
-            String questID = quest.getID();
-
-            // get our current position in quest (curr, prev)
-            ConnectionsData questProgress = this.diary.getQuestProgress(questID);
-
-            // the action/stage that is todo
-            QuestAction action;
-            QuestStage stage;
-            
-            if (questProgress != null) { // (if user has progressed in this quest)
-                // get the 'todo' action/stage
-                action = this.diary.getAction(questID);
-                stage = this.diary.getStage(questID);
-
-            } else { // (if no user progress logged for this quest)
-                // get the 'entry point' action/stage
-                stage = quest.getStages().get(quest.getEntry()); // the first stage to look at when starting a quest
-                action = stage.getEntryPoint(); // the first action to look at when starting a quest
-
-                // add quest to diary
-                this.diary.addQuest(quest.getID());
-            }
-
-            // queue up the action/stage
-            this.entryStages.put(quest, stage);
-            this.entryActions.put(stage, action);
-
-            // put the NPC from entry action (if is valid)
+            // ..get the npc
             QuestNPC npc = action.getNPC();
-            if (npc != null || action.getClass() != None.class) {
-                this.npcActions.put(npc, action);
+
+            // don't continue if no npc matched to this action
+            if (npc == null) {
+                return;
             }
+            
+            // ..and submit the 'action <-> NPC' association
+            this.actionNPC.put(
+                npc,
+                action
+            );
         });
 
-        // merge previous and current map of all quests, as main list of quests available to this quester
-        this.availableQuests = questSet.stream()
-            .collect(Collectors.toMap(quest -> quest.getID(), quest -> quest));
-
-        // show particles indicating NPCs
-        if (this.fx) {
-            this.showFX();
-        }
+        this.showFX();
     }
 
     /**
@@ -252,9 +154,9 @@ public class QuestClient {
      * @param quest the quest to remove
      */
     public void removeQuest(Quest quest) {
-        this.availableQuests.remove(quest.getID());
+        this.diary.removeQuest(quest);
 
-        this.update();
+        this.update(); // reflect changes
     }
 
     /**
@@ -262,18 +164,18 @@ public class QuestClient {
      * @param npc the npc to interact with the quest through
      */
     public void interact(QuestNPC npc) {
-        QuestAction action = this.npcActions.get(npc);
+        // Find the action associated with this npc in a helper map
+        QuestAction action = this.actionNPC.get(npc);
         Quest quest = npc.getQuest();
 
-        // don't continue if there is no action
-        // for this interaction
+        // Don't continue if there is no action for this interaction
         if (action == null) {
             return;
         }
 
-        // prep interaction/next step vars
+        // Prepare interaction/next step vars
         String next_step = action.getConnections().getNext(); // could be action_?, stage_?
-        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest.getID()); // read current position in quest
+        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest); // read current position in quest
 
         if (diaryConnections == null) { // if no progress for this quest found
             diaryConnections = quest.getStages().get(quest.getEntry()).getConnections(); // get quest entry point position
@@ -286,17 +188,20 @@ public class QuestClient {
             updatedConnections.setCurr(next_step);
 
             // update the diary
-            this.diary.setQuestProgress(quest.getID(), updatedConnections);
+            this.diary.setQuestProgress(quest, updatedConnections);
 
             // remove NPCs pending interaction marker/sparkle
-            npcActions.remove(npc);
+            this.actionNPC.remove(npc);
 
             // update quest state
             this.update();
         }
-        
-        // execute the interaction
-        action.Run(this); // test, less complicated? also remove me
+
+        // Do the action
+        action.Run(this);
+
+        // Update what the player sees
+        this.update();
     }
 
     /**
