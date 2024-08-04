@@ -7,6 +7,7 @@ import org.bukkit.block.data.BlockData; // block representing this NPC
 import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising properties
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
 
+import playerquests.Core;
 import playerquests.utility.singleton.PlayerQuests;
 
 public class BlockNPC extends NPCType {
@@ -73,7 +74,9 @@ public class BlockNPC extends NPCType {
     @Override
     @JsonIgnore
     public void place() {
-        PlayerQuests.getInstance().putBlockNPC(this);
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            PlayerQuests.getInstance().putBlockNPC(this);
+        });   
     }
 
     /**

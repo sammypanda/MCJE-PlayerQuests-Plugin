@@ -131,8 +131,11 @@ public class ServerListener implements Listener {
     private void processQuests() {
         File questsDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
         Set<String> allQuests = new HashSet<>();
+        
+        // add from db
         allQuests.addAll(Database.getInstance().getAllQuests());
 
+        // add from fs
         try (Stream<Path> paths = Files.walk(questsDir.toPath())) {
             paths.filter(Files::isRegularFile) // Filter to include only files
                 .filter(path -> path.toString().endsWith(".json")) // Include only JSON files
@@ -195,11 +198,15 @@ public class ServerListener implements Listener {
 
             // Remove the quest from the database if an error occurred
             if (errorOccurred) {
-                Database.removeQuest(id);
+                Database.getInstance().removeQuest(id);
             }
         });
 
-        System.out.println("[PlayerQuests] Finished loading database quests into registry: " + quests);
+        ChatUtils.message("Finished loading database quests into registry: " + quests)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN)
+            .type(MessageType.NOTIF)
+            .send();
     }
 
     /**

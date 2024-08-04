@@ -6,7 +6,7 @@ import java.util.Arrays; // generic array handling
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
 import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
-import playerquests.builder.gui.function.Save; // saves data via GUI button
+import playerquests.builder.gui.function.Save;
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.client.ClientDirector; // accessing the client state

@@ -39,7 +39,7 @@ public class QuestClient {
     /**
      * If the user has world effects on.
      */
-    private Boolean fx;
+    private Boolean fx = true;
 
     /**
      * The quests available to play (which haven't been started already).
@@ -89,6 +89,9 @@ public class QuestClient {
 
         // initiate personal quest world state
         this.showFX(); // visual quest indicators
+
+        // first world update
+        this.update();
     }
 
     /**
@@ -169,6 +172,10 @@ public class QuestClient {
      * These are called 'helper maps' here,
      */
     public void update() {
+        if (this.diary == null) {
+            return;
+        }
+
         // clear the helper maps
         entryStages.clear();
         entryActions.clear();

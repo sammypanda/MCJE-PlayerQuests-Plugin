@@ -2,6 +2,8 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
+import java.util.LinkedHashSet; // hash set, but with order :D
+import java.util.Set;
 import java.util.concurrent.CompletableFuture; // async methods
 import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
@@ -29,7 +31,7 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * The quest templates belonging to no-one or this player
      */
-    private ArrayList<String> myquestTemplates = new ArrayList<>();
+    private Set<String> myquestTemplates = new LinkedHashSet<>();
 
     /**
      * the position of the last slot put on a page
@@ -85,6 +87,7 @@ public class Dynamicmyquests extends GUIDynamic {
                 // return to the main thread
                 Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
                     // refresh the screen/remove the 'load'/show the quests; continue
+                    this.gui.clearSlots(); // fresh!
                     this.execute();
                 });
                 
@@ -132,7 +135,7 @@ public class Dynamicmyquests extends GUIDynamic {
             // filter out the templates (pagination)
             ArrayList<String> remainingTemplates = (ArrayList<String>) this.myquestTemplates
                 .stream()
-                .filter(i -> this.myquestTemplates.indexOf(i) > this.lastBuiltSlot - 1)
+                .filter(i -> new ArrayList<String>(this.myquestTemplates).indexOf(i) > this.lastBuiltSlot - 1)
                 .collect(Collectors.toList());
 
             // generate the paginated slots
@@ -145,7 +148,6 @@ public class Dynamicmyquests extends GUIDynamic {
      * @param remainingTemplates the quest templates to insert
      */
     private void generatePage(ArrayList<String> remainingTemplates) {
-
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
         exitButton.setLabel("Back");

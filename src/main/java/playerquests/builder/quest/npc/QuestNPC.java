@@ -17,7 +17,9 @@ import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest;
-import playerquests.utility.ChatUtils; // sends error messages to player
+import playerquests.utility.ChatUtils.MessageBuilder;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // key-value pair annottation
 
@@ -162,42 +164,41 @@ public class QuestNPC {
     public boolean isValid() {
         UUID questCreator = quest.getCreator();
         HumanEntity player = null;
+        MessageBuilder response = new MessageBuilder("Something is wrong with a quest NPC") // default message; default sends to console
+            .type(MessageType.ERROR)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN);
+        Boolean isValid = true; // assume is valid
+
+        if (this.name == null) {
+            response.content("The NPC name must be set");
+            isValid = false;
+        }
+
+        if (this.assigned == null) {
+            response.content("The NPC must be assigned to a type");
+            isValid = false;
+        }
+
+        if (this.location == null) {
+            response.content("The NPC must be placed at a location");
+            isValid = false;
+        }
 
         // when there is a quest creator, try set player object from creator UUID
         if (questCreator != null) {
             player = Bukkit.getPlayer(quest.getCreator()); // the player to send invalid npc messages to
-        }
-
-        // when player not findable
-        if (player == null) {
-            return false;
-        }
-
-        if (this.name == null) {
-            ChatUtils.message("The NPC name must be set")
+            response // send a message to the player
                 .player(player)
-                .type(MessageType.WARN)
-                .send();
-            return false;
+                .style(MessageStyle.PRETTY);
         }
 
-        if (this.assigned == null) {
-            ChatUtils.message("The NPC must be assigned to a type")
-                .player(player)
-                .type(MessageType.WARN)
-                .send();
-            return false;
+        // send the response
+        if (!isValid) {
+            response.send(); // send our :( message
         }
 
-        if (this.location == null) {
-            ChatUtils.message("The NPC must be placed at a location")
-                .player(player)
-                .type(MessageType.WARN)
-                .send();
-            return false;
-        }
-
-        return true;
+        return isValid;
     }
     
     /**

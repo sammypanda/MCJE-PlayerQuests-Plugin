@@ -100,22 +100,15 @@ public class Dynamicmyquest extends GUIDynamic {
         }
 
         // create quest toggle button
-        // to toggle on
-        GUISlot toggleButton = new GUISlot(gui, 9)
-            .setItem("GRAY_STAINED_GLASS_PANE")
-            .setLabel("Toggle On");
-
-        if (quest.isToggled()) {
-            // to toggle off
-            toggleButton
-                .setItem("GREEN_STAINED_GLASS_PANE")
-                .setLabel("Toggle Off");
-        }
-
-        toggleButton.onClick(() -> {
-            quest.toggle();
-            this.execute(); // refresh UI
-        });
+        Boolean isToggled = quest.isToggled();
+        
+        new GUISlot(gui, 9)
+            .setItem(isToggled ? "GREEN_STAINED_GLASS_PANE" : "GRAY_STAINED_GLASS_PANE")
+            .setLabel(isToggled ? "Toggle Off" : "Toggle On")
+            .onClick(() -> {
+                quest.toggle();
+                this.execute(); // refresh UI
+            });
     }
     
 }

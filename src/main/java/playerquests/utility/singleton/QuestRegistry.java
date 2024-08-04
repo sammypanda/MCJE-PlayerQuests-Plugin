@@ -72,7 +72,7 @@ public class QuestRegistry {
         registry.put(quest.getID(), quest);
 
         // store ref to database
-        Database.addQuest(quest.getID());
+        Database.getInstance().addQuest(quest.getID());
 
         // place the NPCs in the world
         quest.getNPCs().entrySet().stream()
@@ -131,6 +131,11 @@ public class QuestRegistry {
 
         // do not continue if npc has no LocationData
         if (!isQuestValid.get()) {
+            ChatUtils.message("Invalid quest submitted: " + questID)
+                .target(MessageTarget.CONSOLE)
+                .style(MessageStyle.PLAIN)
+                .type(MessageType.ERROR)
+                .send();
             return;
         }
 
@@ -168,7 +173,7 @@ public class QuestRegistry {
     public void remove(Quest quest, Boolean preserveInDatabase) {
         // remove ref from database
         if (!preserveInDatabase) {
-            Database.removeQuest(quest.getID());
+            Database.getInstance().removeQuest(quest.getID());
 
             // remove ref from registry
             registry.remove(quest.getID());
