@@ -30,7 +30,7 @@ import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
-import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.MigrationUtils;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 
@@ -146,37 +146,28 @@ public class Database {
     }
     
     private void migrate(String version, String version_db) {
+        // don't migrate if no version change 
+        // (pom version same as db version)
         if (version_db.equals(version)) {
             return;
         }
         
-        if (version_db.equals("0.0")) {
-            try {
-                String setPluginSQL = "INSERT INTO plugin (plugin, version) VALUES (?, ?);";
-                PreparedStatement preparedStatement = getConnection().prepareStatement(setPluginSQL);
-                preparedStatement.setString(1, "PlayerQuests");
-                preparedStatement.setString(2, version);
-                preparedStatement.execute();
-                ChatUtils.message("Migrated/patched database: added plugin database table")
-                    .target(MessageTarget.CONSOLE)
-                    .style(MessageStyle.PLAIN)
-                    .type(MessageType.NOTIF)
-                    .send();
-                getConnection().close();
-            } catch (SQLException e) {
-                System.err.println("Could not insert plugin data to db " + e.getMessage());
-            }
-        }
-        
-        try {
-            Statement statement = getConnection().createStatement();
+        try (Connection connection = getConnection();
+            Statement statement = connection.createStatement()) {
+
+            StringBuilder query = new StringBuilder();
             
             switch (version) {
+                case "0.5.1":
+                    query.append(MigrationUtils.dbV0_5_1());
+                case "0.5":
                 case "0.4":
-                String addToggledSQL = "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;";
-                statement.execute(addToggledSQL);
-                break;
+                    query.append(MigrationUtils.dbV0_4());
             }
+
+            statement.executeUpdate(query.toString());
+
+            connection.close();
         } catch (SQLException e) {
             System.err.println("Could not patch/migrate database " + e.getMessage());
         }
@@ -208,14 +199,21 @@ public class Database {
     }
     
     private void setPluginVersion(String version) {
-        try {
-            String setVersionSQL = "UPDATE plugin SET version = ? WHERE plugin = 'PlayerQuests';";
-            PreparedStatement preparedStatement = getConnection().prepareStatement(setVersionSQL);
+        try (Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                INSERT INTO plugin (plugin, version)
+                VALUES ('PlayerQuests', ?)
+                ON CONFLICT(plugin)
+                DO UPDATE SET version = excluded.version;
+            """)) {
+
             preparedStatement.setString(1, version);
+
             preparedStatement.execute();
-            getConnection().close();
+
+            connection.close();
         } catch (SQLException e) {
-            System.err.println("Could not set the quest version in the db " + e.getMessage());
+            System.err.println("Could not insert or set the quest version in the db " + e.getMessage());
         }
     }
 
