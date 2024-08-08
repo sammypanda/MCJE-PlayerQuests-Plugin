@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material; // the resulting material (block)
 import org.bukkit.block.Block; // spigot block type
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler; // registering methods as event handlers
 import org.bukkit.event.HandlerList; // unregistering event handlers
 import org.bukkit.event.Listener; // listening to in-game events
@@ -35,6 +36,11 @@ public class SelectBlock extends GUIFunction {
         private SelectBlock parentClass;
 
         /**
+         * The player this listener is for.
+         */
+        private Player player;
+
+        /**
          * Select methods to not allow.
          */
         private List<SelectMethod> deniedMethods;
@@ -43,13 +49,18 @@ public class SelectBlock extends GUIFunction {
          * Creates a new listener for chat prompt inputs.
          * @param parent the origin ChatPrompt GUI function
          */
-        public SelectBlockListener(SelectBlock parent) {
+        public SelectBlockListener(SelectBlock parent, Player player) {
             this.parentClass = parent;
+            this.player = player;
             this.deniedMethods = parent.getDeniedMethods();
         }
-
+        
         @EventHandler
         private void onHit(PlayerInteractEvent event) {
+            if (this.player != event.getPlayer()) {
+                return; // do not capture other players events
+            }
+            
             if (deniedMethods.contains(SelectMethod.HIT)) {
                 return; // do not continue
             }
@@ -65,6 +76,10 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onSelect(InventoryClickEvent event) {
+            if (this.player != event.getWhoClicked()) {
+                return; // do not capture other players events
+            }
+
             if (deniedMethods.contains(SelectMethod.SELECT)) {
                 return; // do not continue
             }
@@ -83,6 +98,10 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
+            if (this.player != event.getPlayer()) {
+                return; // do not capture other players events
+            }
+
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
@@ -95,7 +114,6 @@ public class SelectBlock extends GUIFunction {
                     }
                 }
             });
-            
         }
     }
 
@@ -189,7 +207,7 @@ public class SelectBlock extends GUIFunction {
         this.director.getGUI().getResult().minimise();
 
         // register events and listener
-        this.blockListener = new SelectBlockListener(this);
+        this.blockListener = new SelectBlockListener(this, Bukkit.getPlayer(this.player.getUniqueId()));
         Bukkit.getPluginManager().registerEvents(this.blockListener, Core.getPlugin());
 
         // mark this function class as setup
