@@ -170,7 +170,6 @@ public class QuestStage {
      */
     public void removeAction(QuestAction action) {
         this.actions.remove(action.getID());
-        this.quest.save();
     }
 
     /**
