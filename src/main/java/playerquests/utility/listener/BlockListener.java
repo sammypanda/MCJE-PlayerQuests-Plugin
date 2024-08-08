@@ -71,7 +71,7 @@ public class BlockListener implements Listener {
         activeBlockNPCs = filteredBlockNPCs;
 
         // remove the quest, as now it's missing the NPC
-        QuestRegistry.getInstance().remove(quest);
+        QuestRegistry.getInstance().remove(quest, true);
     }
     
     @EventHandler
@@ -102,6 +102,9 @@ public class BlockListener implements Listener {
         if (!this.activeBlockNPCs.containsKey(brokenBlock)) {
             return; // don't continue if not an NPC block
         }
+
+        event.setCancelled(true); // don't drop the block (block duplication)
+        brokenBlock.getWorld().setBlockData(brokenBlock.getLocation(), Material.AIR.createBlockData()); // replace the block with air
 
         BlockNPC npc = this.activeBlockNPCs.get(brokenBlock);
         this.unregisterBlockNPC(npc);

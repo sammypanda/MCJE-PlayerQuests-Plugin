@@ -176,15 +176,15 @@ public class QuestRegistry {
         if (!preserveInDatabase) {
             Database.getInstance().removeQuest(quest.getID());
 
-            // remove ref from registry
+            // remove ref from registry (needed when not preserved, otherwise editors cannot see their own quest)
             registry.remove(quest.getID());
-
-            // remove traces from world
-            PlayerQuests.getInstance().remove(quest);
-
-            // untoggle
-            quest.toggle(false);
         }
+
+        // remove traces from world
+        PlayerQuests.getInstance().remove(quest);
+
+        // untoggle
+        quest.toggle(false);
 
         // remove ref from questers
         questers.values().stream().forEach(quester -> {

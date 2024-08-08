@@ -32,6 +32,7 @@ import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * The Quest product containing all the information 
@@ -293,6 +294,10 @@ public class Quest {
      */
     public void toggle(boolean toEnable) {
         this.toggled = toEnable;
+
+        if (toEnable) {
+            QuestRegistry.getInstance().submit(this); // resubmit previously untoggled
+        }
 
         Database.getInstance().setQuestToggled( // update database state (when we can)
             this,

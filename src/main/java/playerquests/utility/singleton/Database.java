@@ -429,11 +429,6 @@ public class Database {
             preparedStatement.execute();
             connection.close();
             
-            if (state) {
-                QuestRegistry.getInstance().submit(quest);
-            } else {
-                QuestRegistry.getInstance().remove(quest, true);
-            }
         } catch (SQLException e) {
             System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
         }
