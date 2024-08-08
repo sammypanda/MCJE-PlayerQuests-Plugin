@@ -297,6 +297,8 @@ public class Quest {
 
         if (toEnable) {
             QuestRegistry.getInstance().submit(this); // resubmit previously untoggled
+        } else {
+            QuestRegistry.getInstance().remove(this, true); // remove from world (but preserve)
         }
 
         Database.getInstance().setQuestToggled( // update database state (when we can)

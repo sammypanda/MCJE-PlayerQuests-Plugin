@@ -183,9 +183,6 @@ public class QuestRegistry {
         // remove traces from world
         PlayerQuests.getInstance().remove(quest);
 
-        // untoggle
-        quest.toggle(false);
-
         // remove ref from questers
         questers.values().stream().forEach(quester -> {
             quester.removeQuest(quest);
