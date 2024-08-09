@@ -17,6 +17,7 @@ import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.product.Quest; // represents a player quest
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Quest tracking and interactions for each player.
@@ -165,11 +166,12 @@ public class QuestClient {
      */
     public void interact(QuestNPC npc) {
         // Find the action associated with this npc in a helper map
+        Quest quest = QuestRegistry.getInstance().getQuest(npc.getQuest().getID()); // inefficient way, but npc.getQuest() was returning bad data
         QuestAction action = this.actionNPC.get(npc);
-        Quest quest = npc.getQuest();
+        System.out.println("interact questclient got quest: " + quest);
 
-        // Don't continue if there is no action for this interaction
-        if (action == null) {
+        // Don't continue if there is no quest or action for this interaction
+        if (action == null || quest == null) {
             return;
         }
 
