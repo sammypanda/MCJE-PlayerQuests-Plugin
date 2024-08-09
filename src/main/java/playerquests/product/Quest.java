@@ -348,4 +348,10 @@ public class Quest {
 
         return isValid;
     }
+
+    @JsonIgnore
+    @Override
+    public String toString() {
+        return String.format("%s=%s", super.toString(), this.getID());
+    }
 }
