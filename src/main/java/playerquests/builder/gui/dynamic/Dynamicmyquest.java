@@ -6,17 +6,11 @@ import java.util.Arrays; // generic arrays type
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI window
 import playerquests.builder.gui.component.GUISlot; // inventory slots representing GUI buttons
 import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
-import playerquests.builder.quest.QuestBuilder; // for quest management
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
 import playerquests.product.Quest; // complete quest objects
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
 public class Dynamicmyquest extends GUIDynamic {
-
-    /**
-     * The current quest
-     */
-    QuestBuilder questBuilder;
 
     /**
      * The quest product
@@ -35,8 +29,7 @@ public class Dynamicmyquest extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         // retrieve the current quest from the client director
-        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
-        this.quest = questBuilder.build();
+        this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
     }
 
     @Override
@@ -44,7 +37,7 @@ public class Dynamicmyquest extends GUIDynamic {
         GUIFrame guiFrame = this.gui.getFrame();
 
         // set the GUI window title
-        String questTitle = this.questBuilder.getTitle();
+        String questTitle = this.quest.getTitle();
         Integer questTitleLimit = 12;
         guiFrame.setTitle(
             String.format(
@@ -87,7 +80,7 @@ public class Dynamicmyquest extends GUIDynamic {
                 .setLabel("Delete (Confirm)")
                 .onClick(() -> {
                     // delete the quest
-                    Boolean deleted = QuestRegistry.getInstance().delete(questBuilder.build());
+                    Boolean deleted = QuestRegistry.getInstance().delete(quest);
 
                     // go back if successful
                     if (deleted) {
