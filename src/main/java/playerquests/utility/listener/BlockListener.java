@@ -112,17 +112,22 @@ public class BlockListener implements Listener {
 
     public void remove(Quest quest) {
         BlockData replacementBlock = Material.AIR.createBlockData();
-        this.activeBlockNPCs.entrySet().stream()
-            .filter(e -> e.getValue().getNPC().getQuest().getID().equals(quest.getID()))
-            .forEach(entry -> {
-                Location npcLocation = entry.getKey().getLocation();
-                World npcWorld = npcLocation.getWorld();
+        this.activeBlockNPCs.entrySet().removeIf(entry -> {
+            if (!entry.getValue().getNPC().getQuest().getID().equals(quest.getID())) {
+                return false; // keep entry that doesn't match quest removal
+            }
 
-                // replace the NPC block
-                npcWorld.setBlockData(
-                    npcLocation, 
-                    replacementBlock
-                );
-            });
+            Location npcLocation = entry.getKey().getLocation();
+            World npcWorld = npcLocation.getWorld();
+    
+            // replace the NPC block
+            npcWorld.setBlockData(
+                npcLocation, 
+                replacementBlock
+            );
+    
+            // remove the 'active npc'
+            return true;
+        });
     }
 }

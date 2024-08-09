@@ -79,6 +79,7 @@ public class QuestRegistry {
         quest.getNPCs().entrySet().stream()
             .forEach(entry -> {
                 QuestNPC npc = entry.getValue();
+                npc.setQuest(quest);
                 npc.place();
             });
 
