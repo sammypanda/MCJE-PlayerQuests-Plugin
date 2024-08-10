@@ -102,6 +102,10 @@ public class SelectBlock extends GUIFunction {
                 return; // do not capture other players events
             }
 
+            if (deniedMethods.contains(SelectMethod.CHAT)) {
+                return; // do not continue
+            }
+
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
