@@ -6,6 +6,7 @@ import java.util.Arrays; // generic arrays type
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI window
 import playerquests.builder.gui.component.GUISlot; // inventory slots representing GUI buttons
 import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
+import playerquests.builder.quest.QuestBuilder; // instantiating a builder for the quest (for editing an existing quest)
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
 import playerquests.product.Quest; // complete quest objects
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
@@ -60,10 +61,16 @@ public class Dynamicmyquest extends GUIDynamic {
         new GUISlot(gui, 3)
             .setItem("WRITABLE_BOOK")
             .setLabel("Edit")
-            .addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList("questeditor")), 
-                director
-            ));
+            .onClick(() -> {
+                // create a quest builder (for editing)
+                director.setCurrentInstance(new QuestBuilder(director, this.quest));
+
+                // open the editor
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("questeditor")), 
+                    director
+                ).execute();
+            });
 
         // create remove quest button (with confirmation check)
         if (confirm_delete.equals(false)) {

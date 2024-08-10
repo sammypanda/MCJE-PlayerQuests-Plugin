@@ -338,7 +338,8 @@ public class QuestBuilder {
             this.entryPoint,
             this.questNPCs,
             this.questPlan,
-            this.universal ? null : this.director.getPlayer().getUniqueId()
+            this.universal ? null : this.director.getPlayer().getUniqueId(),
+            true // always toggle cloned quests on when freshly cloned
         );
 
         // set this quest as in-focus to the creator

@@ -68,7 +68,6 @@ public class Quest {
      */
     private UUID creator = null;
 
-    @JsonIgnore
     /**
      * If the quest is toggled.
      */
@@ -87,7 +86,8 @@ public class Quest {
         @JsonProperty("entry") QuestStage entry, 
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
-        @JsonProperty("creator") UUID creator
+        @JsonProperty("creator") UUID creator,
+        @JsonProperty("toggled") Boolean toggled
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
@@ -102,6 +102,11 @@ public class Quest {
         this.stages = stages;
         this.creator = creator;
 
+        // determine if should be toggled
+        if (toggled != null) {
+            this.toggled = toggled;
+        }
+
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (stages != null) {
             for (QuestStage stage : stages.values()) {
@@ -115,9 +120,6 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
-
-        // Determine if toggled
-        this.toggled = Database.getInstance().getQuestToggled(this);
     }
 
     /**

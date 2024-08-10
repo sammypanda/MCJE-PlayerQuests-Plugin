@@ -3,7 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
 import java.util.LinkedHashSet; // hash set, but with order :D
-import java.util.Set;
+import java.util.Set; // generic set type
+import java.util.UUID; // for working with in-game player IDs
 import java.util.concurrent.CompletableFuture; // async methods
 import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
@@ -13,7 +14,6 @@ import org.bukkit.Bukkit;
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 'main' screen
-import playerquests.builder.quest.QuestBuilder; // the class which constructs a quest product
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.product.Quest; // a quest product used to play and track quests
 import playerquests.utility.singleton.QuestRegistry; // centralised hub backend for quests/questers
@@ -90,7 +90,6 @@ public class Dynamicmyquests extends GUIDynamic {
                     this.gui.clearSlots(); // fresh!
                     this.execute();
                 });
-                
             });
 
             return;
@@ -148,6 +147,8 @@ public class Dynamicmyquests extends GUIDynamic {
      * @param remainingTemplates the quest templates to insert
      */
     private void generatePage(ArrayList<String> remainingTemplates) {
+        UUID playerUUID = this.director.getPlayer().getUniqueId();
+
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
         exitButton.setLabel("Back");
@@ -203,19 +204,17 @@ public class Dynamicmyquests extends GUIDynamic {
                 return false;
             }
 
-            QuestBuilder questBuilder = new QuestBuilder(director, quest);
-
             // Don't show if user is not the creator (unless it's null, then it's probably a global quest).
-            if (!this.director.getPlayer().getUniqueId().equals(questBuilder.getOriginalCreator()) && questBuilder.getOriginalCreator() != null) {
+            if (!playerUUID.equals(quest.getCreator()) && quest.getCreator() != null) {
                 this.gui.removeSlot(nextEmptySlot); // remove slot, no need to show in this case
                 return false;
             }
 
             // ---- If the quest is considered invalid ---- //
-            if (questBuilder == null || !questBuilder.isValid()) {
+            if (quest == null || !quest.isValid()) {
                 questSlot.setLabel(
                     String.format("%s (Invalid)",
-                        questBuilder.getTitle() != null ? questBuilder.getTitle() : "Quest"
+                        quest.getTitle() != null ? quest.getTitle() : "Quest"
                     )
                 );
 
@@ -223,13 +222,11 @@ public class Dynamicmyquests extends GUIDynamic {
 
                 return false; // return if this quest is broken (false for match not found, continue to check next)
             }
-            // --------
-
-            Quest questProduct = questBuilder.build();
+            // --------;
 
             questSlot.setLabel(questID.split("_")[0]);
 
-            if (questProduct.getCreator() == this.director.getPlayer().getUniqueId()) {
+            if (playerUUID.equals(quest.getCreator())) {
                 screen = new ArrayList<>(Arrays.asList("myquest"));
                 questSlot.setItem("BOOK");
             } else {
@@ -240,7 +237,6 @@ public class Dynamicmyquests extends GUIDynamic {
 
             questSlot.onClick(() -> {
                 this.director.setCurrentInstance(quest);
-                this.director.setCurrentInstance(questBuilder);
 
                 // update the GUI screen
                 new UpdateScreen(

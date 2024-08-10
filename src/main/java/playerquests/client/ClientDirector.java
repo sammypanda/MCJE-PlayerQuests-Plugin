@@ -5,7 +5,6 @@ import java.util.HashMap; // holds the current instances
 import org.bukkit.entity.HumanEntity; // the player who controls the client
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
-import playerquests.builder.quest.QuestBuilder; // class to control and get Quest product
 
 /**
  * Class which provides simple abstractions for clients to use.
@@ -44,7 +43,6 @@ public class ClientDirector {
     private void validateCurrentInstances() {
         // keep a default GUIBuilder available 
         currentInstances.putIfAbsent(GUIBuilder.class, new GUIBuilder(this));
-        currentInstances.putIfAbsent(QuestBuilder.class, new QuestBuilder(this));
     }
 
     /**
