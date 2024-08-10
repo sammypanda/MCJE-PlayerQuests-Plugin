@@ -8,6 +8,7 @@ import org.bukkit.Material; // used to create fallback BlockData
 import org.bukkit.block.Block; // data object representing a placed block
 import org.bukkit.block.data.BlockData; // data object representing the metadata of a block
 import org.bukkit.entity.HumanEntity; // usually the player
+import org.bukkit.entity.Player; // refers to the player
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -32,15 +33,25 @@ public class SelectLocation extends GUIFunction {
         private SelectLocation parentClass;
 
         /**
+         * The player this listener is for.
+         */
+        private Player player;
+
+        /**
          * Creates a new listener for chat prompt inputs.
          * @param parent the origin ChatPrompt GUI function
          */
-        public SelectLocationListener(SelectLocation parent) {
+        public SelectLocationListener(SelectLocation parent, Player player) {
             this.parentClass = parent;
+            this.player = player;
         }
 
         @EventHandler
         private void onBlockPlace(BlockPlaceEvent event) {
+            if (this.player != event.getPlayer()) {
+                return; // do not capture other players events
+            }
+
             event.setCancelled(true);
 
             Block blockPlaced = event.getBlockPlaced();
@@ -115,7 +126,7 @@ public class SelectLocation extends GUIFunction {
         this.director.getGUI().getResult().minimise();
 
         // register events and listener
-        this.locationListener = new SelectLocationListener(this);
+        this.locationListener = new SelectLocationListener(this, Bukkit.getPlayer(this.player.getUniqueId()));
         Bukkit.getPluginManager().registerEvents(this.locationListener, Core.getPlugin());
 
         // mark this function class as setup
