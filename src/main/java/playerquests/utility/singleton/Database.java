@@ -97,47 +97,42 @@ public class Database {
             System.err.println("Error reading pom.xml: " + e.getMessage());
         }
         
-        try {
-            Connection conn = getConnection();
-            if (conn != null) {
-                Statement statement = conn.createStatement();
-                
-                String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
-                + "plugin TEXT PRIMARY KEY,"
-                + "version TEXT NOT NULL,"
-                + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
-                statement.execute(pluginTableSQL);
-                
-                String playersTableSQL = "CREATE TABLE IF NOT EXISTS players ("
-                + "uuid TEXT PRIMARY KEY NOT NULL);";
-                statement.execute(playersTableSQL);
-                
-                String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
-                + "id TEXT PRIMARY KEY,"
-                + "toggled BOOLEAN NOT NULL DEFAULT TRUE);";
-                statement.execute(questsTableSQL);
-                
-                String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
-                + "id TEXT PRIMARY KEY NOT NULL,"
-                + "player TEXT UNIQUE,"
-                + "FOREIGN KEY (player) REFERENCES players(uuid));";
-                statement.execute(diariesTableSQL);
-                
-                String diary_questsTableSQL = "CREATE TABLE IF NOT EXISTS diary_quests ("
-                + "id TEXT PRIMARY KEY,"
-                + "stage TEXT NOT NULL,"
-                + "action TEXT,"
-                + "quest TEXT,"
-                + "diary TEXT,"
-                + "FOREIGN KEY (quest) REFERENCES quests(id)"
-                + "FOREIGN KEY (diary) REFERENCES diaries(id));";
-                statement.execute(diary_questsTableSQL);
-                
-                statement.close();
-                conn.close();
-                
-                migrate(version, dbVersion);
-            }
+        try (Connection connection = getConnection();
+            Statement statement = connection.createStatement()) {
+
+            String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
+            + "plugin TEXT PRIMARY KEY,"
+            + "version TEXT NOT NULL,"
+            + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
+            statement.execute(pluginTableSQL);
+            
+            String playersTableSQL = "CREATE TABLE IF NOT EXISTS players ("
+            + "uuid TEXT PRIMARY KEY NOT NULL);";
+            statement.execute(playersTableSQL);
+            
+            String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
+            + "id TEXT PRIMARY KEY,"
+            + "toggled BOOLEAN NOT NULL DEFAULT TRUE);";
+            statement.execute(questsTableSQL);
+            
+            String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
+            + "id TEXT PRIMARY KEY NOT NULL,"
+            + "player TEXT UNIQUE,"
+            + "FOREIGN KEY (player) REFERENCES players(uuid));";
+            statement.execute(diariesTableSQL);
+            
+            String diary_questsTableSQL = "CREATE TABLE IF NOT EXISTS diary_quests ("
+            + "id TEXT PRIMARY KEY,"
+            + "stage TEXT NOT NULL,"
+            + "action TEXT,"
+            + "quest TEXT,"
+            + "diary TEXT,"
+            + "FOREIGN KEY (quest) REFERENCES quests(id)"
+            + "FOREIGN KEY (diary) REFERENCES diaries(id));";
+            statement.execute(diary_questsTableSQL);
+            
+            migrate(version, dbVersion);
+
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
         }
@@ -167,7 +162,6 @@ public class Database {
 
             statement.executeUpdate(query.toString());
 
-            connection.close();
         } catch (SQLException e) {
             System.err.println("Could not patch/migrate database " + e.getMessage());
         }
@@ -185,12 +179,12 @@ public class Database {
             return "0.0";
         }
         
-        try {
-            Statement statement = getConnection().createStatement();
-            String getVersionSQL = "SELECT version FROM plugin WHERE plugin = 'PlayerQuests';";
-            ResultSet results = statement.executeQuery(getVersionSQL);
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT version FROM plugin WHERE plugin = 'PlayerQuests';")) {
+
+            ResultSet results = statement.executeQuery();
             String version = results.getString("version");
-            getConnection().close();
+            
             return version;
         } catch (SQLException e) {
             System.err.println("Could not find the quest version in the db " + e.getMessage());
@@ -211,7 +205,6 @@ public class Database {
 
             preparedStatement.execute();
 
-            connection.close();
         } catch (SQLException e) {
             System.err.println("Could not insert or set the quest version in the db " + e.getMessage());
         }
@@ -235,8 +228,6 @@ public class Database {
             
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.executeQuery();
-            
-            getConnection().close();
         
         } catch (SQLException e) {
             System.err.println("Could not add the user " + Bukkit.getServer().getPlayer(uuid).getName() + ". " + e.getMessage());
@@ -250,8 +241,6 @@ public class Database {
             preparedStatement.setInt(1, dbPlayerID);
             
             ResultSet results = preparedStatement.executeQuery();
-            
-            getConnection().close();
             
             return results;
         } catch (SQLException e) {
@@ -268,8 +257,6 @@ public class Database {
             preparedStatement.setInt(2, dbDiaryID);
             
             ResultSet result = preparedStatement.executeQuery();
-            
-            getConnection().close();
             
             return result;
         } catch (SQLException e) {
@@ -319,8 +306,6 @@ public class Database {
             
             preparedStatement.execute();
             
-            getConnection().close();
-            
         } catch (SQLException e) {
             System.err.println("Could not set or update quest progress for the " + questID + " quest: " + e.getMessage());
             return;
@@ -347,7 +332,6 @@ public class Database {
                 ids.add(result.getString("id"));
             }
             
-            getConnection().close();
         } catch (SQLException e) {
             System.err.println("Could not retrieve quests from database. " + e.getMessage());
         }
@@ -370,7 +354,6 @@ public class Database {
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
-            connection.close();
         } catch (SQLException e) {
             System.err.println("Could not add the quest " + id + ". " + e.getMessage());
         }
@@ -388,8 +371,6 @@ public class Database {
             
             ResultSet results = preparedStatement.executeQuery();
             String quest = results.getString("id");
-            
-            connection.close();
             
             return quest;
         } catch (SQLException e) {
@@ -410,8 +391,6 @@ public class Database {
                 result = results.getBoolean("toggled");
             }
             
-            connection.close();
-            
             return result; // no result found
         } catch (SQLException e) {
             System.err.println("Could not get the quest toggle status " + quest.toString() + ". " + e.getMessage());
@@ -427,7 +406,6 @@ public class Database {
             preparedStatement.setBoolean(1, state);
             preparedStatement.setString(2, quest.getID());
             preparedStatement.execute();
-            connection.close();
             
         } catch (SQLException e) {
             System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
@@ -452,7 +430,6 @@ public class Database {
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
-            connection.close();
         } catch (SQLException e) {
             System.err.println("Could not remove the quest " + id + ". " + e.getMessage());
         }
@@ -506,8 +483,6 @@ public class Database {
                     new ConnectionsData(null, results.getString("action"), null) // be precise and get the action, instead of the stage as the 'current' point
                 );
             }
-
-            getConnection().close();
 
             return progress;
             
