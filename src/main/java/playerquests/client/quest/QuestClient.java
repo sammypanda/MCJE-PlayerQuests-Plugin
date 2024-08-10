@@ -17,6 +17,7 @@ import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.product.Quest; // represents a player quest
+import playerquests.utility.singleton.Database; // the preservation/backup store
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -191,6 +192,9 @@ public class QuestClient {
 
             // update the diary
             this.diary.setQuestProgress(quest, updatedConnections);
+
+            // update the db for preservation sake
+            Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
 
             // remove NPCs pending interaction marker/sparkle
             this.actionNPC.remove(npc);

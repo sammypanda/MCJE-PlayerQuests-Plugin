@@ -81,7 +81,7 @@ public class Database {
         }
     }
     
-    public Database init() {
+    public synchronized Database init() {
         String dbVersion = getPluginVersion();
         String version = "0.0"; // default version
         
@@ -140,7 +140,7 @@ public class Database {
         return this;
     }
     
-    private void migrate(String version, String version_db) {
+    private synchronized void migrate(String version, String version_db) {
         // don't migrate if no version change 
         // (pom version same as db version)
         if (version_db.equals(version)) {
@@ -174,7 +174,7 @@ public class Database {
         .send();
     }
     
-    public String getPluginVersion() {
+    public synchronized String getPluginVersion() {
         if (!Files.exists(Paths.get("plugins/PlayerQuests/playerquests.db"))) {
             return "0.0";
         }
@@ -184,7 +184,7 @@ public class Database {
 
             ResultSet results = statement.executeQuery();
             String version = results.getString("version");
-            
+
             return version;
         } catch (SQLException e) {
             System.err.println("Could not find the quest version in the db " + e.getMessage());
@@ -192,7 +192,7 @@ public class Database {
         }
     }
     
-    private void setPluginVersion(String version) {
+    private synchronized void setPluginVersion(String version) {
         try (Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("""
                 INSERT INTO plugin (plugin, version)
@@ -222,7 +222,7 @@ public class Database {
      * @param uuid The unique identifier for the player, represented as a {@link UUID}. This ID is
      *             used to insert a new record into the `players` table in the database.
      */
-    public void addPlayer(UUID uuid) {
+    public synchronized void addPlayer(UUID uuid) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (uuid) VALUES (?) RETURNING *;")) {
             
@@ -234,7 +234,7 @@ public class Database {
         }
     }
     
-    public ResultSet getDiary(Integer dbPlayerID) {
+    public synchronized ResultSet getDiary(Integer dbPlayerID) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM diaries WHERE player = ?")) {
             
@@ -249,7 +249,7 @@ public class Database {
         }
     }
     
-    public ResultSet getDiaryQuest(String questID, Integer dbDiaryID) {
+    public synchronized ResultSet getDiaryQuest(String questID, Integer dbDiaryID) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE quest = ? AND diary = ?")) {
             
@@ -264,12 +264,15 @@ public class Database {
             return null;
         }
     }
+
+    public synchronized void setDiaryQuest(QuestDiary diary, Quest quest) {
+        setDiaryQuest(diary, quest, quest.getConnections());
+    }
     
-    public void setDiaryQuest(QuestDiary diary, Quest quest) {
+    public synchronized void setDiaryQuest(QuestDiary diary, Quest quest, ConnectionsData connections) {
         String questID = quest.getID(); // get the quest ID
         Map<String, QuestAction> actions = quest.getActions(); // the quest actions
         Map<String, QuestStage> stages = quest.getStages(); // the quest stages
-        ConnectionsData connections = quest.getConnections(); // get where the player currently is in their quest
         Player player = diary.getPlayer(); // get the player this diary represents
 
         try (Connection connection = getConnection();
@@ -312,7 +315,7 @@ public class Database {
         }
     }
     
-    public Database addPlayers(List<UUID> uuids) {
+    public synchronized Database addPlayers(List<UUID> uuids) {
         for (UUID uuid : uuids) {
             addPlayer(uuid);
         }
@@ -320,7 +323,7 @@ public class Database {
         return this;
     }
     
-    public List<String> getAllQuests() {
+    public synchronized List<String> getAllQuests() {
         List<String> ids = new ArrayList<>();
         try (Connection connection = getConnection();
         Statement statement = connection.createStatement()) {
@@ -338,7 +341,7 @@ public class Database {
         return ids;
     }
     
-    public void addQuest(String id) {
+    public synchronized void addQuest(String id) {
         if (id == null) {
             return;
         }
@@ -359,7 +362,7 @@ public class Database {
         }
     }
     
-    public String getQuest(String id) {
+    public synchronized String getQuest(String id) {
         if (id == null) {
             return null;
         }
@@ -379,7 +382,7 @@ public class Database {
         }
     }
     
-    public Boolean getQuestToggled(Quest quest) {
+    public synchronized Boolean getQuestToggled(Quest quest) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT toggled FROM quests WHERE id = ?;")) {
             
@@ -399,7 +402,7 @@ public class Database {
     }
     
     // TOOD: fix quest toggling
-    public void setQuestToggled(Quest quest, Boolean state) {
+    public synchronized void setQuestToggled(Quest quest, Boolean state) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("UPDATE quests SET toggled = ? WHERE id = ?;")) {
             
@@ -412,7 +415,7 @@ public class Database {
         }
     }
     
-    public void removeQuest(String id) {
+    public synchronized void removeQuest(String id) {
         if (id == null) {
             return;
         }
@@ -451,7 +454,7 @@ public class Database {
      *                   inserted or updated in the database. The player ID is extracted from this
      *                   object and used to identify the corresponding record in the `diaries` table.
      */
-    public void addDiary(QuestDiary questDiary) {
+    public synchronized void addDiary(QuestDiary questDiary) {
         try (Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR REPLACE INTO diaries (id, player) VALUES (?, ?)")) {
             
@@ -465,21 +468,25 @@ public class Database {
         }
     }
 
-	public Map<Quest,ConnectionsData> getQuestProgress(QuestDiary questDiary) {
+	public synchronized Map<Quest,ConnectionsData> getQuestProgress(QuestDiary questDiary) {
         Map<Quest,ConnectionsData> progress = new HashMap<Quest,ConnectionsData>();
         
 		try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE id = ?")) {
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE diary = ?")) {
             
             preparedStatement.setString(1, questDiary.getDiaryID());
             
             ResultSet results = preparedStatement.executeQuery();
 
             while (results.next()) {
+                Quest quest = Core.getQuestRegistry().getQuest(results.getString("quest"));
+
+                if (quest == null) {
+                    continue; // skip to next
+                }
+
                 progress.put(
-                    Core.getQuestRegistry().getQuest( // get the quest
-                        results.getString("quest") // ..from the ID
-                    ), 
+                    quest, // put the quest if found
                     new ConnectionsData(null, results.getString("action"), null) // be precise and get the action, instead of the stage as the 'current' point
                 );
             }

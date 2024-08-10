@@ -1,18 +1,23 @@
 package playerquests.client.quest;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.HashMap; // hash map type
+import java.util.Map; // generic map type
+import java.util.UUID; // unique identifiers for (usually) players
+import java.util.concurrent.CompletableFuture; // async + callbacks
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit; // the in-game API
+import org.bukkit.entity.Player; // the in-game player object
 
-import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.data.ConnectionsData;
-import playerquests.builder.quest.stage.QuestStage;
-import playerquests.product.Quest;
-import playerquests.utility.singleton.Database;
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.builder.quest.action.QuestAction; // quest product: actions
+import playerquests.builder.quest.data.ConnectionsData; // quest product: what action/stage connects to what
+import playerquests.builder.quest.stage.QuestStage; // quest product: stages
+import playerquests.product.Quest; // quest product
+import playerquests.utility.ChatUtils; // sending messages systematically
+import playerquests.utility.ChatUtils.MessageStyle; // how the message looks
+import playerquests.utility.ChatUtils.MessageTarget; // who the message sends to
+import playerquests.utility.ChatUtils.MessageType; // what the message is
+import playerquests.utility.singleton.Database; // everything preservation store
+import playerquests.utility.singleton.QuestRegistry; // quest store
 
 public class QuestDiary {
 
@@ -50,16 +55,38 @@ public class QuestDiary {
         Database.getInstance().addDiary(this);
 
         // instantiate quest progress from the db
-        loadQuestProgress();
+        // and update the client when we have results!
+        loadQuestProgress().thenRun(() -> {
+            client.update();
+        });
     }
 
     /**
      * Get the quest progress as stored in the database.
      * Should only run on first ever instantiation.
      */
-    private void loadQuestProgress() {
-        // in the background, deploy progress from db to here (for after reload/restart)
-        this.questProgress = Database.getInstance().getQuestProgress(this);
+    private CompletableFuture<Void> loadQuestProgress() {
+        System.out.println("before: " + this.questProgress);
+        
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                // Retrieve the quest progress,
+                // and store locally
+                this.questProgress = Database.getInstance().getQuestProgress(this);
+                System.out.println("after: " + this.questProgress);
+            } catch (Exception e) {
+                // Report something critical went wrong
+                ChatUtils.message("Failed to load quest progress for: " + this.getPlayer() + ", " + e)
+                    .target(MessageTarget.CONSOLE)
+                    .type(MessageType.ERROR)
+                    .style(MessageStyle.PLAIN)
+                    .send();
+            }
+
+            // Returning no data, only the completion handler
+            System.out.println("doin return thing");
+            return null;
+        });
     }
 
     /**
@@ -201,9 +228,6 @@ public class QuestDiary {
             quest, 
             quest.getConnections()
         );
-
-        // preserve quest in the db
-        Database.getInstance().setDiaryQuest(this, quest);
     }
 
     public void removeQuest(Quest quest) {

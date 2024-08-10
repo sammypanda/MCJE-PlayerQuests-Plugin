@@ -31,8 +31,8 @@ import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
-import playerquests.utility.singleton.Database;
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.utility.singleton.Database; // the preservation everything store
+import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
 
 /**
  * The Quest product containing all the information 
