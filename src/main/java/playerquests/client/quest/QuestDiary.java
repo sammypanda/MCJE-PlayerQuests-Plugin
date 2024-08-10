@@ -66,14 +66,11 @@ public class QuestDiary {
      * Should only run on first ever instantiation.
      */
     private CompletableFuture<Void> loadQuestProgress() {
-        System.out.println("before: " + this.questProgress);
-        
         return CompletableFuture.supplyAsync(() -> {
             try {
                 // Retrieve the quest progress,
                 // and store locally
                 this.questProgress = Database.getInstance().getQuestProgress(this);
-                System.out.println("after: " + this.questProgress);
             } catch (Exception e) {
                 // Report something critical went wrong
                 ChatUtils.message("Failed to load quest progress for: " + this.getPlayer() + ", " + e)
@@ -84,7 +81,6 @@ public class QuestDiary {
             }
 
             // Returning no data, only the completion handler
-            System.out.println("doin return thing");
             return null;
         });
     }

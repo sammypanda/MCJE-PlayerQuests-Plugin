@@ -169,7 +169,6 @@ public class QuestClient {
         // Find the action associated with this npc in a helper map
         Quest quest = QuestRegistry.getInstance().getQuest(npc.getQuest().getID()); // inefficient way, but npc.getQuest() was returning bad data
         QuestAction action = this.actionNPC.get(npc);
-        System.out.println("interact questclient got quest: " + quest);
 
         // Don't continue if there is no quest or action for this interaction
         if (action == null || quest == null) {
