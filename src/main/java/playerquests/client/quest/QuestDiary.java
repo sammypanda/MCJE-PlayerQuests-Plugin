@@ -63,7 +63,7 @@ public class QuestDiary {
                 // (we know it's unstarted because we are using the quest's default ConnectionsData, 
                 // ConnectionsData is the thing that tracks quest progress. It does it by identifying the
                 // previous, current and next action/stage).
-                this.questProgress.putIfAbsent(quest, quest.getConnections()); // TODO: ensure this isn't duplicating things
+                this.questProgress.putIfAbsent(quest, quest.getConnections());
             });
 
             client.update();
