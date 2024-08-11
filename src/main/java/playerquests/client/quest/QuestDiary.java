@@ -57,6 +57,15 @@ public class QuestDiary {
         // instantiate quest progress from the db
         // and update the client when we have results!
         loadQuestProgress().thenRun(() -> {
+            // fill in un-completed/un-started quests
+            QuestRegistry.getInstance().getAllQuests().values().stream().forEach((quest) -> {
+                // put the quest from the start 
+                // (we know it's unstarted because we are using the quest's default ConnectionsData, 
+                // ConnectionsData is the thing that tracks quest progress. It does it by identifying the
+                // previous, current and next action/stage).
+                this.questProgress.putIfAbsent(quest, quest.getConnections()); // TODO: ensure this isn't duplicating things
+            });
+
             client.update();
         });
     }
