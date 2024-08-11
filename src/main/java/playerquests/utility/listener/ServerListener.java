@@ -24,6 +24,7 @@ import playerquests.utility.ChatUtils.MessageTarget; // Enum for different messa
 import playerquests.utility.ChatUtils.MessageType; // Enum for different message types
 import playerquests.utility.FileUtils; // Utility for file operations
 import playerquests.utility.singleton.Database; // API for managing persistent game data
+import playerquests.utility.singleton.PlayerQuests;
 import playerquests.utility.singleton.QuestRegistry; // Registry for storing quests
 
 /**
@@ -77,17 +78,14 @@ public class ServerListener implements Listener {
         // Cancel all tasks scheduled by this plugin to prevent overlaps
         Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
 
-        // Clear the QuestRegistry to ensure no quests are left 
-        // in memory or are in an inconsistent state after the plugin
-        // is disabled. This is for maintaining the integrity 
-        // of the quest data and preventing memory leaks.
-        QuestRegistry.getInstance().clear();
+        // Close/clear the plugin
+        PlayerQuests.getInstance().clear();
 
         // Stop the WatchService used for monitoring file changes.
         // This ensures that no further file watching occurs after 
         // the plugin is disabled, and resources related to file 
         // monitoring are properly released.
-        stopWatchService();
+        stopWatchService();        
     }
 
     /**

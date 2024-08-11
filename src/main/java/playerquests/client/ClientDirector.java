@@ -5,13 +5,14 @@ import java.util.HashMap; // holds the current instances
 import org.bukkit.entity.HumanEntity; // the player who controls the client
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
+import playerquests.utility.singleton.PlayerQuests; // the main plugin class
 
 /**
  * Class which provides simple abstractions for clients to use.
  * <p>
  * Used to control the plugin and keep reference of client state.
  */
-public class ClientDirector {
+public class ClientDirector extends Director {
     /**
      * One of every key-mutable instance
      */
@@ -32,6 +33,9 @@ public class ClientDirector {
 
         // validate the current instances map is correct/has everything
         this.validateCurrentInstances();
+
+        // store the director
+        PlayerQuests.getInstance().addDirector(this);
     }
 
     /**
@@ -118,5 +122,10 @@ public class ClientDirector {
     public void clearCurrentInstances() {
         this.currentInstances.clear();
         this.validateCurrentInstances();
+    }
+
+    @Override
+    public void close() {
+        this.getGUI().getResult().close();
     }
 }
