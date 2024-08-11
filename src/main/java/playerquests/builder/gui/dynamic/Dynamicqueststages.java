@@ -90,7 +90,7 @@ public class Dynamicqueststages extends GUIDynamic {
                 questBuilder.addStage(
                     new QuestStage(
                         this.questBuilder.build(), 
-                        this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().substring(6) + 1)
+                        this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().substring(6)) + 1
                     )
                 );
 
