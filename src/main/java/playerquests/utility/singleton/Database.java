@@ -26,6 +26,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ConnectionsData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
@@ -271,8 +272,6 @@ public class Database {
     
     public synchronized void setDiaryQuest(QuestDiary diary, Quest quest, ConnectionsData connections) {
         String questID = quest.getID(); // get the quest ID
-        Map<String, QuestAction> actions = quest.getActions(); // the quest actions
-        Map<String, QuestStage> stages = quest.getStages(); // the quest stages
         Player player = diary.getPlayer(); // get the player this diary represents
 
         try (Connection connection = getConnection();
@@ -281,26 +280,16 @@ public class Database {
             preparedStatement.setString(1, player.getUniqueId().toString() + "_" + questID);
             
             // default to initial values
-            preparedStatement.setString(2, quest.getEntry());
-            preparedStatement.setString(3, stages.get(quest.getEntry()).getEntryPoint().getID());
+            preparedStatement.setString(2, quest.getEntry().getStage());
+            preparedStatement.setString(3, quest.getEntry().getAction());
             
             // get the current quest stage or action
-            String currentConnection = connections.getCurr();
+            StagePath currentConnection = connections.getCurr();
             
+            // replace with current values (if possible)
             if (currentConnection != null) {
-                // stage-based current
-                if (currentConnection.contains("stage")) {
-                    preparedStatement.setString(2, currentConnection);
-                    preparedStatement.setString(3, stages.get(currentConnection).getEntryPoint().getID()); // get the ID of the entry action
-                }
-                
-                // action-based current
-                if (currentConnection.contains("action") && actions.containsKey(currentConnection)) {
-                    String stageID = actions.get(currentConnection).getStage().getID();
-                    
-                    preparedStatement.setString(2, stageID);
-                    preparedStatement.setString(3, currentConnection);
-                }
+                preparedStatement.setString(2, currentConnection.getStage());
+                preparedStatement.setString(3, currentConnection.getAction());
             }
             
             // set remaining values
@@ -485,9 +474,16 @@ public class Database {
                     continue; // skip to next
                 }
 
+                QuestStage stage = quest.getStages().get(results.getString("stage"));
+                QuestAction action = stage.getActions().get(results.getString("action"));
+
                 progress.put(
                     quest, // put the quest if found
-                    new ConnectionsData(null, results.getString("action"), null) // be precise and get the action, instead of the stage as the 'current' point
+                    new ConnectionsData(
+                        null, 
+                        new StagePath(stage, action), 
+                        null
+                    )
                 );
             }
 

@@ -15,6 +15,7 @@ import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction; // quest action
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.product.Quest; // represents a player quest
 import playerquests.utility.singleton.Database; // the preservation/backup store
@@ -128,6 +129,7 @@ public class QuestClient {
 
         // NPC magic! (assigning an action to an npc based on progress in quest)
         // get each quest progress
+        Map<QuestNPC, QuestAction> actionNPCsLocal = new HashMap<>(); 
         this.diary.getQuestProgress().forEach((quest, connections) -> {
 
             // get the action we are up to in this quest to..
@@ -142,11 +144,14 @@ public class QuestClient {
             }
             
             // ..and submit the 'action <-> NPC' association
-            this.actionNPC.put(
+            actionNPCsLocal.put(
                 npc,
                 action
             );
         });
+
+        // submit the NPCs we found progress for
+        this.actionNPC.putAll(actionNPCsLocal);
 
         this.showFX();
     }
@@ -176,11 +181,11 @@ public class QuestClient {
         }
 
         // Prepare interaction/next step vars
-        String next_step = action.getConnections().getNext(); // could be action_?, stage_?
+        StagePath next_step = action.getConnections().getNext(); // could be action_?, stage_?
         ConnectionsData diaryConnections = this.diary.getQuestProgress(quest); // read current position in quest
 
         if (diaryConnections == null) { // if no progress for this quest found
-            diaryConnections = quest.getStages().get(quest.getEntry()).getConnections(); // get quest entry point position
+            diaryConnections = quest.getStages().get(quest.getEntry().getStage()).getConnections(); // get quest entry point position
         }
 
         // move forward through connections

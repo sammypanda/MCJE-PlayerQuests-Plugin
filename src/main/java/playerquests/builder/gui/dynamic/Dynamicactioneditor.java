@@ -13,6 +13,7 @@ import playerquests.builder.gui.function.ChatPrompt; // prompts the user for inp
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.action.QuestAction; // describes a quest action
 import playerquests.builder.quest.data.ActionOption; // a setting that can be set for an action
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
@@ -58,7 +59,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         this.putOptionSlots(Arrays.asList(1,2,3,10,11,12));
 
         // set label
-        if (this.stage.getEntryPoint().getID() == this.action.getID()) { // if this action is the entry point
+        if (this.stage.getEntryPoint().getAction() == this.action.getID()) { // if this action is the entry point
             this.gui.getFrame().setTitle(this.action + " Editor (Entry Point)");
         } else {
             this.gui.getFrame().setTitle(this.action + " Editor");
@@ -108,7 +109,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setLabel("Delete Action")
             .setItem("RED_DYE")
             .onClick(() -> {
-                if (stage.getEntryPoint().equals(action)) {
+                if (stage.getEntryPoint().getAction(stage.getQuest()).equals(action)) {
                     ChatUtils.message("Cannot remove the stage starting point action.")
                         .player(this.director.getPlayer())
                         .type(MessageType.WARN)
@@ -140,7 +141,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         entrypointButton.setItem("ENDER_EYE");
         entrypointButton.setLabel("Set Action As Entry Point");
         entrypointButton.onClick(() -> {
-            this.stage.setEntryPoint(this.action.getID()); // set this action as the stage entry point
+            this.stage.setEntryPoint(new StagePath(this.stage, this.action)); // set this action as the stage entry point
             this.execute(); // re-run to see changes
         });
 

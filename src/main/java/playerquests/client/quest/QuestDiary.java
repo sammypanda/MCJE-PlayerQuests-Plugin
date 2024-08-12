@@ -10,6 +10,7 @@ import org.bukkit.entity.Player; // the in-game player object
 
 import playerquests.builder.quest.action.QuestAction; // quest product: actions
 import playerquests.builder.quest.data.ConnectionsData; // quest product: what action/stage connects to what
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage; // quest product: stages
 import playerquests.product.Quest; // quest product
 import playerquests.utility.ChatUtils; // sending messages systematically
@@ -164,17 +165,13 @@ public class QuestDiary {
      * @return quest stage object
      */
     public QuestStage getStage(Quest quest, Boolean next) {
-        String curr = this.getQuestProgress(quest).getCurr();
+        ConnectionsData progress = this.getQuestProgress(quest);
 
-        // if the current is an action
-        if (curr.contains("action")) {
-            return quest
-                .getActions().get(curr) // retrieve the action we are at
-                .getStage(); // retrieve the stage the action we are at belongs to
+        if (next) {
+            return progress.getNext().getStage(quest);
         }
 
-        // otherwise: just get the stage :)
-        return quest.getStages().get(curr);
+        return progress.getCurr().getStage(quest);
     }
 
     /**
@@ -195,17 +192,16 @@ public class QuestDiary {
      * @return quest action object
      */
     public QuestAction getAction(Quest quest, Boolean next) {
-        String curr = this.getQuestProgress(quest).getCurr();
+        ConnectionsData progress = this.getQuestProgress(quest);
+        StagePath point = next ? progress.getNext() : progress.getCurr();
 
-        // if the current is a stage
-        if (curr.contains("stage")) {
-            return quest
-                .getStages().get(curr) // retrieve the stage we are at
-                .getEntryPoint(); // retrieve the first action in the stage
+        // if no action found
+        if (point.getAction(quest) == null) {
+            return point.getStage(quest).getEntryPoint().getAction(quest);
         }
 
-        // otherwise: just get the action :)
-        return quest.getActions().get(curr);
+        // otherwise just return action
+        return point.getAction(quest);
     }
 
     public void setQuestProgress(Quest quest, ConnectionsData connections) {

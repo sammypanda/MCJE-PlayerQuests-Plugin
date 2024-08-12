@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.SerializationFeature; // used to configure
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ConnectionsData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
@@ -49,7 +50,7 @@ public class Quest {
     /**
      * The starting/entry point stage ID for this quest.
      */
-    private String entry = null;
+    private StagePath entry = null;
 
     /**
      * The map of NPCs used in this quest, by their ID.
@@ -83,7 +84,7 @@ public class Quest {
      */
     public Quest(
         @JsonProperty("title") String title, 
-        @JsonProperty("entry") QuestStage entry, 
+        @JsonProperty("entry") StagePath entry, 
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
@@ -95,7 +96,7 @@ public class Quest {
         this.title = title;
         
         if (entry != null) {
-            this.entry = entry.getID();
+            this.entry = entry;
         }
 
         this.npcs = npcs;
@@ -140,9 +141,9 @@ public class Quest {
         try {
             quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
         } catch (JsonMappingException e) {
-            System.err.println("Could not map a quest template string to a valid quest product.");
+            System.err.println("Could not map a quest template string to a valid quest product. " + e);
         } catch (JsonProcessingException e) {
-            System.err.println("Malformed JSON attempted as a quest template string.");
+            System.err.println("Malformed JSON attempted as a quest template string. " + e);
         }
 
         return quest;
@@ -169,7 +170,7 @@ public class Quest {
      * Gets the starting/entry point stage ID for this quest.
      * @return the ID of the starting/entry point stage for this quest
      */
-    public String getEntry() {
+    public StagePath getEntry() {
         return entry;
     }
 
