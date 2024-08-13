@@ -170,14 +170,20 @@ public class Dynamicqueststage extends GUIDynamic {
 
         // add 'new action' button
         GUISlot newActionButton = new GUISlot(this.gui, this.gui.getFrame().getSize());
-        newActionButton.setLabel("Add Action");
-        newActionButton.setItem("LIME_DYE");
-        newActionButton.onClick(() -> {
-            new None(this.questStage).submit(); // create the new action
-            this.confirm_actionKeys = false; // set actionKeys to be looped through again
-            this.gui.clearSlots();
-            this.execute(); // re-run to see new action in list
-        });
+        
+        if (this.questStage.getActions().size() < 12) {
+            newActionButton.setLabel("Add Action");
+            newActionButton.setItem("LIME_DYE");
+            newActionButton.onClick(() -> {
+                new None(this.questStage).submit(); // create the new action
+                this.confirm_actionKeys = false; // set actionKeys to be looped through again
+                this.gui.clearSlots();
+                this.execute(); // re-run to see new action in list
+            });
+        } else {
+            newActionButton.setLabel("No More Action Slots");
+            newActionButton.setItem("BARRIER");
+        }
     }
     
 }
