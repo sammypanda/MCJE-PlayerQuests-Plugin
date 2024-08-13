@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
 import java.util.stream.IntStream; // used to iterate over a range
 
+import org.bukkit.Bukkit;
+
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
@@ -317,6 +319,8 @@ public class QuestBuilder {
      */
     public void removeNPC(QuestNPC npc) {
         this.questNPCs.remove(npc.getID());
+
+        npc.refund(Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId()));
     }
 
     /**
