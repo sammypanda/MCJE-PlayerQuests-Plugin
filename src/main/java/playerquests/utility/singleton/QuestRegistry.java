@@ -240,11 +240,6 @@ public class QuestRegistry {
      */
     public void addQuester(QuestClient quester) {
         questers.put(quester.getPlayer(), quester);
-        quester.addQuests(
-            this.registry.entrySet().stream()
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList())
-        );
     }
 
     /**
