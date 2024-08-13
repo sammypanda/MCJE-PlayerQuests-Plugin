@@ -1,5 +1,7 @@
 package playerquests.builder.quest.data;
 
+import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import playerquests.builder.quest.action.QuestAction;
@@ -59,7 +61,7 @@ public class StagePath {
      * @param path the StagePath as a string
      * @param id the Quest ID as a string
      */
-    public StagePath(QuestStage stage, QuestAction action) {
+    public StagePath(QuestStage stage, @Nullable QuestAction action) {
         this.stage = stage.getID();
         this.action = null;
 
@@ -74,7 +76,7 @@ public class StagePath {
      * @param path the StagePath as a string
      * @param id the Quest ID as a string
      */
-    public StagePath(String stage, String action) {
+    public StagePath(String stage, @Nullable String action) {
         this.stage = stage;
         this.action = action;
     }
@@ -85,7 +87,7 @@ public class StagePath {
      * @return the quest stage ID
      */
     public String getStage() {
-        return stage;
+        return stage != null ? stage : "stage_0";
     }
 
     /**
@@ -94,6 +96,11 @@ public class StagePath {
      * @return the quest stage
      */
     public QuestStage getStage(Quest quest) {
+        // if somehow the stage is null
+        if (stage == null) {
+            return quest.getStages().values().iterator().next();
+        }
+
         return quest.getStages().get(stage);
     }
 
@@ -103,7 +110,7 @@ public class StagePath {
      * @return the quest action ID
      */
     public String getAction() {
-        return stage;
+        return action != null ? action : null;
     }
 
     /**
@@ -112,13 +119,7 @@ public class StagePath {
      * @return the quest action
      */
     public QuestAction getAction(Quest quest) {
-        QuestStage stage;
-
-        if (this.stage == null) {
-            stage = quest.getStages().values().iterator().next(); // just assume first stage
-        } else {
-            stage = quest.getStages().get(this.stage);
-        }
+        QuestStage stage = this.getStage(quest);
 
         if (this.action == null) {
             return stage.getEntryPoint().getAction(quest); // try next entry point
@@ -135,8 +136,10 @@ public class StagePath {
      */
     @JsonValue
     public String toString() {
+        String action = this.getAction(); // will be action if it exists, otherwise null
+
         return String.format("%s%s",
-            stage != null ? stage : "stage_0",
+            this.getStage(),
             action != null ? "."+action : ""
         );
     }

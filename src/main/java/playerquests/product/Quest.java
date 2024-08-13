@@ -41,7 +41,6 @@ import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest sto
  */
 @JsonIgnoreProperties(ignoreUnknown = true) // ignore id
 public class Quest {
-
     /**
      * The label of this quest.
      */
