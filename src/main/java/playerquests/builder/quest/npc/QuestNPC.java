@@ -6,6 +6,7 @@ import org.bukkit.Bukkit; // bukkit singleton
 import org.bukkit.Material; // for if NPC is a block
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.HumanEntity; // the player
+import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when serialising to a JSON object
@@ -280,5 +281,10 @@ public class QuestNPC {
      */
     public void setQuest(Quest quest) {
         this.quest = quest;
+    }
+
+    @JsonIgnore
+    public void refund(Player player) {
+        this.getAssigned().refund(player);
     }
 }

@@ -356,4 +356,23 @@ public class Quest {
     public String toString() {
         return String.format("%s=%s", super.toString(), this.getID());
     }
+
+    public void refund() {
+        if (this.creator == null) {
+            return; // no need to refund, a shared quest has infinite resources
+        }
+
+        Player player = Bukkit.getPlayer(creator);
+
+        // return NPC resources
+        this.getNPCs().values().stream().forEach(npc -> {
+            npc.refund(player);
+        });
+
+        // let the player know
+        ChatUtils.message("Returned items from quest.")
+            .player(player)
+            .style(MessageStyle.PRETTY)
+            .send();
+    }
 }

@@ -205,6 +205,9 @@ public class QuestRegistry {
             // remove from registry
             this.remove(quest);
 
+            // refund resources
+            quest.refund();
+
         } catch (IOException e) {
             MessageBuilder errorMessage = ChatUtils.message("Could not delete the " + quest.getTitle() + " quest. " + e)
                 .type(MessageType.ERROR)
