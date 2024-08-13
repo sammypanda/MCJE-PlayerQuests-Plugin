@@ -1,5 +1,6 @@
 package playerquests.builder.quest;
 
+import java.util.Comparator;
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
 import java.util.Map; // generic map type
@@ -235,7 +236,14 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public LinkedList<String> getStages() {
-        return new LinkedList<String>(this.questPlan.keySet());
+        // create an ordered list of stages, ordered by stage_[this number]
+        LinkedList<String> orderedList = this.questPlan.keySet().stream()
+            .map(stage -> stage.split("_"))
+            .sorted(Comparator.comparingInt(parts -> Integer.parseInt(parts[1])))
+            .map(parts -> String.join("_", parts))
+            .collect(Collectors.toCollection(LinkedList::new));
+
+        return orderedList;
     }
 
     /**
