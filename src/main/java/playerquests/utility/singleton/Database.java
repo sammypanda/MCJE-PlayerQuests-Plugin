@@ -1,8 +1,13 @@
 package playerquests.utility.singleton;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection; // object describing connection to a database
@@ -23,6 +28,9 @@ import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.entity.Player;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ConnectionsData;
@@ -32,6 +40,8 @@ import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.MigrationUtils;
+import playerquests.utility.ChatUtils.MessageBuilder;
+import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 
@@ -142,6 +152,38 @@ public class Database {
     }
     
     private synchronized void migrate(String version, String version_db) {
+        // Check if there is a new version
+        MessageBuilder alert = new MessageBuilder("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
+            .style(MessageStyle.PRETTY)
+            .target(MessageTarget.WORLD)
+            .type(MessageType.WARN);
+        try {
+            URL url = new URI("https://api.github.com/repos/sammypanda/mcje-playerquests-plugin/releases").toURL();
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+
+            // Read the entire input stream into a single string
+            String content;
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                content = in
+                    .lines()
+                    .reduce("", (accumulator, actual) -> accumulator + actual);
+            }
+
+            // Parse the JSON and print the desired value
+            JsonNode tree = new ObjectMapper().readTree(content);
+            String latest = tree.findValue("tag_name").textValue(); // get latest tag_name (for example "v0.5")
+
+            // Alert if latest version is different to current
+            // (this will happen on snapshots too, but the compute for this edge case doesn't seem worthwhile)
+            if ("v"+version != latest) {
+                alert.content("A new release is available! " + latest)
+                    .send();
+            }
+        } catch (URISyntaxException | IOException e) {
+            alert.send();
+        }
+
         // don't migrate if no version change 
         // (pom version same as db version)
         if (version_db.equals(version)) {
@@ -170,9 +212,9 @@ public class Database {
         // Update plugin version in db
         setPluginVersion(version);
         ChatUtils.message("You're on v" + version + "! https://sammypanda.moe/docs/playerquests/v" + version)
-        .target(MessageTarget.WORLD)
-        .type(MessageType.NOTIF)
-        .send();
+            .target(MessageTarget.WORLD)
+            .type(MessageType.NOTIF)
+            .send();
     }
     
     public synchronized String getPluginVersion() {
