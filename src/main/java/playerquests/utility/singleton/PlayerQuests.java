@@ -1,11 +1,15 @@
 package playerquests.utility.singleton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Location; // the minecraft location object
 import org.bukkit.World; // the minecraft world
 import org.bukkit.block.Block; // the minecraft block
 
 import playerquests.builder.quest.npc.BlockNPC; // a block representing an NPC
 import playerquests.builder.quest.npc.QuestNPC; // core NPC object/data
+import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
 import playerquests.utility.listener.BlockListener; // for block-related events
 import playerquests.utility.listener.PlayerListener; // for player-related events
@@ -64,6 +68,11 @@ public class PlayerQuests {
     }
 
     /**
+     * List of directors.
+     */
+    private List<Director> directors = new ArrayList<Director>();
+
+    /**
      * Puts the block in the world and registers
      * it as an NPC.
      * @param blockNPC the block details of an npc
@@ -101,5 +110,24 @@ public class PlayerQuests {
         // remove all NPCs
         blockListener.remove(quest);
     }
-    
+
+    public void addDirector(Director director) {
+        this.directors.add(director);
+    }
+
+    /**
+     * Clear each part of the quest.
+     * 
+     * Clear the QuestRegistry to ensure no quests are left 
+     * in memory or are in an inconsistent state after the plugin
+     * is disabled. This is for maintaining the integrity 
+     * of the quest data and preventing memory leaks.
+     */
+    public void clear() {
+        QuestRegistry.getInstance().clear();
+        directors.removeIf(director -> {
+            director.close();  // Close the director
+            return true;       // Remove the entry
+        });
+    }
 }

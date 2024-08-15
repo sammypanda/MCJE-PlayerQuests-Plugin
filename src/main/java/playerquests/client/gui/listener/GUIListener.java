@@ -168,12 +168,13 @@ public class GUIListener implements Listener {
      */
     @EventHandler
     public void onClickItem(InventoryClickEvent event) {
-        if (!this.isGUIInventory(event)) {
+        Player player = Bukkit.getPlayer(event.getView().getPlayer().getUniqueId());
+
+        if (!this.isGUIInventory(event) || !this.isGUI(player)) {
             return; // exit if the inventory is GUI
         }
 
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
-        Player player = Bukkit.getPlayer(event.getView().getPlayer().getUniqueId());
         GUIBuilder builder = builders.get(player);
         GUISlot slot = builder.getSlot(slotPosition); // get the slot data
 

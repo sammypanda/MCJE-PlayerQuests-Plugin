@@ -11,6 +11,7 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 
@@ -19,17 +20,17 @@ public class Dynamicselectconnection extends GUIDynamic {
     /**
      * The quest we are editing.
      */
-    QuestBuilder questBuilder;
+    private QuestBuilder questBuilder;
     
     /**
      * The stage that has been selected.
      */
-    QuestStage selectedStage = null;
+    private QuestStage selectedStage = null;
 
     /**
      * The action that has been selected.
      */
-    QuestAction selectedAction = null;
+    private QuestAction selectedAction = null;
 
     /**
      * The code to run on connection select.
@@ -59,7 +60,7 @@ public class Dynamicselectconnection extends GUIDynamic {
                 .setLabel("Just Select This Stage")
                 .setItem("YELLOW_DYE")
                 .onClick(() -> {
-                    this.select(this.selectedStage);
+                    this.select(new StagePath(selectedStage, null)); // just select a stage
                 });
 
             int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
@@ -78,7 +79,7 @@ public class Dynamicselectconnection extends GUIDynamic {
                     .setItem("DETECTOR_RAIL")
                     .onClick(() -> {
                         this.selectedAction = action;
-                        this.select(action);
+                        this.select(new StagePath(selectedStage, action));
                     });
             });
 
@@ -132,9 +133,11 @@ public class Dynamicselectconnection extends GUIDynamic {
      * Called when a connection is selected.
      * @param object the selected stage/action
      */
-    private void select(Object connection) {
+    private void select(StagePath path) {
         if (this.onSelect != null) {
-            onSelect.accept(connection);
+            onSelect.accept(
+                new StagePath(selectedStage, selectedAction)
+            );
         }
 
         new UpdateScreen(
@@ -151,7 +154,7 @@ public class Dynamicselectconnection extends GUIDynamic {
      */
     public Object onSelect(Consumer<Object> onSelect) {
         this.onSelect = onSelect;
-        return this.selectedAction;
+        return onSelect;
     }
     
 }

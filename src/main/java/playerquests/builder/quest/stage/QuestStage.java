@@ -12,6 +12,7 @@ import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.None; // default QuestAction type
 import playerquests.builder.quest.action.QuestAction; // abstract class for quest actions
 import playerquests.builder.quest.data.ConnectionsData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -48,7 +49,7 @@ public class QuestStage {
      * Entry point action for the stage.
      */
     @JsonProperty("entry")
-    private String entryPoint;
+    private StagePath entryPoint;
 
     /**
      * The connections for the quest stage.
@@ -71,10 +72,10 @@ public class QuestStage {
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
 
         // create the default first action
-        String action = new None(this).submit().getID();
+        QuestAction action = new None(this).submit();
 
         // set the default first action as the default entry point
-        this.setEntryPoint(action);
+        this.setEntryPoint(new StagePath(this, action));
     }
 
     /**
@@ -92,10 +93,10 @@ public class QuestStage {
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
 
         // create the default first action
-        String action = new None(this).submit().getID();
+        QuestAction action = new None(this).submit();
 
         // set the default first action as the default entry point
-        this.setEntryPoint(action);
+        this.setEntryPoint(new StagePath(this, action));
     }
 
     /**
@@ -170,15 +171,14 @@ public class QuestStage {
      */
     public void removeAction(QuestAction action) {
         this.actions.remove(action.getID());
-        this.quest.save();
     }
 
     /**
      * Sets the first action executed when this stage is reached.
      * @param action a quest action id
      */
-    public void setEntryPoint(String action) {
-        this.entryPoint = action;
+    public void setEntryPoint(StagePath path) {
+        this.entryPoint = path;
     }
 
     /**
@@ -186,8 +186,8 @@ public class QuestStage {
      * @return a quest action id
      */
     @JsonIgnore
-    public QuestAction getEntryPoint() {
-        return this.actions.get(this.entryPoint);
+    public StagePath getEntryPoint() {
+        return this.entryPoint;
     }
 
     /**
@@ -211,8 +211,8 @@ public class QuestStage {
         newActionInstance.setID(currentAction); // update the ID in the action local
         this.actions.replace(currentAction, newActionInstance); // replace in main list
 
-        if (currentAction.equals(this.entryPoint)) {
-            this.entryPoint = newActionInstance.getID();
+        if (currentAction.equals(this.entryPoint.getAction())) {
+            this.entryPoint = new StagePath(this, newActionInstance);
         }
     }
 

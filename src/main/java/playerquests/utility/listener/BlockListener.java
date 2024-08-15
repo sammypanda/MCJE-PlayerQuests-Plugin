@@ -71,7 +71,7 @@ public class BlockListener implements Listener {
         activeBlockNPCs = filteredBlockNPCs;
 
         // remove the quest, as now it's missing the NPC
-        QuestRegistry.getInstance().remove(quest);
+        QuestRegistry.getInstance().remove(quest, true);
     }
     
     @EventHandler
@@ -103,23 +103,31 @@ public class BlockListener implements Listener {
             return; // don't continue if not an NPC block
         }
 
+        event.setCancelled(true); // don't drop the block (block duplication)
+        brokenBlock.getWorld().setBlockData(brokenBlock.getLocation(), Material.AIR.createBlockData()); // replace the block with air
+
         BlockNPC npc = this.activeBlockNPCs.get(brokenBlock);
         this.unregisterBlockNPC(npc);
     }
 
     public void remove(Quest quest) {
         BlockData replacementBlock = Material.AIR.createBlockData();
-        this.activeBlockNPCs.entrySet().stream()
-            .filter(e -> e.getValue().getNPC().getQuest().getID().equals(quest.getID()))
-            .forEach(entry -> {
-                Location npcLocation = entry.getKey().getLocation();
-                World npcWorld = npcLocation.getWorld();
+        this.activeBlockNPCs.entrySet().removeIf(entry -> {
+            if (!entry.getValue().getNPC().getQuest().getID().equals(quest.getID())) {
+                return false; // keep entry that doesn't match quest removal
+            }
 
-                // replace the NPC block
-                npcWorld.setBlockData(
-                    npcLocation, 
-                    replacementBlock
-                );
-            });
+            Location npcLocation = entry.getKey().getLocation();
+            World npcWorld = npcLocation.getWorld();
+    
+            // replace the NPC block
+            npcWorld.setBlockData(
+                npcLocation, 
+                replacementBlock
+            );
+    
+            // remove the 'active npc'
+            return true;
+        });
     }
 }

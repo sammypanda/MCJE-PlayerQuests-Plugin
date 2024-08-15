@@ -99,6 +99,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         addButton.setLabel("Add NPC");
         addButton.onClick(() -> {
             QuestNPC npc = new QuestNPC(); // create new empty npc
+            npc.setQuest(questBuilder.build());
             this.director.setCurrentInstance(npc);
 
             new UpdateScreen(

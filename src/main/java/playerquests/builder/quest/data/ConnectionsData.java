@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // used to ignore fields in 
  * to form a network/quest plan.
  */
 public class ConnectionsData {
-    private String next;
-    private String curr;
-    private String prev;
+    private StagePath next;
+    private StagePath curr;
+    private StagePath prev;
 
     /**
      * Defaut constructor (for Jackson)
@@ -23,7 +23,7 @@ public class ConnectionsData {
      * @param curr where to return to if the stage is exited
      * @param prev where to go if the stage fails
      */
-    public ConnectionsData(String next, String curr, String prev) {
+    public ConnectionsData(StagePath next, StagePath curr, StagePath prev) {
         this.next = next;
         this.curr = curr;
         this.prev = prev;
@@ -33,7 +33,7 @@ public class ConnectionsData {
      * Gets the next quest stage or action.
      * @return next stage or action.
      */
-    public String getNext() {
+    public StagePath getNext() {
         return this.next;
     }
 
@@ -41,7 +41,7 @@ public class ConnectionsData {
      * Sets the next quest stage or action.
      * @param next a quest stage or action.
      */
-    public void setNext(String next) {
+    public void setNext(StagePath next) {
         this.next = next;
     }
 
@@ -49,7 +49,7 @@ public class ConnectionsData {
      * Gets the on-exit quest stage or action.
      * @return on-exit stage or action.
      */
-    public String getCurr() {
+    public StagePath getCurr() {
         return this.curr;
     }
 
@@ -57,7 +57,7 @@ public class ConnectionsData {
      * Sets the on-exit quest stage or action.
      * @param next a quest stage or action.
      */
-    public void setCurr(String curr) {
+    public void setCurr(StagePath curr) {
         this.curr = curr;
     }
 
@@ -65,7 +65,7 @@ public class ConnectionsData {
      * Gets the prior quest stage or action.
      * @return prior stage or action.
      */
-    public String getPrev() {
+    public StagePath getPrev() {
         return this.prev;
     }
 
@@ -73,7 +73,7 @@ public class ConnectionsData {
      * Sets the prior quest stage or action.
      * @param next a quest stage or action.
      */
-    public void setPrev(String prev) {
+    public void setPrev(StagePath prev) {
         this.prev = prev;
     }
 

@@ -1,5 +1,6 @@
 package playerquests.builder.quest;
 
+import java.util.Comparator;
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
 import java.util.Map; // generic map type
@@ -7,10 +8,13 @@ import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
 import java.util.stream.IntStream; // used to iterate over a range
 
+import org.bukkit.Bukkit;
+
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
 import playerquests.Core; // gets the KeyHandler singleton
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
@@ -48,7 +52,7 @@ public class QuestBuilder {
     /**
      * Entry point for the quest.
      */
-    private QuestStage entryPoint;
+    private StagePath entryPoint;
 
     /**
      * Map of the NPC characters.
@@ -83,11 +87,17 @@ public class QuestBuilder {
         this.director = director;
 
         // default entry point as first stage (stage_0)
-        this.entryPoint = new QuestStage(this.build(), 0);
-        director.setCurrentInstance(this.entryPoint); // make it modifiable
+        QuestStage stage = new QuestStage(this.build(), 0);
+        this.entryPoint = new StagePath(
+            stage,
+            null
+        );
+        
+        // make it modifiable
+        director.setCurrentInstance(stage);
 
         // add default entry point stage to questPlan map
-        this.questPlan.put(this.entryPoint.getID(), this.entryPoint);
+        this.questPlan.put(stage.getID(), stage);
 
         // set as the current quest in the director
         director.setCurrentInstance(this);
@@ -108,8 +118,9 @@ public class QuestBuilder {
             this.title = product.getTitle();
 
             // add the entry point stage from the product
-            this.entryPoint = product.getStages().get(product.getEntry());
-            director.setCurrentInstance(this.entryPoint); // make it modifiable
+            QuestStage entryStage = product.getStages().get(product.getEntry().getStage());
+            this.entryPoint = new StagePath(entryStage, null);
+            director.setCurrentInstance(entryStage); // make it modifiable
 
             // add the stages from the product
             this.questPlan = product.getStages();
@@ -208,7 +219,7 @@ public class QuestBuilder {
      */
     @JsonProperty("entry")
     public String getEntryPointString() {
-        return this.entryPoint.getID();
+        return this.entryPoint.toString();
     }
 
     /**
@@ -217,8 +228,8 @@ public class QuestBuilder {
      * Should be a stage.
      * @param stage what the entry point stage is
      */
-    public void setEntryPoint(QuestStage stage) {
-        this.entryPoint = stage;
+    public void setEntryPoint(StagePath path) {
+        this.entryPoint = path;
     }
 
     /**
@@ -227,7 +238,14 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public LinkedList<String> getStages() {
-        return new LinkedList<String>(this.questPlan.keySet());
+        // create an ordered list of stages, ordered by stage_[this number]
+        LinkedList<String> orderedList = this.questPlan.keySet().stream()
+            .map(stage -> stage.split("_"))
+            .sorted(Comparator.comparingInt(parts -> Integer.parseInt(parts[1])))
+            .map(parts -> String.join("_", parts))
+            .collect(Collectors.toCollection(LinkedList::new));
+
+        return orderedList;
     }
 
     /**
@@ -301,6 +319,8 @@ public class QuestBuilder {
      */
     public void removeNPC(QuestNPC npc) {
         this.questNPCs.remove(npc.getID());
+
+        npc.refund(Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId()));
     }
 
     /**
@@ -338,7 +358,8 @@ public class QuestBuilder {
             this.entryPoint,
             this.questNPCs,
             this.questPlan,
-            this.universal ? null : this.director.getPlayer().getUniqueId()
+            this.universal ? null : this.director.getPlayer().getUniqueId(),
+            true // always toggle cloned quests on when freshly cloned
         );
 
         // set this quest as in-focus to the creator

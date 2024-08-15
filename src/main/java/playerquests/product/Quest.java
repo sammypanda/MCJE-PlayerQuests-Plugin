@@ -21,14 +21,19 @@ import com.fasterxml.jackson.databind.SerializationFeature; // used to configure
 
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.ConnectionsData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
+import playerquests.utility.ChatUtils.MessageBuilder;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
-import playerquests.utility.singleton.Database;
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.utility.singleton.Database; // the preservation everything store
+import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
 
 /**
  * The Quest product containing all the information 
@@ -36,7 +41,6 @@ import playerquests.utility.singleton.QuestRegistry;
  */
 @JsonIgnoreProperties(ignoreUnknown = true) // ignore id
 public class Quest {
-
     /**
      * The label of this quest.
      */
@@ -45,7 +49,7 @@ public class Quest {
     /**
      * The starting/entry point stage ID for this quest.
      */
-    private String entry = null;
+    private StagePath entry = null;
 
     /**
      * The map of NPCs used in this quest, by their ID.
@@ -63,6 +67,11 @@ public class Quest {
      * The UUID of the player who created this quest.
      */
     private UUID creator = null;
+
+    /**
+     * If the quest is toggled.
+     */
+    private Boolean toggled = false;
     
     /**
      * Creates a quest instance for playing and viewing!
@@ -74,10 +83,11 @@ public class Quest {
      */
     public Quest(
         @JsonProperty("title") String title, 
-        @JsonProperty("entry") QuestStage entry, 
+        @JsonProperty("entry") StagePath entry, 
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
-        @JsonProperty("creator") UUID creator
+        @JsonProperty("creator") UUID creator,
+        @JsonProperty("toggled") Boolean toggled
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
@@ -85,12 +95,17 @@ public class Quest {
         this.title = title;
         
         if (entry != null) {
-            this.entry = entry.getID();
+            this.entry = entry;
         }
 
         this.npcs = npcs;
         this.stages = stages;
         this.creator = creator;
+
+        // determine if should be toggled
+        if (toggled != null) {
+            this.toggled = toggled;
+        }
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (stages != null) {
@@ -125,9 +140,9 @@ public class Quest {
         try {
             quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
         } catch (JsonMappingException e) {
-            System.err.println("Could not map a quest template string to a valid quest product.");
+            System.err.println("Could not map a quest template string to a valid quest product. " + e);
         } catch (JsonProcessingException e) {
-            System.err.println("Malformed JSON attempted as a quest template string.");
+            System.err.println("Malformed JSON attempted as a quest template string. " + e);
         }
 
         return quest;
@@ -142,10 +157,19 @@ public class Quest {
     }
 
     /**
+     * Get the starting prev, current, next steps.
+     * @return
+     */
+    @JsonIgnore
+    public ConnectionsData getConnections() {
+        return new ConnectionsData(null, this.entry, null);
+    }
+
+    /**
      * Gets the starting/entry point stage ID for this quest.
      * @return the ID of the starting/entry point stage for this quest
      */
-    public String getEntry() {
+    public StagePath getEntry() {
         return entry;
     }
 
@@ -214,29 +238,27 @@ public class Quest {
      */
     @Key("quest")
     public String save() {
+        String questName = "quest/templates/" + this.getID() + ".json"; // name pattern
+
+        // create quest in fs, or update it
         try {
+            if (FileUtils.check(questName)) { // if the quest is in the fs
+                Core.getQuestRegistry().submit(this);
+            }
+
             FileUtils.create( // create the template json file
-                "quest/templates/" + this.getID() + ".json", // name pattern
+                questName, // name pattern
                 this.toTemplateString().getBytes() // put the content in the file
             );
+            return "'" + this.title + "' was saved.";
         } catch (IOException e) {
             ChatUtils.message(e.getMessage())
                 .player(Bukkit.getPlayer(this.creator))
                 .type(MessageType.ERROR)
                 .send();
             System.err.println(e);
-            return "Quest Builder: '" + this.title + "' could not save.";
+            return "'" + this.title + "' could not save.";
         }
-
-        // remove before re-submitting, to remove from world and quest diaries
-        QuestRegistry questRegistry = Core.getQuestRegistry();
-        if (questRegistry.getAllQuests().containsValue(this)) {
-            questRegistry.remove(questRegistry.getQuest(this.getID()));
-        }
-
-        // asume enabled and submit (adds the quest to the world)
-        questRegistry.submit(this);
-        return "Quest Builder: '" + this.title + "' was saved";
     }
 
     @JsonIgnore
@@ -256,18 +278,16 @@ public class Quest {
      * Checks if the quest is toggled/enabled.
      * @return whether the quest is enabled/being shown
      */
-    public boolean isToggled() {
-        return Database.getQuestToggled(this);
+    @JsonIgnore
+    public Boolean isToggled() {
+        return Database.getInstance().getQuestToggled(this);
     }
 
     /**
      * Toggle function as a switch.
      */
     public void toggle() {
-        Database.setQuestToggled(
-            this,
-            !Database.getQuestToggled(this)
-        );
+        this.toggle(!this.toggled);
     }
 
     /**
@@ -275,45 +295,84 @@ public class Quest {
      * @param toEnable whether to show/enable the quest
      */
     public void toggle(boolean toEnable) {
-        Database.setQuestToggled(this, toEnable);
+        this.toggled = toEnable;
+
+        if (toEnable) {
+            QuestRegistry.getInstance().submit(this); // resubmit previously untoggled
+        } else {
+            QuestRegistry.getInstance().remove(this, true); // remove from world (but preserve)
+        }
+
+        Database.getInstance().setQuestToggled( // update database state (when we can)
+            this,
+            toEnable
+        );
     }
 
-    public Boolean isValid() {
-        UUID uuid = this.creator;
-        Player player = uuid != null ? Bukkit.getPlayer(uuid) : null; // the player to send invalid npc messages to
+    @JsonIgnore
+    public boolean isValid() {
+        UUID questCreator = this.creator;
+        Player player = null;
+        MessageBuilder response = new MessageBuilder("Something is wrong with the quest") // default message; default sends to console
+            .type(MessageType.ERROR)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN);
+        boolean isValid = true; // assume valid unless errors are found
 
-        if (uuid != null && player == null) {
-            return false;
+        // Check if the player is valid and set the player object if a creator is present
+        if (questCreator != null) {
+            player = Bukkit.getPlayer(questCreator); // get player from UUID
+            response.player(player).style(MessageStyle.PRETTY); // set message target to player if player is found
         }
 
-        if (uuid == null) { // universal quests exist, so not having a player cannot be a failure
-            return true;
-        }
-
+        // Validate quest title
         if (this.title == null) {
-            ChatUtils.message("A quest has no title")
-                .player(player)
-                .type(MessageType.ERROR)
-                .send();
-            return false;
+            response.content("A quest has no title");
+            isValid = false;
         }
 
+        // Validate quest entry
         if (this.entry == null) {
-            ChatUtils.message(String.format("The %s quest has no starting point", this.title))
-                .player(player)
-                .type(MessageType.ERROR)
-                .send();
-            return false;
-        } else {
-            if (this.stages == null || this.stages.isEmpty()) {
-                ChatUtils.message(String.format("The %s quest has no stages", this.title))
-                    .player(player)
-                    .type(MessageType.ERROR)
-                    .send();
-                return false;
-            }
+            response.content(String.format("The %s quest has no starting point", this.title));
+            isValid = false;
         }
 
-        return true;
+        // Validate quest stages
+        if (this.stages == null || this.stages.isEmpty()) {
+            response.content(String.format("The %s quest has no stages", this.title));
+            isValid = false;
+        }
+
+        // send the response
+        if (!isValid) {
+            response.send(); // send our :( message
+        }
+
+        return isValid;
+    }
+
+    @JsonIgnore
+    @Override
+    public String toString() {
+        return String.format("%s=%s", super.toString(), this.getID());
+    }
+
+    public void refund() {
+        if (this.creator == null) {
+            return; // no need to refund, a shared quest has infinite resources
+        }
+
+        Player player = Bukkit.getPlayer(creator);
+
+        // return NPC resources
+        this.getNPCs().values().stream().forEach(npc -> {
+            npc.refund(player);
+        });
+
+        // let the player know
+        ChatUtils.message("Returned items from quest.")
+            .player(player)
+            .style(MessageStyle.PRETTY)
+            .send();
     }
 }
