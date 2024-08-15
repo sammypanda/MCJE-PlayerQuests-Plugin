@@ -8,7 +8,8 @@ import org.bukkit.event.HandlerList; // to unregister event listener (ChatPrompt
 import org.bukkit.event.Listener; // to register event listener (ChatPromptListener)
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.ChatColor; // used to format the chat messages to guide user input/UX
-import org.bukkit.entity.HumanEntity; // refers to the player
+import org.bukkit.entity.HumanEntity; // usually the player
+import org.bukkit.entity.Player; // refers to the player
 
 import playerquests.Core; // used to access the Plugin and KeyHandler instances
 import playerquests.client.ClientDirector; // powers functionality for functions
@@ -31,11 +32,17 @@ public class ChatPrompt extends GUIFunction {
         private ChatPrompt parentClass;
 
         /**
+         * The player this listener is for.
+         */
+        private Player player;
+
+        /**
          * Creates a new listener for chat prompt inputs.
          * @param parent the origin ChatPrompt GUI function
          */
-        public ChatPromptListener(ChatPrompt parent) {
+        public ChatPromptListener(ChatPrompt parent, Player player) {
             this.parentClass = parent;
+            this.player = player;
         }
 
         /**
@@ -44,6 +51,10 @@ public class ChatPrompt extends GUIFunction {
          */
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
+            if (this.player != event.getPlayer()) {
+                return; // do not capture other players events
+            }
+
             event.setCancelled(true); // cancel the chat message from sending to others
             this.parentClass.setResponse(event.getMessage()); // set the user response
             this.parentClass.execute(); // loop back to the function
@@ -110,8 +121,8 @@ public class ChatPrompt extends GUIFunction {
         // set initial values
         this.prompt = (String) params.get(0);
         this.key = (String) params.get(1);
-        this.chatListener = new ChatPromptListener(this);
         this.player = this.director.getPlayer();
+        this.chatListener = new ChatPromptListener(this, Bukkit.getPlayer(this.player.getUniqueId()));
 
         try {
             PluginUtils.validateParams(this.params, String.class, String.class);

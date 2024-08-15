@@ -6,6 +6,7 @@ import java.util.Arrays;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.data.ConnectionsData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector;
 
 public class Dynamicconnectioneditor extends GUIDynamic {
@@ -26,9 +27,9 @@ public class Dynamicconnectioneditor extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
-        String prev = this.connections.getPrev();
-        String curr = this.connections.getCurr();
-        String next = this.connections.getNext();
+        StagePath prev = this.connections.getPrev();
+        StagePath curr = this.connections.getCurr();
+        StagePath next = this.connections.getNext();
 
         this.gui.getFrame().setTitle("Sequence Editor");
 
@@ -88,7 +89,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
             Dynamicselectconnection connectionSelector = (Dynamicselectconnection) functionUpdateScreen.getDynamicGUI();
 
             connectionSelector.onSelect((selectionObject) -> {
-                String selection = selectionObject.toString();
+                StagePath selection = (StagePath) selectionObject;
 
                 switch (connection) {
                     case "prev":

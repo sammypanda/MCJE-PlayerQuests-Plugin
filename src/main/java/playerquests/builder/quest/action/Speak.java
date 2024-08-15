@@ -5,7 +5,6 @@ import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
 import java.util.Optional;
 
-import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.entity.Player; // represents a bukkit player
 
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
@@ -42,7 +41,7 @@ public class Speak extends QuestAction {
 
     @Override
     public void Run(QuestClient quester) {
-        Player player = Bukkit.getPlayer(quester.getPlayer().getUniqueId());
+        Player player = quester.getPlayer();
 
         // insert empty dialogue if none set
         if (this.dialogue == null) {

@@ -3,10 +3,13 @@ package playerquests.builder.quest.npc;
 import org.bukkit.Bukkit;
 import org.bukkit.Material; // deprecated: material representing the block, representing this NPC
 import org.bukkit.block.data.BlockData; // block representing this NPC
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising properties
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
 
+import playerquests.Core;
 import playerquests.utility.singleton.PlayerQuests;
 
 public class BlockNPC extends NPCType {
@@ -73,7 +76,9 @@ public class BlockNPC extends NPCType {
     @Override
     @JsonIgnore
     public void place() {
-        PlayerQuests.getInstance().putBlockNPC(this);
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            PlayerQuests.getInstance().putBlockNPC(this);
+        });   
     }
 
     /**
@@ -85,5 +90,14 @@ public class BlockNPC extends NPCType {
         this.npc.setLocation(null);
 
         PlayerQuests.getInstance().putBlockNPC(this);
+    }
+
+    @Override
+    @JsonIgnore
+    public void refund(Player player) {
+        // return the NPC block to the player
+        player.getInventory().addItem(
+            new ItemStack(this.getBlock().getMaterial())
+        );
     }
 }

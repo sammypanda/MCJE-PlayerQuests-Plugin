@@ -3,6 +3,8 @@ package playerquests.builder.quest.npc;
 import java.util.ArrayList; // array type of list
 import java.util.List; // generic list type
 
+import org.bukkit.entity.Player;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -123,5 +125,12 @@ public class NPCType {
      */
     public void remove() {
         throw new IllegalStateException("Tried to remove an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
+    }
+
+    /**
+     * Refund the resources used for the NPC.
+     */
+    public void refund(Player player) {
+        throw new IllegalStateException("Tried to refund an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 }

@@ -39,6 +39,7 @@ public class Core extends JavaPlugin {
     /**
      * Core class, to be instantiated by server.
      */
+    // TODO: always talk to database through a class (for caching and real-time data). Never talk directly! (It can't handle it).
     public Core() {}
 
     @Override
@@ -53,6 +54,11 @@ public class Core extends JavaPlugin {
 
         // mount bStats for some minimal usage info
         new Metrics(this, 22692);
+    }
+
+    @Override
+    public void onDisable() {
+        PlayerQuests.getServerListener().onDisable();
     }
 
     /**

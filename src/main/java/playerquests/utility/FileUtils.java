@@ -64,4 +64,16 @@ public class FileUtils {
             throw new IOException("Could not delete the '" + filename + "' file.", e);
         }
     }
+
+    /**
+     * Checks if a file at the specified path exists.
+     * @param filename relative child path + filename
+     * @throws IOException when the file cannot be read
+     * @return if the file exists
+     */
+    public static Boolean check(String filename) throws IOException {
+        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+
+        return Files.exists(fullPath);
+    }
 }

@@ -59,10 +59,14 @@ public class Dynamicqueststages extends GUIDynamic {
         this.gui.getFrame().setTitle(this.guiTitle); // set the GUI title
         this.gui.getFrame().setSize( // set number of slots in the GUI
             Math.min( // get up to 54 (maximum slots)
-                (this.questBuilder.getStages().size() + 9) / 9 * 9, // only multiples of 9
+                (this.questBuilder.getStages().size() + 20) / 9 * 9, // only multiples of 9
                 54 // 54 maximum slots
             )
         );
+
+        // restart inv in-case GUI size is changed
+        this.gui.getResult().minimise();
+        this.gui.getResult().open();
 
         // dividers (first two rows)
         IntStream.iterate(1, n -> n + 9).limit(54/9).forEach((divSlot) -> {
@@ -83,21 +87,22 @@ public class Dynamicqueststages extends GUIDynamic {
         ));
 
         // add new stage button
-        new GUISlot(this.gui, this.gui.getFrame().getSize())
-            .setLabel("Add Stage")
-            .setItem("LIME_DYE")
-            .onClick(() -> {
-                questBuilder.addStage(
-                    new QuestStage(
-                        this.questBuilder.build(), 
-                        this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().substring(6) + 1)
-                    )
-                );
+        if (this.questBuilder.getStages().size() < 42) {
+            new GUISlot(this.gui, this.gui.getFrame().getSize())
+                .setLabel("Add Stage")
+                .setItem("LIME_DYE")
+                .onClick(() -> {
+                    questBuilder.addStage(
+                        new QuestStage(
+                            this.questBuilder.build(), 
+                            this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().substring(6)) + 1
+                        )
+                    );
 
-                this.gui.clearSlots();
-
-                this.execute(); // rebuild GUI
-            });
+                    this.gui.clearSlots();
+                    this.execute(); // rebuild GUI
+                });
+        }
 
         IntStream.range(0, this.questBuilder.getStages().size()).anyMatch(index -> {
 

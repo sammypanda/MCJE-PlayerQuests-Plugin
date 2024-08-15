@@ -1,12 +1,14 @@
 package playerquests.utility.singleton;
 
 import java.io.IOException;
+import java.util.Arrays; // generic array type
 import java.util.HashMap; // hash table map
-import java.util.List;
+import java.util.List; // generic list type
 import java.util.Map; // generic map type
-import java.util.Optional;
+import java.util.Optional; // handling if a value may be null
+import java.util.UUID; // used for in-game player UUIDs
 import java.util.concurrent.atomic.AtomicBoolean; // modify boolean state in a stream operation
-import java.util.stream.Collectors;
+import java.util.stream.Collectors; // used to turn one type of list to another
 
 import org.bukkit.Bukkit; // accessing Bukkit API
 import org.bukkit.entity.HumanEntity; // representing players and other humanoid entities
@@ -18,6 +20,9 @@ import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
 import playerquests.utility.FileUtils;
+import playerquests.utility.ChatUtils.MessageBuilder;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 
 
@@ -68,17 +73,18 @@ public class QuestRegistry {
         registry.put(quest.getID(), quest);
 
         // store ref to database
-        Database.addQuest(quest.getID());
+        Database.getInstance().addQuest(quest.getID());
 
         // place the NPCs in the world
         quest.getNPCs().entrySet().stream()
             .forEach(entry -> {
                 QuestNPC npc = entry.getValue();
+                npc.setQuest(quest);
                 npc.place();
             });
 
         questers.values().stream().forEach(quester -> {
-            quester.update();
+            quester.addQuests(Arrays.asList(quest));
         });
     }
 
@@ -127,6 +133,11 @@ public class QuestRegistry {
 
         // do not continue if npc has no LocationData
         if (!isQuestValid.get()) {
+            ChatUtils.message("Invalid quest submitted: " + questID)
+                .target(MessageTarget.CONSOLE)
+                .style(MessageStyle.PLAIN)
+                .type(MessageType.ERROR)
+                .send();
             return;
         }
 
@@ -164,19 +175,19 @@ public class QuestRegistry {
     public void remove(Quest quest, Boolean preserveInDatabase) {
         // remove ref from database
         if (!preserveInDatabase) {
-            Database.removeQuest(quest.getID());
+            Database.getInstance().removeQuest(quest.getID());
+
+            // remove ref from registry (needed when not preserved, otherwise editors cannot see their own quest)
+            registry.remove(quest.getID());
         }
 
-        // remove ref from registry
-        registry.remove(quest.getID());
+        // remove traces from world
+        PlayerQuests.getInstance().remove(quest);
 
         // remove ref from questers
         questers.values().stream().forEach(quester -> {
             quester.removeQuest(quest);
         });
-
-        // remove traces from world
-        PlayerQuests.getInstance().remove(quest);
     }
 
     /**
@@ -185,6 +196,8 @@ public class QuestRegistry {
      * @return whether the operation was successful or not
      */
     public Boolean delete(Quest quest) {
+        UUID creator = quest.getCreator(); // get the creator if this quest has one
+
         // try to remove from files
         try {
             FileUtils.delete(this.questPath + "/" + quest.getID() + ".json");
@@ -192,11 +205,21 @@ public class QuestRegistry {
             // remove from registry
             this.remove(quest);
 
+            // refund resources
+            quest.refund();
+
         } catch (IOException e) {
-            ChatUtils.message("Could not delete the " + quest.getTitle() + " quest")
-                .player(Bukkit.getPlayer(quest.getCreator()))
+            MessageBuilder errorMessage = ChatUtils.message("Could not delete the " + quest.getTitle() + " quest. " + e)
                 .type(MessageType.ERROR)
-                .send();
+                .target(MessageTarget.CONSOLE);
+
+            if (creator != null) { // send the error to the player if there is a creator UUID
+                errorMessage
+                    .player(Bukkit.getPlayer(creator))
+                    .style(MessageStyle.PRETTY);
+            }
+                
+            errorMessage.send();
             return false;
         }
 
@@ -219,8 +242,7 @@ public class QuestRegistry {
      * @param quester a quest client
      */
     public void addQuester(QuestClient quester) {
-        questers.put(Bukkit.getPlayer(quester.getPlayer().getUniqueId()), quester);
-        quester.update(); // add quests from registry
+        questers.put(quester.getPlayer(), quester);
     }
 
     /**
@@ -252,10 +274,22 @@ public class QuestRegistry {
      * @return the quest object
      */
     public Quest getQuest(String questID) {
+        return this.getQuest(questID, false);
+    }
+
+    /**
+     * Get a quest from the quest registry.
+     * If fails from quest registry, you can choose
+     * for it to search the questPath (resources folder).
+     * @param questID the quest ID
+     * @param searchFS whether to try searching the FS
+     * @return the quest object
+     */
+    public Quest getQuest(String questID, Boolean searchFS) {
         Quest result = this.getAllQuests().get(questID);
 
         // search in filesystem
-        if (result == null) {
+        if (result == null && searchFS) {
             System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the resources quest template files.");
 
             // attempt finding it in the files and uploading to database

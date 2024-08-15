@@ -125,6 +125,15 @@ public class ChatUtils {
         }
 
         /**
+         * For editing the base message.
+         * @param the potatos of what the message is
+         */
+        public MessageBuilder content(String baseMessage) {
+            this.content = baseMessage;
+            return this;
+        }
+
+        /**
          * For adding a message type
          * @param messageType the MessageType enum
          * @return the MessageBuilder to chain next function.

@@ -1,305 +1,239 @@
 package playerquests.client.quest;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.UUID;
+import java.util.HashMap; // hash map type
+import java.util.Map; // generic map type
+import java.util.UUID; // unique identifiers for (usually) players
+import java.util.concurrent.CompletableFuture; // async + callbacks
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit; // the in-game API
+import org.bukkit.entity.Player; // the in-game player object
 
-import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.data.ConnectionsData;
-import playerquests.builder.quest.stage.QuestStage;
-import playerquests.product.Quest;
-import playerquests.utility.singleton.Database;
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.builder.quest.action.QuestAction; // quest product: actions
+import playerquests.builder.quest.data.ConnectionsData; // quest product: what action/stage connects to what
+import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.stage.QuestStage; // quest product: stages
+import playerquests.product.Quest; // quest product
+import playerquests.utility.ChatUtils; // sending messages systematically
+import playerquests.utility.ChatUtils.MessageStyle; // how the message looks
+import playerquests.utility.ChatUtils.MessageTarget; // who the message sends to
+import playerquests.utility.ChatUtils.MessageType; // what the message is
+import playerquests.utility.singleton.Database; // everything preservation store
+import playerquests.utility.singleton.QuestRegistry; // quest store
 
 public class QuestDiary {
 
-    private Integer dbPlayerID = null;
+    /**
+     * The identifier for the player this diary represents.
+     */
+    private String playerID; // just the Bukkit player uuid
 
-    private Integer dbDiaryID = null;
+    /**
+     * The identifier for this diary.
+     */
+    private String diaryID; // diary_[Bukkit player uuid]
 
-    public QuestDiary(Integer dbPlayerID) {
-        this.dbPlayerID = dbPlayerID;
+    /**
+     * The state (progress) of a quest.
+     */
+    private Map<Quest, ConnectionsData> questProgress = new HashMap<Quest, ConnectionsData>();
 
-        this.init();
+    /**
+     * Constructs a new {@link QuestDiary} instance for the specified player.
+     * 
+     * This constructor initializes a {@link QuestDiary} with the given player ID and sets up
+     * the diary for storage in the database. The diary is preserved in the database using
+     * {@link Database#getInstance()}.{@code addDiary(QuestDiary)}.
+     * 
+     * @param playerID The unique identifier for the player, represented as a {@link UUID}. This ID
+     *                 is used to associate the diary with the player.
+     */
+    public QuestDiary(QuestClient client) {
+        // initialise values
+        this.playerID = client.getPlayer().getUniqueId().toString(); // Initialize playerID
+        this.diaryID = "diary_" + this.playerID; // Initialize diaryID
+
+        // set-up for preserving the diary in the db
+        Database.getInstance().addDiary(this);
+
+        // instantiate quest progress from the db
+        // and update the client when we have results!
+        loadQuestProgress().thenRun(() -> {
+            // fill in un-completed/un-started quests
+            QuestRegistry.getInstance().getAllQuests().values().stream().forEach((quest) -> {
+                // put the quest from the start 
+                // (we know it's unstarted because we are using the quest's default ConnectionsData, 
+                // ConnectionsData is the thing that tracks quest progress. It does it by identifying the
+                // previous, current and next action/stage).
+                this.questProgress.putIfAbsent(quest, quest.getConnections());
+            });
+
+            client.update();
+        });
     }
 
-    public void init() {
-        Integer id = null;
-
-        id = this.getDiaryID(dbPlayerID);
-
-        if (id == null) {
+    /**
+     * Get the quest progress as stored in the database.
+     * Should only run on first ever instantiation.
+     */
+    private CompletableFuture<Void> loadQuestProgress() {
+        return CompletableFuture.supplyAsync(() -> {
             try {
-                String createQuestDiarySQL = "INSERT OR REPLACE INTO diaries (player) VALUES (?)";
-
-                PreparedStatement preparedStatement = Database.getConnection().prepareStatement(createQuestDiarySQL);
-
-                preparedStatement.setInt(1, dbPlayerID);
-
-                preparedStatement.execute();
-
-                Database.getConnection().close();
-                
-                id = this.getDiaryID(dbPlayerID);
-
-            } catch (SQLException e) {
-                System.err.println("Could not create a diary for the " + dbPlayerID + " database player ID: " + e.getMessage());
+                // Retrieve the quest progress,
+                // and store locally
+                this.questProgress = Database.getInstance().getQuestProgress(this);
+            } catch (Exception e) {
+                // Report something critical went wrong
+                ChatUtils.message("Failed to load quest progress for: " + this.getPlayer() + ", " + e)
+                    .target(MessageTarget.CONSOLE)
+                    .type(MessageType.ERROR)
+                    .style(MessageStyle.PLAIN)
+                    .send();
             }
-        }
 
-        this.dbDiaryID = id;
+            // Returning no data, only the completion handler
+            return null;
+        });
     }
 
-    public Player getPlayer(Integer dbPlayerID) {
-        try {
-            String getPlayerSQL = "SELECT uuid FROM players WHERE id = ?";
-
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getPlayerSQL);
-
-            preparedStatement.setInt(1, dbPlayerID);
-
-            ResultSet results = preparedStatement.executeQuery();
-            UUID playerUUID = UUID.fromString(results.getString("uuid"));
-            Player player = Bukkit.getPlayer(playerUUID);
-
-            Database.getConnection().close();
-
-            return player;
-        } catch (SQLException e) {
-            System.err.println("Could not get player from the " + dbPlayerID + " database ID: " + e.getMessage());
-            return null;
-        }
+    /**
+     * Retrieves a {@link Player} object from the Bukkit server using the provided player ID.
+     * 
+     * This method uses the player's ID to fetch the corresponding {@link Player} instance from
+     * the server. If the player is not currently online or if the ID is invalid, the method may return
+     * {@code null}.
+     * 
+     * @return The {@link Player} object associated with the specified ID, or {@code null} if the player
+     *         is not online or the ID is invalid.
+     */
+    public Player getPlayer() {
+        return Bukkit.getPlayer(
+            UUID.fromString(this.playerID)
+        );
     }
 
-    public ConnectionsData getQuestProgress(String questID) {
-        ConnectionsData connections = new ConnectionsData();
+    /**
+     * Retrieves the progress of a specified quest.
+     * 
+     * This method looks up the {@link ConnectionsData} associated with the given quest ID
+     * from the internal map of quest progress. If the quest ID is not found in the map, it tries
+     * to find it (if it doesn't exist in {@link QuestRegistry}, then it returns {@code null}).
+     * 
+     * @param questID The unique identifier for the quest, represented as a {@link String}.
+     *                This ID is used to locate the corresponding {@link ConnectionsData} in the
+     *                quest progress map.
+     * 
+     * @return The {@link ConnectionsData} object associated with the specified quest ID, or
+     *         {@code null} if there is no progress data associated with that quest ID.
+     */
+    public ConnectionsData getQuestProgress(Quest quest) {
+        ConnectionsData progress = this.questProgress.get(quest);
 
-        try {
-            String getQuestProgressSQL = "SELECT * FROM diary_quests WHERE quest = ? AND diary = ?";
-
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
-
-            preparedStatement.setString(1, questID);
-            preparedStatement.setInt(2, this.dbDiaryID);
-
-            ResultSet results = preparedStatement.executeQuery();
-            String stageResult = results.getString("stage");
-            String actionResult = results.getString("action");
-            String questResult = results.getString("quest");
-
-            Database.getConnection().close();
-
-            // if no quest progress made for this quest ID
-            if (questResult == null) {
-                return null;
-            }
-
-            // retrieve quest details
-            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
-            QuestStage stage = quest.getStages().get(stageResult);
-
-            // set default connections
-            connections = stage.getConnections();
-
-            // in case connections aren't set properly in the stage
-            if (connections.getCurr() == null) {
-                connections.setCurr(stage.getID());
-            }
-
-            // drill down specific current if available
-            if (actionResult != null) {
-                QuestAction action = stage.getActions().get(actionResult);
-                ConnectionsData actionConnections = action.getConnections();
-
-                if (actionConnections.getCurr() == null) {
-                    connections.setCurr(action.getID());
-                } else {
-                    connections = actionConnections;
-                }
-
-            }
-
-            return connections;
-        } catch (SQLException e) {
-            System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
-            return null;
+        // if no progress found, it must mean the quest isn't in the diary yet
+        if (progress == null) {
+            this.addQuest(quest);
+            progress = quest.getConnections(); // provide
         }
+
+        return progress;
+    }
+
+    /**
+     * Retrieves the progress of all quests.
+     * 
+     * @return The {@link ConnectionsData} object associated with the specified quest ID, or
+     *         {@code null} if there is no progress data associated with that quest ID.
+     */
+    public Map<Quest,ConnectionsData> getQuestProgress() {
+        return this.questProgress;
     }
 
     /**
      * Gets the current stage the player is up to
      * in the quest.
-     * @param questID quest ID to find the action on
+     * @param quest quest to find the action in
      * @return quest stage object
      */
-    public QuestStage getStage(String questID) {
-        QuestStage stage;
+    public QuestStage getStage(Quest quest) {
+        return this.getStage(quest, false); // just get the current
+    }
 
-        try {
-            String getQuestProgressSQL = "SELECT quest, stage FROM diary_quests WHERE quest = ? AND diary = ?";
+    /**
+     * Gets the stage the player is up to
+     * in the quest.
+     * @param quest quest to find the action in
+     * @param next whether to get the next stage
+     * @return quest stage object
+     */
+    public QuestStage getStage(Quest quest, Boolean next) {
+        ConnectionsData progress = this.getQuestProgress(quest);
 
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
-
-            preparedStatement.setString(1, questID);
-            preparedStatement.setInt(2, this.dbDiaryID);
-
-            ResultSet results = preparedStatement.executeQuery();
-            String stageResult = results.getString("stage");
-            String questResult = results.getString("quest");
-
-            Database.getConnection().close();
-
-            // if no quest progress made for this quest ID
-            if (questResult == null) {
-                return null;
-            }
-
-            // retrieve quest details
-            Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
-            stage = quest.getStages().get(stageResult);
-
-        } catch (SQLException e) {
-            System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
-            return null;
+        if (next) {
+            return progress.getNext().getStage(quest);
         }
 
-        return stage;
+        return progress.getCurr().getStage(quest);
     }
 
     /**
      * Gets the current action the player is up to
      * in the quest.
-     * @param questID quest ID to find the action on
+     * @param quest quest to find the action in
      * @return quest action object
      */
-    public QuestAction getAction(String questID) {
-        QuestAction action;
-
-        try {
-            String getQuestProgressSQL = "SELECT quest, action FROM diary_quests WHERE quest = ? AND diary = ?";
-
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getQuestProgressSQL);
-
-            preparedStatement.setString(1, questID);
-            preparedStatement.setInt(2, this.dbDiaryID);
-
-            ResultSet results = preparedStatement.executeQuery();
-            String actionResult = results.getString("action");
-            String questResult = results.getString("quest");
-
-            Database.getConnection().close();
-
-            // if no quest progress made for this quest ID
-            if (questResult == null) {
-                return null;
-            }
-
-            // retrieve quest details
-            action = this.getStage(questID).getActions().get(actionResult);
-
-        } catch (SQLException e) {
-            System.err.println("Could not get progress of quest " + questID + ": " + e.getMessage());
-            return null;
-        }
-
-        return action;
+    public QuestAction getAction(Quest quest) {
+        return this.getAction(quest, false); // just get the current
     }
 
-    public void setQuestProgress(String questID, ConnectionsData connections) {
-        Player player = this.getPlayer(this.dbPlayerID);
-        Quest quest = QuestRegistry.getInstance().getAllQuests().get(questID);
-        Map<String, QuestAction> actions = quest.getActions();
+    /**
+     * Gets the action the player is up to
+     * in the quest.
+     * @param quest quest to find the action in
+     * @param next whether to get next action
+     * @return quest action object
+     */
+    public QuestAction getAction(Quest quest, Boolean next) {
+        ConnectionsData progress = this.getQuestProgress(quest);
+        StagePath point = next ? progress.getNext() : progress.getCurr();
 
-        if (player == null) {
-            System.err.println("No player found for this QuestDiary, cannot try to set Quest progress.");
+        // if no action found
+        if (point.getAction(quest) == null) {
+            return point.getStage(quest).getEntryPoint().getAction(quest);
+        }
+
+        // otherwise just return action
+        return point.getAction(quest);
+    }
+
+    public void setQuestProgress(Quest quest, ConnectionsData connections) {
+        // figure out if is already listed
+        if (this.questProgress.containsKey(quest)) {
+            // replace the existing with new
+            this.questProgress.replace(quest, connections);
             return;
         }
 
-        try {
-
-            String setQuestProgressSQL = "INSERT OR REPLACE INTO diary_quests (id, stage, action, quest, diary) VALUES (?, ?, ?, ?, ?)";
-
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(setQuestProgressSQL);
-
-            preparedStatement.setString(1, player.getUniqueId().toString() + "_" + questID);
-
-            // default to initial values
-            preparedStatement.setString(2, quest.getEntry());
-            preparedStatement.setString(3, quest.getStages().get(quest.getEntry()).getEntryPoint().getID());
-
-            // get the current quest stage or action
-            String currentConnection = connections.getCurr();
-
-            if (currentConnection != null) {
-            // stage-based current
-                if (currentConnection.contains("stage")) {
-                    preparedStatement.setString(2, currentConnection);
-                    preparedStatement.setString(3, quest.getStages().get(currentConnection).getEntryPoint().getID()); // get the ID of the entry action
-                }
-
-                // action-based current
-                if (currentConnection.contains("action") && actions.containsKey(currentConnection)) {
-                    String stageID = actions.get(currentConnection).getStage().getID();
-
-                    preparedStatement.setString(2, stageID);
-                    preparedStatement.setString(3, currentConnection);
-                }
-            }
-            
-            // set remaining values
-            preparedStatement.setString(4, questID);
-            preparedStatement.setInt(5, this.dbDiaryID);
-
-            preparedStatement.execute();
-            
-            Database.getConnection().close();
-
-        } catch (SQLException e) {
-            System.err.println("Could not set or update quest progress for the " + questID + " quest: " + e.getMessage());
-            return;
-        }
+        // add to the list
+        this.questProgress.put(quest, connections);
     }
 
-    public Integer getDiaryID(Integer dbPlayerID) {
-        if (dbDiaryID != null) {
-            return dbDiaryID;
-        }
-
-        try {
-            String getDiarySQL = "SELECT id FROM diaries WHERE player = ?";
-
-            PreparedStatement preparedStatement = Database.getConnection().prepareStatement(getDiarySQL);
-
-            preparedStatement.setInt(1, dbPlayerID);
-            
-            ResultSet results = preparedStatement.executeQuery();
-            Integer id = results.getInt("id");
-
-            Database.getConnection().close();
-
-            // if not found (it will return 0)
-            if (id.equals(0)) {
-                return null;
-            }
-
-            return id;
-        } catch (SQLException e) {
-            System.err.println("Could not get diary ID, from player with the database ID: " + dbPlayerID + ": " + e.getMessage());
-            return null;
-        }
+    public String getDiaryID() {
+        return this.diaryID;
     }
 
-    public void addQuest(String questID) {
-        if (this.getQuestProgress(questID) != null) {
-            return;
-        }
+    public String getPlayerID() {
+        return this.playerID;
+    }
 
-        this.setQuestProgress(questID, new ConnectionsData());
+    public void addQuest(Quest quest) {
+        this.setQuestProgress(
+            quest, 
+            quest.getConnections()
+        );
+    }
+
+    public void removeQuest(Quest quest) {
+        // destroy quest and progress :(
+        this.questProgress.remove(quest);
     }
     
 }

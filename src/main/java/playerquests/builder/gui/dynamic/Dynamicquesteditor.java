@@ -6,9 +6,10 @@ import java.util.Arrays; // generic array handling
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
 import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
-import playerquests.builder.gui.function.Save; // saves data via GUI button
+import playerquests.builder.gui.function.Save;
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
+import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector; // accessing the client state
 
 /**
@@ -104,11 +105,9 @@ public class Dynamicquesteditor extends GUIDynamic {
                     Dynamicselectconnection selector = (Dynamicselectconnection) function.getDynamicGUI();
 
                     selector.onSelect((selected) -> {
-                        questBuilder.setEntryPoint(selector.selectedStage);
-
-                        if (selector.selectedAction != null) {
-                            selector.selectedStage.setEntryPoint(selector.selectedAction.getID());
-                        }
+                        // get the chosen entry point (as a stage path 'stage_[num].action_[num]' for precision)
+                        StagePath path = (StagePath) selected;
+                        questBuilder.setEntryPoint(new StagePath(path.getStage(), path.getAction()));
                     });
                 }).execute();
             });

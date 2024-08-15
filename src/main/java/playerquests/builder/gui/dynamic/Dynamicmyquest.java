@@ -6,17 +6,12 @@ import java.util.Arrays; // generic arrays type
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI window
 import playerquests.builder.gui.component.GUISlot; // inventory slots representing GUI buttons
 import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
-import playerquests.builder.quest.QuestBuilder; // for quest management
+import playerquests.builder.quest.QuestBuilder; // instantiating a builder for the quest (for editing an existing quest)
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
 import playerquests.product.Quest; // complete quest objects
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
 public class Dynamicmyquest extends GUIDynamic {
-
-    /**
-     * The current quest
-     */
-    QuestBuilder questBuilder;
 
     /**
      * The quest product
@@ -35,8 +30,7 @@ public class Dynamicmyquest extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         // retrieve the current quest from the client director
-        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
-        this.quest = questBuilder.build();
+        this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
     }
 
     @Override
@@ -44,7 +38,7 @@ public class Dynamicmyquest extends GUIDynamic {
         GUIFrame guiFrame = this.gui.getFrame();
 
         // set the GUI window title
-        String questTitle = this.questBuilder.getTitle();
+        String questTitle = this.quest.getTitle();
         Integer questTitleLimit = 12;
         guiFrame.setTitle(
             String.format(
@@ -67,10 +61,16 @@ public class Dynamicmyquest extends GUIDynamic {
         new GUISlot(gui, 3)
             .setItem("WRITABLE_BOOK")
             .setLabel("Edit")
-            .addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList("questeditor")), 
-                director
-            ));
+            .onClick(() -> {
+                // create a quest builder (for editing)
+                director.setCurrentInstance(new QuestBuilder(director, this.quest));
+
+                // open the editor
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList("questeditor")), 
+                    director
+                ).execute();
+            });
 
         // create remove quest button (with confirmation check)
         if (confirm_delete.equals(false)) {
@@ -87,7 +87,7 @@ public class Dynamicmyquest extends GUIDynamic {
                 .setLabel("Delete (Confirm)")
                 .onClick(() -> {
                     // delete the quest
-                    Boolean deleted = QuestRegistry.getInstance().delete(questBuilder.build());
+                    Boolean deleted = QuestRegistry.getInstance().delete(quest);
 
                     // go back if successful
                     if (deleted) {
@@ -100,22 +100,15 @@ public class Dynamicmyquest extends GUIDynamic {
         }
 
         // create quest toggle button
-        // to toggle on
-        GUISlot toggleButton = new GUISlot(gui, 9)
-            .setItem("GRAY_STAINED_GLASS_PANE")
-            .setLabel("Toggle On");
-
-        if (quest.isToggled()) {
-            // to toggle off
-            toggleButton
-                .setItem("GREEN_STAINED_GLASS_PANE")
-                .setLabel("Toggle Off");
-        }
-
-        toggleButton.onClick(() -> {
-            quest.toggle();
-            this.execute(); // refresh UI
-        });
+        Boolean isToggled = quest.isToggled();
+        
+        new GUISlot(gui, 9)
+            .setItem(isToggled ? "GREEN_STAINED_GLASS_PANE" : "GRAY_STAINED_GLASS_PANE")
+            .setLabel(isToggled ? "Toggle Off" : "Toggle On")
+            .onClick(() -> {
+                quest.toggle();
+                this.execute(); // refresh UI
+            });
     }
     
 }

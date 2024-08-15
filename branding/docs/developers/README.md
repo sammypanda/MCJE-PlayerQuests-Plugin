@@ -28,11 +28,11 @@ TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage
 
 # How To Get Functionality: 'Templates'
 ###### We have Meta and Quest Actions, but how do we actually use them?
-TODO: Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
+Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
 ```json
 {
     "title": String, // label of the entire quest
-    "entry": String, // (as in 'entry point') where the quest starts
+    "entry": String, // Path: (as in 'entry point') where the quest starts
     "creator": UUID, // the player who created this quest
     "id": String, // the id, composed of: [Quest Title]_[Creator UUID]
     "npcs": { // directory of all the quest npcs
@@ -55,7 +55,7 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
         "stage_0": { // Stage ID (automatically generated)
             "notable": Boolean, // if it would show up as a chapter in a book; a notable stage
             "label": String, // the label for just this stage, as if it were a chapter
-            "entry": String, // where the stage starts
+            "entry": String, // Path: where the stage starts
             "actions": { // directory of all this stage's actions
                 "action_0": {  // Action ID (automatically generated)
                     "type": String, // Quest Action type
@@ -70,15 +70,16 @@ TODO: Usually you would never need this, but this is what makes it all tick. Whe
                 }
             },
             "connections": { // defining where the stage is in the quest
-                "next": @Nullable String, // where to go if the stage succeeds
-                "curr": @Nullable String, // where to return to if the stage is exited
-                "prev": @Nullable String // where to go if the stage fails
+                "next": @Nullable String, // Path: where to go if the stage succeeds
+                "curr": @Nullable String, // Path: where to return to if the stage is exited
+                "prev": @Nullable String // Path: where to go if the stage fails
             }
         },
     }
 }
 ```
-*It's worth noting that just because the IDs are incremental, all starting from zero, doesn't mean they are expected to be kept/used in order or in sequence.*
+- *It's worth noting that just because the IDs are incremental, all starting from zero, doesn't mean they are expected to be kept/used in order or in sequence.*
+- *'Path:' means the string is represented something like: "stage_0.action_0", it can also be just like: "stage_0"*
 
 # How It All Works: 'Specification'
 ###### the way to visualise/think about, and implement the program.
