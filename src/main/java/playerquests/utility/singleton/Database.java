@@ -175,8 +175,8 @@ public class Database {
             String latest = tree.findValue("tag_name").textValue(); // get latest tag_name (for example "v0.5")
 
             // Alert if latest version is different to current
-            // (this will happen on snapshots too, but the compute for this edge case doesn't seem worthwhile)
-            if ("v"+version != latest) {
+            // (this could happen on snapshots, but the compute for this edge case doesn't seem worthwhile)
+            if (!("v"+version).equals(latest)) {
                 alert.content("A new release is available! " + latest)
                     .send();
             }
@@ -196,6 +196,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
             
             switch (version) {
+                case "0.5.2":
                 case "0.5.1":
                     query.append(MigrationUtils.dbV0_5_1());
                 case "0.5":
