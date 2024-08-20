@@ -98,24 +98,30 @@ public class SelectBlock extends GUIFunction {
 
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
+            // if the event is coming from a different player
             if (this.player != event.getPlayer()) {
                 return; // do not capture other players events
-            }
-
-            if (deniedMethods.contains(SelectMethod.CHAT)) {
-                return; // do not continue
             }
 
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
-                if (event.getMessage().toLowerCase().equals("exit")) { // if wanting to exit
+                String message = event.getMessage();
+
+                // if wanting to exit (or trying to do another command)
+                if (message.toLowerCase().equals("exit")) {
                     this.parentClass.setCancelled(true);
                     this.parentClass.execute(); // run with cancellation
-                } else { // if trying to set a block using the chat box
-                    if (!deniedMethods.contains(SelectMethod.CHAT)) { // if CHAT mode enabled
-                        this.parentClass.setResponse(event.getMessage()); // set
-                    }
+                }
+
+                // if selecting block with chat is not allowed
+                if (deniedMethods.contains(SelectMethod.CHAT)) {
+                    return; // do not continue
+                }
+
+                // if trying to set a block using the chat box
+                if (!deniedMethods.contains(SelectMethod.CHAT)) { // if CHAT mode enabled
+                    this.parentClass.setResponse(message); // set
                 }
             });
         }
