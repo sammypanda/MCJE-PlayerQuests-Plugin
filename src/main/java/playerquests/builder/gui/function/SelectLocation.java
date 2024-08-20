@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent; // event which captures what block was placed
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import playerquests.Core;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
@@ -44,6 +45,19 @@ public class SelectLocation extends GUIFunction {
         public SelectLocationListener(SelectLocation parent, Player player) {
             this.parentClass = parent;
             this.player = player;
+        }
+
+        @EventHandler
+        private void onCommand(PlayerCommandPreprocessEvent event) {
+            // do not capture other players events
+            if (this.player != event.getPlayer()) {
+                return;
+            }
+
+            // exit SelectLocation
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
+                this.parentClass.exit();
+            });
         }
 
         @EventHandler
@@ -191,12 +205,12 @@ public class SelectLocation extends GUIFunction {
      * @return a bukkit BlockData type
      */
     public BlockData getBlockData() {
-        if (this.blockData != null) {
-            return this.blockData;
+        if (this.blockData == null) {
+            System.err.println("The block was requested from LocationData, without a block having been set.");
+            
         }
-
-        System.err.println("The block was requested from LocationData, without a block having been set.");
-        return Material.BARRIER.createBlockData(); // give a default, instead of failing
+        
+        return this.blockData;
     }
 
     /**
