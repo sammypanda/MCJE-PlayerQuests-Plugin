@@ -205,12 +205,12 @@ public class SelectLocation extends GUIFunction {
      * @return a bukkit BlockData type
      */
     public BlockData getBlockData() {
-        if (this.blockData != null) {
-            return this.blockData;
+        if (this.blockData == null) {
+            System.err.println("The block was requested from LocationData, without a block having been set.");
+            
         }
-
-        System.err.println("The block was requested from LocationData, without a block having been set.");
-        return Material.BARRIER.createBlockData(); // give a default, instead of failing
+        
+        return this.blockData;
     }
 
     /**
