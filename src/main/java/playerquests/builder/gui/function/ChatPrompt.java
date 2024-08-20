@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler; // handling spigot events
 import org.bukkit.event.HandlerList; // to unregister event listener (ChatPromptListener)
 import org.bukkit.event.Listener; // to register event listener (ChatPromptListener)
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.ChatColor; // used to format the chat messages to guide user input/UX
 import org.bukkit.entity.HumanEntity; // usually the player
 import org.bukkit.entity.Player; // refers to the player
@@ -43,6 +44,19 @@ public class ChatPrompt extends GUIFunction {
         public ChatPromptListener(ChatPrompt parent, Player player) {
             this.parentClass = parent;
             this.player = player;
+        }
+
+        @EventHandler
+        private void onCommand(PlayerCommandPreprocessEvent event) {
+            // do not capture other players events
+            if (this.player != event.getPlayer()) {
+                return;
+            }
+
+            // exit ChatPrompt
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
+                this.parentClass.exit();
+            });
         }
 
         /**
