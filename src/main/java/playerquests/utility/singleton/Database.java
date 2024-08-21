@@ -49,8 +49,6 @@ import playerquests.utility.ChatUtils.MessageType;
 * API representing and providing access to the game database.
 * This when instantiated, creates and/or opens the game database.
 */
-// TODO: unrealtime-ify the database use-case/move all database things to Database, and synchronise to one thread (use transaction probs, they seem to handle concurrency)
-// TODO: ditch using id for players table, use uuid as primary key
 public class Database {
     
     /**
