@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material; // used to create fallback BlockData
 import org.bukkit.block.Block; // data object representing a placed block
 import org.bukkit.block.data.BlockData; // data object representing the metadata of a block
 import org.bukkit.entity.HumanEntity; // usually the player
