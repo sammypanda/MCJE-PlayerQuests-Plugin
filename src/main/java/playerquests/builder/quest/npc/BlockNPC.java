@@ -1,10 +1,12 @@
 package playerquests.builder.quest.npc;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material; // deprecated: material representing the block, representing this NPC
 import org.bukkit.block.data.BlockData; // block representing this NPC
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising properties
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
@@ -95,9 +97,22 @@ public class BlockNPC extends NPCType {
     @Override
     @JsonIgnore
     public void refund(Player player) {
-        // return the NPC block to the player
-        player.getInventory().addItem(
-            new ItemStack(this.getBlock().getMaterial())
-        );
+        ItemStack item = new ItemStack(this.getBlock().getMaterial());
+        PlayerInventory playerInventory = player.getInventory();
+
+        // if player inventory is not full
+        if (playerInventory.firstEmpty() != -1) {
+
+            // return the NPC block to the player
+            playerInventory.addItem(
+                item
+            );
+
+            return; // don't continue
+        }
+
+        // if player inventory is full
+        Location playerLocation = player.getLocation();
+        playerLocation.getWorld().dropItem(playerLocation, item);
     }
 }
