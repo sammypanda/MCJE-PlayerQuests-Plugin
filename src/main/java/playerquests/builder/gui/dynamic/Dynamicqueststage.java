@@ -160,6 +160,10 @@ public class Dynamicqueststage extends GUIDynamic {
                             this.director
                         ).execute();
                     }
+
+                    // replace the quest
+                    Quest updatedQuest = this.questBuilder.build();
+                    QuestRegistry.getInstance().replace(updatedQuest.getID(), updatedQuest);
                 });
         }
 

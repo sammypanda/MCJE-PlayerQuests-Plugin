@@ -10,6 +10,8 @@ import playerquests.builder.gui.function.UpdateScreen; // another GUI function t
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.product.Quest;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic GUI listing the players current quest stages.
@@ -99,6 +101,11 @@ public class Dynamicqueststages extends GUIDynamic {
                         )
                     );
 
+                    // replace the quest
+                    Quest updatedQuest = this.questBuilder.build();
+                    QuestRegistry.getInstance().replace(updatedQuest.getID(), updatedQuest);
+
+                    // update UI
                     this.gui.clearSlots();
                     this.execute(); // rebuild GUI
                 });
