@@ -1,5 +1,7 @@
 package playerquests.utility;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream; // to dynamically create a sized array
 
 import javax.annotation.Nullable;
@@ -249,5 +251,39 @@ public class ChatUtils {
      */
     public static MessageBuilder message(String content) {
         return new MessageBuilder(content);
+    }
+
+    /**
+     * A list of the exit keywords.
+     * Stored in capitals, so to compare use toUpperCase().
+     */
+    public static List<String> getExitKeywords() {
+        return Arrays.asList("EXIT", "E", "X");
+    }
+
+    /**
+     * A list of the confirm keywords.
+     * Stored in capitals, so to compare use toUpperCase().
+     */
+    public static List<String> getConfirmKeywords() {
+        return Arrays.asList("CONFIRM", "C");
+    }
+
+    /**
+     * Check if a string is an exit keyword.
+     * @param keyword the string that might be an exit keyword
+     * @return whether the keyword is or isn't indicating an exit
+     */
+    public static Boolean isExitKeyword(String keyword) {
+        return getExitKeywords().contains(keyword.toUpperCase());
+    }
+
+    /**
+     * Check if a string is a confirm keyword.
+     * @param keyword the string that might be a confirm keyword
+     * @return whether the keyword is or isn't indicating a confirm
+     */
+    public static Boolean isConfirmKeyword(String keyword) {
+        return getConfirmKeywords().contains(keyword.toUpperCase());
     }
 }
