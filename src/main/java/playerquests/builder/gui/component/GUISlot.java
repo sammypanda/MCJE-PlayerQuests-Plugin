@@ -223,6 +223,7 @@ public class GUISlot {
      * Sets the hover subtitle/description for this instance of {@link GUISlot}.
      * <p>
      * Includes some processing/formatting of the label.
+     * To clear the description set as a space string: " "
      * @param description the description of the button
      * @return the modified instance of the slot builder
      */
@@ -231,7 +232,7 @@ public class GUISlot {
 
         // Evaluate label for error prefix and avoid malformatting labels
         description = String.format("%s%s%s%s", 
-            ChatColor.RESET, // remove the italics set when changing from default item display name
+            description.isBlank() ? "" : ChatColor.RESET, // remove the italics set when changing from default item display name
             this.hasError() ? errorDescription : "", // add an error notice if applicable
             this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
             this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
