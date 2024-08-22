@@ -194,7 +194,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
             
             switch (version) {
-                case "0.5.4":
+                case "0.6":
                 case "0.5.2":
                 case "0.5.1":
                     query.append(MigrationUtils.dbV0_5_1());
