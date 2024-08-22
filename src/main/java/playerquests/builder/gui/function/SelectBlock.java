@@ -124,7 +124,7 @@ public class SelectBlock extends GUIFunction {
                 String message = event.getMessage();
 
                 // if wanting to exit (or trying to do another command)
-                if (ChatUtils.getExitKeywords().contains(message.toUpperCase())) {
+                if (ChatUtils.isExitKeyword(message)) {
                     this.parentClass.setCancelled(true);
                     this.parentClass.execute(); // run with cancellation
                 }
