@@ -205,7 +205,8 @@ public class ChatPrompt extends GUIFunction {
             return;
         }
 
-        if (this.value.toUpperCase().equals("EXIT")) {
+        // if the value is an exit keyword
+        if (ChatUtils.getExitKeywords().contains(this.value.toUpperCase())) {
             putPredefinedMessage(MessageType.EXITED);
             this.confirmedValue = false;
             this.exit();
@@ -243,7 +244,7 @@ public class ChatPrompt extends GUIFunction {
      * @param value the user input
      */
     public void setResponse(String value) {
-        if (value.toUpperCase().equals("CONFIRM")) {
+        if (ChatUtils.getConfirmKeywords().contains(value.toUpperCase())) {
             this.confirmedValue = true;
             return;
         }
