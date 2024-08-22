@@ -11,6 +11,8 @@ import playerquests.builder.gui.function.UpdateScreen; // changing the GUI scree
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector; // accessing the client state
+import playerquests.product.Quest;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic GUI used for editing a quest.
@@ -66,12 +68,18 @@ public class Dynamicquesteditor extends GUIDynamic {
         new GUISlot(gui, 3) // set quest title button
             .setItem("ACACIA_HANGING_SIGN")
             .setLabel("Set Title")
-            .addFunction(
+            .onClick(() -> {
+                Quest oldQuest = questBuilder.build();
+
                 new ChatPrompt(
                     new ArrayList<>(Arrays.asList("Enter quest title", "quest.title")), 
                     director
-                )
-            );
+                ).onFinish(_ -> {
+                    QuestRegistry.getInstance().replace(oldQuest.getID(), questBuilder.build());
+                    this.execute(); // refresh UI to reflect title change
+                })
+                .execute();
+            });
 
         new GUISlot(gui, 4) // view quest stages button
             .setItem("CHEST")

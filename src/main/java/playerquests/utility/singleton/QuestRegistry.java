@@ -233,7 +233,7 @@ public class QuestRegistry {
      */
     public void replace(String originalQuestID, Quest quest) {
         this.remove(registry.get(originalQuestID));
-        this.add(quest);
+        this.submit(quest);
     }
 
     /**

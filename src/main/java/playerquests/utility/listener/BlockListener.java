@@ -121,10 +121,12 @@ public class BlockListener implements Listener {
             World npcWorld = npcLocation.getWorld();
     
             // replace the NPC block
-            npcWorld.setBlockData(
-                npcLocation, 
-                replacementBlock
-            );
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // synchronously
+                npcWorld.setBlockData(
+                    npcLocation, 
+                    replacementBlock
+                );
+            });
     
             // remove the 'active npc'
             return true;
