@@ -12,7 +12,6 @@ import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
-import playerquests.product.Quest;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -161,9 +160,8 @@ public class Dynamicqueststage extends GUIDynamic {
                         ).execute();
                     }
 
-                    // replace the quest
-                    Quest updatedQuest = this.questBuilder.build();
-                    QuestRegistry.getInstance().replace(updatedQuest.getID(), updatedQuest);
+                    // update the quest
+                    QuestRegistry.getInstance().update(this.questBuilder.build());
                 });
         }
 
@@ -183,9 +181,8 @@ public class Dynamicqueststage extends GUIDynamic {
             newActionButton.onClick(() -> {
                 new None(this.questStage).submit(); // create the new action
 
-                // replace the quest
-                Quest updatedQuest = questBuilder.build();
-                QuestRegistry.getInstance().replace(updatedQuest.getID(), updatedQuest);
+                // update the quest
+                QuestRegistry.getInstance().update(this.questBuilder.build());
 
                 // refresh UI
                 this.confirm_actionKeys = false; // set actionKeys to be looped through again

@@ -246,6 +246,16 @@ public class QuestRegistry {
     }
 
     /**
+     * Shortcut for replacing a quest with itself.
+     * replace() is designed for with a new Quest, this helps just
+     * 'update' using replace.
+     * @param quester
+     */
+    public void update(Quest quest) {
+        this.replace(quest.getID(), quest);
+    }
+
+    /**
      * Adds a quest client to the registry, identified by the 
      * Player behind the client.
      * @param quester a quest client

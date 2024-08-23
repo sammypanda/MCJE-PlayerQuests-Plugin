@@ -128,9 +128,8 @@ public class Dynamicnpceditor extends GUIDynamic {
             Boolean success = npc.save(this.quest, this.npc);
 
             if (success) { // if the npc was successfully saved..
-                // replace the quest
-                Quest updatedQuest = this.npc.getQuest();
-                QuestRegistry.getInstance().replace(updatedQuest.getID(), updatedQuest);
+                // update the quest
+                QuestRegistry.getInstance().update(this.npc.getQuest());
 
                 // go back to previous screen
                 new UpdateScreen(
