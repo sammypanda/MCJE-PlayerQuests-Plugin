@@ -11,6 +11,8 @@ import playerquests.builder.gui.function.UpdateScreen; // function to change the
 import playerquests.builder.quest.QuestBuilder; // the quest itself
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.product.Quest;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Creates a dynamic GUI for editing a quest NPC.
@@ -126,6 +128,11 @@ public class Dynamicnpceditor extends GUIDynamic {
             Boolean success = npc.save(this.quest, this.npc);
 
             if (success) { // if the npc was successfully saved..
+                // replace the quest
+                Quest updatedQuest = this.npc.getQuest();
+                QuestRegistry.getInstance().replace(updatedQuest.getID(), updatedQuest);
+
+                // go back to previous screen
                 new UpdateScreen(
                     new ArrayList<>(Arrays.asList(this.previousScreen)), 
                     director
