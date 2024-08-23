@@ -45,7 +45,9 @@ public class BlockListener implements Listener {
      * @param blockNPC the block to animate
      */
     public void registerBlockNPC(Block block, BlockNPC blockNPC) {
-        activeBlockNPCs.put(block, blockNPC);
+        synchronized (activeBlockNPCs) {
+            activeBlockNPCs.put(block, blockNPC);
+        }
     }
 
     /**
@@ -63,15 +65,17 @@ public class BlockListener implements Listener {
 
         Quest quest = npc.getQuest();
 
-        Map<Block, BlockNPC> filteredBlockNPCs = activeBlockNPCs.entrySet().stream()
-            .filter(entry -> entry.getValue() != blockNPC) // filter out the blockNPC to unregister
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // collect stream back to Map
+        synchronized (activeBlockNPCs) {
+            Map<Block, BlockNPC> filteredBlockNPCs = activeBlockNPCs.entrySet().stream()
+                .filter(entry -> entry.getValue() != blockNPC) // filter out the blockNPC to unregister
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // collect stream back to Map
 
-        // replace the NPCs list with the filtered
-        activeBlockNPCs = filteredBlockNPCs;
+            // replace the NPCs list with the filtered
+            activeBlockNPCs = filteredBlockNPCs;
 
-        // remove the quest, as now it's missing the NPC
-        QuestRegistry.getInstance().remove(quest, true);
+            // remove the quest, as now it's missing the NPC
+            QuestRegistry.getInstance().remove(quest, true);
+        }
     }
     
     @EventHandler
@@ -112,24 +116,27 @@ public class BlockListener implements Listener {
 
     public void remove(Quest quest) {
         BlockData replacementBlock = Material.AIR.createBlockData();
-        this.activeBlockNPCs.entrySet().removeIf(entry -> {
-            if (!entry.getValue().getNPC().getQuest().getID().equals(quest.getID())) {
-                return false; // keep entry that doesn't match quest removal
-            }
 
-            Location npcLocation = entry.getKey().getLocation();
-            World npcWorld = npcLocation.getWorld();
-    
-            // replace the NPC block
-            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // synchronously
-                npcWorld.setBlockData(
-                    npcLocation, 
-                    replacementBlock
-                );
+        synchronized (activeBlockNPCs) {
+            this.activeBlockNPCs.entrySet().removeIf(entry -> {
+                if (!entry.getValue().getNPC().getQuest().getID().equals(quest.getID())) {
+                    return false; // keep entry that doesn't match quest removal
+                }
+
+                Location npcLocation = entry.getKey().getLocation();
+                World npcWorld = npcLocation.getWorld();
+        
+                // replace the NPC block
+                Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // synchronously
+                    npcWorld.setBlockData(
+                        npcLocation, 
+                        replacementBlock
+                    );
+                });
+        
+                // remove the 'active npc'
+                return true;
             });
-    
-            // remove the 'active npc'
-            return true;
-        });
+        }
     }
 }
