@@ -231,12 +231,28 @@ public class ServerListener implements Listener {
             );
 
             watchThread = new Thread(() -> {
+                // let the server know
+                ChatUtils.message("Started watching for changes to plugin files.")
+                    .style(MessageStyle.PLAIN)
+                    .type(MessageType.NOTIF)
+                    .target(MessageTarget.CONSOLE)
+                    .send();
+                
                 while (!Thread.currentThread().isInterrupted()) {
                     WatchKey key;
                     try {
                         key = watchService.take();
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException | ClosedWatchServiceException e) {
                         Thread.currentThread().interrupt();
+                        
+                        // let the server know
+                        ChatUtils.message("Stopped watching for changes to plugin files.")
+                            .style(MessageStyle.PLAIN)
+                            .type(MessageType.NOTIF)
+                            .target(MessageTarget.CONSOLE)
+                            .send();
+
+                        // don't continue
                         return;
                     }   
 
