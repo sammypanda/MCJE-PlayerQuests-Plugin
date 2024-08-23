@@ -11,7 +11,6 @@ import playerquests.builder.gui.function.UpdateScreen; // function to change the
 import playerquests.builder.quest.QuestBuilder; // the quest itself
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // for controlling the plugin
-import playerquests.product.Quest;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**

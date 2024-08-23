@@ -17,7 +17,6 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // describes a quest NPC
 import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
-import playerquests.product.Quest;
 import playerquests.utility.ChatUtils; // working with in-game chat
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.QuestRegistry;
@@ -85,6 +84,9 @@ public class Dynamicactioneditor extends GUIDynamic {
                     .send();
                 return;
             }
+
+            // update quest
+            QuestRegistry.getInstance().update(this.stage.getQuest());
 
             // switch GUI
             new UpdateScreen(
