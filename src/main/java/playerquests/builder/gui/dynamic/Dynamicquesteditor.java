@@ -114,6 +114,9 @@ public class Dynamicquesteditor extends GUIDynamic {
                         // get the chosen entry point (as a stage path 'stage_[num].action_[num]' for precision)
                         StagePath path = (StagePath) selected;
                         questBuilder.setEntryPoint(new StagePath(path.getStage(), path.getAction()));
+
+                        // update the quest
+                        QuestRegistry.getInstance().update(this.questBuilder.build());
                     });
                 }).execute();
             });
