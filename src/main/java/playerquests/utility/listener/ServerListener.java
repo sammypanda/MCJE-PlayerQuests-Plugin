@@ -149,7 +149,15 @@ public class ServerListener implements Listener {
                 .send();
         }
 
+        // submit/process collected quests
         submitQuestsToRegistry(allQuests);
+
+        // notify the server about the newly processed quests
+        ChatUtils.message("Finished submitting quests into server: " + allQuests)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN)
+            .type(MessageType.NOTIF)
+            .send();
     }
 
     private String getQuestName(Path path) {
@@ -196,12 +204,6 @@ public class ServerListener implements Listener {
                 Database.getInstance().removeQuest(id);
             }
         });
-
-        ChatUtils.message("Finished loading database quests into registry: " + quests)
-            .target(MessageTarget.CONSOLE)
-            .style(MessageStyle.PLAIN)
-            .type(MessageType.NOTIF)
-            .send();
     }
 
     /**

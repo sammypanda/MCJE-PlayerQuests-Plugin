@@ -236,6 +236,13 @@ public class QuestRegistry {
     public void replace(String originalQuestID, Quest quest) {
         this.delete(registry.get(originalQuestID), false);
         quest.save();
+
+        // let the server know a quest has been replaced
+        ChatUtils.message("A quest was reloaded: " + quest.getID())
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN)
+            .type(MessageType.NOTIF)
+            .send();
     }
 
     /**
