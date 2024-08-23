@@ -89,35 +89,39 @@ public class QuestClient {
      * Adds the quest effects in the world for this quester.
      */
     public void showFX() {
-        this.hideFX(); // ensure old are removed before showing
+        synchronized (activeFX) {
+            this.hideFX(); // ensure old are removed before showing
 
-        this.actionNPC.keySet().stream().forEach((npc) -> {
-            // create particle effect
-            LocationData location = npc.getLocation();
-            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> {
-                player.spawnParticle(
-                    Particle.WAX_ON,
-                    (double) location.getX() + 0.5,
-                    (double) location.getY() + 1.5,
-                    (double) location.getZ() + 0.5,
-                    5
-                );
-            }, 0, 20);
+            this.actionNPC.keySet().stream().forEach((npc) -> {
+                // create particle effect
+                LocationData location = npc.getLocation();
+                BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> { // synchronous
+                    player.spawnParticle(
+                        Particle.WAX_ON,
+                        (double) location.getX() + 0.5,
+                        (double) location.getY() + 1.5,
+                        (double) location.getZ() + 0.5,
+                        5
+                    );
+                }, 0, 20);
 
-            // store a reference to this effect for cancelling
-            activeFX.add(task);
-        });
+                // store a reference to this effect for cancelling
+                activeFX.add(task);
+            });
+        }
     }
 
     /**
      * Removes the quest effects from the world for this quester.
      */
     public void hideFX() {
-        // get all active effects and cancel
-        this.activeFX.stream().forEach((task) -> {
-            // cancel FX loops
-            scheduler.cancelTask(task.getTaskId());
-        });
+        synchronized (activeFX) {
+            // get all active effects and cancel
+            this.activeFX.stream().forEach((task) -> {
+                // cancel FX loops
+                scheduler.cancelTask(task.getTaskId());
+            });
+        }
     }
 
     /**
