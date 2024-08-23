@@ -6,11 +6,11 @@ import java.util.Arrays; // generic array handling
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
 import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
-import playerquests.builder.gui.function.Save;
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector; // accessing the client state
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic GUI used for editing a quest.
@@ -66,12 +66,18 @@ public class Dynamicquesteditor extends GUIDynamic {
         new GUISlot(gui, 3) // set quest title button
             .setItem("ACACIA_HANGING_SIGN")
             .setLabel("Set Title")
-            .addFunction(
+            .onClick(() -> {
+                String oldQuestID = questBuilder.build().getID();
+
                 new ChatPrompt(
                     new ArrayList<>(Arrays.asList("Enter quest title", "quest.title")), 
                     director
-                )
-            );
+                ).onFinish(_ -> {
+                    QuestRegistry.getInstance().replace(oldQuestID, questBuilder.build());
+                    this.execute(); // refresh UI to reflect title change
+                })
+                .execute();
+            });
 
         GUISlot stagesSlot = new GUISlot(gui, 4) // view quest stages button (blocked)
             .setItem("GRAY_STAINED_GLASS_PANE")
@@ -115,6 +121,9 @@ public class Dynamicquesteditor extends GUIDynamic {
                         // get the chosen entry point (as a stage path 'stage_[num].action_[num]' for precision)
                         StagePath path = (StagePath) selected;
                         questBuilder.setEntryPoint(new StagePath(path.getStage(), path.getAction()));
+
+                        // update the quest
+                        QuestRegistry.getInstance().update(this.questBuilder.build());
                     });
                 }).execute();
             });
@@ -122,11 +131,12 @@ public class Dynamicquesteditor extends GUIDynamic {
         new GUISlot(gui, 9) // save quest button
             .setItem("GREEN_DYE")
             .setLabel("Save")
-            .addFunction(
-                new Save(
-                    new ArrayList<>(Arrays.asList("quest")), 
-                    director
-                )
-            );
+            .onClick(() -> {
+                // save the quest
+                this.questBuilder.build().save();
+
+                // hide the GUI
+                this.gui.getResult().minimise();
+            });
     }
 }

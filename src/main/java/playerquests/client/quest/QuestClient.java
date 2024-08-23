@@ -88,13 +88,13 @@ public class QuestClient {
     /**
      * Adds the quest effects in the world for this quester.
      */
-    public void showFX() {
+    public synchronized void showFX() {
         this.hideFX(); // ensure old are removed before showing
 
         this.actionNPC.keySet().stream().forEach((npc) -> {
             // create particle effect
             LocationData location = npc.getLocation();
-            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> {
+            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> { // synchronous
                 player.spawnParticle(
                     Particle.WAX_ON,
                     (double) location.getX() + 0.5,
@@ -112,7 +112,7 @@ public class QuestClient {
     /**
      * Removes the quest effects from the world for this quester.
      */
-    public void hideFX() {
+    public synchronized void hideFX() {
         // get all active effects and cancel
         this.activeFX.stream().forEach((task) -> {
             // cancel FX loops

@@ -115,4 +115,14 @@ public class BlockNPC extends NPCType {
         Location playerLocation = player.getLocation();
         playerLocation.getWorld().dropItem(playerLocation, item);
     }
+
+    @Override
+    @JsonIgnore
+    public void penalise(Player player) {
+        ItemStack item = new ItemStack(this.getBlock().getMaterial(), 1);
+        PlayerInventory playerInventory = player.getInventory();
+
+        // subtract the block
+        playerInventory.removeItem(item);
+    }
 }

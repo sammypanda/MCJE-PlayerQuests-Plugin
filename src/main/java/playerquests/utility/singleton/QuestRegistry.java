@@ -195,7 +195,7 @@ public class QuestRegistry {
      * @param quest the quest to delete
      * @return whether the operation was successful or not
      */
-    public Boolean delete(Quest quest) {
+    public Boolean delete(Quest quest, Boolean refund) {
         UUID creator = quest.getCreator(); // get the creator if this quest has one
 
         // try to remove from files
@@ -206,7 +206,9 @@ public class QuestRegistry {
             this.remove(quest);
 
             // refund resources
-            quest.refund();
+            if (refund) {
+                quest.refund();
+            }
 
         } catch (IOException e) {
             MessageBuilder errorMessage = ChatUtils.message("Could not delete the " + quest.getTitle() + " quest. " + e)
@@ -232,8 +234,25 @@ public class QuestRegistry {
      * @param quest the new quest.
      */
     public void replace(String originalQuestID, Quest quest) {
-        this.remove(registry.get(originalQuestID));
-        this.add(quest);
+        this.delete(registry.get(originalQuestID), false);
+        quest.save();
+
+        // let the server know a quest has been replaced
+        ChatUtils.message("A quest was reloaded: " + quest.getID())
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN)
+            .type(MessageType.NOTIF)
+            .send();
+    }
+
+    /**
+     * Shortcut for replacing a quest with itself.
+     * replace() is designed for with a new Quest, this helps just
+     * 'update' using replace.
+     * @param quester
+     */
+    public void update(Quest quest) {
+        this.replace(quest.getID(), quest);
     }
 
     /**

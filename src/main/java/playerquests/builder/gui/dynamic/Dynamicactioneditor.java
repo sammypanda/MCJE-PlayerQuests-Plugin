@@ -19,6 +19,7 @@ import playerquests.builder.quest.stage.QuestStage; // describes a quest stage
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.ChatUtils; // working with in-game chat
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic GUI used for editing a quest action.
@@ -84,6 +85,9 @@ public class Dynamicactioneditor extends GUIDynamic {
                 return;
             }
 
+            // update quest
+            QuestRegistry.getInstance().update(this.stage.getQuest());
+
             // switch GUI
             new UpdateScreen(
                 new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
@@ -109,6 +113,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setLabel("Delete Action")
             .setItem("RED_DYE")
             .onClick(() -> {
+                // protect from accidental deletion
                 if (stage.getEntryPoint().getAction(stage.getQuest()).equals(action)) {
                     ChatUtils.message("Cannot remove the stage starting point action.")
                         .player(this.director.getPlayer())
@@ -117,8 +122,13 @@ public class Dynamicactioneditor extends GUIDynamic {
                     return;
                 }
 
+                // remove the action
                 stage.removeAction(action);
+                
+                // update the quest
+                QuestRegistry.getInstance().update(this.stage.getQuest());
 
+                // update UI
                 new UpdateScreen(
                     new ArrayList<>(Arrays.asList("queststage")), 
                     director

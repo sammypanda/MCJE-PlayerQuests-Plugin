@@ -208,11 +208,6 @@ public class QuestNPC {
     @JsonIgnore
     public void assign(NPCType npcType) {
         Player player = Bukkit.getPlayer(this.quest.getCreator());
-
-        if (this.assigned != null && player != null) { // if already assigned to something
-            this.refund(player);
-        }
-
         this.assigned = npcType;
     }
 
@@ -292,5 +287,10 @@ public class QuestNPC {
     @JsonIgnore
     public void refund(Player player) {
         this.getAssigned().refund(player);
+    }
+
+    @JsonIgnore
+    public void penalise(Player player) {
+        this.getAssigned().penalise(player);
     }
 }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors; // accumulating elements from a stream into 
 import java.util.stream.IntStream; // used to iterate over a range
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
@@ -292,9 +293,12 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public Boolean addNPC(QuestNPC npc) {
+        Player player = Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId());
+
         // remove to replace if already exists
         if (this.questNPCs.containsKey(npc.getID())) {
             this.questNPCs.remove(npc.getID());
+            npc.refund(player);
         }
 
         // set this quest as the npc parent
@@ -310,6 +314,10 @@ public class QuestBuilder {
         // add new valid NPC
         npc.setID(this.nextNPCID()); // set this npc with a valid ID
         this.questNPCs.put(npc.getID(), npc); // put valid NPC in the quest npc list
+
+        // remove one of the block the npc is being set as
+        npc.penalise(player);
+
         return true;
     }
 

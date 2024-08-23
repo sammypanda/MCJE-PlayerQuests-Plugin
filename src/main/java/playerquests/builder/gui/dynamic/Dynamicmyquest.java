@@ -87,7 +87,7 @@ public class Dynamicmyquest extends GUIDynamic {
                 .setLabel("Delete (Confirm)")
                 .onClick(() -> {
                     // delete the quest
-                    Boolean deleted = QuestRegistry.getInstance().delete(quest);
+                    Boolean deleted = QuestRegistry.getInstance().delete(quest, true);
 
                     // go back if successful
                     if (deleted) {
