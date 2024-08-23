@@ -133,4 +133,11 @@ public class NPCType {
     public void refund(Player player) {
         throw new IllegalStateException("Tried to refund an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
+
+    /**
+     * Penalise the resources used for the NPC.
+     */
+    public void penalise(Player player) {
+        throw new IllegalStateException("Tried to consume resources for an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
+    }
 }
