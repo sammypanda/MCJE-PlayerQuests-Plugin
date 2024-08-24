@@ -134,16 +134,16 @@ public class Dynamicselectconnection extends GUIDynamic {
      * @param object the selected stage/action
      */
     private void select(StagePath path) {
+        new UpdateScreen(
+            new ArrayList<>(Arrays.asList(this.previousScreen)), 
+            director
+        ).execute();
+
         if (this.onSelect != null) {
             onSelect.accept(
                 new StagePath(selectedStage, selectedAction)
             );
         }
-
-        new UpdateScreen(
-            new ArrayList<>(Arrays.asList(this.previousScreen)), 
-            director
-        ).execute();
     }
 
     /**

@@ -393,8 +393,14 @@ public class QuestBuilder {
     public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
         Boolean canRemove = true; // whether the stage is safe to remove
 
-        // tests to determine if the quest is dependent on this stage
-        canRemove = this.questPlan.get(questStage.getID()).getConnections().isEmpty();
+        // tests for if any is dependent on this stage
+        Boolean connectionsDependency = !this.questPlan.get(questStage.getID()).getConnections().isEmpty(); // if the stage is connected to anything else
+        Boolean entryDependency = this.entryPoint.getStage() == questStage.getID(); // if the stage is part of the quest entry point
+
+        // check if unable to remove (if are dependencies)
+        if (connectionsDependency || entryDependency) {
+            canRemove = false;
+        }
         
         if (dryRun) { // if just to test if removable
             return canRemove; // don't continue

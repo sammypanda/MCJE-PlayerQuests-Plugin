@@ -89,13 +89,16 @@ public class Dynamicmyquest extends GUIDynamic {
                     // delete the quest
                     Boolean deleted = QuestRegistry.getInstance().delete(quest, true);
 
-                    // go back if successful
-                    if (deleted) {
-                        new UpdateScreen(
-                            new ArrayList<>(Arrays.asList(previousScreen)), 
-                            director
-                        ).execute();
+                    // don't continue if not deleted
+                    if (!deleted) {
+                        return;
                     }
+
+                    // go back to previous screen
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList(previousScreen)), 
+                        director
+                    ).execute();
                 });
         }
 

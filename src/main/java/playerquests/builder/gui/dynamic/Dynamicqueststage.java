@@ -158,6 +158,9 @@ public class Dynamicqueststage extends GUIDynamic {
                             new ArrayList<>(Arrays.asList(previousScreen)), 
                             this.director
                         ).execute();
+
+                        // update the quest
+                        QuestRegistry.getInstance().update(this.questBuilder.build());
                     }
 
                     // update the quest
