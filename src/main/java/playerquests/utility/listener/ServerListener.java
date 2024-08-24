@@ -285,12 +285,22 @@ public class ServerListener implements Listener {
 
                             switch (kind.name()) {
                                 case "ENTRY_CREATE":
-                                    submitQuestsToRegistry(new HashSet<>(Set.of(questName))); // submit the quest systematically
+                                    // submit the quest systematically
+                                    submitQuestsToRegistry(new HashSet<>(Set.of(questName)));
                                     break;
                                 case "ENTRY_DELETE":
+                                    // find the quest object
+                                    Quest questToDelete = questRegistry.getQuest(questName);
+
+                                    // exit if not found
+                                    if (questToDelete == null) {
+                                        return;
+                                    }
+
+                                    // delete it systematically
                                     questRegistry.remove(
-                                        questRegistry.getQuest(questName) // find the quest object
-                                    ); // delete it systematically
+                                        questToDelete
+                                    ); 
                                     break;
                                 default:
                                     break;
