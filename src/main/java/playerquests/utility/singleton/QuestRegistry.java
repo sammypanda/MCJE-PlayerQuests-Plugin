@@ -234,7 +234,14 @@ public class QuestRegistry {
      * @param quest the new quest.
      */
     public void replace(String originalQuestID, Quest quest) {
-        this.delete(registry.get(originalQuestID), false);
+        Quest existingQuest = registry.get(originalQuestID); // find the original quest
+
+        // if quest is already stored, delete it
+        if (existingQuest != null) {
+            this.delete(existingQuest, false);
+        }
+
+        // store the quest
         quest.save();
 
         // let the server know a quest has been replaced
