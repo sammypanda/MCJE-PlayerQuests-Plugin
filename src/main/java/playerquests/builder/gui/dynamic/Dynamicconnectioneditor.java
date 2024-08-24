@@ -102,6 +102,12 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                         this.connections.setNext(selection);
                         break;
                 }
+
+                // go back to origin screen when done selecting
+                // (user DAMSTACEY UI recommendation)
+                new UpdateScreen(
+                    new ArrayList<>(Arrays.asList(this.previousScreen)), director
+                ).execute();
             });
         });
     }
