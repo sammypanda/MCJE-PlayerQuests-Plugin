@@ -39,7 +39,6 @@ public class Core extends JavaPlugin {
     /**
      * Core class, to be instantiated by server.
      */
-    // TODO: always talk to database through a class (for caching and real-time data). Never talk directly! (It can't handle it).
     public Core() {}
 
     @Override

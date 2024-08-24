@@ -162,6 +162,9 @@ public class Dynamicqueststage extends GUIDynamic {
                         // update the quest
                         QuestRegistry.getInstance().update(this.questBuilder.build());
                     }
+
+                    // update the quest
+                    QuestRegistry.getInstance().update(this.questBuilder.build());
                 });
         }
 

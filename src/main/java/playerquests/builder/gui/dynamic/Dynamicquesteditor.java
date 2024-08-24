@@ -79,15 +79,22 @@ public class Dynamicquesteditor extends GUIDynamic {
                 .execute();
             });
 
-        new GUISlot(gui, 4) // view quest stages button
-            .setItem("CHEST")
+        GUISlot stagesSlot = new GUISlot(gui, 4) // view quest stages button (blocked)
+            .setItem("GRAY_STAINED_GLASS_PANE")
             .setLabel("Quest Stages")
+            .setDescription("Add an NPC to add Stages");
+        
+        if (!questBuilder.getQuestNPCs().isEmpty()) { // view quest stages button (unblocked)
+            stagesSlot.setItem("CHEST")
+            .setLabel("Quest Stages")
+            .setDescription(" ") // clear the description
             .addFunction(
                 new UpdateScreen(
                     new ArrayList<>(Arrays.asList("queststages")), 
                     director
                 )
-            );
+            ); 
+        }
 
         new GUISlot(gui, 5) // view quest NPCs button
             .setItem("ENDER_CHEST")
