@@ -15,6 +15,14 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 
+/**
+ * A dynamic GUI screen for selecting connections between quest stages and actions.
+ * <p>
+ * This screen allows users to select a quest stage and, if a stage is selected, choose an associated action.
+ * It provides options to either select the stage alone or choose an action associated with the stage.
+ * Users can also navigate back to the previous screen or remove the current connection.
+ * </p>
+ */
 public class Dynamicselectconnection extends GUIDynamic {
 
     /**
@@ -32,6 +40,11 @@ public class Dynamicselectconnection extends GUIDynamic {
      */
     private Consumer<Object> onSelect;
 
+    /**
+     * Constructs a new {@code Dynamicselectconnection} instance.
+     * @param director the client director that manages GUI interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicselectconnection(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -150,10 +163,12 @@ public class Dynamicselectconnection extends GUIDynamic {
     }
 
     /**
-     * Code to run when a connection 
-     * (QuestAction or QuestStage) is selected.
-     * @param onSelect code operation
-     * @return the connection that was selected
+     * Sets the code to run when a connection (stage/action) is selected.
+     * <p>
+     * This method allows for custom handling of the selected connection.
+     * </p>
+     * @param onSelect a {@link Consumer} that processes the selected connection.
+     * @return the connection that was selected.
      */
     public Object onSelect(Consumer<Object> onSelect) {
         this.onSelect = onSelect;

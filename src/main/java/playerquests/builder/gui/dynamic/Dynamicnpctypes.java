@@ -21,6 +21,13 @@ import playerquests.builder.quest.npc.QuestNPC; // represents a quest NPC
 import playerquests.client.ClientDirector; // controls the plugin
 import playerquests.utility.MaterialUtils; // helper used to get ItemStack from simplified input
 
+/**
+ * A dynamic GUI screen for managing NPC types.
+ * <p>
+ * This screen allows users to assign a type to a quest NPC, including selecting a block type and placing the NPC at a location.
+ * The screen provides options to go back, choose a block type for the NPC, and place or relocate the NPC.
+ * </p>
+ */
 public class Dynamicnpctypes extends GUIDynamic {
 
     /**
@@ -29,12 +36,9 @@ public class Dynamicnpctypes extends GUIDynamic {
     private QuestNPC npc;
 
     /**
-     * Creates a dynamic GUI with a list of npc types.
-     * <ul>
-     * <li>Block
-     * </ul>
-     * @param director director for the client
-     * @param previousScreen the screen to go back to
+     * Constructs a new {@code Dynamicnpctypes} instance.
+     * @param director the client director that manages the GUI and interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
      */
     public Dynamicnpctypes(ClientDirector director, String previousScreen) {
         super(director, previousScreen);

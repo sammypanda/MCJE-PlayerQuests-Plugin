@@ -25,53 +25,56 @@ import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // key-value pair annottation
 
 /**
- * Object containing details about a quest NPC.
+ * Represents a Non-Player Character (NPC) associated with a quest.
+ * 
+ * This class provides details about a quest NPC, including its ID, name, assigned type, location, and
+ * associated quest. It includes methods for managing and validating the NPC, and for interacting with
+ * players in the context of the quest.
  */
 public class QuestNPC {
 
     /**
-     * The NPC ID.
+     * The unique identifier for the NPC.
      * <p>
-     * Initialises with an out of bounds ID.
-     * This is so it won't show unless the ID
-     * is properly set.
+     * Initialized with an out-of-bounds ID to ensure it is not visible until properly set.
+     * </p>
      */
     @JsonIgnore
     private String id = "npc_-1";
 
     /**
-     * The NPC name.
+     * The aesthetic name of the NPC.
      */
     @JsonProperty("name")
     private String name = null;
 
     /**
-     * The parent quest.
+     * The quest that this NPC is associated with.
      */
     @JsonBackReference
     private Quest quest;
 
     /**
-     * The parent director.
+     * The client director that manages the plugin.
      */
     @JsonIgnore
     private ClientDirector director;
 
     /**
-     * What the NPC is assigned to.
+     * The type to which this NPC is assigned.
      */
     @JsonProperty("assigned")
     @JsonManagedReference
     private NPCType assigned;
 
     /**
-     * Where the NPC exists in the world.
+     * The location of the NPC in the world.
      */
     @JsonProperty("location")
     private LocationData location;
 
     /**
-     * Operations to run whenever the class is instantiated.
+     * Initializer block that registers this NPC instance with the key-value pattern handler.
      */
     {
         // adding to key-value pattern handler
@@ -79,29 +82,35 @@ public class QuestNPC {
     }
 
     /**
-     * Instantiates a new empty Quest NPC.
+     * Default constructor that creates a new empty QuestNPC.
      */
     public QuestNPC() {}
 
     /**
-     * Instantiates a new Quest NPC.
-     * @param id the id for this npc, like: npc_1
+     * Constructs a new QuestNPC with the specified ID.
+     * 
+     * @param id The unique identifier for the NPC.
      */
     public QuestNPC(String id) {
         this.id = id;
     }
 
     /**
-     * Gets the ID for the quest NPC.
-     * @return the quest NPC ID
+     * Gets the unique ID of this NPC.
+     * 
+     * @return The ID of the NPC.
      */
     public String getID() {
         return this.id;
     }
 
     /**
-     * Gets the most appropriate 'title' for this NPC.
-     * @return the string form of this npc (the npc name)
+     * Gets the most appropriate title for this NPC.
+     * <p>
+     * This is typically the NPC's name.
+     * </p>
+     * 
+     * @return The title of the NPC.
      */
     @JsonIgnore
     public String getTitle() {
@@ -115,7 +124,8 @@ public class QuestNPC {
 
     /**
      * Gets the aesthetic name of this NPC.
-     * @return the name of the NPC
+     * 
+     * @return The name of the NPC.
      */
     public String getName() {
         return this.name;
@@ -123,7 +133,8 @@ public class QuestNPC {
 
     /**
      * Sets the aesthetic name of this NPC.
-     * @param name the name of the NPC
+     * 
+     * @param name The new name for the NPC.
      */
     @Key("npc.name")
     public void setName(String name) {
@@ -131,12 +142,14 @@ public class QuestNPC {
     }
 
     /**
-     * Save the changes to this NPC into a quest.
+     * Saves the NPC to a quest.
      * <p>
-     * Will replace ID, if ID is 'npc_-1'.
-     * @param quest reference to the quest builder
-     * @param npc the NPC object to save
-     * @return if the npc was successfully saved
+     * If the NPC's ID is 'npc_-1', it will be replaced with the new ID.
+     * </p>
+     * 
+     * @param quest The quest builder to save this NPC to.
+     * @param npc The NPC object to be saved.
+     * @return True if the NPC was successfully saved, otherwise false.
      */
     @JsonIgnore
     public Boolean save(QuestBuilder quest, QuestNPC npc) {
@@ -149,8 +162,9 @@ public class QuestNPC {
     }
 
     /**
-     * Overriding the ID of this NPC.
-     * @param id the id to use instead
+     * Sets a new unique ID for this NPC.
+     * 
+     * @param id The new ID to assign to the NPC.
      */
     @JsonIgnore
     public void setID(String id) {
@@ -158,8 +172,13 @@ public class QuestNPC {
     }
 
     /**
-     * Checks if everything is correctly set and formed.
-     * @return if the NPC object is valid
+     * Validates the NPC's properties.
+     * <p>
+     * Checks if the NPC has a name, is assigned to a type, and has a location. Sends an error message
+     * to the quest creator if any properties are missing.
+     * </p>
+     * 
+     * @return True if the NPC is valid, otherwise false.
      */
     @JsonIgnore
     public boolean isValid() {
@@ -203,7 +222,9 @@ public class QuestNPC {
     }
     
     /**
-     * Assign the NPC to something.
+     * Assigns a type to the NPC.
+     * 
+     * @param npcType The type to assign to the NPC.
      */
     @JsonIgnore
     public void assign(NPCType npcType) {
@@ -212,8 +233,9 @@ public class QuestNPC {
     }
 
     /**
-     * Set the location of this NPC in the world.
-     * @param location PlayerQuests Location object
+     * Sets the location of the NPC in the world.
+     * 
+     * @param location The location data to set.
      */
     @JsonIgnore
     public void setLocation(LocationData location) {
@@ -221,8 +243,9 @@ public class QuestNPC {
     }
 
     /**
-     * Get the location of this NPC in the world.
-     * @return Bukkit Location object
+     * Gets the location of the NPC in the world.
+     * 
+     * @return The location data of the NPC.
      */
     @JsonIgnore
     public LocationData getLocation() {
@@ -230,7 +253,9 @@ public class QuestNPC {
     }
 
     /**
-     * Gets a material which represents this NPC.
+     * Gets the block data representing this NPC, if applicable.
+     * 
+     * @return The block data of the NPC, or default if not assigned to a block.
      */
     @JsonIgnore
     public BlockData getBlock() {
@@ -243,8 +268,9 @@ public class QuestNPC {
     }
 
     /**
-     * Returns if the NPC has been assigned to a type, such as a 'Block'.
-     * @return the type of NPC assignment
+     * Checks if the NPC has been assigned to a type.
+     * 
+     * @return True if the NPC is assigned to a type, otherwise false.
      */
     @JsonIgnore
     public boolean isAssigned() {
@@ -252,8 +278,9 @@ public class QuestNPC {
     }
 
     /**
-     * Returns the information about how the NPC is assigned.
-     * @return the NPC assignment
+     * Gets the type to which this NPC is assigned.
+     * 
+     * @return The NPC type.
      */
     @JsonIgnore
     public NPCType getAssigned() {
@@ -261,7 +288,7 @@ public class QuestNPC {
     }
 
     /**
-     * Places the NPC in the world.
+     * Places the NPC in the world according to its assigned type.
      */
     @JsonIgnore
     public void place() {
@@ -269,26 +296,38 @@ public class QuestNPC {
     }
 
     /**
-     * Gets the quest this NPC belongs to.
-     * @return the quest which created this NPC.
+     * Gets the quest this NPC is associated with.
+     * 
+     * @return The quest that created this NPC.
      */
     public Quest getQuest() {
         return this.quest;
     }
 
     /**
-     * Set the quest this NPC should belong to.
-     * @param quest the quest which owns this NPC.
+     * Sets the quest that this NPC should belong to.
+     * 
+     * @param quest The quest to set.
      */
     public void setQuest(Quest quest) {
         this.quest = quest;
     }
 
+    /**
+     * Refunds a player through the assigned NPC type.
+     * 
+     * @param player The player to refund.
+     */
     @JsonIgnore
     public void refund(Player player) {
         this.getAssigned().refund(player);
     }
 
+    /**
+     * Penalizes a player through the assigned NPC type.
+     * 
+     * @param player The player to penalize.
+     */
     @JsonIgnore
     public void penalise(Player player) {
         this.getAssigned().penalise(player);

@@ -9,13 +9,26 @@ import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector;
 
+/**
+ * A dynamic GUI screen for editing connections between stages in a quest.
+ * <p>
+ * This screen allows users to set or change the previous, current, and next stages
+ * in a sequence. It provides buttons for each stage and allows for navigation 
+ * back to the previous screen.
+ * </p>
+ */
 public class Dynamicconnectioneditor extends GUIDynamic {
 
     /**
-     * The connections we are editing.
+     * The connections data currently being edited.
      */
     ConnectionsData connections;
 
+    /**
+     * Constructs a new {@code Dynamicconnectioneditor} instance.
+     * @param director the client director that handles the GUI and interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicconnectioneditor(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -80,6 +93,16 @@ public class Dynamicconnectioneditor extends GUIDynamic {
             });
     }
 
+    /**
+     * Creates an {@code UpdateScreen} instance for selecting a stage path.
+     * <p>
+     * This method sets up the selection menu for the specified connection type
+     * (previous, current, or next). Once a selection is made, the corresponding
+     * connection is updated, and the user is returned to the origin screen.
+     * </p>
+     * @param connection the type of connection to update ("prev", "curr", or "next").
+     * @return the {@code UpdateScreen} instance for stage selection.
+     */
     UpdateScreen selectMenu(String connection) {
         return (UpdateScreen) new UpdateScreen(
             new ArrayList<>(Arrays.asList("selectconnection")), 

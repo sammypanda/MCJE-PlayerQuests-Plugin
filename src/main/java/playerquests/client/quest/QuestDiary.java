@@ -20,6 +20,13 @@ import playerquests.utility.ChatUtils.MessageType; // what the message is
 import playerquests.utility.singleton.Database; // everything preservation store
 import playerquests.utility.singleton.QuestRegistry; // quest store
 
+/**
+ * Represents a diary that tracks a player's quest progress.
+ * 
+ * The {@link QuestDiary} class manages and stores the progress of quests for a specific player.
+ * It provides methods to retrieve and update quest progress, as well as interact with the player's
+ * quests and stages.
+ */
 public class QuestDiary {
 
     /**
@@ -39,13 +46,12 @@ public class QuestDiary {
 
     /**
      * Constructs a new {@link QuestDiary} instance for the specified player.
+     * <p>
+     * Initializes a {@link QuestDiary} with the given player ID and sets up the diary for storage
+     * in the database. The diary is preserved in the database using {@link Database#getInstance()}.{@code addDiary(QuestDiary)}.
+     * </p>
      * 
-     * This constructor initializes a {@link QuestDiary} with the given player ID and sets up
-     * the diary for storage in the database. The diary is preserved in the database using
-     * {@link Database#getInstance()}.{@code addDiary(QuestDiary)}.
-     * 
-     * @param playerID The unique identifier for the player, represented as a {@link UUID}. This ID
-     *                 is used to associate the diary with the player.
+     * @param client The {@link QuestClient} representing the player for whom this diary is created.
      */
     public QuestDiary(QuestClient client) {
         // initialise values
@@ -72,8 +78,12 @@ public class QuestDiary {
     }
 
     /**
-     * Get the quest progress as stored in the database.
-     * Should only run on first ever instantiation.
+     * Loads the quest progress from the database asynchronously.
+     * <p>
+     * This method should only be called during the first instantiation of the diary.
+     * </p>
+     * 
+     * @return A {@link CompletableFuture} that completes once the quest progress has been loaded.
      */
     private CompletableFuture<Void> loadQuestProgress() {
         return CompletableFuture.supplyAsync(() -> {
@@ -96,11 +106,11 @@ public class QuestDiary {
     }
 
     /**
-     * Retrieves a {@link Player} object from the Bukkit server using the provided player ID.
-     * 
-     * This method uses the player's ID to fetch the corresponding {@link Player} instance from
-     * the server. If the player is not currently online or if the ID is invalid, the method may return
-     * {@code null}.
+     * Retrieves the {@link Player} object from the Bukkit server using the player's ID.
+     * <p>
+     * This method uses the player's ID to fetch the corresponding {@link Player} instance. If the player
+     * is not online or if the ID is invalid, the method may return {@code null}.
+     * </p>
      * 
      * @return The {@link Player} object associated with the specified ID, or {@code null} if the player
      *         is not online or the ID is invalid.
@@ -114,16 +124,14 @@ public class QuestDiary {
     /**
      * Retrieves the progress of a specified quest.
      * 
-     * This method looks up the {@link ConnectionsData} associated with the given quest ID
-     * from the internal map of quest progress. If the quest ID is not found in the map, it tries
-     * to find it (if it doesn't exist in {@link QuestRegistry}, then it returns {@code null}).
+     * This method looks up the {@link ConnectionsData} associated with the given quest from the
+     * internal map of quest progress. If the quest is not found in the map, it adds it with the
+     * default connections data.
      * 
-     * @param questID The unique identifier for the quest, represented as a {@link String}.
-     *                This ID is used to locate the corresponding {@link ConnectionsData} in the
-     *                quest progress map.
+     * @param quest The {@link Quest} for which to retrieve the progress.
      * 
-     * @return The {@link ConnectionsData} object associated with the specified quest ID, or
-     *         {@code null} if there is no progress data associated with that quest ID.
+     * @return The {@link ConnectionsData} object associated with the specified quest, or
+     *         the default connections data if the quest is not found in the map.
      */
     public ConnectionsData getQuestProgress(Quest quest) {
         ConnectionsData progress = this.questProgress.get(quest);
@@ -140,29 +148,32 @@ public class QuestDiary {
     /**
      * Retrieves the progress of all quests.
      * 
-     * @return The {@link ConnectionsData} object associated with the specified quest ID, or
-     *         {@code null} if there is no progress data associated with that quest ID.
+     * @return A {@link Map} where the keys are {@link Quest} objects and the values are the corresponding
+     *         {@link ConnectionsData} objects.
      */
     public Map<Quest,ConnectionsData> getQuestProgress() {
         return this.questProgress;
     }
 
     /**
-     * Gets the current stage the player is up to
-     * in the quest.
-     * @param quest quest to find the action in
-     * @return quest stage object
+     * Gets the current stage of a specific quest.
+     * 
+     * @param quest The {@link Quest} for which to retrieve the current stage.
+     * 
+     * @return The current {@link QuestStage} object for the specified quest.
      */
     public QuestStage getStage(Quest quest) {
         return this.getStage(quest, false); // just get the current
     }
 
     /**
-     * Gets the stage the player is up to
-     * in the quest.
-     * @param quest quest to find the action in
-     * @param next whether to get the next stage
-     * @return quest stage object
+     * Gets the stage of a specific quest.
+     * 
+     * @param quest The {@link Quest} for which to retrieve the stage.
+     * @param next Whether to get the next stage.
+     * 
+     * @return The {@link QuestStage} object for the specified quest, either the current stage or the next stage
+     *         depending on the {@code next} parameter.
      */
     public QuestStage getStage(Quest quest, Boolean next) {
         ConnectionsData progress = this.getQuestProgress(quest);
@@ -175,21 +186,24 @@ public class QuestDiary {
     }
 
     /**
-     * Gets the current action the player is up to
-     * in the quest.
-     * @param quest quest to find the action in
-     * @return quest action object
+     * Gets the current action of a specific quest.
+     * 
+     * @param quest The {@link Quest} for which to retrieve the current action.
+     * 
+     * @return The current {@link QuestAction} object for the specified quest.
      */
     public QuestAction getAction(Quest quest) {
         return this.getAction(quest, false); // just get the current
     }
 
     /**
-     * Gets the action the player is up to
-     * in the quest.
-     * @param quest quest to find the action in
-     * @param next whether to get next action
-     * @return quest action object
+     * Gets the action of a specific quest.
+     * 
+     * @param quest The {@link Quest} for which to retrieve the action.
+     * @param next Whether to get the next action.
+     * 
+     * @return The {@link QuestAction} object for the specified quest, either the current action or the next action
+     *         depending on the {@code next} parameter.
      */
     public QuestAction getAction(Quest quest, Boolean next) {
         ConnectionsData progress = this.getQuestProgress(quest);
@@ -204,6 +218,15 @@ public class QuestDiary {
         return point.getAction(quest);
     }
 
+    /**
+     * Sets the progress for a specific quest.
+     * 
+     * If the quest is already listed in the diary, this method updates its progress. Otherwise, it adds
+     * the quest with the provided connections data.
+     * 
+     * @param quest The {@link Quest} for which to set the progress.
+     * @param connections The {@link ConnectionsData} representing the quest's progress.
+     */
     public void setQuestProgress(Quest quest, ConnectionsData connections) {
         // figure out if is already listed
         if (this.questProgress.containsKey(quest)) {
@@ -216,14 +239,29 @@ public class QuestDiary {
         this.questProgress.put(quest, connections);
     }
 
+    /**
+     * Retrieves the diary ID.
+     * 
+     * @return The ID of the diary.
+     */
     public String getDiaryID() {
         return this.diaryID;
     }
 
+    /**
+     * Retrieves the player ID.
+     * 
+     * @return The ID of the player associated with this diary.
+     */
     public String getPlayerID() {
         return this.playerID;
     }
 
+    /**
+     * Adds a new quest to the diary with its default progress.
+     * 
+     * @param quest The {@link Quest} to add.
+     */
     public void addQuest(Quest quest) {
         this.setQuestProgress(
             quest, 
@@ -231,6 +269,11 @@ public class QuestDiary {
         );
     }
 
+    /**
+     * Removes a quest from the diary.
+     * 
+     * @param quest The {@link Quest} to remove.
+     */
     public void removeQuest(Quest quest) {
         // destroy quest and progress :(
         this.questProgress.remove(quest);

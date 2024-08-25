@@ -14,6 +14,11 @@ import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property s
 import playerquests.Core;
 import playerquests.utility.singleton.PlayerQuests;
 
+/**
+ * Represents an NPC that is associated with a specific block in the world.
+ * 
+ * This class manages the block data of the NPC and provides methods to place, remove, refund, and penalize the NPC.
+ */
 public class BlockNPC extends NPCType {
 
     /**
@@ -21,18 +26,31 @@ public class BlockNPC extends NPCType {
     */
     public BlockNPC() {}
 
+    /**
+     * Constructs a BlockNPC with a specified block data and associated quest NPC.
+     * 
+     * @param value the block data string
+     * @param npc the associated QuestNPC
+     */
     public BlockNPC(String value, QuestNPC npc) {
         super(value, npc);
         this.type = "Block";
     }
 
+    /**
+     * Constructs a BlockNPC using a BlockData object.
+     * 
+     * @param block the block data
+     * @param npc the associated QuestNPC
+     */
     public BlockNPC(BlockData block, QuestNPC npc) {
         this(block.getAsString(true), npc);
     }
 
     /**
-     * Get what block the NPC is assigned to.
-     * @return the block material the NPC is.
+     * Gets the block data representing this NPC.
+     * 
+     * @return the block data of the NPC
      */
     @JsonIgnore
     public BlockData getBlock() {
@@ -56,7 +74,8 @@ public class BlockNPC extends NPCType {
     }
 
     /**
-     * Get the string of the BlockNPC's block data.
+     * Gets the string representation of the block data for this NPC.
+     * 
      * @return the block data as a string
      */
     @JsonProperty("value")
@@ -65,15 +84,16 @@ public class BlockNPC extends NPCType {
     }
 
     /**
-     * Get the rest of the details about this NPC.
-     * @return the NPC object.
+     * Gets the QuestNPC associated with this BlockNPC.
+     * 
+     * @return the QuestNPC object
      */
     public QuestNPC getNPC() {
         return this.npc;
     }
 
     /**
-     * Place the NPC block in the world.
+     * Places the NPC block in the world by registering it with the PlayerQuests instance.
      */
     @Override
     @JsonIgnore
@@ -84,7 +104,7 @@ public class BlockNPC extends NPCType {
     }
 
     /**
-     * Remove the NPC block from the world.
+     * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
      */
     @Override
     @JsonIgnore
@@ -94,6 +114,11 @@ public class BlockNPC extends NPCType {
         PlayerQuests.getInstance().putBlockNPC(this);
     }
 
+    /**
+     * Refunds the block item to the player's inventory. If the inventory is full, drops the item at the player's location.
+     * 
+     * @param player the player to refund the item to
+     */
     @Override
     @JsonIgnore
     public void refund(Player player) {
@@ -116,6 +141,11 @@ public class BlockNPC extends NPCType {
         playerLocation.getWorld().dropItem(playerLocation, item);
     }
 
+    /**
+     * Penalizes the player by removing the block item from their inventory.
+     * 
+     * @param player the player to penalize
+     */
     @Override
     @JsonIgnore
     public void penalise(Player player) {

@@ -32,7 +32,7 @@ public class SelectBlock extends GUIFunction {
 
     private class SelectBlockListener implements Listener {
         /**
-         * The SelectBlock instance.
+         * The {@code SelectBlock} instance.
          */
         private SelectBlock parentClass;
 
@@ -47,8 +47,10 @@ public class SelectBlock extends GUIFunction {
         private List<SelectMethod> deniedMethods;
 
         /**
-         * Creates a new listener for chat prompt inputs.
-         * @param parent the origin ChatPrompt GUI function
+         * Constructs a new {@code SelectBlockListener}.
+         *
+         * @param parent the parent {@code SelectBlock} instance
+         * @param player the player associated with this listener
          */
         public SelectBlockListener(SelectBlock parent, Player player) {
             this.parentClass = parent;
@@ -56,6 +58,11 @@ public class SelectBlock extends GUIFunction {
             this.deniedMethods = parent.getDeniedMethods();
         }
         
+        /**
+         * Handles player interactions with blocks.
+         *
+         * @param event the {@code PlayerInteractEvent} triggered when a player interacts with a block
+         */
         @EventHandler
         private void onHit(PlayerInteractEvent event) {
             if (this.player != event.getPlayer()) {
@@ -75,6 +82,11 @@ public class SelectBlock extends GUIFunction {
             }
         }
 
+        /**
+         * Handles inventory clicks to select blocks.
+         *
+         * @param event the {@code InventoryClickEvent} triggered when a player clicks in an inventory
+         */
         @EventHandler
         private void onSelect(InventoryClickEvent event) {
             if (this.player != event.getWhoClicked()) {
@@ -97,6 +109,11 @@ public class SelectBlock extends GUIFunction {
             });
         }
 
+        /**
+         * Handles player command inputs to exit the selection.
+         *
+         * @param event the {@code PlayerCommandPreprocessEvent} triggered when a player issues a command
+         */
         @EventHandler
         private void onCommand(PlayerCommandPreprocessEvent event) {
             // do not capture other players events
@@ -111,6 +128,11 @@ public class SelectBlock extends GUIFunction {
             });
         }
 
+        /**
+         * Handles player chat inputs for selecting blocks or exiting.
+         *
+         * @param event the {@code AsyncPlayerChatEvent} triggered when a player sends a chat message
+         */
         @EventHandler
         private void onChat(AsyncPlayerChatEvent event) {
             // if the event is coming from a different player
@@ -334,8 +356,10 @@ public class SelectBlock extends GUIFunction {
     }
 
     /**
-     * Try to set a material as the NPC block.
-     * @param type the material to use as the NPC block
+     * Sets the selected block material.
+     * This method validates the material and ensures it is not in the denied blocks list and is a block type.
+     *
+     * @param material the {@code Material} to set as the selected block
      */
     public void setResponse(Material material) {
         if (this.deniedBlocks.contains(material)) {
@@ -361,8 +385,10 @@ public class SelectBlock extends GUIFunction {
     }
 
     /**
-     * Try to convert a string to material and set as the NPC block.
-     * @param type the name of the material to use as the NPC block
+     * Sets the selected block material by name.
+     * This method converts the material name to a {@code Material} and validates it.
+     *
+     * @param material the name of the material to set as the selected block
      */
     public void setResponse(String material) {
         result = Material.matchMaterial(material);
@@ -378,15 +404,16 @@ public class SelectBlock extends GUIFunction {
     }
 
     /**
-     * Gets the block the user selected.
-     * @return a block material
+     * Returns the material of the block selected by the user.
+     *
+     * @return the selected block material
      */
     public Material getResult() {
         return this.result;
     }
 
     /**
-     * Cleaning and finishing the function.
+     * Cleans up and finishes the block selection function.
      */
     private void exit() {
         HandlerList.unregisterAll(this.blockListener); // remove private handlers
@@ -394,7 +421,9 @@ public class SelectBlock extends GUIFunction {
     }
 
     /**
-     * Setting block selection function as cancelled
+     * Marks the block selection function as cancelled.
+     *
+     * @param cancelled {@code true} to cancel the selection, {@code false} otherwise
      */
     private void setCancelled(Boolean cancelled) {
         this.cancelled = cancelled;

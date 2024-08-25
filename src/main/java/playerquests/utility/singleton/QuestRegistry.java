@@ -28,6 +28,9 @@ import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Singleton for putting and accessing quest products from anywhere.
+ * 
+ * This class manages quests and their associated data, such as NPCs and quest clients. It allows for adding, removing,
+ * updating, and retrieving quests, as well as handling quests in the filesystem.
  */
 public class QuestRegistry {
     
@@ -66,6 +69,10 @@ public class QuestRegistry {
 
     /**
      * Adds a quest to the registry.
+     * 
+     * This method adds a quest to the internal registry and places its NPCs in the world. It also updates questers with
+     * the new quest.
+     * 
      * @param quest the quest to add.
      */
     private void add(Quest quest) {
@@ -90,6 +97,10 @@ public class QuestRegistry {
 
     /**
      * Submits a quest to the registry.
+     * 
+     * This method handles both adding a new quest and updating an existing one. It checks for collisions with existing
+     * NPCs and handles them accordingly.
+     * 
      * @param quest the quest to submit.
      */
     public void submit(Quest quest) {
@@ -161,6 +172,7 @@ public class QuestRegistry {
 
     /**
      * Removes a quest from the registry.
+     * 
      * @param quest the quest to remove.
      */
     public void remove(Quest quest) {
@@ -169,8 +181,9 @@ public class QuestRegistry {
 
     /**
      * Removes a quest from the registry.
+     * 
      * @param quest the quest to remove
-     * @param preserveInDatabase whether to keep untoggled in db; just remove from world
+     * @param preserveInDatabase whether to keep the quest in the database; just remove from the world if true
      */
     public void remove(Quest quest, Boolean preserveInDatabase) {
         // remove ref from database
@@ -192,7 +205,11 @@ public class QuestRegistry {
 
     /**
      * Deletes a quest from the plugin.
+     * 
+     * This method removes the quest from the filesystem, registry, and optionally refunds resources.
+     * 
      * @param quest the quest to delete
+     * @param refund whether to refund resources associated with the quest
      * @return whether the operation was successful or not
      */
     public Boolean delete(Quest quest, Boolean refund) {
@@ -230,6 +247,9 @@ public class QuestRegistry {
 
     /**
      * Replaces a quest in the registry with a new one.
+     * 
+     * This method deletes the old quest (if it exists) and stores the new one.
+     * 
      * @param originalQuestID the ID of the original quest.
      * @param quest the new quest.
      */
@@ -254,17 +274,18 @@ public class QuestRegistry {
 
     /**
      * Shortcut for replacing a quest with itself.
-     * replace() is designed for with a new Quest, this helps just
-     * 'update' using replace.
-     * @param quester
+     * 
+     * This method is used to update a quest without changing its ID.
+     * 
+     * @param quest the quest to update
      */
     public void update(Quest quest) {
         this.replace(quest.getID(), quest);
     }
 
     /**
-     * Adds a quest client to the registry, identified by the 
-     * Player behind the client.
+     * Adds a quest client to the registry, identified by the player behind the client.
+     * 
      * @param quester a quest client
      */
     public void addQuester(QuestClient quester) {
@@ -273,6 +294,7 @@ public class QuestRegistry {
 
     /**
      * Gets a quest client associated with a player.
+     * 
      * @param player the player the quest client is for
      * @return a quest client instance
      */
@@ -281,12 +303,17 @@ public class QuestRegistry {
     }
 
     /**
-     * Gets map of all quests that have been registered.
+     * Gets the map of all quests that have been registered.
+     * 
+     * @return the map of registered quests
      */
     public Map<String, Quest> getAllQuests() {
         return this.registry;
     }
 
+    /**
+     * Clears all quests and questers from the registry.
+     */
     public void clear() {
         this.registry.clear();
         this.questers.clear();
@@ -294,8 +321,9 @@ public class QuestRegistry {
 
     /**
      * Get a quest from the quest registry.
-     * If fails from quest registry, it will
-     * search the questPath (resources folder).
+     * 
+     * If the quest is not found in the registry, it will search the questPath (resources folder).
+     * 
      * @param questID the quest ID
      * @return the quest object
      */
@@ -305,10 +333,11 @@ public class QuestRegistry {
 
     /**
      * Get a quest from the quest registry.
-     * If fails from quest registry, you can choose
-     * for it to search the questPath (resources folder).
+     * 
+     * If the quest is not found in the registry, you can choose to search the questPath (resources folder).
+     * 
      * @param questID the quest ID
-     * @param searchFS whether to try searching the FS
+     * @param searchFS whether to try searching the filesystem
      * @return the quest object
      */
     public Quest getQuest(String questID, Boolean searchFS) {

@@ -38,14 +38,21 @@ public class SelectLocation extends GUIFunction {
         private Player player;
 
         /**
-         * Creates a new listener for chat prompt inputs.
-         * @param parent the origin ChatPrompt GUI function
+         * Constructs a new listener for block and command events.
+         * 
+         * @param parent The parent {@link SelectLocation} instance.
+         * @param player The player whose actions are being listened to.
          */
         public SelectLocationListener(SelectLocation parent, Player player) {
             this.parentClass = parent;
             this.player = player;
         }
 
+        /**
+         * Handles command events to allow exiting the selection process.
+         * 
+         * @param event The {@link PlayerCommandPreprocessEvent} event.
+         */
         @EventHandler
         private void onCommand(PlayerCommandPreprocessEvent event) {
             // do not capture other players events
@@ -59,6 +66,11 @@ public class SelectLocation extends GUIFunction {
             });
         }
 
+        /**
+         * Handles block placement events to set the location and block data.
+         * 
+         * @param event The {@link BlockPlaceEvent} event.
+         */
         @EventHandler
         private void onBlockPlace(BlockPlaceEvent event) {
             if (this.player != event.getPlayer()) {
@@ -102,21 +114,27 @@ public class SelectLocation extends GUIFunction {
      */
     private BlockData blockData;
 
-    /** 
-     * Provides input as a user selected world location.
-     * <ul>
-     * <li>By hitting the physical block
-     * <li>By selecting the block in an inventory
-     * </ul>
-     * @param params 1. prompt
-     * @param director to set values
+    /**
+     * Constructs a {@link SelectLocation} instance.
+     * <p>
+     * The constructor initializes the prompt message and sets up the function
+     * to allow the user to select a block and location in the world.
+     * </p>
+     * 
+     * @param params A list of parameters for initializing the function. Expected
+     *               to contain a single {@link String} representing the prompt message.
+     * @param director The {@link ClientDirector} used to interact with the GUI and player.
      */
     public SelectLocation(ArrayList<Object> params, ClientDirector director) {
         super(params, director);
     }
 
     /**
-     * Creating and validating values for the function.
+     * Initializes and validates values for the function.
+     * <p>
+     * Sets up the prompt, registers the event listener, and prepares the function
+     * for execution.
+     * </p>
      */
     private void setUp() {
         try {
@@ -170,8 +188,10 @@ public class SelectLocation extends GUIFunction {
     }
 
     /**
-     * Setting the location the user decides as PlayerQuests Location object.
-     * @param location Bukkit world location the user selected
+     * Sets the location and block data based on user selection.
+     * 
+     * @param location The {@link org.bukkit.Location} selected by the user.
+     * @param blockData The {@link BlockData} representing the block at the selected location.
      */
     public void setResponse(org.bukkit.Location location, BlockData blockData) {
         // create the location data
@@ -192,16 +212,18 @@ public class SelectLocation extends GUIFunction {
     }
 
     /**
-     * Gets the location the user selected.
-     * @return a location object
+     * Retrieves the location chosen by the user.
+     * 
+     * @return The {@link LocationData} object representing the selected location.
      */
     public LocationData getResult() {
         return this.location;
     }
 
     /**
-     * Gets the data of the block the user used to select location.
-     * @return a bukkit BlockData type
+     * Retrieves the block data of the block used to select the location.
+     * 
+     * @return The {@link BlockData} of the selected block.
      */
     public BlockData getBlockData() {
         if (this.blockData == null) {
@@ -213,7 +235,10 @@ public class SelectLocation extends GUIFunction {
     }
 
     /**
-     * Cleaning and finishing the function.
+     * Cleans up and finishes the function.
+     * <p>
+     * Unregisters the event listener and reopens the GUI.
+     * </p>
      */
     private void exit() {
         HandlerList.unregisterAll(this.locationListener); // remove listeners

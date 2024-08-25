@@ -17,11 +17,12 @@ import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 import playerquests.client.quest.QuestClient; // the quester themselves
 
 /**
- * Passes and handles the quest stage action 'types'.
+ * Represents a quest stage action with predefined behavior.
  * <p>
- * Quest actions are pre-defined behaviours that make
- * it possible to do more with quests. They
- * generally simplify more complex operations.
+ * Quest actions define specific behaviors that are executed during a quest. They provide a way to
+ * encapsulate complex operations and simplify quest design. This class is abstract and should be 
+ * extended by specific action types.
+ * </p>
  */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -34,25 +35,25 @@ import playerquests.client.quest.QuestClient; // the quester themselves
 public abstract class QuestAction {
 
     /**
-     * The list of ActionOptions
+     * The list of action options associated with this action.
      */
     @JsonProperty("options")
     protected List<ActionOption> actionOptions;
 
     /**
-     * The NPC this action is from (if applicable)
+     * The ID of the NPC associated with this action, if applicable.
      */
     @JsonProperty("npc")
     protected String npc;
 
     /**
-     * The dialogue (if applicable)
+     * The dialogue associated with this action, if applicable.
      */
     @JsonProperty("dialogue")
     protected List<String> dialogue;
 
     /**
-     * The parent stage this action belongs to.
+     * The quest stage that this action belongs to.
      */
     @JsonBackReference
     private QuestStage stage;
@@ -63,23 +64,24 @@ public abstract class QuestAction {
     private String action;
 
     /**
-     * The connections for the quest action.
+     * The connections data for this action, indicating how it is linked to other actions or stages.
      */
     @JsonProperty("connections")
     private ConnectionsData connections = new ConnectionsData();
 
     /**
-     * Default constructor (for Jackson)
-    */
+     * Default constructor for Jackson deserialization.
+     */
     public QuestAction() {}
 
     /**
-     * Not intended to be created directly, is abstract class for action types.
+     * Constructs a new QuestAction with the specified stage.
      * <p>
-     * Use .submit() on this method to add it to it's quest stage.
-     * See docs/README for list of action types.
-     * @param stage stage this action belongs to
-    */
+     * This constructor initializes the action ID and action options.
+     * </p>
+     * 
+     * @param stage The quest stage this action belongs to.
+     */
     public QuestAction(QuestStage stage) {
         this.stage = stage;
         this.action = "action_-1";
@@ -87,8 +89,9 @@ public abstract class QuestAction {
     }
 
     /**
-     * Shows a list of all the action types that could be added to a quest stage.
-     * @return list of every action type
+     * Provides a list of all possible action types that can be added to a quest stage.
+     * 
+     * @return A list of action type names.
      */
     public static List<String> allActionTypes() {
         List<String> actionTypes = new ArrayList<>();
@@ -105,8 +108,9 @@ public abstract class QuestAction {
     }
 
     /**
-     * Gets the string representation of the type.
-     * @return current action type as a string
+     * Gets the type of this action as a string.
+     * 
+     * @return The class name of the action type.
      */
     @JsonIgnore
     public String getType() {
@@ -114,25 +118,29 @@ public abstract class QuestAction {
     }
 
     /** 
-     * Gets this action's ID in the stage.
-     * @return current action ID (name)
-    */
+     * Gets the ID of this action.
+     * 
+     * @return The action ID.
+     */
     @JsonProperty("id")
     public String getID() {
         return this.action;
     }
 
     /** 
-     * Sets this action's ID.
-     * @param ID new action ID (name)
-    */
+     * Sets the ID of this action.
+     * 
+     * @param ID The new action ID.
+     * @return The updated action ID.
+     */
     public String setID(String ID) {
         return this.action = ID;
     }
     
     /**
-     * Gets the stage this action belongs to.
-     * @return current quest stage instance
+     * Gets the stage that this action belongs to.
+     * 
+     * @return The quest stage instance.
      */
     @JsonIgnore
     public QuestStage getStage() {
@@ -140,10 +148,12 @@ public abstract class QuestAction {
     }
 
     /**
-     * Submits this function to the stage.
+     * Submits this action to the quest stage.
      * <p>
-     * This also gives it a valid ID.
-     * @return the quest action submitted to the quest stage
+     * This method adds the action to the stage and assigns a valid ID.
+     * </p>
+     * 
+     * @return The submitted quest action.
      */
     public QuestAction submit() {
         this.stage.addAction(this);
@@ -152,23 +162,28 @@ public abstract class QuestAction {
     }
 
     /**
-     * Add option enums to list so the quest knows
-     * what options to process.
-     * @return a list of action option enums
+     * Initializes the list of action options for this action.
+     * <p>
+     * This method should be implemented by subclasses to define specific options.
+     * </p>
+     * 
+     * @return A list of action options.
      */
     public abstract List<ActionOption> initOptions();
 
     /**
-     * Get a list of options attributed to this
-     * action.
-     * @return a list of action option enums
+     * Gets the list of action options associated with this action.
+     * 
+     * @return A list of action options.
      */
     public List<ActionOption> getActionOptions() {
         return this.actionOptions;
     }
 
     /**
-     * Get the NPC this action is emitted from.
+     * Gets the NPC associated with this action, if applicable.
+     * 
+     * @return The NPC instance associated with this action.
      */
     @JsonIgnore
     public QuestNPC getNPC() {
@@ -176,7 +191,9 @@ public abstract class QuestAction {
     }
 
     /**
-     * Set the NPC this action is emitted from.
+     * Sets the NPC associated with this action.
+     * 
+     * @param npc The NPC to associate with this action.
      */
     public void setNPC(QuestNPC npc) {
         if (npc == null) {
@@ -187,15 +204,19 @@ public abstract class QuestAction {
     }
 
     /**
-     * Get the dialogue to emit.
+     * Gets the dialogue associated with this action.
+     * 
+     * @return A list of dialogue lines.
      */
     public List<String> getDialogue() {
         return this.dialogue;
     }
 
     /**
-     * Set the NPC this action is emitted from.
-     * @return the modified quest action
+     * Sets the dialogue associated with this action.
+     * 
+     * @param dialogue A list of dialogue lines to set.
+     * @return The updated quest action.
      */
     public QuestAction setDialogue(List<String> dialogue) {
         this.dialogue = dialogue;
@@ -204,13 +225,19 @@ public abstract class QuestAction {
     }
 
     /**
-     * What is done when this quest action is called.
+     * Executes the action with the given quest client.
+     * <p>
+     * This method should be implemented by subclasses to define specific behavior.
+     * </p>
+     * 
+     * @param quester The quest client executing this action.
      */
     public abstract void Run(QuestClient quester);
 
     /**
-     * Get what quest stages/actions are connected to the current one.
-     * @return quest connections object
+     * Gets the connections data for this action.
+     * 
+     * @return The connections data.
      */
     @JsonIgnore
     public ConnectionsData getConnections() {
@@ -218,8 +245,12 @@ public abstract class QuestAction {
     }
 
     /**
-     * Used to test the validity of a QuestAction.
-     * @return empty if valid; an error message if invalid
+     * Validates the action and returns any validation errors.
+     * <p>
+     * This method should be implemented by subclasses to define specific validation logic.
+     * </p>
+     * 
+     * @return An optional containing an error message if invalid, or empty if valid.
      */
     public abstract Optional<String> validate();
 }

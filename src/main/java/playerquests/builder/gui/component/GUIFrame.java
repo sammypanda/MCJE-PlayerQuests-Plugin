@@ -100,10 +100,10 @@ public class GUIFrame {
         this.mode = mode;
     }
 
-    /**
-     * Get the mode the GUI is in.
-     * @see #GUIMode
-     * @return whether the GUI can be interacted with in a certain way
+/**
+     * Retrieves the current mode of interaction for the GUI.
+     * @return the {@link GUIMode} that specifies how the GUI can be interacted with.
+     * @see GUIMode
      */
     public GUIMode getMode() {
         return this.mode;

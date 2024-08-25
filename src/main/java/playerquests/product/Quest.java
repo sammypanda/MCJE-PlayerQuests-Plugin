@@ -36,8 +36,8 @@ import playerquests.utility.singleton.Database; // the preservation everything s
 import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
 
 /**
- * The Quest product containing all the information 
- * about a quest, ready to be played.
+ * Represents a quest containing all information necessary for gameplay.
+ * This class provides methods for creating, saving, validating, and toggling quests.
  */
 @JsonIgnoreProperties(ignoreUnknown = true) // ignore id
 public class Quest {
@@ -74,12 +74,14 @@ public class Quest {
     private Boolean toggled = false;
     
     /**
-     * Creates a quest instance for playing and viewing!
-     * @param title label of this quest
-     * @param entry starting/entry point stage for this quest
-     * @param npcs map of NPCs used in this quest
-     * @param stages map of stages used in this quest
-     * @param creator UUID of player who created this quest
+     * Constructs a new Quest with the specified parameters.
+     * 
+     * @param title The title of the quest.
+     * @param entry The starting/entry point stage for the quest.
+     * @param npcs A map of NPCs used in the quest.
+     * @param stages A map of stages used in the quest.
+     * @param creator The UUID of the player who created the quest.
+     * @param toggled Whether the quest is toggled (enabled).
      */
     public Quest(
         @JsonProperty("title") String title, 
@@ -123,9 +125,10 @@ public class Quest {
     }
 
     /**
-     * Creates a quest product from a string template.
-     * @param questTemplate the (json) string quest template
-     * @return the quest product created from the quest template
+     * Creates a quest from a JSON string template.
+     * 
+     * @param questTemplate The JSON string representing the quest template.
+     * @return A {@link Quest} object created from the JSON string.
      */
     public static Quest fromTemplateString(String questTemplate) {
         Quest quest = null;
@@ -149,16 +152,18 @@ public class Quest {
     }
 
     /**
-     * Gets the label of this quest.
-     * @return the label of this quest
+     * Gets the title of this quest.
+     * 
+     * @return The title of this quest.
      */
     public String getTitle() {
         return title;
     }
 
     /**
-     * Get the starting prev, current, next steps.
-     * @return
+     * Retrieves the connections for the quest, including the previous, current, and next stages.
+     * 
+     * @return A {@link ConnectionsData} object representing the connections of the quest.
      */
     @JsonIgnore
     public ConnectionsData getConnections() {
@@ -166,8 +171,9 @@ public class Quest {
     }
 
     /**
-     * Gets the starting/entry point stage ID for this quest.
-     * @return the ID of the starting/entry point stage for this quest
+     * Gets the starting/entry point stage for this quest.
+     * 
+     * @return The {@link StagePath} of the starting/entry point stage.
      */
     public StagePath getEntry() {
         return entry;
@@ -175,7 +181,8 @@ public class Quest {
 
     /**
      * Gets the map of NPCs used in this quest.
-     * @return the map of NPCs used in this quest
+     * 
+     * @return The map of NPCs, keyed by their ID.
      */
     public Map<String, QuestNPC> getNPCs() {
         return npcs;
@@ -183,27 +190,28 @@ public class Quest {
 
     /**
      * Gets the map of stages used in this quest.
-     * @return the map of stages used in this quest
+     * 
+     * @return The map of stages, keyed by their ID.
      */
     public Map<String, QuestStage> getStages() {
         return stages;
     }
 
     /**
-     * Gets the creator (UUID) of this quest.
-     * @return the creator (UUID) of this quest
+     * Gets the UUID of the player who created this quest.
+     * 
+     * @return The UUID of the creator.
      */
     public UUID getCreator() {
         return creator;
     }
 
     /**
-     * Gets the liquid ID for this quest.
+     * Gets a unique identifier for this quest.
      * <p>
-     * IDs aren't fixed, if the quest title 
-     * changes, it's considered a different quest.
-     * This means creating new versions of the 
-     * same quest is very easy. like Quest -> Quest2.
+     * The ID is composed of the quest title and creator UUID. This allows for easy differentiation of different versions of the same quest.
+     * 
+     * @return The unique ID of this quest.
      */
     @JsonProperty("id") 
     public String getID() {
@@ -214,9 +222,10 @@ public class Quest {
     }
 
     /**
-     * Creates a quest template based on the current product.
-     * @return this quest as a json object
-     * @throws JsonProcessingException when the json cannot seralise
+     * Converts this quest to a JSON string template.
+     * 
+     * @return A JSON string representing this quest.
+     * @throws JsonProcessingException If the JSON cannot be serialized.
      */
     public String toTemplateString() throws JsonProcessingException {
         // get the product of this builder
@@ -233,8 +242,9 @@ public class Quest {
     }
 
     /**
-     * Saves a quest into the QuestBuilder.savePath.
-     * @return the response message
+     * Saves this quest to a file.
+     * 
+     * @return A message indicating the result of the save operation.
      */
     @Key("quest")
     public String save() {
@@ -261,6 +271,11 @@ public class Quest {
         }
     }
 
+    /**
+     * Gets all actions from the stages of this quest.
+     * 
+     * @return A map of actions, keyed by their ID.
+     */
     @JsonIgnore
     public Map<String, QuestAction> getActions() {
         Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
@@ -275,8 +290,9 @@ public class Quest {
     }
 
     /**
-     * Checks if the quest is toggled/enabled.
-     * @return whether the quest is enabled/being shown
+     * Checks if this quest is toggled (enabled).
+     * 
+     * @return Whether the quest is enabled.
      */
     @JsonIgnore
     public Boolean isToggled() {
@@ -284,15 +300,16 @@ public class Quest {
     }
 
     /**
-     * Toggle function as a switch.
+     * Toggles the quest's enabled/disabled state.
      */
     public void toggle() {
         this.toggle(!this.toggled);
     }
 
     /**
-     * Toggle function but with discrete choice.
-     * @param toEnable whether to show/enable the quest
+     * Toggles the quest's enabled/disabled state with a specified value.
+     * 
+     * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
         this.toggled = toEnable;
@@ -309,6 +326,11 @@ public class Quest {
         );
     }
 
+    /**
+     * Validates this quest's data.
+     * 
+     * @return Whether the quest is valid.
+     */
     @JsonIgnore
     public boolean isValid() {
         UUID questCreator = this.creator;
@@ -351,12 +373,22 @@ public class Quest {
         return isValid;
     }
 
+    /**
+     * Provides a string representation of this quest.
+     * 
+     * @return A string representing this quest.
+     */
     @JsonIgnore
     @Override
     public String toString() {
         return String.format("%s=%s", super.toString(), this.getID());
     }
 
+    /**
+     * Refunds the resources used in this quest to the creator.
+     * <p>
+     * If the creator is null (indicating a shared quest), no refund is performed.
+     */
     public void refund() {
         if (this.creator == null) {
             return; // no need to refund, a shared quest has infinite resources

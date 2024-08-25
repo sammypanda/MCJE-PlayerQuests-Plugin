@@ -17,7 +17,10 @@ import playerquests.product.Quest; // back reference to quest this stage belongs
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
- * The information and action list for a quest stage.
+ * Represents a stage in a quest, including the actions and connections associated with it.
+ * 
+ * A quest stage can have various actions and a specified entry point for execution. It also holds connections
+ * to other stages within the quest.
  */
 public class QuestStage {
 
@@ -58,13 +61,17 @@ public class QuestStage {
     private ConnectionsData connections = new ConnectionsData();
 
     /**
-     * Default constructor (for Jackson)
-    */
+     * Default constructor for Jackson deserialization.
+     */
     public QuestStage() {}
 
     /**
-     * StageID constructor (for Jackson)
-    */
+     * Constructs a new {@code QuestStage} with the specified stage ID.
+     * 
+     * This constructor initializes the stage with a default action and sets it as the entry point.
+     *
+     * @param stageID the unique identifier for this stage
+     */
     public QuestStage(String stageID) {
         this.stageID = stageID;
 
@@ -79,9 +86,12 @@ public class QuestStage {
     }
 
     /**
-     * Constructs a new quest stage.
-     * @param quest which quest this stage is in
-     * @param stageIDNumber value which the stage is tracked by (stage_[num])
+     * Constructs a new {@code QuestStage} for the given quest with a numeric stage ID.
+     * 
+     * This constructor initializes the stage with a default action and sets it as the entry point.
+     *
+     * @param quest the quest this stage belongs to
+     * @param stageIDNumber the numeric identifier for this stage
      */
     public QuestStage(Quest quest, Integer stageIDNumber) {
         this.stageID = "stage_"+stageIDNumber;
@@ -100,42 +110,48 @@ public class QuestStage {
     }
 
     /**
-     * Constructs a new quest stage.
-     * With a fully qualified stage ID string.
-     * @param quest which quest this stage is in
-     * @param stageID value which the stage is tracked by (stage_[num])
-    */
+     * Constructs a new {@code QuestStage} for the given quest with a fully qualified stage ID.
+     * 
+     * This constructor parses the stage ID from the provided string and initializes the stage.
+     *
+     * @param quest the quest this stage belongs to
+     * @param stageID the fully qualified stage ID (e.g., "stage_1")
+     */
     public QuestStage(Quest quest, String stageID) {
         this(quest, Integer.parseInt(stageID.substring(6)));
     }
 
     /**
-     * Set what quest this stage belongs to.
-     * @param quest a quest builder instance
+     * Sets the quest associated with this stage.
+     *
+     * @param quest the quest to associate with this stage
      */
     public void setQuest(Quest quest) {
         this.quest = quest;
     }
 
     /**
-     * Get what quest this stage belongs to.
-     * @return a quest builder instance
+     * Gets the quest associated with this stage.
+     *
+     * @return the quest associated with this stage
      */
     public Quest getQuest() {
         return this.quest;
     }
 
     /**
-     * Returns the quest stage ID.
-     * @return value which the stage is tracked by (stage_[num])
+     * Returns the unique identifier for this stage.
+     *
+     * @return the stage ID
      */
     public String getID() {
         return this.stageID;
     }
 
     /**
-     * Returns the quest stage title (for now just represented as the ID).
-     * @return label for the action
+     * Returns the title of the stage. Currently represented as the stage ID.
+     *
+     * @return the title of the stage
      */
     @JsonIgnore
     @Key("QuestStage")
@@ -144,8 +160,9 @@ public class QuestStage {
     }
 
     /**
-     * Gets the map of quest actions added to this stage.
-     * @return list of the action instances
+     * Gets the map of actions associated with this stage.
+     *
+     * @return a map of action instances, keyed by action ID
      */
     @JsonIgnore
     public Map<String, QuestAction> getActions() {
@@ -153,9 +170,12 @@ public class QuestStage {
     }
 
     /**
-     * Adds a new quest action instance to this stage.
-     * @param action quest action instance
-     * @return the new action id
+     * Adds a new action to this stage.
+     * 
+     * This method generates a new action ID, assigns it to the action, and adds it to the actions map.
+     *
+     * @param action the action to add
+     * @return the ID of the newly added action
      */
     @JsonIgnore
     public String addAction(QuestAction action) {
@@ -166,24 +186,29 @@ public class QuestStage {
     }
 
     /**
-     * Removes an action from this stage
-     * @param action the quest action to remove from the stage
+     * Removes an action from this stage.
+     *
+     * @param action the action to remove
      */
     public void removeAction(QuestAction action) {
         this.actions.remove(action.getID());
     }
 
     /**
-     * Sets the first action executed when this stage is reached.
-     * @param action a quest action id
+     * Sets the entry point action for this stage.
+     * 
+     * The entry point specifies the initial action to be executed when this stage is reached.
+     *
+     * @param path the entry point action
      */
     public void setEntryPoint(StagePath path) {
         this.entryPoint = path;
     }
 
     /**
-     * Gets the first action executed when this stage is reached.
-     * @return a quest action id
+     * Gets the entry point action for this stage.
+     *
+     * @return the entry point action
      */
     @JsonIgnore
     public StagePath getEntryPoint() {
@@ -191,8 +216,9 @@ public class QuestStage {
     }
 
     /**
-     * Gets the latest action currently in editing.
-     * @return the action that is currently set as being edited
+     * Gets the ID of the action currently being edited.
+     *
+     * @return the ID of the action being edited
      */
     @JsonIgnore
     public String getActionToEdit() {
@@ -200,13 +226,22 @@ public class QuestStage {
     }
 
     /**
-     * Sets an action as currently in editing.
-     * @param action the action to edit
+     * Sets the ID of the action currently being edited.
+     *
+     * @param actionID the ID of the action to edit
      */
     public void setActionToEdit(String actionID) {
         this.actionInEditing = actionID;
     }
 
+    /**
+     * Changes the type of an existing action in this stage.
+     * 
+     * This method updates the action in the actions map and adjusts the entry point if necessary.
+     *
+     * @param currentAction the ID of the action to replace
+     * @param newActionInstance the new action instance to replace the old one
+     */
     public void changeActionType(String currentAction, QuestAction newActionInstance) {
         newActionInstance.setID(currentAction); // update the ID in the action local
         this.actions.replace(currentAction, newActionInstance); // replace in main list
@@ -217,8 +252,11 @@ public class QuestStage {
     }
 
     /**
-     * Get what quest stages/actions are connected to the current one.
-     * @return quest connections object
+     * Gets the connections data for this stage.
+     * 
+     * This data represents how this stage connects to other stages.
+     *
+     * @return the connections data
      */
     @JsonIgnore
     public ConnectionsData getConnections() {
