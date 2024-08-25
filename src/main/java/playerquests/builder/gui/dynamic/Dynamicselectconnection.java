@@ -28,11 +28,6 @@ public class Dynamicselectconnection extends GUIDynamic {
     private QuestStage selectedStage = null;
 
     /**
-     * The action that has been selected.
-     */
-    private QuestAction selectedAction = null;
-
-    /**
      * The code to run on connection select.
      */
     private Consumer<Object> onSelect;
@@ -65,7 +60,7 @@ public class Dynamicselectconnection extends GUIDynamic {
 
             int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
             List<String> actions = new ArrayList<>(selectedStage.getActions().keySet());
-            IntStream.range(2, 19).forEach((int slot) -> {
+            IntStream.range(rangeOffset, 19).forEach((int slot) -> {
                 int i = slot - rangeOffset;
 
                 if (actions.size() < i + 1) {
@@ -78,7 +73,6 @@ public class Dynamicselectconnection extends GUIDynamic {
                     .setLabel(action.getID())
                     .setItem("DETECTOR_RAIL")
                     .onClick(() -> {
-                        this.selectedAction = action;
                         this.select(new StagePath(selectedStage, action));
                     });
             });
@@ -93,12 +87,21 @@ public class Dynamicselectconnection extends GUIDynamic {
                     ).execute();
                 });
         } else {
-            // show the quest stages //
+            // set the title for showing quest stages
             frame.setTitle("Select Stage");
 
-            int rangeOffset = 1; // the amount to subtract from the slot number, to get an index from 0
+            // show nullify option
+            new GUISlot(gui, 1)
+                .setLabel("Remove connection")
+                .setItem("BARRIER")
+                .onClick(() -> {
+                    this.select(null);
+                });
+
+            // show the quest stages
+            int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
             List<String> stages = questBuilder.getStages();
-            IntStream.range(1, 19).forEach((int slot) -> {
+            IntStream.range(rangeOffset, 19).forEach((int slot) -> {
                 int i = slot - rangeOffset;
 
                 if (stages.size() < i + 1) {
@@ -141,7 +144,7 @@ public class Dynamicselectconnection extends GUIDynamic {
 
         if (this.onSelect != null) {
             onSelect.accept(
-                new StagePath(selectedStage, selectedAction)
+                path
             );
         }
     }
