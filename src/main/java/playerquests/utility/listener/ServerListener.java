@@ -150,7 +150,7 @@ public class ServerListener implements Listener {
         }
 
         // submit/process collected quests
-        submitQuestsToRegistry(allQuests);
+        createQuests(allQuests);
 
         // notify the server about the newly processed quests
         ChatUtils.message("Finished submitting quests into server: " + allQuests)
@@ -173,11 +173,11 @@ public class ServerListener implements Listener {
     }
 
     /**
-     * Submits quests to the quest registry and handles any errors.
+     * Creates quests from a list of IDs by searching the filesystem.
      * 
      * @param quests the set of quest IDs to process
      */
-    private void submitQuestsToRegistry(Set<String> quests) {
+    private void createQuests(Set<String> quests) {
         quests.forEach(id -> {
             boolean errorOccurred = true; // Assume an error occurred initially
             
@@ -188,7 +188,6 @@ public class ServerListener implements Listener {
                     return;
                 }
 
-                QuestRegistry.getInstance().submit(newQuest);
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {
@@ -286,7 +285,7 @@ public class ServerListener implements Listener {
                             switch (kind.name()) {
                                 case "ENTRY_CREATE":
                                     // submit the quest systematically
-                                    submitQuestsToRegistry(new HashSet<>(Set.of(questName)));
+                                    createQuests(new HashSet<>(Set.of(questName)));
                                     break;
                                 case "ENTRY_DELETE":
                                     // find the quest object

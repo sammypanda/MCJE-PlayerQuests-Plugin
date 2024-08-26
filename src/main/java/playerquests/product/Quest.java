@@ -119,6 +119,9 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
+
+        // Submit quest to the registry
+        QuestRegistry.getInstance().submit(this);
     }
 
     /**
