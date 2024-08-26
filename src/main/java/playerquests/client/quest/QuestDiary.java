@@ -65,8 +65,16 @@ public class QuestDiary {
         // instantiate quest progress from the db
         // and update the client when we have results!
         loadQuestProgress().thenRun(() -> {
+            // remove untoggled from pre-filled (from db)
+            this.questProgress.keySet().removeIf(quest -> !quest.isToggled());
+
             // fill in un-completed/un-started quests
             QuestRegistry.getInstance().getAllQuests().values().stream().forEach((quest) -> {
+                // don't fill in untoggled
+                if (!quest.isToggled()) {
+                    return;
+                }
+
                 // put the quest from the start 
                 // (we know it's unstarted because we are using the quest's default ConnectionsData, 
                 // ConnectionsData is the thing that tracks quest progress. It does it by identifying the
