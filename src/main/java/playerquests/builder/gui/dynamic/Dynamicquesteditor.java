@@ -67,13 +67,11 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setItem("ACACIA_HANGING_SIGN")
             .setLabel("Set Title")
             .onClick(() -> {
-                String oldQuestID = questBuilder.build().getID();
-
                 new ChatPrompt(
                     new ArrayList<>(Arrays.asList("Enter quest title", "quest.title")), 
                     director
                 ).onFinish(_ -> {
-                    QuestRegistry.getInstance().replace(oldQuestID, questBuilder.build());
+                    QuestRegistry.getInstance().submit(questBuilder.build());
                     this.execute(); // refresh UI to reflect title change
                 })
                 .execute();
@@ -123,7 +121,7 @@ public class Dynamicquesteditor extends GUIDynamic {
                         questBuilder.setEntryPoint(new StagePath(path.getStage(), path.getAction()));
 
                         // update the quest
-                        QuestRegistry.getInstance().update(this.questBuilder.build());
+                        QuestRegistry.getInstance().submit(this.questBuilder.build());
                     });
                 }).execute();
             });

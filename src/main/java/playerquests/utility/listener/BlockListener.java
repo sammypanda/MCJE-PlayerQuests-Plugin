@@ -84,8 +84,6 @@ public class BlockListener implements Listener {
             return; // don't continue if no NPC associated
         }
 
-        Quest quest = npc.getQuest();
-
         synchronized (activeBlockNPCs) {
             Map<Block, BlockNPC> filteredBlockNPCs = activeBlockNPCs.entrySet().stream()
                 .filter(entry -> entry.getValue() != blockNPC) // filter out the blockNPC to unregister
@@ -93,9 +91,6 @@ public class BlockListener implements Listener {
 
             // replace the NPCs list with the filtered
             activeBlockNPCs = filteredBlockNPCs;
-
-            // remove the quest, as now it's missing the NPC
-            QuestRegistry.getInstance().remove(quest, true);
         }
     }
     

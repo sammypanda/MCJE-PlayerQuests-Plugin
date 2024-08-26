@@ -101,7 +101,7 @@ public class Dynamicqueststages extends GUIDynamic {
                     );
 
                     // update the quest
-                    QuestRegistry.getInstance().update(this.questBuilder.build());
+                    QuestRegistry.getInstance().submit(this.questBuilder.build());
 
                     // update UI
                     this.gui.clearSlots();

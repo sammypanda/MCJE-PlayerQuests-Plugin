@@ -1,6 +1,7 @@
 package playerquests.utility.singleton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Location; // the minecraft location object
@@ -160,9 +161,34 @@ public class PlayerQuests {
      * 
      * @param quest The {@link Quest} object whose traces are to be removed.
      */
-    public void remove(Quest quest) {
+    public static void remove(Quest quest) {
+        // uninstall player interactivity
+        QuestRegistry.getInstance().getQuesters().values().forEach(quester -> {
+            quester.removeQuest(quest);
+        });
+
         // remove all NPCs
-        blockListener.remove(quest);
+        quest.getNPCs().values().forEach(npc -> {
+            npc.remove();
+        });
+    }
+
+    /**
+     * Adds quest objects into the world.
+     * 
+     * @param quest The {@link Quest} object that will be installed.
+     */
+    public static void install(Quest quest) {
+        // add all NPCs
+        quest.getNPCs().values().forEach(npc -> {
+            npc.setQuest(quest);
+            npc.place();
+        });
+
+        // install player interactivity
+        QuestRegistry.getInstance().getQuesters().values().forEach(quester -> {
+            quester.addQuests(Arrays.asList(quest));
+        });
     }
 
     /**

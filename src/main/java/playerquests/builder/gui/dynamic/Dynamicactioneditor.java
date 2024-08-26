@@ -86,7 +86,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             }
 
             // update quest
-            QuestRegistry.getInstance().update(this.stage.getQuest());
+            QuestRegistry.getInstance().submit(this.stage.getQuest());
 
             // switch GUI
             new UpdateScreen(
@@ -126,7 +126,7 @@ public class Dynamicactioneditor extends GUIDynamic {
                 stage.removeAction(action);
                 
                 // update the quest
-                QuestRegistry.getInstance().update(this.stage.getQuest());
+                QuestRegistry.getInstance().submit(this.stage.getQuest());
 
                 // update UI
                 new UpdateScreen(

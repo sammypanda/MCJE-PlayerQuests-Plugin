@@ -160,11 +160,11 @@ public class Dynamicqueststage extends GUIDynamic {
                         ).execute();
 
                         // update the quest
-                        QuestRegistry.getInstance().update(this.questBuilder.build());
+                        QuestRegistry.getInstance().submit(this.questBuilder.build());
                     }
 
                     // update the quest
-                    QuestRegistry.getInstance().update(this.questBuilder.build());
+                    QuestRegistry.getInstance().submit(this.questBuilder.build());
                 });
         }
 
@@ -185,7 +185,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 new None(this.questStage).submit(); // create the new action
 
                 // update the quest
-                QuestRegistry.getInstance().update(this.questBuilder.build());
+                QuestRegistry.getInstance().submit(this.questBuilder.build());
 
                 // refresh UI
                 this.confirm_actionKeys = false; // set actionKeys to be looped through again

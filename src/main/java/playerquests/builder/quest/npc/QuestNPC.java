@@ -228,7 +228,6 @@ public class QuestNPC {
      */
     @JsonIgnore
     public void assign(NPCType npcType) {
-        Player player = Bukkit.getPlayer(this.quest.getCreator());
         this.assigned = npcType;
     }
 
@@ -331,5 +330,13 @@ public class QuestNPC {
     @JsonIgnore
     public void penalise(Player player) {
         this.getAssigned().penalise(player);
+    }
+
+    /**
+     * Remove the NPC from the world.
+     */
+    @JsonIgnore
+    public void remove() {
+        this.getAssigned().remove();
     }
 }
