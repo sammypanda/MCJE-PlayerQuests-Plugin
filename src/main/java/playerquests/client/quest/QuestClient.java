@@ -78,7 +78,7 @@ public class QuestClient {
      * @param questList a list of quest products.
      */
     public void addQuests(List<Quest> questList) {
-        questList.parallelStream().forEach((quest) -> {
+        questList.stream().forEach((quest) -> {
             this.diary.addQuest(quest);
         });
 

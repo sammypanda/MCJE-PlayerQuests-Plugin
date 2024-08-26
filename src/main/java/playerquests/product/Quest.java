@@ -71,7 +71,7 @@ public class Quest {
     /**
      * If the quest is toggled.
      */
-    private Boolean toggled = false;
+    private Boolean toggled = true;
     
     /**
      * Constructs a new Quest with the specified parameters.
@@ -104,10 +104,7 @@ public class Quest {
         this.stages = stages;
         this.creator = creator;
 
-        // determine if should be toggled
-        if (toggled != null) {
-            this.toggled = toggled;
-        }
+        // TODO: determine if should be toggled
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (stages != null) {
@@ -296,7 +293,7 @@ public class Quest {
      */
     @JsonIgnore
     public Boolean isToggled() {
-        return Database.getInstance().getQuestToggled(this);
+        return this.toggled;
     }
 
     /**

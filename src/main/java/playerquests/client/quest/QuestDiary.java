@@ -263,6 +263,12 @@ public class QuestDiary {
      * @param quest The {@link Quest} to add.
      */
     public void addQuest(Quest quest) {
+        // do not add if not toggled
+        if (!quest.isToggled()) {
+            return;
+        }
+        
+        // submit to diary
         this.setQuestProgress(
             quest, 
             quest.getConnections()
@@ -276,7 +282,7 @@ public class QuestDiary {
      */
     public void removeQuest(Quest quest) {
         // destroy quest and progress :(
-        this.questProgress.remove(quest);
+        this.questProgress.keySet().removeIf(localQuest -> quest.getID().equals(localQuest.getID()));
     }
     
 }
