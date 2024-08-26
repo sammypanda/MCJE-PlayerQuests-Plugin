@@ -60,8 +60,8 @@ public class ServerListener implements Listener {
 
         // Ensure quest processing runs on the main thread
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            processQuests();
             createQuestClients();
+            processQuests();
         });
 
         startWatchService(); // start fs watching

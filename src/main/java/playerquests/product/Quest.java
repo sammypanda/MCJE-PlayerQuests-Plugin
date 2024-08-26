@@ -104,7 +104,8 @@ public class Quest {
         this.stages = stages;
         this.creator = creator;
 
-        // TODO: determine if should be toggled
+        // determine if should be toggled
+        this.toggled = Database.getInstance().getQuestToggled(this);
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (stages != null) {

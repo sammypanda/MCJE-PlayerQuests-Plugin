@@ -83,7 +83,9 @@ public class QuestRegistry {
         // ...
 
         // remove if already exists
-        this.registry.values().removeIf(registryQuest -> registryQuest.getID().equals(questID));
+        if (this.registry.values().removeIf(registryQuest -> registryQuest.getID().equals(questID))) {
+            this.delete(quest, false);
+        }
 
         // add to database/lists
         this.add(questID, quest);
