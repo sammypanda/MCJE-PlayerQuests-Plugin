@@ -2,12 +2,17 @@ package playerquests.utility.singleton;
 
 import java.io.IOException;
 import java.util.HashMap; // hash table map
+import java.util.List;
 import java.util.Map; // generic map type
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player; // representing players
 
+import playerquests.builder.quest.data.LocationData;
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
@@ -78,10 +83,7 @@ public class QuestRegistry {
                 .type(MessageType.WARN);
             return;
         }
-
-        // TODO: displace NPCs that would be on top of other NPCs
-        // ...
-
+        
         // remove if already exists
         if (this.registry.values().removeIf(registryQuest -> registryQuest.getID().equals(questID))) {
             this.delete(quest, false);
@@ -176,10 +178,59 @@ public class QuestRegistry {
      * Shows the physical quest in the world.
      * 
      * @param quest the quest to show/toggle on.
+     * @return if was successful
      */
-    public void toggle(Quest quest) {
+    public boolean toggle(Quest quest) {
+        // check + error for if any NPCs can't be placed
+        if (!this.canPlaceNPC(quest)) {
+            return false;
+        };
+
         // install the quest into the world
         PlayerQuests.install(quest);
+
+        // indicate it was a success
+        return true;
+    }
+
+    private boolean canPlaceNPC(Quest quest) {
+        // get list of NPC locations from quest registry
+        List<LocationData> registryNPCLocations = this.registry.values().stream()
+            .filter(registryQuest -> !registryQuest.getID().equals(quest.getID()) && registryQuest.isToggled())
+            .flatMap(registryQuest -> registryQuest.getNPCs().values().stream().map(QuestNPC::getLocation))
+            .collect(Collectors.toList());
+
+        // cross reference this quest NPC locations with the above list
+        // existing = the registry NPCs
+        // submitted = this quest NPCs
+        Optional<QuestNPC> collidingNPC = quest.getNPCs().values().stream()
+            .filter(questNPC -> registryNPCLocations.stream()
+                .anyMatch(existingLocation -> {
+                    LocationData submittedLocation = questNPC.getLocation();
+
+                    return existingLocation.collidesWith(submittedLocation);
+                })
+            )
+            .findFirst();
+
+        // if no NPC collision match
+        if (collidingNPC.isEmpty()) {
+            return true;
+        }
+
+        // get the creator as a player and...
+        UUID creator = quest.getCreator();
+        // send message if there is a creator
+        if (creator != null) {
+            Player player = Bukkit.getPlayer(quest.getCreator());
+            ChatUtils.message("Your NPC: '" + collidingNPC.get().getName() + "', can't be placed at this location. There seems to already be an NPC there.")
+                .player(player)
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.ERROR)
+                .send();
+        }
+
+        return false;
     }
 
     /**

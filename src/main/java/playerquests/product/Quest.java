@@ -316,7 +316,7 @@ public class Quest {
         this.toggled = toEnable;
 
         if (toEnable) {
-            QuestRegistry.getInstance().toggle(this);
+            this.toggled = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
         } else {
             QuestRegistry.getInstance().untoggle(this);
         }
