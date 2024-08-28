@@ -313,13 +313,13 @@ public class Quest {
      * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
-        this.toggled = toEnable;
-
         if (toEnable) {
-            this.toggled = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
+            toEnable = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
         } else {
             QuestRegistry.getInstance().untoggle(this);
         }
+
+        this.toggled = toEnable;
 
         Database.getInstance().setQuestToggled( // update database state (when we can)
             this,
