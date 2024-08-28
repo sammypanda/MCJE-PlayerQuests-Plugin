@@ -23,6 +23,7 @@ import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // to associate a key name with a method
+import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * For creating and managing a Quest.
@@ -350,9 +351,14 @@ public class QuestBuilder {
      * @param npc The {@link QuestNPC} object to remove from the map.
      */
     public void removeNPC(QuestNPC npc) {
+        // remove from quest list
         this.questNPCs.remove(npc.getID());
 
+        // refund resources
         npc.refund(Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId()));
+
+        // remove from world
+        npc.remove();
     }
 
     /**
