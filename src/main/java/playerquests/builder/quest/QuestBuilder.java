@@ -23,7 +23,6 @@ import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // to associate a key name with a method
-import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * For creating and managing a Quest.

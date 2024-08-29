@@ -223,10 +223,10 @@ public class QuestRegistry {
         // send message if there is a creator
         if (creator != null) {
             Player player = Bukkit.getPlayer(quest.getCreator());
-            ChatUtils.message("Your NPC: '" + collidingNPC.get().getName() + "', can't be placed at this location. There seems to already be an NPC there.")
+            ChatUtils.message("Oops! The '" + collidingNPC.get().getName() + "' NPC, for your '" + quest.getTitle() + "' quest, can't be placed on another NPC's spot. Please try setting yours elsewhere.")
                 .player(player)
                 .style(MessageStyle.PRETTY)
-                .type(MessageType.ERROR)
+                .type(MessageType.WARN)
                 .send();
         }
 
