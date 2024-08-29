@@ -231,6 +231,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
             
             switch (version) {
+                case "0.7":
                 case "0.6":
                 case "0.5.2":
                 case "0.5.1":
