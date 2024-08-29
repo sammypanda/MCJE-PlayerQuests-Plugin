@@ -16,54 +16,54 @@ import playerquests.utility.MaterialUtils; // converts string of item to present
 public class GUISlot {
 
     /**
-     * the parent gui builder.
+     * The parent GUI builder that manages this slot.
      */
     private GUIBuilder builder;
 
     /**
-     * position this slot occupies in the GUI.
+     * The position of this slot within the GUI.
      */
     private Integer position;
 
     /**
-     * default item/block
+     * The item or block displayed in this slot. Defaults to "GRAY_STAINED_GLASS_PANE".
      */
     private String item = "GRAY_STAINED_GLASS_PANE";
 
     /**
-     * label of the item in the slot (requires whitespace to show as empty)
+     * The label displayed when hovering over the slot. Defaults to a single space.
      */
     private String label = " ";
     
     /**
-     * description of the item in the slot
+     * The description or subtitle displayed when hovering over the slot. Defaults to an empty string.
      */
     private String description = "";
 
     /**
-     * list of functions associated with this slot/button.
+     * List of functions associated with this slot. Functions are executed when this slot is interacted with.
      */
     private List<GUIFunction> functionList = new ArrayList<GUIFunction>();
 
     /**
-     * has this slot encountered a syntax error
+     * Indicates whether the slot has encountered a syntax error. Defaults to {@code false}.
      */
     private Boolean errored = false;
 
     /**
-     * function that can be set to run when this slot is clicked
+     * The function to be executed when the slot is clicked.
      */
     private Runnable onClick;
 
     /**
-     * Little number indicating 2-64
+     * The stack count for the item in this slot, indicating quantity. Defaults to 1.
      */
     private Integer stackCount = 1; // 1 default, being no number shown
 
     /**
-     * Constructs a new GUISlot with the specified parent GUIBuilder.
-     * @param builder a parent GUI which manages the window/screen.
-     * @param slotPosition where the slot should be in the GUI window, starting at 1.
+     * Constructs a new {@code GUISlot} with the specified parent {@code GUIBuilder}.
+     * @param builder The parent GUI builder managing this slot.
+     * @param slotPosition The position of this slot in the GUI, starting at 1.
      */
     public GUISlot(GUIBuilder builder, Integer slotPosition) {
         this.builder = builder;
@@ -71,10 +71,9 @@ public class GUISlot {
     }
 
     /**
-     * Add a GUI Function ('Meta Action') to be executed when this GUI Slot
-     * is used.
-     * @param guiFunction the Meta Action function instance.
-     * @return the modified instance of the slot builder
+     * Adds a function to be executed when this slot is used.
+     * @param guiFunction The {@code GUIFunction} to be added to this slot.
+     * @return The modified instance of {@code GUISlot}.
      */
     public GUISlot addFunction(GUIFunction guiFunction) {
         this.functionList.add(guiFunction); // add to list of functions
@@ -82,11 +81,9 @@ public class GUISlot {
     }
 
     /**
-     * Sets the slot position for this instance of {@link GUISlot}.
-     * <p>
-     * This will replace whatever is existing in the passed in position.
-     * @param position the actual position of the slot, starting from 1
-     * @return the modified instance of the slot builder
+     * Sets the position of this slot within the GUI.
+     * @param position The position of the slot, starting from 1.
+     * @return The modified instance of {@code GUISlot}.
      */
     public GUISlot setPosition(Integer position) {
         this.position = position; // set in our current GUISlot class
@@ -96,18 +93,17 @@ public class GUISlot {
     }
 
     /**
-     * Gets the slot position for this instance of {@link GUISlot}.
-     * <p>
-     * @return the integer of the slot this button occupies
+     * Gets the position of this slot within the GUI.
+     * @return The position of the slot.
      */
-    public Integer getPosition(Integer position) {
+    public Integer getPosition() {
         return this.position;
     }
 
     /**
-     * Sets the item/block that will fill the slot for this instance of {@link GUISlot}.
-     * @param item the closest string representation to the {@link org.bukkit.Material} ENUM.
-     * @return the modified instance of the slot builder
+     * Sets the item or block to be displayed in this slot.
+     * @param item The string representation of the item or block.
+     * @return The modified instance of {@code GUISlot}.
      */
     public GUISlot setItem(String item) {
         try { // check if the item would create a valid ItemStack (the Material exists and isn't legacy)
@@ -123,11 +119,9 @@ public class GUISlot {
     }
 
     /**
-     * Sets the hover label for this instance of {@link GUISlot}.
-     * <p>
-     * Includes some processing/formatting of the label.
-     * @param label the title for what the button does/is for.
-     * @return the modified instance of the slot builder
+     * Sets the hover label for this slot.
+     * @param label The label text to be displayed when hovering over the slot.
+     * @return The modified instance of {@code GUISlot}.
      */
     public GUISlot setLabel(String label) {
         String errorLabel = "(Error)";
@@ -145,32 +139,32 @@ public class GUISlot {
     }
 
     /**
-     * Determine whether the instance has encountered an error.
-     * @return errored true or false value for if it has errored.
+     * Determines whether this slot has encountered a syntax error.
+     * @return {@code true} if there is an error, {@code false} otherwise.
      */
     public Boolean hasError() {
         return this.errored;
     }
 
     /**
-     * Gets the item/block that will fill the slot for this instance of {@link GUISlot}.
-     * @return item the raw {@link String} representation of the item.
+     * Gets the item or block to be displayed in this slot.
+     * @return The raw string representation of the item or block.
      */
     public String getItem() {
         return this.item;
     }
 
     /**
-     * Gets the hover label for this instance of {@link GUISlot}.
-     * @return the label when hovering over the slot.
+     * Gets the hover label for this slot.
+     * @return The label text displayed when hovering over the slot.
      */
     public String getLabel() {
         return this.label;
     }
 
     /**
-     * Run the functions that are described in the GUI screen expression.
-     * @param player who to execute the function(s) for
+     * Executes the functions associated with this slot.
+     * @param player The player for whom the functions are executed.
      */
     public void execute(HumanEntity player) {
         if (this.functionList.isEmpty()) { return; }
@@ -183,8 +177,8 @@ public class GUISlot {
     }
 
     /**
-     * Run the NEXT function that is described in the GUI screen expression
-     * @param player who to execute the next function for.
+     * Executes the next function in the list of functions associated with this slot.
+     * @param player The player for whom the next function is executed.
      */
     public void executeNext(HumanEntity player) {
         // if no more functions, don't continue
@@ -198,20 +192,15 @@ public class GUISlot {
     }
 
     /**
-     * Sets a function to be executed when the slot is clicked.
-     * <p>
-     * Template functions take precedent (GUIFunction).
-     * If a function is to be added from within the code-land, it 
-     * should use this to set the function to be executed.
-     * @param onClick the function to run when the GUISlot is pressed
+     * Sets the function to be executed when the slot is clicked.
+     * @param onClick The {@code Runnable} to be executed on click.
      */
     public void onClick(Runnable onClick) {
         this.onClick = onClick;
     }
 
     /**
-     * Run the function set on this slot.
-     * @see #onClick(Runnable)
+     * Executes the function set to run when the slot is clicked.
      */
     public void clicked() {
         if (this.onClick != null) {
@@ -220,18 +209,16 @@ public class GUISlot {
     }
 
     /**
-     * Sets the hover subtitle/description for this instance of {@link GUISlot}.
-     * <p>
-     * Includes some processing/formatting of the label.
-     * @param description the description of the button
-     * @return the modified instance of the slot builder
+     * Sets the hover description or subtitle for this slot.
+     * @param description The description text to be displayed when hovering over the slot.
+     * @return The modified instance of {@code GUISlot}.
      */
     public GUISlot setDescription(String description) {
         String errorDescription = "";
 
         // Evaluate label for error prefix and avoid malformatting labels
         description = String.format("%s%s%s%s", 
-            ChatColor.RESET, // remove the italics set when changing from default item display name
+            description.isBlank() ? "" : ChatColor.RESET, // remove the italics set when changing from default item display name
             this.hasError() ? errorDescription : "", // add an error notice if applicable
             this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
             this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
@@ -242,25 +229,24 @@ public class GUISlot {
     }
 
     /**
-     * Gets the hover description for this instance of {@link GUISlot}.
-     * @return the description when hovering over the slot.
+     * Gets the hover description for this slot.
+     * @return The description text displayed when hovering over the slot.
      */
     public String getDescription() {
         return this.description;
     }
 
     /**
-     * Sets the size of the ItemStack, probably up to 64.
-     * Useful for indicating a count of something.
-     * @param count
+     * Sets the size of the ItemStack for this slot.
+     * @param count The stack size, typically up to 64.
      */
     public void setCount(Integer count) {
         this.stackCount = count;
     }
 
     /**
-     * Gets the size of the ItemStack.
-     * @return
+     * Gets the size of the ItemStack for this slot.
+     * @return The stack size.
      */
     public Integer getCount() {
         return this.stackCount;

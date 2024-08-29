@@ -11,6 +11,13 @@ import playerquests.client.ClientDirector; // how a player client interacts with
 import playerquests.product.Quest; // complete quest objects
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
+/**
+ * A dynamic GUI screen for displaying and managing a specific quest.
+ * <p>
+ * This screen allows users to view the details of a quest, edit the quest, delete the quest with confirmation,
+ * and toggle the quest's active status. The layout includes buttons for each of these actions.
+ * </p>
+ */
 public class Dynamicmyquest extends GUIDynamic {
 
     /**
@@ -19,10 +26,19 @@ public class Dynamicmyquest extends GUIDynamic {
     Quest quest;
 
     /**
-     * Whether to show delete confirmation button
+     * Flag indicating whether the delete confirmation button should be shown.
+     * <p>
+     * If {@code true}, the button will prompt for confirmation before deleting the quest.
+     * If {@code false}, the button will initiate the delete confirmation process.
+     * </p>
      */
     Boolean confirm_delete = false;
 
+    /**
+     * Constructs a new {@code Dynamicmyquest} instance.
+     * @param director the client director that manages the GUI and interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicmyquest(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -87,15 +103,18 @@ public class Dynamicmyquest extends GUIDynamic {
                 .setLabel("Delete (Confirm)")
                 .onClick(() -> {
                     // delete the quest
-                    Boolean deleted = QuestRegistry.getInstance().delete(quest);
+                    Boolean deleted = QuestRegistry.getInstance().delete(quest, true);
 
-                    // go back if successful
-                    if (deleted) {
-                        new UpdateScreen(
-                            new ArrayList<>(Arrays.asList(previousScreen)), 
-                            director
-                        ).execute();
+                    // don't continue if not deleted
+                    if (!deleted) {
+                        return;
                     }
+
+                    // go back to previous screen
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList(previousScreen)), 
+                        director
+                    ).execute();
                 });
         }
 

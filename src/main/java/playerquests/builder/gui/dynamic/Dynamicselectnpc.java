@@ -12,16 +12,41 @@ import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector;
 
+/**
+ * A dynamic GUI screen for selecting NPCs within a quest builder.
+ * <p>
+ * This screen allows users to select from a list of quest NPCs. The NPCs are displayed as slots in the GUI, 
+ * and users can select an NPC to perform actions related to that NPC. 
+ * Users can also navigate back to the previous screen.
+ * </p>
+ */
 public class Dynamicselectnpc extends GUIDynamic {
 
+    /**
+     * The quest builder associated with this screen.
+     */
     private QuestBuilder quest;
 
+    /**
+     * The list of NPCs available for selection.
+     */
     private List<QuestNPC> npcList;
 
+    /**
+     * The currently selected NPC.
+     */
     private QuestNPC selectedNPC;
 
+    /**
+     * The code to run when an NPC is selected.
+     */
     private Consumer<QuestNPC> onSelect;
 
+    /**
+     * Constructs a new {@code Dynamicselectnpc} instance.
+     * @param director the client director that manages GUI interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicselectnpc(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -64,9 +89,12 @@ public class Dynamicselectnpc extends GUIDynamic {
     }
 
     /**
-     * Code to run when an NPC is selected.
-     * @param onSelect code operation
-     * @return the NPC that was selected
+     * Sets the code to run when an NPC is selected.
+     * <p>
+     * This method allows for custom handling of the selected NPC.
+     * </p>
+     * @param onSelect a {@link Consumer} that processes the selected NPC.
+     * @return the currently selected NPC.
      */
     public QuestNPC onSelect(Consumer<QuestNPC> onSelect) {
         this.onSelect = onSelect;
@@ -75,7 +103,10 @@ public class Dynamicselectnpc extends GUIDynamic {
 
     /**
      * Called when an NPC is selected.
-     * @param npc the selected npc
+     * <p>
+     * This method sets the selected NPC and executes any provided selection logic.
+     * </p>
+     * @param npc the selected NPC.
      */
     private void select(QuestNPC npc) {
         this.selectedNPC = npc;

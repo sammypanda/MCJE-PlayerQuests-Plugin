@@ -12,6 +12,7 @@ import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic for modifying the current quest stage.
@@ -157,7 +158,13 @@ public class Dynamicqueststage extends GUIDynamic {
                             new ArrayList<>(Arrays.asList(previousScreen)), 
                             this.director
                         ).execute();
+
+                        // update the quest
+                        QuestRegistry.getInstance().submit(this.questBuilder.build());
                     }
+
+                    // update the quest
+                    QuestRegistry.getInstance().submit(this.questBuilder.build());
                 });
         }
 
@@ -176,6 +183,11 @@ public class Dynamicqueststage extends GUIDynamic {
             newActionButton.setItem("LIME_DYE");
             newActionButton.onClick(() -> {
                 new None(this.questStage).submit(); // create the new action
+
+                // update the quest
+                QuestRegistry.getInstance().submit(this.questBuilder.build());
+
+                // refresh UI
                 this.confirm_actionKeys = false; // set actionKeys to be looped through again
                 this.gui.clearSlots();
                 this.execute(); // re-run to see new action in list

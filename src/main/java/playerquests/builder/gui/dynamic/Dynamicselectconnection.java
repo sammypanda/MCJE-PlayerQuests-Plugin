@@ -15,6 +15,14 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 
+/**
+ * A dynamic GUI screen for selecting connections between quest stages and actions.
+ * <p>
+ * This screen allows users to select a quest stage and, if a stage is selected, choose an associated action.
+ * It provides options to either select the stage alone or choose an action associated with the stage.
+ * Users can also navigate back to the previous screen or remove the current connection.
+ * </p>
+ */
 public class Dynamicselectconnection extends GUIDynamic {
 
     /**
@@ -28,15 +36,15 @@ public class Dynamicselectconnection extends GUIDynamic {
     private QuestStage selectedStage = null;
 
     /**
-     * The action that has been selected.
-     */
-    private QuestAction selectedAction = null;
-
-    /**
      * The code to run on connection select.
      */
     private Consumer<Object> onSelect;
 
+    /**
+     * Constructs a new {@code Dynamicselectconnection} instance.
+     * @param director the client director that manages GUI interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicselectconnection(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -65,7 +73,7 @@ public class Dynamicselectconnection extends GUIDynamic {
 
             int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
             List<String> actions = new ArrayList<>(selectedStage.getActions().keySet());
-            IntStream.range(2, 19).forEach((int slot) -> {
+            IntStream.range(rangeOffset, 19).forEach((int slot) -> {
                 int i = slot - rangeOffset;
 
                 if (actions.size() < i + 1) {
@@ -78,7 +86,6 @@ public class Dynamicselectconnection extends GUIDynamic {
                     .setLabel(action.getID())
                     .setItem("DETECTOR_RAIL")
                     .onClick(() -> {
-                        this.selectedAction = action;
                         this.select(new StagePath(selectedStage, action));
                     });
             });
@@ -93,12 +100,21 @@ public class Dynamicselectconnection extends GUIDynamic {
                     ).execute();
                 });
         } else {
-            // show the quest stages //
+            // set the title for showing quest stages
             frame.setTitle("Select Stage");
 
-            int rangeOffset = 1; // the amount to subtract from the slot number, to get an index from 0
+            // show nullify option
+            new GUISlot(gui, 1)
+                .setLabel("Remove connection")
+                .setItem("BARRIER")
+                .onClick(() -> {
+                    this.select(null);
+                });
+
+            // show the quest stages
+            int rangeOffset = 2; // the amount to subtract from the slot number, to get an index from 0
             List<String> stages = questBuilder.getStages();
-            IntStream.range(1, 19).forEach((int slot) -> {
+            IntStream.range(rangeOffset, 19).forEach((int slot) -> {
                 int i = slot - rangeOffset;
 
                 if (stages.size() < i + 1) {
@@ -134,23 +150,25 @@ public class Dynamicselectconnection extends GUIDynamic {
      * @param object the selected stage/action
      */
     private void select(StagePath path) {
-        if (this.onSelect != null) {
-            onSelect.accept(
-                new StagePath(selectedStage, selectedAction)
-            );
-        }
-
         new UpdateScreen(
             new ArrayList<>(Arrays.asList(this.previousScreen)), 
             director
         ).execute();
+
+        if (this.onSelect != null) {
+            onSelect.accept(
+                path
+            );
+        }
     }
 
     /**
-     * Code to run when a connection 
-     * (QuestAction or QuestStage) is selected.
-     * @param onSelect code operation
-     * @return the connection that was selected
+     * Sets the code to run when a connection (stage/action) is selected.
+     * <p>
+     * This method allows for custom handling of the selected connection.
+     * </p>
+     * @param onSelect a {@link Consumer} that processes the selected connection.
+     * @return the connection that was selected.
      */
     public Object onSelect(Consumer<Object> onSelect) {
         this.onSelect = onSelect;

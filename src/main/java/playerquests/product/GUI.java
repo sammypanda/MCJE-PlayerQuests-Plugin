@@ -136,6 +136,7 @@ public class GUI {
             // Edit the ItemMeta
             itemMeta.setDisplayName(slot.getLabel()); // set the slot label
 
+            itemMeta.setLore(null);
             if (!slot.getDescription().isBlank()) {
                 itemMeta.setLore( // set the slot description
                     Arrays.asList(slot.getDescription()) // list: each line of the description

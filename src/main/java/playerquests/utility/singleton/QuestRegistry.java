@@ -1,21 +1,18 @@
 package playerquests.utility.singleton;
 
 import java.io.IOException;
-import java.util.Arrays; // generic array type
 import java.util.HashMap; // hash table map
-import java.util.List; // generic list type
+import java.util.List;
 import java.util.Map; // generic map type
-import java.util.Optional; // handling if a value may be null
-import java.util.UUID; // used for in-game player UUIDs
-import java.util.concurrent.atomic.AtomicBoolean; // modify boolean state in a stream operation
-import java.util.stream.Collectors; // used to turn one type of list to another
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit; // accessing Bukkit API
-import org.bukkit.entity.HumanEntity; // representing players and other humanoid entities
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player; // representing players
 
 import playerquests.builder.quest.data.LocationData;
-import playerquests.builder.quest.npc.QuestNPC; // describes quest NPCs
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
@@ -28,6 +25,9 @@ import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Singleton for putting and accessing quest products from anywhere.
+ * 
+ * This class manages quests and their associated data, such as NPCs and quest clients. It allows for adding, removing,
+ * updating, and retrieving quests, as well as handling quests in the filesystem.
  */
 public class QuestRegistry {
     
@@ -65,148 +65,82 @@ public class QuestRegistry {
     }
 
     /**
-     * Adds a quest to the registry.
-     * @param quest the quest to add.
-     */
-    private void add(Quest quest) {
-        // add to the registry map
-        registry.put(quest.getID(), quest);
-
-        // store ref to database
-        Database.getInstance().addQuest(quest.getID());
-
-        // place the NPCs in the world
-        quest.getNPCs().entrySet().stream()
-            .forEach(entry -> {
-                QuestNPC npc = entry.getValue();
-                npc.setQuest(quest);
-                npc.place();
-            });
-
-        questers.values().stream().forEach(quester -> {
-            quester.addQuests(Arrays.asList(quest));
-        });
-    }
-
-    /**
      * Submits a quest to the registry.
+     * 
+     * This method figures out the conditions of the quest
+     * and acts according to the needs.
+     * 
      * @param quest the quest to submit.
      */
     public void submit(Quest quest) {
         String questID = quest.getID();
-        HumanEntity creator = null;
-        AtomicBoolean isQuestValid = new AtomicBoolean(true); // start with assumption the quest is valid
-        
-        // get the creator if it's not a universal quest (missing or null creator)
-        if (quest.getCreator() != null) {
-            creator = Bukkit.getPlayer(quest.getCreator());
-        }
 
-        // replace if already found in registry
-        if (registry.get(questID) != null) {
-            if (creator != null) {
-                creator.sendMessage("[Updating the quest]");
-            }
-            this.replace(questID, quest);
-            return;
-        }
-
-        // load up a list of NPC locations to help figure if an npc already exists at the npc.location
-        List<LocationData> registryNPCLocations = this.registry.values().stream().flatMap(
-            registryQuest -> registryQuest.getNPCs().values().stream().map(QuestNPC::getLocation)
-        ).collect(Collectors.toList());
-
-        // check each registry NPC location against current NPC in submitted quest
-        Optional<QuestNPC> collidingNPC = quest.getNPCs().values().stream()
-            .filter(questNPC -> registryNPCLocations.stream()
-                .anyMatch(existingLocation -> {
-                    LocationData submittedLocation = questNPC.getLocation();
-
-                    if (!questNPC.isValid()) {
-                        isQuestValid.set(false);
-                        return false; // invalid, so no use displacing
-                    }
-
-                    return existingLocation.collidesWith(submittedLocation);
-                })
-            ).findFirst();
-
-        // do not continue if npc has no LocationData
-        if (!isQuestValid.get()) {
-            ChatUtils.message("Invalid quest submitted: " + questID)
+        // stop if quest is invalid
+        if (!quest.isValid()) {
+            ChatUtils.message("Not installing an invalid quest: " + questID)
                 .target(MessageTarget.CONSOLE)
                 .style(MessageStyle.PLAIN)
-                .type(MessageType.ERROR)
-                .send();
+                .type(MessageType.WARN);
+            return;
+        }
+        
+        // remove if already exists
+        if (this.registry.values().removeIf(registryQuest -> registryQuest.getID().equals(questID))) {
+            this.delete(quest, false);
+        }
+
+        // add to database/lists
+        this.add(questID, quest);
+
+        // untoggle and don't continue if quest is not toggled on
+        if (!quest.isToggled()) {
+            this.untoggle(quest);
             return;
         }
 
-        // if submitted quest has an NPC found colliding with existing,
-        if (collidingNPC.isPresent()) {
-            LocationData questNPCLocation = collidingNPC.get().getLocation();
-            questNPCLocation.setY(questNPCLocation.getY() + 1); // put the NPC above the existing one
-            this.submit(quest); // resubmit the quest to test if new location collides
-
-            // do not continue if an npc already exists at the crucial npc.location
-            return;
-        }
-
-        // store ref
-        this.add(quest);
-
-        if (creator != null) {
-            creator.sendMessage("[Submitted]");
-        }
+        // add to world
+        this.toggle(quest);
     }
 
     /**
-     * Removes a quest from the registry.
-     * @param quest the quest to remove.
+     * Deletes a quest *permanently*.
+     * 
+     * Hides non-permanently.
+     * 
+     * @param quest the quest to delete.
+     * @return if the quest was successfully deleted
      */
-    public void remove(Quest quest) {
-        this.remove(quest, false);
+    public boolean delete(Quest quest) {
+        return this.delete(quest, true);
     }
 
     /**
-     * Removes a quest from the registry.
-     * @param quest the quest to remove
-     * @param preserveInDatabase whether to keep untoggled in db; just remove from world
+     * Deletes a quest.
+     * 
+     * If wanting to just make quest uninteractable use {@link #untoggle(Quest)}.
+     * 
+     * @param quest the quest to delete.
+     * @param permanently if should also delete from database/filesystem
+     * @return if the quest was successfully deleted
      */
-    public void remove(Quest quest, Boolean preserveInDatabase) {
-        // remove ref from database
-        if (!preserveInDatabase) {
-            Database.getInstance().removeQuest(quest.getID());
-
-            // remove ref from registry (needed when not preserved, otherwise editors cannot see their own quest)
-            registry.remove(quest.getID());
-        }
-
-        // remove traces from world
-        PlayerQuests.getInstance().remove(quest);
-
-        // remove ref from questers
-        questers.values().stream().forEach(quester -> {
-            quester.removeQuest(quest);
-        });
-    }
-
-    /**
-     * Deletes a quest from the plugin.
-     * @param quest the quest to delete
-     * @return whether the operation was successful or not
-     */
-    public Boolean delete(Quest quest) {
+    public boolean delete(Quest quest, Boolean permanently) {
+        String questID = quest.getID();
         UUID creator = quest.getCreator(); // get the creator if this quest has one
 
-        // try to remove from files
+        // try to delete the quest
         try {
-            FileUtils.delete(this.questPath + "/" + quest.getID() + ".json");
-            
             // remove from registry
-            this.remove(quest);
+            this.registry.remove(questID);
 
-            // refund resources
-            quest.refund();
+            // remove from world
+            PlayerQuests.remove(quest);
+
+            if (permanently) {
+                FileUtils.delete(this.questPath + "/" + quest.getID() + ".json");
+
+                // refund resources
+                quest.refund();
+            }
 
         } catch (IOException e) {
             MessageBuilder errorMessage = ChatUtils.message("Could not delete the " + quest.getTitle() + " quest. " + e)
@@ -227,18 +161,91 @@ public class QuestRegistry {
     }
 
     /**
-     * Replaces a quest in the registry with a new one.
-     * @param originalQuestID the ID of the original quest.
-     * @param quest the new quest.
+     * Stores the quest as a data point.
+     * 
+     * @param questID the quest ID as a string
+     * @param quest the quest object
      */
-    public void replace(String originalQuestID, Quest quest) {
-        this.remove(registry.get(originalQuestID));
-        this.add(quest);
+    private void add(String questID, Quest quest) {
+        // add to registry reference
+        this.registry.put(questID, quest);
+
+        // store ref to database
+        Database.getInstance().addQuest(questID);
     }
 
     /**
-     * Adds a quest client to the registry, identified by the 
-     * Player behind the client.
+     * Shows the physical quest in the world.
+     * 
+     * @param quest the quest to show/toggle on.
+     * @return if was successful
+     */
+    public boolean toggle(Quest quest) {
+        // check + error for if any NPCs can't be placed
+        if (!this.canPlaceNPC(quest)) {
+            return false;
+        };
+
+        // install the quest into the world
+        PlayerQuests.install(quest);
+
+        // indicate it was a success
+        return true;
+    }
+
+    private boolean canPlaceNPC(Quest quest) {
+        // get list of NPC locations from quest registry
+        List<LocationData> registryNPCLocations = this.registry.values().stream()
+            .filter(registryQuest -> !registryQuest.getID().equals(quest.getID()) && registryQuest.isToggled())
+            .flatMap(registryQuest -> registryQuest.getNPCs().values().stream().map(QuestNPC::getLocation))
+            .collect(Collectors.toList());
+
+        // cross reference this quest NPC locations with the above list
+        // existing = the registry NPCs
+        // submitted = this quest NPCs
+        Optional<QuestNPC> collidingNPC = quest.getNPCs().values().stream()
+            .filter(questNPC -> registryNPCLocations.stream()
+                .anyMatch(existingLocation -> {
+                    LocationData submittedLocation = questNPC.getLocation();
+
+                    return existingLocation.collidesWith(submittedLocation);
+                })
+            )
+            .findFirst();
+
+        // if no NPC collision match
+        if (collidingNPC.isEmpty()) {
+            return true;
+        }
+
+        // get the creator as a player and...
+        UUID creator = quest.getCreator();
+        // send message if there is a creator
+        if (creator != null) {
+            Player player = Bukkit.getPlayer(quest.getCreator());
+            ChatUtils.message("Oops! The '" + collidingNPC.get().getName() + "' NPC, for your '" + quest.getTitle() + "' quest, can't be placed on another NPC's spot. Please try setting yours elsewhere.")
+                .player(player)
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.WARN)
+                .send();
+        }
+
+        return false;
+    }
+
+    /**
+     * Hides the physical quest in the world.
+     * 
+     * @param quest the quest to hide/toggle off.
+     */
+    public void untoggle(Quest quest) {
+        // remove the quest from the world
+        PlayerQuests.remove(quest);
+    }
+
+    /**
+     * Adds a quest client to the registry, identified by the player behind the client.
+     * 
      * @param quester a quest client
      */
     public void addQuester(QuestClient quester) {
@@ -247,6 +254,7 @@ public class QuestRegistry {
 
     /**
      * Gets a quest client associated with a player.
+     * 
      * @param player the player the quest client is for
      * @return a quest client instance
      */
@@ -255,12 +263,26 @@ public class QuestRegistry {
     }
 
     /**
-     * Gets map of all quests that have been registered.
+     * Gets all the quest clients associated with all the players. 
+     * 
+     * @return a map of quest client instances
+     */
+    public Map<Player, QuestClient> getQuesters() {
+        return questers;
+    }
+
+    /**
+     * Gets the map of all quests that have been registered.
+     * 
+     * @return the map of registered quests
      */
     public Map<String, Quest> getAllQuests() {
         return this.registry;
     }
 
+    /**
+     * Clears all quests and questers from the registry.
+     */
     public void clear() {
         this.registry.clear();
         this.questers.clear();
@@ -268,8 +290,9 @@ public class QuestRegistry {
 
     /**
      * Get a quest from the quest registry.
-     * If fails from quest registry, it will
-     * search the questPath (resources folder).
+     * 
+     * If the quest is not found in the registry, it will search the questPath (resources folder).
+     * 
      * @param questID the quest ID
      * @return the quest object
      */
@@ -279,10 +302,11 @@ public class QuestRegistry {
 
     /**
      * Get a quest from the quest registry.
-     * If fails from quest registry, you can choose
-     * for it to search the questPath (resources folder).
+     * 
+     * If the quest is not found in the registry, you can choose to search the questPath (resources folder).
+     * 
      * @param questID the quest ID
-     * @param searchFS whether to try searching the FS
+     * @param searchFS whether to try searching the filesystem
      * @return the quest object
      */
     public Quest getQuest(String questID, Boolean searchFS) {

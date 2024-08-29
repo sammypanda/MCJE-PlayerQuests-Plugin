@@ -11,10 +11,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Passes and handles the quest npc 'types'.
- * <p>
- * Quest NPCs are how quests are interacted
- * with in-game.
+ * Handles the different types of NPCs in quests.
+ * 
+ * Quest NPCs are the entities with which players interact during quests.
  */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -59,25 +58,25 @@ public class NPCType {
     protected String value;
 
     /**
-     * Defaut constructor (for Jackson)
-    */
+     * Default constructor for Jackson serialization.
+     */
     public NPCType() {}
 
     /**
-     * Not intended to be created directly, is abstract class for NPC types.
-     * <p>
-     * See docs/README for list of NPC types.
-     * @param value the type-specific value used to customise the NPC
-     * @param npc the npc details
-    */
+     * Constructs an NPCType with the specified value and associated QuestNPC.
+     * 
+     * @param value the type-specific value used to customize the NPC
+     * @param npc the QuestNPC instance
+     */
     public NPCType(String value, QuestNPC npc) {
         this.value = value;
         this.npc = npc;
     }
 
     /**
-     * Shows a list of all the NPC types that could be added to a quest.
-     * @return list of every NPC type
+     * Provides a list of all possible NPC types that can be added to a quest.
+     * 
+     * @return a list of all NPC types
      */
     public static List<String> allNPCTypes() {
         List<String> npcTypes = new ArrayList<>();
@@ -88,8 +87,9 @@ public class NPCType {
     }
 
     /**
-     * Gets the string representation of the type.
-     * @return current action type as a string
+     * Gets the string representation of the NPC type.
+     * 
+     * @return the simple name of the class representing the NPC type
      */
     @JsonIgnore
     public String getType() {
@@ -97,8 +97,9 @@ public class NPCType {
     }
 
     /**
-     * Gets list of NPC types.
-     * @return list of possible NPC types
+     * Gets the list of possible NPC types.
+     * 
+     * @return a list of NPC types
      */
     @JsonIgnore
     public List<String> getTypes() {
@@ -107,30 +108,48 @@ public class NPCType {
 
     /**
      * Returns the value of this NPC type.
-     * @return NPC type value, such as the block name for a Block type NPC
+     * 
+     * @return the value associated with this NPC type, such as the block name for a BlockNPC
      */
     public String getValue() {
         return value;
     }
 
     /**
-     * Place the NPC in the world.
+     * Places the NPC in the world.
+     * 
+     * @throws IllegalStateException if the method is not overridden in a subclass
      */
     public void place() {
         throw new IllegalStateException("Tried to place an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 
     /**
-     * Remove the NPC from the world.
+     * Removes the NPC from the world.
+     * 
+     * @throws IllegalStateException if the method is not overridden in a subclass
      */
     public void remove() {
         throw new IllegalStateException("Tried to remove an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 
     /**
-     * Refund the resources used for the NPC.
+     * Refunds the resources used for the NPC.
+     * 
+     * @param player the player to refund the resources to
+     * @throws IllegalStateException if the method is not overridden in a subclass
      */
     public void refund(Player player) {
         throw new IllegalStateException("Tried to refund an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
+    }
+
+    /**
+     * Penalizes the resources used for the NPC.
+     * 
+     * @param player the player to penalize
+     * @throws IllegalStateException if the method is not overridden in a subclass
+     */
+    public void penalise(Player player) {
+        throw new IllegalStateException("Tried to consume resources for an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 }

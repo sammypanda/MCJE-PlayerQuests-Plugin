@@ -11,8 +11,21 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.client.ClientDirector;
 
+/**
+ * The main dynamic GUI screen for the PlayerQuests plugin.
+ * <p>
+ * This screen provides options to exit the GUI, create a new quest, or view existing quests.
+ * It sets up the slots with the appropriate items and actions, handling user interactions 
+ * such as creating a quest through a chat prompt and navigating to different screens.
+ * </p>
+ */
 public class Dynamicmain extends GUIDynamic {
 
+    /**
+     * Constructs a new {@code Dynamicmain} instance.
+     * @param director the client director that manages the GUI and interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicmain(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }

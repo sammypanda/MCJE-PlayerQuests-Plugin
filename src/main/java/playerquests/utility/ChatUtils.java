@@ -1,5 +1,7 @@
 package playerquests.utility;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream; // to dynamically create a sized array
 
 import javax.annotation.Nullable;
@@ -11,16 +13,32 @@ import org.bukkit.entity.HumanEntity; // identifies a player to send messages to
 import playerquests.Core; // used to access the plugin and get all online players
 
 /**
- * Helpful tools which can reduce the verbosity of Chat-related classes and methods.
+ * Provides utility methods for handling chat-related functionality in a Bukkit plugin.
+ * 
+ * This class includes tools for sending formatted messages to players, clearing chat, and checking for specific keywords.
+ * It is designed to reduce verbosity in chat-related classes and methods.
  */
 public class ChatUtils {
 
     /**
-     * What should be sent
+     * Enumeration defining different message types.
+     * 
+     * Each type includes a prefix and a color for message formatting.
      */
     public enum MessageType {
+        /**
+         * Notification type message.
+         */
         NOTIF("[PlayerQuests]", ChatColor.GRAY),
+
+        /**
+         * Warning type message.
+         */
         WARN("[PlayerQuests] ⚠ Help", ChatColor.YELLOW),
+
+        /**
+         * Error type message.
+         */
         ERROR("[PlayerQuests] 🚫 Error", ChatColor.RED);
 
         private final String prefix;
@@ -33,21 +51,34 @@ public class ChatUtils {
     }
 
     /**
-     * Who it should be send to
+     * Enumeration defining different message targets.
+     * 
+     * Each target specifies where the message should be sent: console, world, or player.
      */
     public enum MessageTarget {
+        /**
+         * Target for sending messages to the console.
+         */
         CONSOLE {
             @Override
             public void send(String formattedMessage, @Nullable HumanEntity player) {
                 Bukkit.getConsoleSender().sendMessage(formattedMessage);
             }
         },
+
+        /**
+         * Target for sending messages to all players in the world.
+         */
         WORLD {
             @Override
             public void send(String formattedMessage, @Nullable HumanEntity player) {
                 Bukkit.broadcastMessage(formattedMessage);
             }
-        },        
+        },
+
+        /**
+         * Target for sending messages to a specific player.
+         */
         PLAYER {
             @Override
             public void send(String formattedMessage, @Nullable HumanEntity player) {
@@ -61,14 +92,25 @@ public class ChatUtils {
                 player.sendMessage(formattedMessage);
             }
         };        
-        
+    
+        /**
+         * Sends a formatted message to the target.
+         * 
+         * @param formattedMessage the message to send
+         * @param player the player to send the message to, or null if not applicable
+         */
         public abstract void send(String formattedMessage, @Nullable HumanEntity player);
     }
 
     /**
-     * How it should look
+     * Enumeration defining different message styles.
+     * 
+     * Each style specifies how the message should be formatted.
      */
     public enum MessageStyle {
+        /**
+         * Pretty style with bold prefix and formatted message.
+         */
         PRETTY {
             @Override
             public String formatMessage(String content, MessageType type) {
@@ -81,6 +123,10 @@ public class ChatUtils {
                 );
             }
         },
+
+        /**
+         * Simple style with a basic prefix and formatted message.
+         */
         SIMPLE {
             @Override
             public String formatMessage(String content, MessageType type) {
@@ -92,6 +138,10 @@ public class ChatUtils {
                 );
             }
         },
+
+        /**
+         * Plain style with a basic prefix and message.
+         */
         PLAIN {
             @Override
             public String formatMessage(String content, MessageType type) {
@@ -102,11 +152,20 @@ public class ChatUtils {
             }
         };
         
+        /**
+         * Formats a message with the specified content and message type.
+         * 
+         * @param content the message content
+         * @param type the type of the message
+         * @return the formatted message
+         */
         public abstract String formatMessage(String content, MessageType type);
     }
 
     /**
-     * MessageBuilder inner class
+     * Builder class for creating and sending messages.
+     * 
+     * Allows for customization of message content, type, target, style, and recipient.
      */
     public static class MessageBuilder {
         private String content;
@@ -116,8 +175,10 @@ public class ChatUtils {
         private HumanEntity player = null; // Default
 
         /**
-         * Constructer for the message.
-         * Defaults to: NOTIF, WORLD, PRETTY.
+         * Constructs a MessageBuilder with the specified content.
+         * 
+         * Defaults to MessageType.NOTIF, MessageTarget.WORLD, and MessageStyle.PRETTY.
+         * 
          * @param content the message to send
          */
         public MessageBuilder(String content) {
@@ -125,8 +186,10 @@ public class ChatUtils {
         }
 
         /**
-         * For editing the base message.
-         * @param the potatos of what the message is
+         * Sets the content of the message.
+         * 
+         * @param baseMessage the new message content
+         * @return this MessageBuilder
          */
         public MessageBuilder content(String baseMessage) {
             this.content = baseMessage;
@@ -134,23 +197,31 @@ public class ChatUtils {
         }
 
         /**
-         * For adding a message type
+         * Sets the type of the message.
+         * 
          * @param messageType the MessageType enum
-         * @return the MessageBuilder to chain next function.
+         * @return this MessageBuilder
          */
         public MessageBuilder type(MessageType messageType) {
             this.type = messageType;
             return this;
         }
 
+        /**
+         * Sets the target of the message.
+         * 
+         * @param messageTarget the MessageTarget enum
+         * @return this MessageBuilder
+         */
         public MessageBuilder target(MessageTarget messageTarget) {
             this.target = messageTarget;
             return this;
         }
 
         /**
-         * Sets the player to send a message to.
+         * Sets the player to send the message to.
          * Assumes MessageTarget is PLAYER.
+         * 
          * @param player the HumanEntity which represents a player
          * @return this MessageBuilder
          */
@@ -160,11 +231,20 @@ public class ChatUtils {
             return this;
         }
 
+        /**
+         * Sets the style of the message.
+         * 
+         * @param messageStyle the MessageStyle enum
+         * @return this MessageBuilder
+         */
         public MessageBuilder style(MessageStyle messageStyle) {
             this.style = messageStyle;
             return this;
         }
 
+        /**
+         * Sends the constructed message to the target.
+         */
         public void send() {
             String formattedMessage = style.formatMessage(content, type);
             target.send(formattedMessage, this.player);
@@ -172,7 +252,9 @@ public class ChatUtils {
     }
 
     /**
-     * ChatUtils should not be instantiated.
+     * Prevents instantiation of ChatUtils.
+     * 
+     * Throws an AssertionError if attempted.
      */
     private ChatUtils() {
         throw new AssertionError("ChatUtils should not be instantiated.");
@@ -180,17 +262,19 @@ public class ChatUtils {
 
     /**
      * Creates an array filled with 100 newline value elements.
-     * @return an array of 100 elements.
+     * 
+     * @return an array of 100 newline elements
      */
     private static String[] newlineArray() {
         return newlineArray(0, 100);
     }
 
     /**
-     * Creates an array with a determinable amount of newline value elements.
+     * Creates an array with a specified number of newline value elements.
+     * 
      * @param start the initial index (inclusive)
      * @param end the upper bound index (exclusive)
-     * @return an array of a range of elements.
+     * @return an array of newline elements
      */
     private static String[] newlineArray(Integer start, Integer end) {
         return IntStream.range(start, end).mapToObj(i -> "\n").toArray(String[]::new);
@@ -205,6 +289,7 @@ public class ChatUtils {
 
     /**
      * For all players: Uses an array of newline values to clear chat lines.
+     * 
      * @param lines number of lines to clear
      */
     public static void clearChat(Integer lines) {
@@ -215,6 +300,7 @@ public class ChatUtils {
 
     /**
      * For one player: Uses an array of 100 newline values to clear the chat.
+     * 
      * @param player the player to clear the chat for
      */
     public static void clearChat(HumanEntity player) {
@@ -223,6 +309,7 @@ public class ChatUtils {
 
     /**
      * For one player: Uses an array of newline values to clear chat lines.
+     * 
      * @param player the player to clear the lines for
      * @param lines number of lines to clear
      */
@@ -234,6 +321,7 @@ public class ChatUtils {
      * Sends a message with the bare minimum input.
      * If you would like to customise what is being sent
      * use ChatUtils.message() to access the MessageBuilder
+     * 
      * @param content what message to send (sends as the 
      * MessageBuilder defaults)
      */
@@ -244,10 +332,51 @@ public class ChatUtils {
 
     /**
      * Neatly accesses the message builder.
+     * 
      * @param content the bare minimum message
      * @return a message builder to customise the message
      */
     public static MessageBuilder message(String content) {
         return new MessageBuilder(content);
+    }
+
+    /**
+     * A list of the exit keywords.
+     * Stored in capitals, so to compare use toUpperCase().
+     * 
+     * @return a list of exit keywords
+     */
+    public static List<String> getExitKeywords() {
+        return Arrays.asList("EXIT", "E", "X");
+    }
+
+    /**
+     * A list of the confirm keywords.
+     * Stored in capitals, so to compare use toUpperCase().
+     * 
+     * @return a list of confirm keywords
+     */
+    public static List<String> getConfirmKeywords() {
+        return Arrays.asList("CONFIRM", "C");
+    }
+
+    /**
+     * Check if a string is an exit keyword.
+     * 
+     * @param keyword the string that might be an exit keyword
+     * @return whether the keyword is or isn't indicating an exit
+     */
+    public static Boolean isExitKeyword(String keyword) {
+        return getExitKeywords().contains(keyword.toUpperCase());
+    }
+
+    /**
+     * Check if a string is a confirm keyword.
+     * 
+     * @param keyword the string that might be a confirm keyword
+     * @return whether the keyword is or isn't indicating a confirm
+     */
+    public static Boolean isConfirmKeyword(String keyword) {
+        return getConfirmKeywords().contains(keyword.toUpperCase());
     }
 }

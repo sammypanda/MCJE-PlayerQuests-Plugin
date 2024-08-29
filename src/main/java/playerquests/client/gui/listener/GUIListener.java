@@ -92,7 +92,12 @@ public class GUIListener implements Listener {
         }
     }
 
-    
+    /**
+     * Handles the event when a player's inventory is closed.
+     * This method also performs cleanup to remove GUI-tagged items from the player's inventory.
+     *
+     * @param event the {@link InventoryCloseEvent} containing details about the close event.
+     */
     @EventHandler
     public void onGUIClose(InventoryCloseEvent event) {
         Player player = Bukkit.getPlayer(event.getPlayer().getUniqueId());

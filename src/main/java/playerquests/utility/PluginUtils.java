@@ -5,14 +5,27 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 /**
- * Methods for repeated code in this plugin.
+ * Utility class containing methods for common plugin-related operations.
  */
 public class PluginUtils {
+
     /**
-     * Essential utility which checks that the params suit this meta action. 
-     * @param params the values the meta action requires.
-     * @param expectedTypes the type of values the meta action requires.
-     * @throws IllegalArgumentException if the parameters are invalid.
+     * Should be accessed statically.
+     */
+    private PluginUtils() {}
+
+    /**
+     * Validates that the parameters match the expected types.
+     * 
+     * This method checks if the number and types of the provided parameters 
+     * align with the expected types. It ensures that each parameter is an instance 
+     * of the corresponding type specified in the expectedTypes array.
+     * 
+     * @param params The list of parameters to validate.
+     * @param expectedTypes The array of expected types for the parameters.
+     * @throws IllegalArgumentException If the number of parameters does not match 
+     *                                  the number of expected types, or if any 
+     *                                  parameter does not match its expected type.
      */
     public static void validateParams(ArrayList<Object> params, Class<?>... expectedTypes) throws IllegalArgumentException {
         Objects.requireNonNull(params, "Params cannot be null");

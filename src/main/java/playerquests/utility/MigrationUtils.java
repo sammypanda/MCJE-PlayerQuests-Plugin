@@ -1,21 +1,65 @@
 package playerquests.utility;
 
 /**
- * Provides the changes for each version.
- * For example: the changes to the database.
+ * Provides SQL migration queries for updating the database schema between versions.
+ * <p>
+ * Each method in this class returns a SQL query or script that applies the necessary changes for
+ * a specific version of the database schema. These migrations ensure that the database structure
+ * is consistent with the application's requirements for different versions.
+ * </p>
  */
 public class MigrationUtils {
-    // Get migration query for version 0.4
+
+    /**
+     * Should be accessed statically.
+     */
+    private MigrationUtils() {}
+
+    /**
+     * Gets the migration query for version 0.4.
+     * <p>
+     * This query adds a new column to the `quests` table. The column `toggled` is added with a
+     * default value of `true`. This might be used to indicate whether a quest is active or not.
+     * </p>
+     * 
+     * @return The SQL query string for migrating to version 0.4.
+     */
     public static String dbV0_4() {
         return "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;";
     }
 
-    // Get migration query for version 0.5
+    /**
+     * Gets the migration query for version 0.5.
+     * <p>
+     * This version does not have a migration query defined. Calling this method will throw an
+     * {@link IllegalArgumentException} to indicate that no migration is available for this version.
+     * </p>
+     * 
+     * @return This method does not return a query; it always throws an exception.
+     * @throws IllegalArgumentException if called.
+     */
     public static String dbV0_5() {
         throw new IllegalArgumentException("No migration query for version v0.5.1");
     }
 
-    // Get migration query for version 0.5.1
+    /**
+     * Gets the migration query for version 0.5.1.
+     * 
+     * This query script performs a series of operations to migrate data from old tables to new
+     * tables and update the schema:
+     * <ul>
+     *     <li>Begins a transaction to ensure atomicity of the operations.</li>
+     *     <li>Drops temporary tables if they exist.</li>
+     *     <li>Creates new temporary tables for storing migrated data.</li>
+     *     <li>Migrates data from old tables to the newly created temporary tables.</li>
+     *     <li>Drops old tables that are being replaced.</li>
+     *     <li>Renames temporary tables to match the new schema.</li>
+     *     <li>Removes unused sequences related to the old schema.</li>
+     *     <li>Commits the transaction if all operations are successful.</li>
+     * </ul>
+     * 
+     * @return The SQL script string for migrating to version 0.5.1.
+     */
     public static String dbV0_5_1() {
         return """
             -- Begin a transaction to ensure all operations are atomic

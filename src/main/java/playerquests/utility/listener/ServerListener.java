@@ -149,7 +149,15 @@ public class ServerListener implements Listener {
                 .send();
         }
 
-        submitQuestsToRegistry(allQuests);
+        // submit/process collected quests
+        createQuests(allQuests);
+
+        // notify the server about the newly processed quests
+        ChatUtils.message("Finished submitting quests into server: " + allQuests)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN)
+            .type(MessageType.NOTIF)
+            .send();
     }
 
     private String getQuestName(Path path) {
@@ -165,11 +173,11 @@ public class ServerListener implements Listener {
     }
 
     /**
-     * Submits quests to the quest registry and handles any errors.
+     * Creates quests from a list of IDs by searching the filesystem.
      * 
      * @param quests the set of quest IDs to process
      */
-    private void submitQuestsToRegistry(Set<String> quests) {
+    private void createQuests(Set<String> quests) {
         quests.forEach(id -> {
             boolean errorOccurred = true; // Assume an error occurred initially
             
@@ -180,7 +188,6 @@ public class ServerListener implements Listener {
                     return;
                 }
 
-                QuestRegistry.getInstance().submit(newQuest);
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {
@@ -196,12 +203,6 @@ public class ServerListener implements Listener {
                 Database.getInstance().removeQuest(id);
             }
         });
-
-        ChatUtils.message("Finished loading database quests into registry: " + quests)
-            .target(MessageTarget.CONSOLE)
-            .style(MessageStyle.PLAIN)
-            .type(MessageType.NOTIF)
-            .send();
     }
 
     /**
@@ -229,12 +230,28 @@ public class ServerListener implements Listener {
             );
 
             watchThread = new Thread(() -> {
+                // let the server know
+                ChatUtils.message("Started watching for changes to plugin files.")
+                    .style(MessageStyle.PLAIN)
+                    .type(MessageType.NOTIF)
+                    .target(MessageTarget.CONSOLE)
+                    .send();
+                
                 while (!Thread.currentThread().isInterrupted()) {
                     WatchKey key;
                     try {
                         key = watchService.take();
-                    } catch (InterruptedException e) {
+                    } catch (InterruptedException | ClosedWatchServiceException e) {
                         Thread.currentThread().interrupt();
+                        
+                        // let the server know
+                        ChatUtils.message("Stopped watching for changes to plugin files.")
+                            .style(MessageStyle.PLAIN)
+                            .type(MessageType.NOTIF)
+                            .target(MessageTarget.CONSOLE)
+                            .send();
+
+                        // don't continue
                         return;
                     }   
 
@@ -267,12 +284,23 @@ public class ServerListener implements Listener {
 
                             switch (kind.name()) {
                                 case "ENTRY_CREATE":
-                                    submitQuestsToRegistry(new HashSet<>(Set.of(questName))); // submit the quest systematically
+                                    // submit the quest systematically
+                                    createQuests(new HashSet<>(Set.of(questName)));
                                     break;
                                 case "ENTRY_DELETE":
-                                    questRegistry.remove(
-                                        questRegistry.getQuest(questName) // find the quest object
-                                    ); // delete it systematically
+                                    // find the quest object
+                                    Quest questToDelete = questRegistry.getQuest(questName);
+
+                                    // exit if not found
+                                    if (questToDelete == null) {
+                                        return;
+                                    }
+
+                                    // delete it systematically (but non-permanent)
+                                    questRegistry.delete(
+                                        questToDelete,
+                                        false
+                                    ); 
                                     break;
                                 default:
                                     break;

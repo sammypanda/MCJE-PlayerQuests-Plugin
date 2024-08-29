@@ -78,7 +78,7 @@ public class QuestClient {
      * @param questList a list of quest products.
      */
     public void addQuests(List<Quest> questList) {
-        questList.parallelStream().forEach((quest) -> {
+        questList.stream().forEach((quest) -> {
             this.diary.addQuest(quest);
         });
 
@@ -88,13 +88,13 @@ public class QuestClient {
     /**
      * Adds the quest effects in the world for this quester.
      */
-    public void showFX() {
+    public synchronized void showFX() {
         this.hideFX(); // ensure old are removed before showing
 
         this.actionNPC.keySet().stream().forEach((npc) -> {
             // create particle effect
             LocationData location = npc.getLocation();
-            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> {
+            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> { // synchronous
                 player.spawnParticle(
                     Particle.WAX_ON,
                     (double) location.getX() + 0.5,
@@ -112,7 +112,7 @@ public class QuestClient {
     /**
      * Removes the quest effects from the world for this quester.
      */
-    public void hideFX() {
+    public synchronized void hideFX() {
         // get all active effects and cancel
         this.activeFX.stream().forEach((task) -> {
             // cancel FX loops
@@ -123,7 +123,7 @@ public class QuestClient {
     /**
      * Update what the player sees.
      */
-    public void update() {
+    public synchronized void update() {
         // clear action-npc-associations for the refresh! (good for if a quest is deleted)
         this.actionNPC.clear();
 
@@ -170,7 +170,7 @@ public class QuestClient {
      * Process when an NPC is interacted with.
      * @param npc the npc to interact with the quest through
      */
-    public void interact(QuestNPC npc) {
+    public synchronized void interact(QuestNPC npc) {
         // Find the action associated with this npc in a helper map
         Quest quest = QuestRegistry.getInstance().getQuest(npc.getQuest().getID()); // inefficient way, but npc.getQuest() was returning bad data
         QuestAction action = this.actionNPC.get(npc);

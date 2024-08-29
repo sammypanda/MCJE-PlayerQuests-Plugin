@@ -27,8 +27,15 @@ import playerquests.utility.annotation.Key; // the annotation used to define a k
  */
 public class KeyHandler {
 
-    private static final KeyHandler instance = new KeyHandler(); // this class as a Singleton
-    private final Map<Object, Map<String, Method>> keyRegistry = new HashMap<>(); // list of keys accessible on each class instance
+    /**
+     * Singleton instance of {@code KeyHandler}.
+     */
+    private static final KeyHandler instance = new KeyHandler();
+
+    /**
+     * Registry mapping class instances to their methods keyed by annotations.
+     */
+    private final Map<Object, Map<String, Method>> keyRegistry = new HashMap<>();
 
     /**
      * Private constructor to prevent instantiation.
@@ -44,18 +51,19 @@ public class KeyHandler {
     }
 
     /**
-     * Gets a list of registered class instances that can be accessed with keys.
-     * @return List of registered class instances.
+     * Gets a list of all registered class instances that have methods accessible by keys.
+     *
+     * @return A {@link List} of registered class instances.
      */
     public List<Object> getInstances() {
         return new ArrayList<>(this.keyRegistry.keySet());
     }
 
     /**
-     * Registers a class instance to be accessed by a key
-     * <p>
-     * Identifies the key-method association automatically by the annotations.
-     * @param classInstance instance of the class to register.
+     * Registers a class instance for key-based method access.
+     * <p>Automatically maps methods annotated with {@link Key} to their respective keys.</p>
+     *
+     * @param classInstance The instance of the class to register.
      */
     public void registerInstance(Object classInstance) {
         // Form a map of key+method to later be invoked
@@ -71,18 +79,22 @@ public class KeyHandler {
     }
 
     /**
-     * Deregisters a class instance from being accessed by a key.
-     * @param classInstance instance of the class to deregister.
+     * Deregisters a class instance, removing it from key-based access.
+     *
+     * @param classInstance The instance of the class to deregister.
      */
     public void deregisterInstance(Object classInstance) {
         this.keyRegistry.remove(classInstance);
     }
 
     /**
-     * Sets the value for a given key.
-     * @param classInstance instance of the class to set the value in.
-     * @param key key for which the value should be set.
-     * @param value value to set.
+     * Sets a value for a given key in the specified class instance.
+     * <p>Finds the method associated with the key and invokes it with the given value.</p>
+     *
+     * @param classInstance The instance of the class where the value should be set.
+     * @param key The key associated with the method to invoke.
+     * @param value The value to set.
+     * @throws IllegalArgumentException if the class instance is not registered or the key is not found.
      */
     public void setValue(Object classInstance, String key, String value) {
         if (this.keyRegistry.get(classInstance) == null) {
@@ -103,9 +115,13 @@ public class KeyHandler {
     }
 
     /**
-     * Gets the value for a given key.
-     * @param classInstance instance of the class to get the value from.
-     * @param match key to find getter for.
+     * Gets a value from the specified class instance based on the key.
+     * <p>Finds the method associated with the key and invokes it to retrieve the value.</p>
+     *
+     * @param classInstance The instance of the class to get the value from.
+     * @param match The key associated with the method to invoke.
+     * @return The result of the method invocation.
+     * @throws IllegalArgumentException if the class instance is not registered or the key is not found.
      */
     public Object getValue(Object classInstance, String match) {
         if (this.keyRegistry.get(classInstance) == null) {
@@ -126,10 +142,12 @@ public class KeyHandler {
     }
 
     /**
-     * Checks against the registry to find which class a key name would retrieve.
-     * @param key the key name
-     * @return the class the key refers to a method in
-     * @throws InvalidParameterException when the key cannot be found
+     * Retrieves the class type associated with a given key.
+     * <p>Searches through registered class instances to find which class has a method corresponding to the key.</p>
+     *
+     * @param key The key to search for.
+     * @return The {@link Class} associated with the key.
+     * @throws InvalidParameterException if the key cannot be found in any registered class instance.
      */
     public Class<?> getClassFromKey(String key) throws InvalidParameterException {
         Class<?> keyType = keyRegistry.keySet().stream() // get a stream of the keyregistry entries

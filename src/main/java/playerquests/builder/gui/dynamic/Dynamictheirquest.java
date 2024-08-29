@@ -14,13 +14,26 @@ import playerquests.product.Quest; // quest product to view
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageType;
 
+/**
+ * A dynamic GUI screen for viewing and cloning quests.
+ * <p>
+ * This screen displays information about a shared quest and provides options to go back
+ * or clone the quest for further editing. The clone functionality creates a copy of the
+ * current quest using its template string.
+ * </p>
+ */
 public class Dynamictheirquest extends GUIDynamic {
 
     /**
-     * The current quest
+     * The current quest displayed in this screen.
      */
     Quest questProduct;
 
+    /**
+     * Constructs a new {@code Dynamictheirquest} instance.
+     * @param director the client director that manages GUI interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamictheirquest(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }

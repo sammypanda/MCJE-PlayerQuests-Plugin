@@ -6,53 +6,76 @@ import java.util.function.Consumer; // used for onFinish
 import playerquests.client.ClientDirector; // powers functionality for functions
 
 /**
- * Passes and handles the GUI 'Functions' (otherwise known as 'Meta Actions') called by a GUI.
+ * Represents a GUI function (also known as a meta action) that is triggered by a graphical user interface (GUI).
  * <p>
- * GUI functions are pre-defined functions that make.
- * They generally simplify more complex operations.
+ * GUI functions are pre-defined operations that simplify complex tasks within a GUI-based application or plugin.
+ * These functions are designed to be flexible and extendable, allowing various actions to be executed based on GUI interactions.
+ * </p>
  */
 public abstract class GUIFunction {
 
     /**
-     * the params passed into this function.
+     * The parameters passed into this function.
+     * <p>
+     * These parameters are used during the execution of the function to provide the necessary context or data.
+     * </p>
      */
     protected ArrayList<Object> params;
 
     /**
-     * director which powers functionality.
+     * The director responsible for managing and powering functionality within the plugin or application.
+     * <p>
+     * The {@link ClientDirector} provides access to various services and controls needed for the function's execution.
+     * </p>
      */
     protected ClientDirector director;
 
     /**
-     * if this function has errored.
+     * Indicates whether the function has encountered an error.
+     * <p>
+     * This boolean flag helps in tracking the success or failure of the function's execution.
+     * </p>
      */
     protected Boolean errored = false;
 
     /**
-     * code that can be set to run when this function is finished.
+     * Code that is set to run when this function is finished.
+     * <p>
+     * This allows for custom actions to be performed once the function has completed its primary task.
+     * </p>
      */
     private Consumer<GUIFunction> onFinish;
 
     /**
-     * Not intended to be created directly, is abstract class for GUI functions.
+     * Constructs a new GUI function with specified parameters and director.
      * <p>
-     * See docs/README for list of GUI functions.
-     * @param params the list of parameters for a function
-     * @param director client director for the function to be able to control the plugin
-    */
+     * This constructor initializes the function with the provided parameters and director, which are required for its operation.
+     * </p>
+     * 
+     * @param params The list of parameters to be used by the function.
+     * @param director The client director used to control the plugin or application.
+     */
     public GUIFunction(ArrayList<Object> params, ClientDirector director) {
         this.params = params;
         this.director = director;
     }
 
     /**
-     * Method to be overridden by each meta action class.
+     * Abstract method to be overridden by subclasses to define the specific behavior of the function.
+     * <p>
+     * Subclasses should implement this method to specify what action the function should perform when executed.
+     * </p>
      */
     public abstract void execute();
 
     /**
-     * Sets code to be executed when the function is finished.
-     * @param onFinish the code to run when the function completes
+     * Sets the code to be executed when the function is finished.
+     * <p>
+     * This method allows for defining custom actions that should take place once the function has completed its execution.
+     * </p>
+     * 
+     * @param onFinish The code to run when the function completes, implemented as a {@link Consumer} of {@link GUIFunction}.
+     * @return The current instance of {@code GUIFunction} for method chaining.
      */
     public GUIFunction onFinish(Consumer<GUIFunction> onFinish) {
         this.onFinish = onFinish;
@@ -60,8 +83,12 @@ public abstract class GUIFunction {
     }
 
     /**
-     * Run the code set to run when the function finishes.
-     * @see #onFinish(Runnable)
+     * Executes the code set to run when the function finishes.
+     * <p>
+     * This method triggers the {@link #onFinish} code, if it has been set, allowing for post-execution actions to be performed.
+     * </p>
+     * 
+     * @see #onFinish(Consumer)
      */
     public void finished() {
         if (this.onFinish != null) {
@@ -70,16 +97,24 @@ public abstract class GUIFunction {
     }
 
     /**
-     * Set the params for this function to use when it executes.
-     * @param params the expected params for the specific meta action.
+     * Sets the parameters for this function to use during execution.
+     * <p>
+     * This method allows updating the parameters that the function will use when its {@link #execute} method is called.
+     * </p>
+     * 
+     * @param params The list of parameters to be used by the function.
      */
     public void setParams(ArrayList<Object> params) {
         this.params = params;
     }
 
     /**
-     * Director used to power functionality.
-     * @param director the client director.
+     * Sets the director used to power functionality.
+     * <p>
+     * This method allows updating the {@link ClientDirector} instance that provides control and services for the function.
+     * </p>
+     * 
+     * @param director The client director to be used.
      */
     public void setDirector(ClientDirector director) {
         this.director = director;
