@@ -92,3 +92,13 @@ Usually you would never need this, but this is what makes it all tick. When you 
 | client/                          | Ways to control the plugin       |
 | utility/                         | Tools for reducing repeated code |
 | utility/annotation               | Custom code annotations          |
+
+# How to add new quest actions
+Feel free to use 'Speak' as an example to help you, alongside this brief guide:
+1. Like 'None' and 'Speak' each quest action should extend the QuestAction class.
+  - Then add the unimplemented methods, as required, from QuestAction.
+  - Add an empty constructor for Jackson parsing, and one taking QuestStage.
+2. Then after the new one is created, in QuestAction it needs to be added to the JsonSubTypes annotations and the allActionTypes() list.
+3. Write the code to implement the action and add javadocs. 
+  - Such as: return list of options used for this action in InitOptions, at least return an empty optional in validate (as to mean 'no error message').
+  - If you need to add an ActionOption just add it to the ActionOption enum and then create a case for it in the Dynamicactioneditor.

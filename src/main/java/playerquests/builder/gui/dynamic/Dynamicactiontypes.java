@@ -151,7 +151,7 @@ public class Dynamicactiontypes extends GUIDynamic {
                         this.gui.clearSlots(); // clear to prevent duplicates
                         this.execute(); // re-run to show changes
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                        throw new IllegalStateException("Action type " + type + " could not be instantiated.");
+                        throw new IllegalStateException("Action type " + type + " could not be instantiated.", e);
                     }
                 });
 

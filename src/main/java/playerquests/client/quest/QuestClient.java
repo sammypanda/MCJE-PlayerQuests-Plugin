@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitScheduler; // for doing actions later and etc
 import org.bukkit.scheduler.BukkitTask; // for particle effects (FX)
 
 import playerquests.Core;
+import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.action.QuestAction; // quest action
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData;
@@ -19,7 +20,6 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.product.Quest; // represents a player quest
 import playerquests.utility.singleton.Database; // the preservation/backup store
-import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Quest tracking and interactions for each player.
@@ -172,8 +172,35 @@ public class QuestClient {
      */
     public synchronized void interact(QuestNPC npc) {
         // Find the action associated with this npc in a helper map
-        Quest quest = QuestRegistry.getInstance().getQuest(npc.getQuest().getID()); // inefficient way, but npc.getQuest() was returning bad data
         QuestAction action = this.actionNPC.get(npc);
+
+        // Don't continue if no action associated with this npc
+        if (action == null) {
+            return;
+        }
+
+        // Do the action
+        action.Run(this);
+
+        // move forward through connections
+        this.gotoNext(action);
+    }
+
+    /**
+     * Get the quest diary for this quest client.
+     * @return a quest diary
+     */
+    public QuestDiary getDiary() {
+        return this.diary;
+    }
+
+    /**
+     * Move forward through connections on an action.
+     * @param action the current question action to continue past.
+     */
+    public void gotoNext(QuestAction action) {
+        Quest quest = action.getStage().getQuest();
+        QuestNPC npc = action.getNPC();
 
         // Don't continue if there is no quest or action for this interaction
         if (action == null || quest == null) {
@@ -188,37 +215,34 @@ public class QuestClient {
             diaryConnections = quest.getStages().get(quest.getEntry().getStage()).getConnections(); // get quest entry point position
         }
 
-        // move forward through connections
-        if (next_step != null) { // if there is a next step
-            ConnectionsData updatedConnections = new ConnectionsData();
-            updatedConnections.setPrev(diaryConnections.getCurr());
-            updatedConnections.setCurr(next_step);
-
-            // update the diary
-            this.diary.setQuestProgress(quest, updatedConnections);
-
-            // update the db for preservation sake
-            Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
-
-            // remove NPCs pending interaction marker/sparkle
-            this.actionNPC.remove(npc);
-
-            // update quest state
-            this.update();
+        // don't continue if no next step
+        if (next_step == null) { 
+            return;
         }
 
-        // Do the action
-        action.Run(this);
+        ConnectionsData updatedConnections = new ConnectionsData();
+        updatedConnections.setPrev(diaryConnections.getCurr());
+        updatedConnections.setCurr(next_step);
 
-        // Update what the player sees
+        // update the diary
+        this.diary.setQuestProgress(quest, updatedConnections);
+
+        // update the db for preservation sake
+        Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
+
+        if (npc != null) {
+            // remove NPCs pending interaction marker/sparkle
+            this.actionNPC.remove(npc);
+        }
+
+        // auto-execute next auto if no npc to wait for
+        QuestAction nextAction = next_step.getAction(quest);
+        if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
+            next_step.getAction(quest).Run(this);
+            this.gotoNext(nextAction);
+        }
+
+        // update quest state
         this.update();
-    }
-
-    /**
-     * Get the quest diary for this quest client.
-     * @return a quest diary
-     */
-    public QuestDiary getDiary() {
-        return this.diary;
     }
 }
