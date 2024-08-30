@@ -252,6 +252,15 @@ public class Dynamicactioneditor extends GUIDynamic {
             case ITEMS:
                 // TODO:
                 System.out.println("TODO: Create something like a sub-menu + SelectBlock (via Chat), that lists out the selected items with delete button.");
+
+                optionSlot.onClick(() -> {
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList("itemslist")), 
+                        director
+                    ).onFinish(function -> {
+                        System.out.println("finny");
+                    }).execute();;
+                });
                 break;
         }
     }
