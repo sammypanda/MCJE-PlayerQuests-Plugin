@@ -73,6 +73,14 @@ public class ClientDirector extends Director {
     }
 
     /**
+     * Remove the working instance of a class.
+     * @param classType type of instance to remove
+     */
+    public void removeCurrentInstance(Class<?> classType) {
+        this.currentInstances.remove(classType);
+    }
+
+    /**
      * Get all the current/working instance of classes.
      * @return list of current classes for this client
      */

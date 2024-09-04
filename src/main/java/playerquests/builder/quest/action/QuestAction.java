@@ -1,8 +1,13 @@
 package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array type of list
+import java.util.HashMap;
 import java.util.List; // generic list type
+import java.util.Map;
 import java.util.Optional;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
@@ -52,6 +57,12 @@ public abstract class QuestAction {
      */
     @JsonProperty("dialogue")
     protected List<String> dialogue;
+
+    /**
+     * The items associated with this action, if applicable.
+     */
+    @JsonProperty("items")
+    protected Map<Material, Integer> items;
 
     /**
      * The quest stage that this action belongs to.
@@ -222,6 +233,53 @@ public abstract class QuestAction {
      */
     public QuestAction setDialogue(List<String> dialogue) {
         this.dialogue = dialogue;
+
+        return this;
+    }
+
+    /**
+     * Gets the items associated with this action.
+     * 
+     * @return A list of items.
+     */
+    @JsonIgnore
+    public List<ItemStack> getItems() {
+        // return null if no items
+        if (this.items == null) {
+            return null;
+        }
+
+        // construct itemstack list
+        List<ItemStack> itemslist = new ArrayList<ItemStack>();
+
+        this.items.forEach((material, count) -> {
+            ItemStack item = new ItemStack(material);
+            item.setAmount(count);
+
+            itemslist.add(item);
+        });
+
+        // return data in itemstack list form
+        return itemslist;
+    }
+
+    /**
+     * Sets the items associated with this action.
+     * 
+     * Strips out all discriminators except for material and amount/count.
+     * 
+     * @param items A list of items to set.
+     * @return The updated quest action.
+     */
+    @JsonIgnore
+    public QuestAction setItems(List<ItemStack> items) {
+        Map<Material, Integer> itemslist = new HashMap<Material, Integer>();
+
+        items.forEach(item -> {
+            itemslist.put(item.getType(), item.getAmount());
+        });
+
+        this.items = itemslist;
 
         return this;
     }

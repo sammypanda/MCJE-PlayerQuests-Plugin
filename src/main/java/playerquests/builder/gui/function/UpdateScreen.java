@@ -169,4 +169,12 @@ public class UpdateScreen extends GUIFunction {
     public GUIDynamic getDynamicGUI() {
         return this.dynamicGUI;
     }
+
+    /**
+     * Retrieves the name of the previous screen before the update.
+     * @return The name of the previous screen.
+     */
+    public String getPreviousScreen() {
+        return this.screenName_previous;
+    }
 }

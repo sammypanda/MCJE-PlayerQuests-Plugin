@@ -197,5 +197,4 @@ public class Dynamicqueststage extends GUIDynamic {
             newActionButton.setItem("BARRIER");
         }
     }
-    
 }

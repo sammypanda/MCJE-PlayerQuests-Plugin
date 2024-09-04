@@ -23,8 +23,7 @@ TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage
 |------------------------|-------------------------------|-------------------------------------------------|
 | None                   | N/A                           | Nothing; ignored                                |
 | Speak                  | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
-| RequestItem            | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
-| ChangeQuestEntry       | 1: stage ID or action ID      | Changes what stage or action the quest opens to |
+| GatherItem             | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
 
 # How To Get Functionality: 'Templates'
 ###### We have Meta and Quest Actions, but how do we actually use them?
@@ -61,7 +60,10 @@ Usually you would never need this, but this is what makes it all tick. When you 
                     "type": String, // Quest Action type
                     "id": String, // Quest Action ID
                     "npc": String, // NPC ID (if applicable)
-                    "dialogue": String Array // Dialogue lines (if applicable) 
+                    "dialogue": String Array, // Dialogue lines (if applicable) 
+                    "items": {
+                        "MATERIAL": Integer // a map of items
+                    },
                     "connections": { // defining where the action is in the stage
                         "next": @Nullable String, // where to go if the action succeeds
                         "curr": @Nullable String, // where to return to if the action is exited

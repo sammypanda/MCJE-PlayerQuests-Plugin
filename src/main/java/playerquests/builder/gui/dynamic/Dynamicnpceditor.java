@@ -144,5 +144,4 @@ public class Dynamicnpceditor extends GUIDynamic {
         backDivider.setItem("BLACK_STAINED_GLASS_PANE");
         saveDivider.setItem("BLACK_STAINED_GLASS_PANE");
     }
-    
 }

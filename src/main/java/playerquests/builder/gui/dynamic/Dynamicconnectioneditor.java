@@ -134,5 +134,4 @@ public class Dynamicconnectioneditor extends GUIDynamic {
             });
         });
     }
-    
 }

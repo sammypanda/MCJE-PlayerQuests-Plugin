@@ -129,5 +129,4 @@ public class Dynamicmyquest extends GUIDynamic {
                 this.execute(); // refresh UI
             });
     }
-    
 }
