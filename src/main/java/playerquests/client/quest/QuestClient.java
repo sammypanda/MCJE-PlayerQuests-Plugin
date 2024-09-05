@@ -122,8 +122,9 @@ public class QuestClient {
 
     /**
      * Update what the player sees.
+     * @param run whether it's the first time updating.
      */
-    public synchronized void update() {
+    public synchronized void update(Boolean run) {
         // clear action-npc-associations for the refresh! (good for if a quest is deleted)
         this.actionNPC.clear();
 
@@ -140,6 +141,12 @@ public class QuestClient {
 
             // don't continue if no npc matched to this action
             if (npc == null) {
+                // if first time running
+                if (run) {
+                    // auto-start actions that aren't interfacable with an NPC
+                    action.Run(this);
+                }
+
                 return;
             }
             
@@ -154,6 +161,13 @@ public class QuestClient {
         this.actionNPC.putAll(actionNPCsLocal);
 
         this.showFX();
+    }
+
+    /**
+     * Update what the player sees.
+     */
+    public synchronized void update() {
+        this.update(false);
     }
 
     /**
@@ -181,9 +195,6 @@ public class QuestClient {
 
         // Do the action
         action.Run(this);
-
-        // move forward through connections
-        this.gotoNext(action);
     }
 
     /**
@@ -239,7 +250,6 @@ public class QuestClient {
         QuestAction nextAction = next_step.getAction(quest);
         if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
             next_step.getAction(quest).Run(this);
-            this.gotoNext(nextAction);
         }
 
         // update quest state

@@ -56,6 +56,9 @@ public class Speak extends QuestAction {
                 String.format("> %s: \"%s\"", this.getNPC().getName(), line)
             );
         });
+
+        // goto next action
+        quester.gotoNext(this);
     }
 
     @Override

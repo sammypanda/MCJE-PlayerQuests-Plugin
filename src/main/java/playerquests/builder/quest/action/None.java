@@ -32,7 +32,10 @@ public class None extends QuestAction {
     }
 
     @Override
-    public void Run(QuestClient quester) {}
+    public void Run(QuestClient quester) {
+        // just skip
+        quester.gotoNext(this);
+    }
 
     @Override
     public Optional<String> validate() {

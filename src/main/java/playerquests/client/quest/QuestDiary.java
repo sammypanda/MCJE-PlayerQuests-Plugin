@@ -82,7 +82,7 @@ public class QuestDiary {
                 this.questProgress.putIfAbsent(quest, quest.getConnections());
             });
 
-            client.update();
+            client.update(true);
         });
     }
 
