@@ -71,20 +71,19 @@ public class GatherItem extends QuestAction {
                 return;
             }
 
-            parentClass.check(this.quester, this, event.getItem());
+            parentClass.check(this.quester, this, event.getItem().getItemStack());
         }
 
         @EventHandler
         public void onCraftItem(CraftItemEvent event) {
-            // TODO: test/implement craft gathering
-            System.out.println("someone crafted up an item");
+            Player player = (Player) event.getWhoClicked();
 
             // don't continue if not matching the player for this listener
-            if (player != (Player) event.getWhoClicked()) {
+            if (this.player != player) {
                 return;
             }
 
-            parentClass.check(this.quester, this);
+            parentClass.check(this.quester, this, event.getRecipe().getResult());
         }
 
         @EventHandler
@@ -118,14 +117,14 @@ public class GatherItem extends QuestAction {
      * @param listener instance of the gather item listener to call the check
      * @param lateItem the item that is added to the inventory after this is called by the listener
      */
-    public void check(QuestClient quester, GatherItemListener listener, Item lateItem) {
+    public void check(QuestClient quester, GatherItemListener listener, ItemStack lateItem) {
         Player player = quester.getPlayer();
         PlayerInventory inventory = player.getInventory();
         Map<Material, Integer> itemsCollected = new HashMap<Material, Integer>();
 
         // set up list of inventory items to loop through (and add the unaccounted for late item)
         List<ItemStack> inventoryList = new ArrayList<ItemStack>(Arrays.asList(inventory.getContents()));
-        inventoryList.add(lateItem.getItemStack());
+        if (lateItem != null) { inventoryList.add(lateItem); }
 
         // check item list against inventory, until fail
         inventoryList.forEach(itemStack -> {
