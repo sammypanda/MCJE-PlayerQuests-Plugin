@@ -63,6 +63,9 @@ public class GatherItem extends QuestAction {
             this.quester = quester;
 
             Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
+
+            // check quester inventory from beginning
+            parent.check(quester, this);
         }
 
         @EventHandler
