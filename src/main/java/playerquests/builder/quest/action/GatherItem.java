@@ -2,22 +2,25 @@ package playerquests.builder.quest.action;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -87,16 +90,38 @@ public class GatherItem extends QuestAction {
         }
 
         @EventHandler
-        public void onMoveItem(InventoryMoveItemEvent event) {
-            // TODO: test/implement move checking (use case: gathering items from chests)
-            System.out.println("someone moved an item");
+        public void onMoveItem(InventoryClickEvent event) {
+            HumanEntity player = (HumanEntity) this.player; 
 
             // don't continue if not matching the player for this listener
-            if (!event.getDestination().getViewers().contains((HumanEntity) player)) {
+            if (!event.getViewers().contains((player))) {
                 return;
             }
 
-            parentClass.check(this.quester, this);
+            // don't continue not considered a valid inventory action (placing an item into the inventory adjacent)
+            Set<InventoryAction> allowedActions = EnumSet.of(
+                InventoryAction.PLACE_ALL, 
+                InventoryAction.PLACE_ONE, 
+                InventoryAction.PLACE_SOME, 
+                InventoryAction.MOVE_TO_OTHER_INVENTORY);
+            if (!allowedActions.contains(event.getAction())) {
+                return;
+            }
+
+            ItemStack lateItem = event.getCursor(); // get item that was just placed
+
+            // when the item is being moved in from another inventory
+            if (!(event.getClickedInventory() instanceof PlayerInventory)) {
+                parentClass.check(this.quester, this, event.getCurrentItem());
+            }
+
+            // don't continue if is a shift click but didn't meet ^ above conditional
+            if (event.isShiftClick()) {
+                return;
+            }
+
+            // check if all items have been gathered
+            parentClass.check(this.quester, this, lateItem);
         }
 
         public void close() {
@@ -119,7 +144,7 @@ public class GatherItem extends QuestAction {
      */
     public void check(QuestClient quester, GatherItemListener listener, ItemStack lateItem) {
         Player player = quester.getPlayer();
-        PlayerInventory inventory = player.getInventory();
+        Inventory inventory = player.getInventory();
         Map<Material, Integer> itemsCollected = new HashMap<Material, Integer>();
 
         // set up list of inventory items to loop through (and add the unaccounted for late item)
