@@ -280,6 +280,9 @@ public class Dynamicactioneditor extends GUIDynamic {
                             
                             // set this as the list of items
                             this.action.setItems(itemslist);
+
+                            // update quest
+                            this.stage.getQuest().save();
                             
                             // refresh to see changes
                             this.execute();
