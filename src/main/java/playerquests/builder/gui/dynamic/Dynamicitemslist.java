@@ -150,8 +150,17 @@ public class Dynamicitemslist extends GUIDynamic {
                         UpdateScreen function = (UpdateScreen) func;
                         Dynamicitemeditor editor = (Dynamicitemeditor) function.getDynamicGUI();
 
+                        // delete
+                        editor.onRemove((i) -> {
+                            // remove the item from our list
+                            this.removeItem(i);
+
+                            // run actioneditor finish sequence (updates the quest, based on this list)
+                            this.onFinish.accept(this);
+                        });
+
                         // after updating the amount..
-                        editor.onAmountUpdate((v) -> {
+                        editor.onUpdate((v) -> {
                             // go back when (should be to this itemlist screen)
                             new UpdateScreen(
                                 new ArrayList<>(Arrays.asList(function.getPreviousScreen())), director

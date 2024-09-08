@@ -35,7 +35,12 @@ public class Dynamicitemeditor extends GUIDynamic {
     /**
      * Code to run when the item quantity is updated.
      */
-    private Consumer<Void> onAmountUpdate;
+    private Consumer<Void> onUpdate;
+
+    /**
+     * Code to run when the item is removed.
+     */
+    private Consumer<ItemStack> onRemove;
 
     /**
      * Constructs a new {@code Dynamicitemeditor} instance.
@@ -108,8 +113,20 @@ public class Dynamicitemeditor extends GUIDynamic {
                     this.execute(); // refresh gui
 
                     // run consumable
-                    this.onAmountUpdate.accept(null);;
+                    this.onUpdate.accept(null);;
                 }).execute(); // run chat prompt function
+            });
+
+        // edit quantity/amount/count button
+        new GUISlot(gui, 9)
+            .setItem(Material.RED_DYE)
+            .setLabel("Delete")
+            .onClick(() -> {;
+                // run consumable
+                this.onRemove.accept(this.item);
+
+                // go back
+                new UpdateScreen(new ArrayList<>(Arrays.asList(this.previousScreen)), director).execute();
             });
     }
 
@@ -127,11 +144,20 @@ public class Dynamicitemeditor extends GUIDynamic {
     }
 
     /**
-     * Sets the code to run when a the ItemStack amount is updated.
+     * Sets the code to run when the ItemStack amount is updated.
      * 
-     * @param onAmountUpdate a {@link Consumer} that runs when the item quantity is updated.
+     * @param onUpdate a {@link Consumer} that runs when the item quantity is updated.
      */
-    public void onAmountUpdate(Consumer<Void> onAmountUpdate) {
-        this.onAmountUpdate = onAmountUpdate;
+    public void onUpdate(Consumer<Void> onUpdate) {
+        this.onUpdate = onUpdate;
+    }
+
+    /**
+     * Sets the code to run when the ItemStack is removed.
+     * 
+     * @param onRemove a {@link Consumer} that runs when the item is removed.
+     */
+    public void onRemove(Consumer<ItemStack> onRemove) {
+        this.onRemove = onRemove;
     }
 }
