@@ -17,7 +17,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -78,18 +77,6 @@ public class GatherItem extends QuestAction {
             }
 
             parentClass.check(this.quester, this, event.getItem().getItemStack());
-        }
-
-        @EventHandler
-        public void onCraftItem(CraftItemEvent event) {
-            Player player = (Player) event.getWhoClicked();
-
-            // don't continue if not matching the player for this listener
-            if (this.player != player) {
-                return;
-            }
-
-            parentClass.check(this.quester, this, event.getRecipe().getResult());
         }
 
         @EventHandler
