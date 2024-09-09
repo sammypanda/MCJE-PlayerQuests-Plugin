@@ -82,6 +82,11 @@ public abstract class QuestAction {
     private ConnectionsData connections = new ConnectionsData();
 
     /**
+     * The message to send on finish, if applicable.
+     */
+    private String finishMessage;
+
+    /**
      * Default constructor for Jackson deserialization.
      */
     public QuestAction() {}
@@ -233,6 +238,26 @@ public abstract class QuestAction {
      */
     public QuestAction setDialogue(List<String> dialogue) {
         this.dialogue = dialogue;
+
+        return this;
+    }
+
+    /**
+     * Gets the finish message associated with this action.
+     * 
+     * @return the message to send when the action is finished
+     */
+    public String getFinishMessage() {
+        return this.finishMessage;
+    }
+
+    /**
+     * Sets the finish message associated with this action.
+     * 
+     * @param finishMessage the message to send when the action is finished
+     */
+    public QuestAction setFinishMessage(String finishMessage) {
+        this.finishMessage = finishMessage;
 
         return this;
     }

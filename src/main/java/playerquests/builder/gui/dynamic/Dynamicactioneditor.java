@@ -290,6 +290,35 @@ public class Dynamicactioneditor extends GUIDynamic {
                     }).execute();
                 });
                 break;
+        case FINISH_MESSAGE:
+                String finishMessage = this.action.getFinishMessage();
+
+                if (finishMessage != null) {
+                    Integer maxLength = 16;
+                    optionSlot.setDescription(String.format("%s%s", 
+                        finishMessage.length() >= maxLength ? finishMessage.substring(0, maxLength) : finishMessage,
+                        finishMessage.length() > maxLength ? "..." : ""
+                    ));
+                }
+
+                // handle clicking the option slot
+                optionSlot.onClick(() -> {
+
+                    // create a new chat prompt to get the value
+                    new ChatPrompt(
+                        new ArrayList<>(Arrays.asList("Enter the finish message", "none")), director
+                    )
+                    .onFinish((f) -> {
+                        ChatPrompt function = (ChatPrompt) f;
+                        
+                        // get the value
+                        this.action.setFinishMessage(function.getResponse());
+
+                        // refresh to see updated value
+                        this.execute();
+                    }).execute();;
+                });
+                break;
         }
     }
 }

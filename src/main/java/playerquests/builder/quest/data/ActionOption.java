@@ -17,7 +17,12 @@ public enum ActionOption {
     /**
      * To set one or more items.
      */
-    ITEMS("Select Items", "CHEST");
+    ITEMS("Select Items", "CHEST"), 
+    
+    /**
+     * To set a message for when the action finishes.
+     */
+    FINISH_MESSAGE("Finish Message", "NAME_TAG");
 
     private final String label;
     private final String item;

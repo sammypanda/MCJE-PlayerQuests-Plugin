@@ -191,8 +191,25 @@ public class GatherItem extends QuestAction {
     }
 
     private void finish(QuestClient quester, GatherItemListener listener) {
-        Player player = quester.getPlayer();
-        player.sendMessage("# Items gathered!");
+        // establish finish message
+        String message = this.getFinishMessage();
+        // fallback finish message
+        if (message == null) {
+            message = "Items gathered!";
+        }
+
+        // message style
+        final String finishMessage = String.format("%s %s",
+            "#",
+            message
+        );
+
+        // determine if should send
+        if (!message.isBlank()) {
+            // send finish message
+            Player player = quester.getPlayer();
+            player.sendMessage(finishMessage);
+        }
 
         // close listener
         listener.close();
@@ -214,6 +231,7 @@ public class GatherItem extends QuestAction {
         List<ActionOption> options = new ArrayList<ActionOption>();
 
         options.add(ActionOption.ITEMS);
+        options.add(ActionOption.FINISH_MESSAGE);
 
         return options;
     }
