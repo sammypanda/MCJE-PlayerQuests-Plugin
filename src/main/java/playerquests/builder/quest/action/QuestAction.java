@@ -255,6 +255,7 @@ public abstract class QuestAction {
      * Sets the finish message associated with this action.
      * 
      * @param finishMessage the message to send when the action is finished
+     * @return the updated quest action.
      */
     public QuestAction setFinishMessage(String finishMessage) {
         this.finishMessage = finishMessage;
