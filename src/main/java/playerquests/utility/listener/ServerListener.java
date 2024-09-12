@@ -9,6 +9,7 @@ import java.util.stream.Stream; // Provides a sequence of elements supporting se
 
 import org.bukkit.Bukkit; // Bukkit API for interacting with the server
 import org.bukkit.event.EventHandler; // Annotation to mark methods as event handlers
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener; // Interface for registering event listeners
 import org.bukkit.event.server.ServerLoadEvent; // Event triggered when the server is loaded or reloaded
 
@@ -77,6 +78,9 @@ public class ServerListener implements Listener {
     public void onDisable() {
         // Cancel all tasks scheduled by this plugin to prevent overlaps
         Bukkit.getServer().getScheduler().cancelTasks(Core.getPlugin());
+
+        // Cancel all listeners
+        HandlerList.unregisterAll();
 
         // Close/clear the plugin
         PlayerQuests.getInstance().clear();

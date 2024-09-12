@@ -4,6 +4,7 @@ import java.util.ArrayList; // used to transport GUI functions
 import java.util.List; // generic list type
 
 import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity; // refers to the player
 
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
@@ -115,6 +116,23 @@ public class GUISlot {
             System.err.println(exception.getMessage());
         }
         
+        return this;
+    }
+
+    /**
+     * Sets the material to be displayed in this slot.
+     * 
+     * <p>This method updates the item in the slot to be represented by the given {@link Material}.
+     * The provided material is converted to its string representation and stored in the internal
+     * item field. This method is typically used to configure the slot with a specific material
+     * for display or interaction purposes.</p>
+     * 
+     * @param material The {@link Material} to be displayed in the slot. This is converted to a
+     *                 string and assigned to the slot's item.
+     * @return The current instance of {@link GUISlot}, allowing for method chaining.
+     */
+    public GUISlot setItem(Material material) {
+        this.item = material.toString();
         return this;
     }
 

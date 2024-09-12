@@ -1,8 +1,13 @@
 package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array type of list
+import java.util.HashMap;
 import java.util.List; // generic list type
+import java.util.Map;
 import java.util.Optional;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
@@ -30,7 +35,8 @@ import playerquests.client.quest.QuestClient; // the quester themselves
     property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = None.class, name = "None"),
-    @JsonSubTypes.Type(value = Speak.class, name = "Speak")
+    @JsonSubTypes.Type(value = Speak.class, name = "Speak"),
+    @JsonSubTypes.Type(value = GatherItem.class, name = "GatherItem")
 })
 public abstract class QuestAction {
 
@@ -53,6 +59,12 @@ public abstract class QuestAction {
     protected List<String> dialogue;
 
     /**
+     * The items associated with this action, if applicable.
+     */
+    @JsonProperty("items")
+    protected Map<Material, Integer> items;
+
+    /**
      * The quest stage that this action belongs to.
      */
     @JsonBackReference
@@ -68,6 +80,11 @@ public abstract class QuestAction {
      */
     @JsonProperty("connections")
     private ConnectionsData connections = new ConnectionsData();
+
+    /**
+     * The message to send on finish, if applicable.
+     */
+    private String finishMessage;
 
     /**
      * Default constructor for Jackson deserialization.
@@ -98,6 +115,7 @@ public abstract class QuestAction {
 
         actionTypes.add("None");
         actionTypes.add("Speak");
+        actionTypes.add("GatherItem");
 
         return actionTypes;
     }
@@ -220,6 +238,74 @@ public abstract class QuestAction {
      */
     public QuestAction setDialogue(List<String> dialogue) {
         this.dialogue = dialogue;
+
+        return this;
+    }
+
+    /**
+     * Gets the finish message associated with this action.
+     * 
+     * @return the message to send when the action is finished
+     */
+    public String getFinishMessage() {
+        return this.finishMessage;
+    }
+
+    /**
+     * Sets the finish message associated with this action.
+     * 
+     * @param finishMessage the message to send when the action is finished
+     * @return the updated quest action.
+     */
+    public QuestAction setFinishMessage(String finishMessage) {
+        this.finishMessage = finishMessage;
+
+        return this;
+    }
+
+    /**
+     * Gets the items associated with this action.
+     * 
+     * @return A list of items.
+     */
+    @JsonIgnore
+    public List<ItemStack> getItems() {
+        // return null if no items
+        if (this.items == null) {
+            return null;
+        }
+
+        // construct itemstack list
+        List<ItemStack> itemslist = new ArrayList<ItemStack>();
+
+        this.items.forEach((material, count) -> {
+            ItemStack item = new ItemStack(material);
+            item.setAmount(count);
+
+            itemslist.add(item);
+        });
+
+        // return data in itemstack list form
+        return itemslist;
+    }
+
+    /**
+     * Sets the items associated with this action.
+     * 
+     * Strips out all discriminators except for material and amount/count.
+     * 
+     * @param items A list of items to set.
+     * @return The updated quest action.
+     */
+    @JsonIgnore
+    public QuestAction setItems(List<ItemStack> items) {
+        Map<Material, Integer> itemslist = new HashMap<Material, Integer>();
+
+        items.forEach(item -> {
+            itemslist.put(item.getType(), item.getAmount());
+        });
+
+        this.items = itemslist;
 
         return this;
     }

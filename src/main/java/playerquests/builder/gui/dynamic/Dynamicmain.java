@@ -81,5 +81,4 @@ public class Dynamicmain extends GUIDynamic {
                 new UpdateScreen(new ArrayList<>(Arrays.asList("myquests")), director)
             );
     }
-    
 }

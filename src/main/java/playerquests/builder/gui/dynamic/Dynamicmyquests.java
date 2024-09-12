@@ -248,5 +248,4 @@ public class Dynamicmyquests extends GUIDynamic {
             return false; // continue the loop (as in match not found, continue)
         });
     }
-    
 }

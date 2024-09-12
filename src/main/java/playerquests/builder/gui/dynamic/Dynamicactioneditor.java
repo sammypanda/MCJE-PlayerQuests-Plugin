@@ -8,6 +8,8 @@ import java.util.Optional; // for a value that may be null
 import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
 
+import org.bukkit.inventory.ItemStack;
+
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.ChatPrompt; // prompts the user for input
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
@@ -248,6 +250,75 @@ public class Dynamicactioneditor extends GUIDynamic {
                         this.execute();
                     }).execute();
                 });
+                break;
+            case ITEMS:
+                // open the items list screen
+                optionSlot.onClick(() -> {
+                    // fetch existing items list
+                    ArrayList<ItemStack> items = (ArrayList<ItemStack>) this.action.getItems();
+
+                    // if items list exists, set it as the current instance to use
+                    if (items != null) {
+                        this.director.setCurrentInstance(items);
+                    }
+
+                    new UpdateScreen(
+                        new ArrayList<>(Arrays.asList("itemslist")), 
+                        director
+                    ).onFinish((GUI) -> {
+                        // get the itemslist gui instance
+                        UpdateScreen updateScreen = (UpdateScreen) GUI;
+                        Dynamicitemslist itemslistGUI = (Dynamicitemslist) updateScreen.getDynamicGUI();
+
+                        itemslistGUI.onFinish((_) -> {
+                            List<ItemStack> itemslist = itemslistGUI.getItems();
+
+                            // exit if no items in the list
+                            if (itemslist == null) {
+                                return;
+                            }
+                            
+                            // set this as the list of items
+                            this.action.setItems(itemslist);
+
+                            // update quest
+                            this.stage.getQuest().save();
+                            
+                            // refresh to see changes
+                            this.execute();
+                        });
+                    }).execute();
+                });
+                break;
+        case FINISH_MESSAGE:
+                String finishMessage = this.action.getFinishMessage();
+
+                if (finishMessage != null) {
+                    Integer maxLength = 16;
+                    optionSlot.setDescription(String.format("%s%s", 
+                        finishMessage.length() >= maxLength ? finishMessage.substring(0, maxLength) : finishMessage,
+                        finishMessage.length() > maxLength ? "..." : ""
+                    ));
+                }
+
+                // handle clicking the option slot
+                optionSlot.onClick(() -> {
+
+                    // create a new chat prompt to get the value
+                    new ChatPrompt(
+                        new ArrayList<>(Arrays.asList("Enter the finish message", "none")), director
+                    )
+                    .onFinish((f) -> {
+                        ChatPrompt function = (ChatPrompt) f;
+                        
+                        // get the value
+                        this.action.setFinishMessage(function.getResponse());
+
+                        // refresh to see updated value
+                        this.execute();
+                    }).execute();;
+                });
+                break;
         }
     }
 }
