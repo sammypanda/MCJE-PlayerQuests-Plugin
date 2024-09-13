@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array type of list
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List; // generic list type
 import java.util.Map;
@@ -112,13 +113,12 @@ public abstract class QuestAction {
      * @return A list of action type names.
      */
     public static List<String> allActionTypes() {
-        List<String> actionTypes = new ArrayList<>();
-
-        actionTypes.add("None");
-        actionTypes.add("Speak");
-        actionTypes.add("GatherItem");
-
-        return actionTypes;
+        return Arrays.asList(
+            "None",
+            "Speak",
+            "GatherItem",
+            "TakeItem"
+        );
     }
 
     @Override
