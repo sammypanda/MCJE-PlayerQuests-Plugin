@@ -36,7 +36,8 @@ import playerquests.client.quest.QuestClient; // the quester themselves
 @JsonSubTypes({
     @JsonSubTypes.Type(value = None.class, name = "None"),
     @JsonSubTypes.Type(value = Speak.class, name = "Speak"),
-    @JsonSubTypes.Type(value = GatherItem.class, name = "GatherItem")
+    @JsonSubTypes.Type(value = GatherItem.class, name = "GatherItem"),
+    @JsonSubTypes.Type(value = TakeItem.class, name ="TakeItem")
 })
 public abstract class QuestAction {
 
