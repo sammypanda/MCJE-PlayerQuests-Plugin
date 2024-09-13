@@ -86,10 +86,10 @@ public class TakeItem extends QuestAction {
 
         // check each inventory slot
         // and determine if it passes the check (if the player has the correct items/amounts to take)
-        inventoryList.forEach(item -> {
+        Boolean success = inventoryList.stream().anyMatch(item -> {
             // if no item in this slot
             if (item == null) {
-                return;
+                return false;
             }
 
             Material material = item.getType();
@@ -97,7 +97,7 @@ public class TakeItem extends QuestAction {
 
             // if this item isn't one to take
             if (!this.items.containsKey(material)) {
-                return;
+                return false;
             }
 
             // get amount checked/amount to take
@@ -117,13 +117,16 @@ public class TakeItem extends QuestAction {
             if (clamp == takeCount) {
                 itemsPassed.add(material);
             }
+
+            // if successful
+            return this.items.size() == itemsPassed.size();
         });
 
         // check passing condition
         //
         // fail case: if the size of items to take is not the same as size of items 
         // from inventory that match the required quantity and material.
-        if (this.items.size() != itemsPassed.size()) {
+        if (!success) {
             return false;
         }
 
@@ -141,14 +144,20 @@ public class TakeItem extends QuestAction {
     private Boolean take(Player player) {
         PlayerInventory inventory = player.getInventory();
         Map<Material, Integer> remainingItems = new HashMap<>(this.items);
+        ItemStack emptyItem = new ItemStack(Material.AIR, 0);
 
-        IntStream.range(0, inventory.getSize())
-            .forEach(slot -> {
+        Boolean success = IntStream.range(0, inventory.getSize())
+            .anyMatch((slot) -> {
+                // case to exit
+                if (remainingItems.isEmpty()) {
+                    return true;
+                }
+
                 ItemStack item = inventory.getItem(slot);
                 
                 // don't continue if no item
                 if (item == null) {
-                    return;
+                    return false;
                 }
 
                 Material material = item.getType(); // the material to identify the item
@@ -157,7 +166,7 @@ public class TakeItem extends QuestAction {
 
                 // don't continue if irrelevant item
                 if (takeItemCount == null) {
-                    return;
+                    return false;
                 }
 
                 // get how much of this material we have so far
@@ -172,27 +181,29 @@ public class TakeItem extends QuestAction {
                 // if count matches the same as how much we want to take
                 if (count == takeItemCount) {
                     remainingItems.remove(material);
-                    inventory.remove(item); // remove the stack completely
-                    return;
+                    inventory.setItem(slot, emptyItem); // remove the stack completely
+                    return false;
                 }
 
                 // if count is over how much we want to take
                 if (count > takeItemCount) {
                     remainingItems.remove(material);
                     inventory.setItem(slot, new ItemStack(material, count - takeItemCount)); // subtract how much we want to take from the stack
-                    return;
+                    return false;
                 }
 
                 // if count is under how much we want to take
                 if (count < takeItemCount) {
                     remainingItems.put(material, takeItemCount - count); // subtract how much we had in this stack from the remaining items list
-                    inventory.remove(item);
-                    return;
+                    inventory.setItem(slot, emptyItem); // remove the stack completely
+                    return false;
                 }
+
+                return false;
             });
 
         // mark as failed if couldn't empty remaining items list
-        if (!remainingItems.isEmpty()) {
+        if (!success) {
             return false;
         }
 
