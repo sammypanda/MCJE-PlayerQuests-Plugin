@@ -28,7 +28,7 @@ public class SelectLocation extends GUIFunction {
 
     private class SelectLocationListener implements Listener {
         /**
-         * The SelectBlock instance.
+         * The SelectMaterial instance.
          */
         private SelectLocation parentClass;
 

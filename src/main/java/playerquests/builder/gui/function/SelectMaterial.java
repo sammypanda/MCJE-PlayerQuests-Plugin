@@ -28,13 +28,13 @@ import playerquests.utility.PluginUtils; // used to validate function params
 /**
  * Function for the user to select a block.
  */
-public class SelectBlock extends GUIFunction {
+public class SelectMaterial extends GUIFunction {
 
-    private class SelectBlockListener implements Listener {
+    private class SelectMaterialListener implements Listener {
         /**
-         * The {@code SelectBlock} instance.
+         * The {@code SelectMaterial} instance.
          */
-        private SelectBlock parentClass;
+        private SelectMaterial parentClass;
 
         /**
          * The player this listener is for.
@@ -47,12 +47,12 @@ public class SelectBlock extends GUIFunction {
         private List<SelectMethod> deniedMethods;
 
         /**
-         * Constructs a new {@code SelectBlockListener}.
+         * Constructs a new {@code SelectMaterialListener}.
          *
-         * @param parent the parent {@code SelectBlock} instance
+         * @param parent the parent {@code SelectMaterial} instance
          * @param player the player associated with this listener
          */
-        public SelectBlockListener(SelectBlock parent, Player player) {
+        public SelectMaterialListener(SelectMaterial parent, Player player) {
             this.parentClass = parent;
             this.player = player;
             this.deniedMethods = parent.getDeniedMethods();
@@ -83,7 +83,7 @@ public class SelectBlock extends GUIFunction {
         }
 
         /**
-         * Handles inventory clicks to select blocks.
+         * Handles inventory clicks to select materials.
          *
          * @param event the {@code InventoryClickEvent} triggered when a player clicks in an inventory
          */
@@ -121,7 +121,7 @@ public class SelectBlock extends GUIFunction {
                 return;
             }
 
-            // exit SelectBlock
+            // exit SelectMaterial
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
                 this.parentClass.setCancelled(true);
                 this.parentClass.execute(); // run with cancellation
@@ -204,6 +204,11 @@ public class SelectBlock extends GUIFunction {
      */
     private boolean cancelled;
 
+    /**
+     * If the material must be a block.
+     */
+    private Boolean blocksOnly;
+
     /** 
      * Provides input as a user selected block.
      * <ul>
@@ -213,7 +218,7 @@ public class SelectBlock extends GUIFunction {
      * @param params 1. the prompt to show the user 2. list of denied blocks 3. list of denied methods
      * @param director to set values
      */
-    public SelectBlock(ArrayList<Object> params, ClientDirector director) {
+    public SelectMaterial(ArrayList<Object> params, ClientDirector director) {
         super(params, director);
     }
 
@@ -230,7 +235,7 @@ public class SelectBlock extends GUIFunction {
      */
     private void setUp() {
         try {
-            PluginUtils.validateParams(this.params, String.class, List.class, List.class);
+            PluginUtils.validateParams(this.params, String.class, List.class, List.class, Boolean.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
             ChatUtils.message(e.getMessage())
@@ -243,6 +248,7 @@ public class SelectBlock extends GUIFunction {
         this.prompt = (String) params.get(0);
         this.deniedBlocks = castDeniedBlocks(params.get(1));
         this.deniedMethods = castDeniedMethods(params.get(2));
+        this.blocksOnly = (Boolean) params.get(3);
 
         // add basics to deniedBlocks
         this.deniedBlocks.add(Material.AIR);
@@ -254,7 +260,7 @@ public class SelectBlock extends GUIFunction {
         this.director.getGUI().getResult().minimise();
 
         // register events and listener
-        this.blockListener = new SelectBlockListener(this, Bukkit.getPlayer(this.player.getUniqueId()));
+        this.blockListener = new SelectMaterialListener(this, Bukkit.getPlayer(this.player.getUniqueId()));
         Bukkit.getPluginManager().registerEvents(this.blockListener, Core.getPlugin());
 
         // mark this function class as setup
@@ -371,7 +377,7 @@ public class SelectBlock extends GUIFunction {
             return;
         }
 
-        if (!material.isBlock()) {
+        if (this.blocksOnly && !material.isBlock()) {
             ChatUtils.message("Could not set this item as an NPC block.")
                 .player(this.player)
                 .type(MessageType.WARN)

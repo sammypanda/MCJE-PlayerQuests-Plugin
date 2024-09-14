@@ -11,7 +11,7 @@ import org.bukkit.inventory.PlayerInventory; // the player inventory type
 
 import playerquests.builder.gui.component.GUIFrame; // outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // buttons of the GUI
-import playerquests.builder.gui.function.SelectBlock; // function to get the player-chosen block
+import playerquests.builder.gui.function.SelectMaterial; // function to get the player-chosen block
 import playerquests.builder.gui.function.SelectLocation; // function to get the player-chosen location
 import playerquests.builder.gui.function.UpdateScreen; // function for changing the GUI screen
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
@@ -82,7 +82,7 @@ public class Dynamicnpctypes extends GUIDynamic {
         blockOption.setLabel("A Block");
         blockOption.setItem("GRASS_BLOCK");
         blockOption.onClick(() -> {
-            new SelectBlock(
+            new SelectMaterial(
                 new ArrayList<>(Arrays.asList(
                     "Select a block from your inventory", // the prompt message
                     Arrays.asList( // denylisted blocks:
@@ -92,12 +92,13 @@ public class Dynamicnpctypes extends GUIDynamic {
                     Arrays.asList( // denied select methods:
                         SelectMethod.HIT,
                         SelectMethod.CHAT
-                    )
+                    ),
+                    true // has to be a block
                 )), 
                 director
             ).onFinish((f) -> {
                 // get the block that was selected
-                SelectBlock function = (SelectBlock) f;
+                SelectMaterial function = (SelectMaterial) f;
                 Material block = function.getResult();
 
                 // assign this block as the quest NPC

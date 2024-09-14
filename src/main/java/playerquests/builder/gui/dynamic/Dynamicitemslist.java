@@ -10,7 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import playerquests.builder.gui.component.GUISlot;
-import playerquests.builder.gui.function.SelectBlock;
+import playerquests.builder.gui.function.SelectMaterial;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.client.ClientDirector;
 
@@ -87,15 +87,16 @@ public class Dynamicitemslist extends GUIDynamic {
                 .setItem("LIME_DYE")
                 .setLabel("Add an item")
                 .onClick(() -> {
-                    new SelectBlock(
+                    new SelectMaterial(
                         new ArrayList<>(Arrays.asList(
                             "Select or type a block", // the prompt message
                             Arrays.asList(), // denied block strings (empty)
-                            Arrays.asList() // denied SelectMethods (empty)
+                            Arrays.asList(), // denied SelectMethods (empty)
+                            false // doesn't have to be a block
                         )), 
                         director
                     ).onFinish((func) -> {
-                        SelectBlock function = (SelectBlock) func;
+                        SelectMaterial function = (SelectMaterial) func;
                         Material result = function.getResult();
 
                         // re-open the gui
@@ -108,7 +109,7 @@ public class Dynamicitemslist extends GUIDynamic {
 
                         // add the selected item to the list
                         this.addItem(new ItemStack(result));
-                    }).execute(); // run the select block function
+                    }).execute(); // run the function
                 });
         }
 

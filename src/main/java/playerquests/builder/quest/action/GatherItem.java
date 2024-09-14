@@ -51,9 +51,9 @@ public class GatherItem extends QuestAction {
         private QuestClient quester;
 
         /**
-         * Constructs a new {@code SelectBlockListener}.
+         * Constructs a new {@code SelectMaterialListener}.
          *
-         * @param parent the parent {@code SelectBlock} instance
+         * @param parent the parent {@code SelectMaterial} instance
          * @param player the player associated with this listener
          */
         public GatherItemListener(GatherItem parent, QuestClient quester) {
