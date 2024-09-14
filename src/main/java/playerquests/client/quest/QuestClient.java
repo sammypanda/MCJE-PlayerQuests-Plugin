@@ -144,7 +144,9 @@ public class QuestClient {
                 // if first time running
                 if (run) {
                     // auto-start actions that aren't interfacable with an NPC
-                    action.Run(this);
+                    Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                        action.Run(this);
+                    });
                 }
 
                 return;
@@ -249,7 +251,9 @@ public class QuestClient {
         // auto-execute next auto if no npc to wait for
         QuestAction nextAction = next_step.getAction(quest);
         if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
-            next_step.getAction(quest).Run(this);
+            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                next_step.getAction(quest).Run(this);
+            });
         }
 
         // update quest state
