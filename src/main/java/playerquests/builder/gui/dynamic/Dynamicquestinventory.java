@@ -2,6 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class Dynamicquestinventory extends GUIDynamic {
     /**
      * The quest inventory.
      */
-    Map<Material, Integer> inventory;
+    Map<Material, Integer> inventory = new HashMap<>();
 
     /**
      * The quest product.
