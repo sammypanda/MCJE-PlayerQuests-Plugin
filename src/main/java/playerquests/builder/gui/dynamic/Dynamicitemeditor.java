@@ -34,7 +34,7 @@ public class Dynamicitemeditor extends GUIDynamic {
     /**
      * Code to run when the item quantity is updated.
      */
-    private Consumer<Void> onUpdate;
+    private Consumer<ItemStack> onUpdate;
 
     /**
      * Code to run when the item is removed.
@@ -64,11 +64,9 @@ public class Dynamicitemeditor extends GUIDynamic {
         new GUISlot(gui, 1)
             .setItem(Material.OAK_DOOR)
             .setLabel("Back")
-            .addFunction(
-                new UpdateScreen(
-                    Arrays.asList(this.previousScreen), director
-                )
-            );
+            .onClick(() -> {
+                this.finish();
+            });
 
         // edit quantity/amount/count button
         new GUISlot(gui, 2)
@@ -112,7 +110,7 @@ public class Dynamicitemeditor extends GUIDynamic {
                     this.execute(); // refresh gui
 
                     // run consumable
-                    this.onUpdate.accept(null);;
+                    this.onUpdate.accept(this.item);;
                 }).execute(); // run chat prompt function
             });
 
@@ -123,9 +121,6 @@ public class Dynamicitemeditor extends GUIDynamic {
             .onClick(() -> {;
                 // run consumable
                 this.onRemove.accept(this.item);
-
-                // go back
-                new UpdateScreen(Arrays.asList(this.previousScreen), director).execute();
             });
     }
 
@@ -147,7 +142,7 @@ public class Dynamicitemeditor extends GUIDynamic {
      * 
      * @param onUpdate a {@link Consumer} that runs when the item quantity is updated.
      */
-    public void onUpdate(Consumer<Void> onUpdate) {
+    public void onUpdate(Consumer<ItemStack> onUpdate) {
         this.onUpdate = onUpdate;
     }
 

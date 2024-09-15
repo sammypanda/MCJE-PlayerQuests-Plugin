@@ -109,6 +109,9 @@ public class Dynamicitemslist extends GUIDynamic {
 
                         // add the selected item to the list
                         this.addItem(new ItemStack(result));
+
+                        // show it added
+                        this.execute();
                     }).execute(); // run the function
                 });
         }
@@ -156,28 +159,13 @@ public class Dynamicitemslist extends GUIDynamic {
                             // remove the item from our list
                             this.removeItem(i);
 
-                            // run actioneditor finish sequence (updates the quest, based on this list)
-                            this.onFinish.accept(this);
+                            // go back
+                            this.goBack(function);
                         });
 
-                        // after updating the amount..
-                        editor.onUpdate((v) -> {
-                            // go back when (should be to this itemlist screen)
-                            new UpdateScreen(
-                                Arrays.asList(function.getPreviousScreen()), director
-                            ).onFinish((f) -> {
-                                // find the new/next instance
-                                UpdateScreen nextfunction = (UpdateScreen) f;
-                                Dynamicitemslist list = (Dynamicitemslist) nextfunction.getDynamicGUI();
-
-                                // migrate the onFinish code to the new instance
-                                list.onFinish(onFinish);
-                            }).execute();
-                            // ^ this works (despite being a completely fresh instance of the gui), because at the top
-                            // of this class, it pulls the list of items from the director. For safety it filters
-                            // out anything that isn't an ItemStack and then uses whatever is there as the item list.
-                            // This is issue prone, as it's not strictly the same data but it would mean data overflow
-                            // issues if it wasn't anyway.
+                        editor.onFinish((v) -> {
+                            // go back
+                            this.goBack(function);
                         });
                     }).execute();
                 });
@@ -187,12 +175,34 @@ public class Dynamicitemslist extends GUIDynamic {
     }
 
     /**
+     * Go back after item editor (should be to this itemlist screen).
+     * Aiming to preserve the onFinish function from the action editor.
+     * @param function
+     */
+    private void goBack(UpdateScreen function) {
+        new UpdateScreen(
+            new ArrayList<>(Arrays.asList(function.getPreviousScreen())), director
+        ).onFinish((f) -> {
+            // find the new/next instance
+            UpdateScreen nextfunction = (UpdateScreen) f;
+            Dynamicitemslist list = (Dynamicitemslist) nextfunction.getDynamicGUI();
+
+            // migrate the onFinish code to the new instance
+            list.onFinish(this.onFinish);
+        }).execute();
+        // ^ this works (despite being a completely fresh instance of the gui), because at the top
+        // of this class, it pulls the list of items from the director. For safety it filters
+        // out anything that isn't an ItemStack and then uses whatever is there as the item list.
+        // This is issue prone, as it's not strictly the same data but it would mean data overflow
+        // issues if it wasn't anyway.
+    }
+
+    /**
      * Completely overwrite the item list shown.
      * @param items the items (up to maxItems)
      */
     private void setItems(List<ItemStack> items) {
         this.items = items;
-        this.execute(); // update GUI
     }
 
     /**
@@ -201,7 +211,6 @@ public class Dynamicitemslist extends GUIDynamic {
      */
     private void addItem(ItemStack item) {
         this.items.add(item);
-        this.execute(); // update GUI
     }
 
     /**
@@ -209,8 +218,7 @@ public class Dynamicitemslist extends GUIDynamic {
      * @param item the item to remove
      */
     private void removeItem(ItemStack item) {
-        this.items.removeIf(it -> it.equals(item));
-        this.execute(); // update GUI
+        this.items.remove(item);
     }
 
     /**
