@@ -534,7 +534,12 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public Map<Material, Integer> getInventory() {
-        Map<Material, Integer> predictiveInventory = new HashMap<>(this.inventory);
+        Map<Material, Integer> predictiveInventory = new HashMap<>();
+
+        // add current inventory
+        if (this.inventory != null) {
+            predictiveInventory.putAll(this.inventory);
+        }
 
         // get items the quest requires
         this.getRequiredInventory().keySet().forEach(material -> {
