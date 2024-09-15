@@ -55,7 +55,7 @@ public class Dynamicselectnpc extends GUIDynamic {
     protected void setUp_custom() {
         this.quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
-        this.npcList = new ArrayList<QuestNPC>(this.quest.getQuestNPCs().values());
+        this.npcList = new ArrayList<>(this.quest.getQuestNPCs().values());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class Dynamicselectnpc extends GUIDynamic {
             .setItem("OAK_DOOR")
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                    Arrays.asList(this.previousScreen), 
                     director
                 )
             );
@@ -116,7 +116,7 @@ public class Dynamicselectnpc extends GUIDynamic {
         }
 
         new UpdateScreen(
-            new ArrayList<>(Arrays.asList(this.previousScreen)), 
+            Arrays.asList(this.previousScreen), 
             director
         ).execute();
     }

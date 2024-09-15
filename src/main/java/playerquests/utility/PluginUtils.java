@@ -1,6 +1,6 @@
 package playerquests.utility;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
@@ -27,7 +27,7 @@ public class PluginUtils {
      *                                  the number of expected types, or if any 
      *                                  parameter does not match its expected type.
      */
-    public static void validateParams(ArrayList<Object> params, Class<?>... expectedTypes) throws IllegalArgumentException {
+    public static void validateParams(List<Object> params, Class<?>... expectedTypes) throws IllegalArgumentException {
         Objects.requireNonNull(params, "Params cannot be null");
 
         // check if the size of the params list is the same as the size of the expectedTypes list

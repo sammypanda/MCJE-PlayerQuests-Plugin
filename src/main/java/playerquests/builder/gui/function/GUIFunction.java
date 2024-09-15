@@ -1,6 +1,6 @@
 package playerquests.builder.gui.function;
 
-import java.util.ArrayList; // used to store the params for this meta action
+import java.util.List; // used to store the params for this meta action
 import java.util.function.Consumer; // used for onFinish
 
 import playerquests.client.ClientDirector; // powers functionality for functions
@@ -20,7 +20,7 @@ public abstract class GUIFunction {
      * These parameters are used during the execution of the function to provide the necessary context or data.
      * </p>
      */
-    protected ArrayList<Object> params;
+    protected List<Object> params;
 
     /**
      * The director responsible for managing and powering functionality within the plugin or application.
@@ -55,7 +55,7 @@ public abstract class GUIFunction {
      * @param params The list of parameters to be used by the function.
      * @param director The client director used to control the plugin or application.
      */
-    public GUIFunction(ArrayList<Object> params, ClientDirector director) {
+    public GUIFunction(List<Object> params, ClientDirector director) {
         this.params = params;
         this.director = director;
     }
@@ -104,7 +104,7 @@ public abstract class GUIFunction {
      * 
      * @param params The list of parameters to be used by the function.
      */
-    public void setParams(ArrayList<Object> params) {
+    public void setParams(List<Object> params) {
         this.params = params;
     }
 

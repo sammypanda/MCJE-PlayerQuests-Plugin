@@ -1,6 +1,5 @@
 package playerquests.builder.gui.function;
 
-import java.util.ArrayList; // array type of list
 import java.util.List; // used for creating deniedBlocks list
 import java.util.stream.Collectors; // transforming stream to data type
 
@@ -218,7 +217,7 @@ public class SelectMaterial extends GUIFunction {
      * @param params 1. the prompt to show the user 2. list of denied blocks 3. list of denied methods
      * @param director to set values
      */
-    public SelectMaterial(ArrayList<Object> params, ClientDirector director) {
+    public SelectMaterial(List<Object> params, ClientDirector director) {
         super(params, director);
     }
 

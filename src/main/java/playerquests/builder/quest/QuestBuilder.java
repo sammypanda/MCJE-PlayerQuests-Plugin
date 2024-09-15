@@ -9,6 +9,7 @@ import java.util.stream.Collectors; // accumulating elements from a stream into 
 import java.util.stream.IntStream; // used to iterate over a range
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json

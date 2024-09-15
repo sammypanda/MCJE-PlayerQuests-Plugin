@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // list array type
 import java.util.Arrays; // generic arrays type
 
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI window
@@ -69,7 +68,7 @@ public class Dynamicmyquest extends GUIDynamic {
             .setItem("OAK_DOOR")
             .setLabel("Back")
             .addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList(previousScreen)), 
+                Arrays.asList(previousScreen), 
                 director
             ));
 
@@ -83,7 +82,7 @@ public class Dynamicmyquest extends GUIDynamic {
 
                 // open the editor
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("questeditor")), 
+                    Arrays.asList("questeditor"), 
                     director
                 ).execute();
             });
@@ -112,7 +111,7 @@ public class Dynamicmyquest extends GUIDynamic {
 
                     // go back to previous screen
                     new UpdateScreen(
-                        new ArrayList<>(Arrays.asList(previousScreen)), 
+                        Arrays.asList(previousScreen), 
                         director
                     ).execute();
                 });

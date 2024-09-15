@@ -27,7 +27,7 @@ public class Dynamicitemslist extends GUIDynamic {
     /**
      * The list of items.
      */
-    List<ItemStack> items = new ArrayList<ItemStack>();
+    List<ItemStack> items = new ArrayList<>();
 
     /**
      * The maximum number of items.
@@ -76,7 +76,7 @@ public class Dynamicitemslist extends GUIDynamic {
 
                 // go to the previous screen
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                    Arrays.asList(this.previousScreen), 
                     director
                 ).execute();
             });
@@ -88,12 +88,12 @@ public class Dynamicitemslist extends GUIDynamic {
                 .setLabel("Add an item")
                 .onClick(() -> {
                     new SelectMaterial(
-                        new ArrayList<>(Arrays.asList(
+                        Arrays.asList(
                             "Select or type a block", // the prompt message
-                            Arrays.asList(), // denied block strings (empty)
-                            Arrays.asList(), // denied SelectMethods (empty)
+                            List.of(), // denied block strings (empty)
+                            List.of(), // denied SelectMethods (empty)
                             false // doesn't have to be a block
-                        )), 
+                        ), 
                         director
                     ).onFinish((func) -> {
                         SelectMaterial function = (SelectMaterial) func;
@@ -146,7 +146,7 @@ public class Dynamicitemslist extends GUIDynamic {
 
                     // show the item editor
                     new UpdateScreen(
-                        new ArrayList<>(Arrays.asList("itemeditor")), director
+                        Arrays.asList("itemeditor"), director
                     ).onFinish(func -> {
                         UpdateScreen function = (UpdateScreen) func;
                         Dynamicitemeditor editor = (Dynamicitemeditor) function.getDynamicGUI();
@@ -164,7 +164,7 @@ public class Dynamicitemslist extends GUIDynamic {
                         editor.onUpdate((v) -> {
                             // go back when (should be to this itemlist screen)
                             new UpdateScreen(
-                                new ArrayList<>(Arrays.asList(function.getPreviousScreen())), director
+                                Arrays.asList(function.getPreviousScreen()), director
                             ).onFinish((f) -> {
                                 // find the new/next instance
                                 UpdateScreen nextfunction = (UpdateScreen) f;

@@ -175,7 +175,7 @@ public class Dynamicactiontypes extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director
         ));
 

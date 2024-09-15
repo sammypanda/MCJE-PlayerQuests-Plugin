@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // stores parameters for next GUI function
 import java.util.Arrays; // working with literal arrays
 import java.util.stream.IntStream; // fills slots procedually
 
@@ -83,7 +82,7 @@ public class Dynamicqueststages extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director
         ));
 
@@ -126,7 +125,7 @@ public class Dynamicqueststages extends GUIDynamic {
 
                 // change to the quest stage GUI screen
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("queststage")), 
+                    Arrays.asList("queststage"), 
                     director
                 ).execute();;
             });

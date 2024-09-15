@@ -44,7 +44,7 @@ public class GUISlot {
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
      */
-    private List<GUIFunction> functionList = new ArrayList<GUIFunction>();
+    private List<GUIFunction> functionList = new ArrayList<>();
 
     /**
      * Indicates whether the slot has encountered a syntax error. Defaults to {@code false}.

@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // list type of array
 import java.util.Arrays; // generic type of array
 
 import org.bukkit.Material; // identifying block of 'Block' NPC type
@@ -66,7 +65,7 @@ public class Dynamicnpctypes extends GUIDynamic {
         backButton.setItem("OAK_DOOR");
         backButton.addFunction(
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                Arrays.asList(this.previousScreen), 
                 director
             )
         );
@@ -83,7 +82,7 @@ public class Dynamicnpctypes extends GUIDynamic {
         blockOption.setItem("GRASS_BLOCK");
         blockOption.onClick(() -> {
             new SelectMaterial(
-                new ArrayList<>(Arrays.asList(
+                Arrays.asList(
                     "Select a block from your inventory", // the prompt message
                     Arrays.asList( // denylisted blocks:
                         "BARRIER",
@@ -94,7 +93,7 @@ public class Dynamicnpctypes extends GUIDynamic {
                         SelectMethod.CHAT
                     ),
                     true // has to be a block
-                )), 
+                ), 
                 director
             ).onFinish((f) -> {
                 // get the block that was selected
@@ -147,9 +146,9 @@ public class Dynamicnpctypes extends GUIDynamic {
             );
 
             new SelectLocation(
-                new ArrayList<>(Arrays.asList(
+                Arrays.asList(
                     "Place the NPC Block"
-                )),
+                ),
                 director
             ).onFinish((f) -> {
                 // get the block that was selected

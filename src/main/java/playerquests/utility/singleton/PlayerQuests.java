@@ -117,7 +117,7 @@ public class PlayerQuests {
     /**
      * List of directors responsible for various tasks in the plugin.
      */
-    private List<Director> directors = new ArrayList<Director>();
+    private List<Director> directors = new ArrayList<>();
 
     /**
      * Registers a block in the world and associates it with an NPC.

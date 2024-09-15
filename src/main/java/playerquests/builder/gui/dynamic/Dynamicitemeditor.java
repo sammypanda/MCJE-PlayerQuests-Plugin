@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -67,7 +66,7 @@ public class Dynamicitemeditor extends GUIDynamic {
             .setLabel("Back")
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(this.previousScreen)), director
+                    Arrays.asList(this.previousScreen), director
                 )
             );
 
@@ -80,7 +79,7 @@ public class Dynamicitemeditor extends GUIDynamic {
             ))
             .onClick(() -> {
                 new ChatPrompt(
-                    new ArrayList<>(Arrays.asList("Type a number under 65", "none")), 
+                    Arrays.asList("Type a number under 65", "none"), 
                     director
                 ).onFinish((func) -> {
                     ChatPrompt function = (ChatPrompt) func;
@@ -126,7 +125,7 @@ public class Dynamicitemeditor extends GUIDynamic {
                 this.onRemove.accept(this.item);
 
                 // go back
-                new UpdateScreen(new ArrayList<>(Arrays.asList(this.previousScreen)), director).execute();
+                new UpdateScreen(Arrays.asList(this.previousScreen), director).execute();
             });
     }
 

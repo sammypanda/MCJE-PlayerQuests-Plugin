@@ -45,7 +45,7 @@ public class QuestClient {
     /**
      * List of the running FX.
      */
-    private List<BukkitTask> activeFX = new ArrayList<BukkitTask>();
+    private List<BukkitTask> activeFX = new ArrayList<>();
 
     /**
      * Used for particle FX loops.

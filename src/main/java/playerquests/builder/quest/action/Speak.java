@@ -1,6 +1,5 @@
 package playerquests.builder.quest.action;
 
-import java.util.ArrayList; // array list type
 import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
 import java.util.Optional;
@@ -31,12 +30,10 @@ public class Speak extends QuestAction {
 
     @Override
     public List<ActionOption> initOptions() {
-        List<ActionOption> options = new ArrayList<ActionOption>();
-
-        options.add(ActionOption.NPC);
-        options.add(ActionOption.DIALOGUE);
-
-        return options;
+        return Arrays.asList(
+            ActionOption.NPC,
+            ActionOption.DIALOGUE
+        );
     }
 
     @Override
@@ -45,9 +42,7 @@ public class Speak extends QuestAction {
 
         // insert empty dialogue if none set
         if (this.dialogue == null) {
-            this.dialogue = new ArrayList<>(
-                Arrays.asList("...")
-            );
+            this.dialogue = Arrays.asList("...");
         }
 
         // produce dialogue

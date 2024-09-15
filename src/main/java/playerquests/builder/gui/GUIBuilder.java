@@ -70,7 +70,7 @@ public class GUIBuilder implements Builder {
     /**
      * The previous screens the user have been to.
      */
-    private List<String> previousScreens = new ArrayList<String>();
+    private List<String> previousScreens = new ArrayList<>();
 
     /**
      * Instantiate a GUIBuilder with default GUI and set as current GUIBuilder.

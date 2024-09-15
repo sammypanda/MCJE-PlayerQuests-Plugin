@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // list array type
 import java.util.Arrays; // generic array handling
 
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
@@ -58,7 +57,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Back")
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(previousScreen)), 
+                    Arrays.asList(previousScreen),
                     director
                 )
             );
@@ -68,7 +67,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Set Title")
             .onClick(() -> {
                 new ChatPrompt(
-                    new ArrayList<>(Arrays.asList("Enter quest title", "quest.title")), 
+                    Arrays.asList("Enter quest title", "quest.title"), 
                     director
                 ).onFinish(_ -> {
                     QuestRegistry.getInstance().submit(questBuilder.build());
@@ -88,7 +87,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setDescription(" ") // clear the description
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("queststages")), 
+                    Arrays.asList("queststages"), 
                     director
                 )
             ); 
@@ -99,17 +98,27 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Quest NPCs")
             .addFunction(
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("questnpcs")), 
+                    Arrays.asList("questnpcs"), 
                     director
                 )
             );
 
-        new GUISlot(gui, 6) // change entry point
+        new GUISlot(gui, 6) // quest inventory
+            .setItem("ITEM_FRAME")
+            .setLabel("Quest Inventory")
+            .onClick(() -> {
+                new UpdateScreen(
+                    Arrays.asList("questinventory"), 
+                    director
+                ).execute();
+            });
+
+        new GUISlot(gui, 7) // change entry point
             .setItem("ENDER_EYE")
             .setLabel("Choose An Entry Point")
             .onClick(() -> {
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("selectconnection")), 
+                    Arrays.asList("selectconnection"), 
                     director
                 ).onFinish((f) -> {
                     UpdateScreen function = (UpdateScreen) f;

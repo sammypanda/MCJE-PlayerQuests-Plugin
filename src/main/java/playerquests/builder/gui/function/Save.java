@@ -2,7 +2,7 @@ package playerquests.builder.gui.function;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.ChatColor;
 
@@ -21,7 +21,7 @@ public class Save extends GUIFunction {
      * @param params 1. key name
      * @param director to control the plugin
      */
-    public Save(ArrayList<Object> params, ClientDirector director) {
+    public Save(List<Object> params, ClientDirector director) {
         super(params, director);
     }
 
@@ -68,7 +68,7 @@ public class Save extends GUIFunction {
 
         this.director.getPlayer().sendMessage(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "\n" + response + ".\n" + ChatColor.RESET);
 
-        new CloseScreen(new ArrayList<>(), this.director).execute();
+        new CloseScreen(List.of(), this.director).execute();
 
         this.finished(); // running onFinish code
     }

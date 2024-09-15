@@ -1,8 +1,7 @@
 package playerquests.builder.gui.function;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList; // used to store the params for this meta action
-import java.util.List; // generic list type
+import java.util.List; // used to store the params for this meta action
 
 import playerquests.builder.gui.GUIBuilder; // used to work with the GUI screen
 import playerquests.builder.gui.dynamic.GUIDynamic;
@@ -56,7 +55,7 @@ public class UpdateScreen extends GUIFunction {
      * @param params 1. the name of the GUI (with 'dynamic' omitted)
      * @param director to control the plugin
      */
-    public UpdateScreen(ArrayList<Object> params, ClientDirector director) {
+    public UpdateScreen(List<Object> params, ClientDirector director) {
         super(params, director);
     }
 

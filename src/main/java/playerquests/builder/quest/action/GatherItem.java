@@ -138,7 +138,7 @@ public class GatherItem extends QuestAction {
         Map<Material, Integer> itemsCollected = new HashMap<Material, Integer>();
 
         // set up list of inventory items to loop through (and add the unaccounted for late item)
-        List<ItemStack> inventoryList = new ArrayList<ItemStack>(Arrays.asList(inventory.getContents()));
+        List<ItemStack> inventoryList = new ArrayList<>(Arrays.asList(inventory.getContents()));
         if (lateItem != null) { inventoryList.add(lateItem); }
 
         // check item list against inventory, until fail
@@ -228,7 +228,7 @@ public class GatherItem extends QuestAction {
 
     @Override
     public List<ActionOption> initOptions() {
-        List<ActionOption> options = new ArrayList<ActionOption>();
+        List<ActionOption> options = List.of();
 
         options.add(ActionOption.ITEMS);
         options.add(ActionOption.FINISH_MESSAGE);

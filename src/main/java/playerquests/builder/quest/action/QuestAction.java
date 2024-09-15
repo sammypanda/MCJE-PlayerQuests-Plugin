@@ -279,7 +279,7 @@ public abstract class QuestAction {
         }
 
         // construct itemstack list
-        List<ItemStack> itemslist = new ArrayList<ItemStack>();
+        List<ItemStack> itemslist = new ArrayList<>();
 
         this.items.forEach((material, count) -> {
             ItemStack item = new ItemStack(material);
