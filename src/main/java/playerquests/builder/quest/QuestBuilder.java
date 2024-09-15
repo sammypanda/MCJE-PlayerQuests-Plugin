@@ -78,6 +78,11 @@ public class QuestBuilder {
     private UUID originalCreator;
 
     /**
+     * The amount of stock in the quest.
+     */
+    private Map<Material, Integer> inventory = new HashMap<>();
+
+    /**
      * Operations to run whenever the class is instantiated.
      * This block registers the instance with the KeyHandler.
      */
@@ -144,6 +149,7 @@ public class QuestBuilder {
                 this.questNPCs.put(id, npc);
             });
 
+            // set the creator (if applicable, otherwise it's a universal quest)
             if (product.getCreator() == null) {
                 // set the quest as a universal one
                 this.universal = true;
@@ -156,6 +162,9 @@ public class QuestBuilder {
                 // set as the current quest in the director
                 director.setCurrentInstance(this);
             }
+
+            // set the inventory
+            this.inventory = product.getInventory();
 
             // create quest product from this builder
             this.build();
@@ -401,7 +410,9 @@ public class QuestBuilder {
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
-            true // always toggle cloned quests on when freshly cloned
+            true, // always toggle cloned quests on when freshly cloned
+            this.getID(),
+            this.inventory
         );
 
         // set this quest as in-focus to the creator
@@ -479,5 +490,37 @@ public class QuestBuilder {
         }
 
         return this.build().isValid();
+    }
+
+    /**
+     * Get the items and their stock amount.
+     * @return the pool of quest resources.
+     */
+    public Map<Material, Integer> getInventory() {
+        return this.inventory;
+    }
+
+    /**
+     * Set the items and their stock amount.
+     * Also compares with the existing quest so we don't drop anything on mutual edits.
+     * @param inventory the pool of quest resources.
+     */
+    public QuestBuilder setInventory(Map<Material, Integer> inventory) {
+        this.inventory = inventory;
+        return this;
+    }
+
+    /**
+     * Get the would-be ID of this quest.
+     */
+    public String getID() {
+        // the player creating/editing/saving the quest
+        String creator = this.getDirector().getPlayer().getUniqueId().toString(); 
+
+        // the format of the ID
+        return String.format("%s%s", 
+            title, 
+            creator != null ? "_"+creator : ""
+        );
     }
 }

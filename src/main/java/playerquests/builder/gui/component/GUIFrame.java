@@ -78,7 +78,7 @@ public class GUIFrame {
 
     /**
      * Set's the number of slots in the GUI screen.
-     * @param size the number of slots (has to be a multiple of 9. Like 9 or 18
+     * @param size the number of slots (has to be a multiple of 9. Like 9 or 18. Up to 54.
      */
     public void setSize(int size) {
         this.size = size;

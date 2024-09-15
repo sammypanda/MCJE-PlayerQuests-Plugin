@@ -34,6 +34,9 @@ Usually you would never need this, but this is what makes it all tick. When you 
     "entry": String, // Path: (as in 'entry point') where the quest starts
     "creator": UUID, // the player who created this quest
     "id": String, // the id, composed of: [Quest Title]_[Creator UUID]
+    "inventory": {
+        "[a minecraft material]": Integer // for instance: "BIRCH_LOG" : 1
+    },
     "npcs": { // directory of all the quest npcs
         "npc_0": { // NPC ID (automatically generated)
             "name": String, // the name of the NPC

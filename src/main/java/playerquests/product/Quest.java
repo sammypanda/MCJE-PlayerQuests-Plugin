@@ -6,6 +6,7 @@ import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
 import org.bukkit.Bukkit; // Bukkit API
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -72,6 +73,17 @@ public class Quest {
      * If the quest is toggled.
      */
     private Boolean toggled = true;
+
+    /**
+     * The ID of this quest.
+     */
+    private String id;
+
+    /**
+     * The inventory of this quest.
+     * Resources that can be pulled from.
+     */
+    private Map<Material, Integer> inventory = Map.of();
     
     /**
      * Constructs a new Quest with the specified parameters.
@@ -89,12 +101,16 @@ public class Quest {
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
-        @JsonProperty("toggled") Boolean toggled
+        @JsonProperty("toggled") Boolean toggled,
+        @JsonProperty("id") String id,
+        @JsonProperty("inventory") Map<Material, Integer> inventoryState
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
 
         this.title = title;
+
+        this.id = id;
         
         if (entry != null) {
             this.entry = entry;
@@ -120,6 +136,9 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
+
+        // Set inventory
+        this.inventory = inventoryState;
 
         // Submit quest to the registry
         QuestRegistry.getInstance().submit(this);
@@ -216,10 +235,7 @@ public class Quest {
      */
     @JsonProperty("id") 
     public String getID() {
-        return String.format("%s%s", 
-            title, 
-            creator != null ? "_"+creator : ""
-        );
+        return this.id;
     }
 
     /**
@@ -407,5 +423,13 @@ public class Quest {
             .player(player)
             .style(MessageStyle.PRETTY)
             .send();
+    }
+
+    /**
+     * Get the items and their stock amount.
+     * @return the pool of quest resources.
+     */
+    public Map<Material, Integer> getInventory() {
+        return this.inventory;
     }
 }

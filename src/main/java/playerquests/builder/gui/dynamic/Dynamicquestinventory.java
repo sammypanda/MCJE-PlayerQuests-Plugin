@@ -1,0 +1,149 @@
+package playerquests.builder.gui.dynamic;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
+
+import playerquests.builder.gui.component.GUIFrame;
+import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.function.UpdateScreen;
+import playerquests.builder.quest.QuestBuilder;
+import playerquests.client.ClientDirector;
+
+/**
+ * Shows a dynamic GUI of the current quest stock/inventory.
+ */
+public class Dynamicquestinventory extends GUIDynamic {
+
+    /**
+     * The quest inventory.
+     */
+    Map<Material, Integer> inventory;
+
+    /**
+     * The quest the inventory is for.
+     */
+    QuestBuilder questBuilder;
+
+    /**
+     * Creates a dynamic GUI showing the quest inventory.
+     * @param director director for the client
+     * @param previousScreen the screen to go back to
+     */
+    public Dynamicquestinventory(ClientDirector director, String previousScreen) {
+        super(director, previousScreen);
+    }
+
+    @Override
+    protected void setUp_custom() {
+        // builder for the quest we are editing
+        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
+
+        // retrieve the items
+        this.inventory = this.questBuilder.getInventory();
+    }
+
+    @Override
+    protected void execute_custom() {
+        // set the GUI style
+        GUIFrame frame = this.gui.getFrame();
+        frame.setSize(54);
+        frame.setTitle("Quest Inventory/Stock");
+
+        // create a back button
+        new GUISlot(gui, 1)
+            .setItem(Material.OAK_DOOR)
+            .setLabel("Back")
+            .onClick(() -> {
+                new UpdateScreen(
+                    Arrays.asList(this.previousScreen), 
+                    director
+                ).execute();
+            });;
+
+        // create restock button
+        new GUISlot(gui, 52)
+            .setItem(Material.CHEST)
+            .setLabel("Restock")
+            .onClick(() -> {
+                // clear out
+                this.gui.clearSlots();
+
+                // ---- create restock screen ---- //
+                frame.setTitle("Restock (Drag in items)");
+                frame.setSize(54);
+
+                // button to submit
+                String displayName = "Done";
+                InventoryView inventoryView = this.director.getPlayer().getOpenInventory();
+                new GUISlot(gui, 54)
+                    .setItem(Material.GREEN_DYE)
+                    .setLabel(displayName)
+                    .onClick(() -> {
+                        for (ItemStack item : inventoryView.getTopInventory().getContents()) {
+                            // if no item in the slot
+                            if (item == null) {
+                                continue;
+                            }
+
+                            // if the item is the submit button
+                            if (item.getItemMeta().getDisplayName().equals(displayName)) {
+                                continue;
+                            }
+
+                            Material itemMaterial = item.getType();
+                            Integer itemCount = item.getAmount();
+                            Integer inventoryCount = this.inventory.get(itemMaterial);
+                           
+                            // update inventory item
+                            if (inventoryCount != null) {
+                                this.inventory.put(itemMaterial, itemCount + inventoryCount);
+                                continue;
+                            }
+
+                            // submit new inventory item
+                            this.inventory.put(itemMaterial, itemCount);
+                            questBuilder.setInventory(this.inventory);
+                        };
+
+                        questBuilder.build().save(); // save the submitted items!!
+                        gui.clearSlots(); // blank the inner screen
+                        this.execute(); // re-populate the GUI with the main screen
+                    });
+
+                // show this restock inner screen
+                gui.getResult().draw();
+            });
+
+        // create prev button
+        new GUISlot(gui, 53)
+            .setItem(Material.GRAY_STAINED_GLASS_PANE)
+            .setLabel("Prev");
+
+        // create next button
+        new GUISlot(gui, 54)
+            .setItem(Material.GRAY_STAINED_GLASS_PANE)
+            .setLabel("Next");
+
+        // create slot for each inventory material
+        inventory.entrySet().stream().anyMatch((entry) -> {
+            Integer slot = gui.getEmptySlot();
+
+            if (slot == 45) {
+                return true; // exit out early
+            }
+
+            Material material = entry.getKey();
+            Integer amount = entry.getValue();
+
+            new GUISlot(gui, gui.getEmptySlot())
+                .setItem(material)
+                .setLabel(amount.toString());
+
+            return false; // continue
+        });
+    }    
+}
