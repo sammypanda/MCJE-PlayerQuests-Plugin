@@ -331,8 +331,6 @@ public class Quest {
      * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
-        Player player = Bukkit.getPlayer(creator);
-
         // do toggling
         if (toEnable) {
             toEnable = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
