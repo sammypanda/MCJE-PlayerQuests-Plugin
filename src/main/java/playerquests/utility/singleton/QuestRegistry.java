@@ -184,7 +184,7 @@ public class QuestRegistry {
         // check + error for if any NPCs can't be placed
         if (!this.canPlaceNPC(quest)) {
             return false;
-        };
+        }
 
         // install the quest into the world
         PlayerQuests.install(quest);

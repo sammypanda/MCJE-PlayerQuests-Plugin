@@ -1,9 +1,7 @@
 package playerquests.product;
 
 import java.io.IOException; // thrown if Quest cannot be saved
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
@@ -24,7 +22,6 @@ import com.fasterxml.jackson.databind.SerializationFeature; // used to configure
 
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.action.RewardItem;
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
@@ -334,14 +331,19 @@ public class Quest {
      * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
+        Player player = Bukkit.getPlayer(creator);
+
+        // do toggling
         if (toEnable) {
             toEnable = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
         } else {
             QuestRegistry.getInstance().untoggle(this);
         }
 
+        // store toggle state
         this.toggled = toEnable;
 
+        // preserve toggle state
         Database.getInstance().setQuestToggled( // update database state (when we can)
             this,
             toEnable
@@ -435,27 +437,6 @@ public class Quest {
      * @return the pool of quest resources.
      */
     public Map<Material, Integer> getInventory() {
-        Map<Material, Integer> predictiveInventory = new HashMap<>(this.inventory);
-
-        // get items the quest requires, from actions
-        this.getActions().forEach((_, action) -> {
-            // don't continue if not an eligible action
-            List<Class<?>> eligibleActions = Arrays.asList(RewardItem.class);
-            if (!eligibleActions.contains(action.getType())) {
-                return;
-            }
-
-            // get the required items
-            action.getItems().forEach(item -> {
-                Material material = item.getType();
-                Integer inventoryAmount = this.inventory.get(material);
-
-                if (inventoryAmount == null) {
-                    predictiveInventory.put(material, -1);
-                }
-            });
-        });
-
-        return predictiveInventory;
+        return this.inventory;
     }
 }

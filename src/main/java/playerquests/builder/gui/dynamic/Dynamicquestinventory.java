@@ -31,6 +31,11 @@ public class Dynamicquestinventory extends GUIDynamic {
     Map<Material, Integer> inventory;
 
     /**
+     * The required inventory.
+     */
+    Map<Material, Integer> requiredInventory;
+
+    /**
      * The quest the inventory is for.
      */
     QuestBuilder questBuilder;
@@ -51,6 +56,7 @@ public class Dynamicquestinventory extends GUIDynamic {
 
         // retrieve the items
         this.inventory = this.questBuilder.getInventory();
+        this.requiredInventory = this.questBuilder.getRequiredInventory();
     }
 
     @Override
@@ -157,11 +163,22 @@ public class Dynamicquestinventory extends GUIDynamic {
 
             Material material = entry.getKey();
             Integer amount = entry.getValue();
+            Integer requiredAmount = this.requiredInventory.get(material);
+            System.out.println("required: " + requiredAmount);
+
+            // set as amount 0 if none required
+            if (requiredAmount == null) {
+                requiredAmount = 0;
+            }
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(material)
                 .setLabel(
-                    amount > 0 ? amount.toString() : ChatColor.RED + "Out of Stock" + ChatColor.RESET
+                    amount > 0 
+                    ? (amount < requiredAmount 
+                        ? ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET 
+                        : Integer.toString(amount)) 
+                    : ChatColor.RED + "Out of Stock" + ChatColor.RESET
                 )
                 .setGlinting(
                     amount > 0 ? false : true

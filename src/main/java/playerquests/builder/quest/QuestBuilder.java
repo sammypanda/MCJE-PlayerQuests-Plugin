@@ -1,8 +1,10 @@
 package playerquests.builder.quest;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serial
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
 import playerquests.Core; // gets the KeyHandler singleton
+import playerquests.builder.quest.action.RewardItem;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
@@ -493,11 +496,54 @@ public class QuestBuilder {
     }
 
     /**
+     * Get how many of each item is required to be in the quest inventory.
+     * @return the minimum numbers of items required.
+     */
+    @JsonIgnore
+    public Map<Material, Integer> getRequiredInventory() {
+        Map<Material, Integer> requiredInventory = new HashMap<>();
+
+        // get items the quest requires, from actions
+        this.getStages().forEach(stage -> {
+            this.questPlan.get(stage).getActions().forEach((_, action) -> {
+                // don't continue if not an eligible action
+                List<Class<?>> eligibleActions = Arrays.asList(RewardItem.class);
+                if (!eligibleActions.contains(action.getType())) {
+                    return;
+                }
+
+                action.getItems().forEach(item -> {
+                    Material material = item.getType();
+                    Integer inventoryAmount = requiredInventory.get(material);
+
+                    if (inventoryAmount == null) {
+                        inventoryAmount = 0;
+                    }
+
+                    requiredInventory.put(material, inventoryAmount + item.getAmount());
+                });
+            });
+        });
+
+        return requiredInventory;
+    }
+
+    /**
      * Get the items and their stock amount.
      * @return the pool of quest resources.
      */
+    @JsonIgnore
     public Map<Material, Integer> getInventory() {
-        return this.inventory;
+        Map<Material, Integer> predictiveInventory = new HashMap<>(this.inventory);
+
+        // get items the quest requires
+        this.getRequiredInventory().keySet().forEach(material -> {
+            if (!predictiveInventory.containsKey(material)) {
+                predictiveInventory.put(material, -1);
+            }
+        });
+
+        return predictiveInventory;
     }
 
     /**
