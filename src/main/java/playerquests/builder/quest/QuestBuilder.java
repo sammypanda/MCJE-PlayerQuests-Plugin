@@ -504,6 +504,7 @@ public class QuestBuilder {
      * Set the items and their stock amount.
      * Also compares with the existing quest so we don't drop anything on mutual edits.
      * @param inventory the pool of quest resources.
+     * @return the state of the builder.
      */
     public QuestBuilder setInventory(Map<Material, Integer> inventory) {
         this.inventory = inventory;
@@ -512,6 +513,7 @@ public class QuestBuilder {
 
     /**
      * Get the would-be ID of this quest.
+     * @return the id for the quest.
      */
     public String getID() {
         // the player creating/editing/saving the quest

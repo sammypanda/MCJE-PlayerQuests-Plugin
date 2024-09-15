@@ -62,6 +62,11 @@ public class GUISlot {
     private Integer stackCount = 1; // 1 default, being no number shown
 
     /**
+     * If the slot item is shiny.
+     */
+    private Boolean glinting = false;
+
+    /**
      * Constructs a new {@code GUISlot} with the specified parent {@code GUIBuilder}.
      * @param builder The parent GUI builder managing this slot.
      * @param slotPosition The position of this slot in the GUI, starting at 1.
@@ -268,5 +273,23 @@ public class GUISlot {
      */
     public Integer getCount() {
         return this.stackCount;
+    }
+
+    /**
+     * Sets whether the item is shining/glinting.
+     * @param glinting if there is a glint.
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setGlinting(Boolean glinting) {
+        this.glinting = glinting;
+        return this;
+    }
+
+    /**
+     * Gets whether the item is shining/glinting.
+     * @return if there is a glint.
+     */
+    public boolean isGlinting() {
+        return this.glinting;
     }
 }

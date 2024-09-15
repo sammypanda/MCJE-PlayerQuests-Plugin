@@ -1,12 +1,19 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import net.md_5.bungee.api.ChatColor;
+import playerquests.Core;
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
@@ -48,6 +55,9 @@ public class Dynamicquestinventory extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
+        // sort the inventory ascending item amounts
+        this.sortInventory();
+
         // set the GUI style
         GUIFrame frame = this.gui.getFrame();
         frame.setSize(54);
@@ -99,17 +109,26 @@ public class Dynamicquestinventory extends GUIDynamic {
                             Integer inventoryCount = this.inventory.get(itemMaterial);
                            
                             // update inventory item
-                            if (inventoryCount != null) {
-                                this.inventory.put(itemMaterial, itemCount + inventoryCount);
+                            if (inventoryCount == null) {
+                                this.inventory.put(itemMaterial, itemCount);
                                 continue;
                             }
 
-                            // submit new inventory item
-                            this.inventory.put(itemMaterial, itemCount);
-                            questBuilder.setInventory(this.inventory);
+                            // un-notate (-1 is notated as out of stock)
+                            if (inventoryCount < 0) {
+                                inventoryCount = 0;
+                            }
+
+                            // update inventory item
+                            this.inventory.put(itemMaterial, itemCount + inventoryCount);
                         };
 
-                        questBuilder.build().save(); // save the submitted items!!
+                        // save the items!!
+                        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                            questBuilder.setInventory(this.inventory).build().save(); // set inv and save
+                        });
+
+                        // go back
                         gui.clearSlots(); // blank the inner screen
                         this.execute(); // re-populate the GUI with the main screen
                     });
@@ -141,9 +160,30 @@ public class Dynamicquestinventory extends GUIDynamic {
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(material)
-                .setLabel(amount.toString());
+                .setLabel(
+                    amount > 0 ? amount.toString() : ChatColor.RED + "Out of Stock" + ChatColor.RESET
+                )
+                .setGlinting(
+                    amount > 0 ? false : true
+                );
 
             return false; // continue
         });
+    }
+
+    private void sortInventory() {
+        // convert to sortable form
+        List<Entry<Material, Integer>> list = new ArrayList<>(this.inventory.entrySet());
+
+        // sort by amount
+        list.sort(Entry.comparingByValue());
+
+        // resubmit as linked list
+        Map<Material, Integer> sortedInventory = new LinkedHashMap<>();
+        for (Entry<Material, Integer> entry : list) {
+            sortedInventory.put(entry.getKey(), entry.getValue());
+        }
+
+        this.inventory = sortedInventory;
     }    
 }

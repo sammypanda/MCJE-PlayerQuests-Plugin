@@ -143,6 +143,11 @@ public class GUI {
                 );
             }
 
+            // Determine the glint
+            if (slot.isGlinting()) {
+                itemMeta.setEnchantmentGlintOverride(true);
+            }
+
             item.setAmount(slot.getCount());
 
             itemMeta.getPersistentDataContainer().set(Core.getGUIKey(), PersistentDataType.STRING, "true"); // set GUI=true

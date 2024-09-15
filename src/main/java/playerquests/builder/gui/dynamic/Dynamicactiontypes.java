@@ -127,7 +127,7 @@ public class Dynamicactiontypes extends GUIDynamic {
                 Class<?> classRef = Class.forName("playerquests.builder.quest.action." + type);
 
                 // Then it means the action type has been implemented:
-                if (stage.getActions().get(stage.getActionToEdit()).getType().equals(type)) { // compare action type being modified with action type in this loop
+                if (stage.getActions().get(stage.getActionToEdit()).getType().equals(classRef)) { // compare action type being modified with action type in this loop
                     typeButton.setItem("GLOWSTONE_DUST");
                     typeButton.setLabel(type + " (Selected)");
                 } else {

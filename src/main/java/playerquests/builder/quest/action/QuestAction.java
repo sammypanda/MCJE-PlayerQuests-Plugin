@@ -129,13 +129,13 @@ public abstract class QuestAction {
     }
 
     /**
-     * Gets the type of this action as a string.
+     * Gets the type of this action.
      * 
-     * @return The class name of the action type.
+     * @return The class of the action type.
      */
     @JsonIgnore
-    public String getType() {
-        return this.getClass().getSimpleName();
+    public Class<? extends QuestAction> getType() {
+        return this.getClass();
     }
 
     /** 
