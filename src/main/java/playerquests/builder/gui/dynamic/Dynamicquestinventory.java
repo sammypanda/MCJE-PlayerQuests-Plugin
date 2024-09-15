@@ -19,6 +19,8 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.client.ClientDirector;
+import playerquests.product.Quest;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Shows a dynamic GUI of the current quest stock/inventory.
@@ -29,6 +31,11 @@ public class Dynamicquestinventory extends GUIDynamic {
      * The quest inventory.
      */
     Map<Material, Integer> inventory;
+
+    /**
+     * The quest product.
+     */
+    Quest quest;
 
     /**
      * The required inventory.
@@ -53,10 +60,11 @@ public class Dynamicquestinventory extends GUIDynamic {
     protected void setUp_custom() {
         // builder for the quest we are editing
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
+        this.quest = this.questBuilder.build();
 
         // retrieve the items
-        this.inventory = this.questBuilder.getInventory();
-        this.requiredInventory = this.questBuilder.getRequiredInventory();
+        this.inventory = QuestRegistry.getInstance().getInventory(quest);
+        this.requiredInventory = this.quest .getRequiredInventory();
     }
 
     @Override
@@ -131,13 +139,13 @@ public class Dynamicquestinventory extends GUIDynamic {
 
                         // save the items!!
                         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-                            questBuilder.setInventory(this.inventory).build().save(); // set inv and save
+                            QuestRegistry.getInstance().setInventory(quest, this.inventory); // set inv and save
                         });
 
                         // go back
                         gui.clearSlots(); // blank the inner screen
                         this.execute(); // re-populate the GUI with the main screen
-                    });
+                    });         
 
                 // show this restock inner screen
                 gui.getResult().draw();
@@ -153,9 +161,14 @@ public class Dynamicquestinventory extends GUIDynamic {
             .setItem(Material.GRAY_STAINED_GLASS_PANE)
             .setLabel("Next");
 
+        // create inventory of required (and out of stock) and stocked
+        Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
+        if (this.requiredInventory != null) { requiredInventory.forEach((material, count) -> predictiveInventory.put(material, -1)); } // put required items (as missing)   
+        if (this.inventory != null) { predictiveInventory.putAll(this.inventory); } // put stocked items (and replace/compensate for missing)
+
         // create slot for each inventory material
-        inventory.entrySet().stream().anyMatch((entry) -> {
-            Integer slot = gui.getEmptySlot();
+        predictiveInventory.entrySet().stream().anyMatch((entry) -> {
+            Integer slot = gui.getEmptySlot();      
 
             if (slot == 45) {
                 return true; // exit out early
@@ -164,7 +177,6 @@ public class Dynamicquestinventory extends GUIDynamic {
             Material material = entry.getKey();
             Integer amount = entry.getValue();
             Integer requiredAmount = this.requiredInventory.get(material);
-            System.out.println("required: " + requiredAmount);
 
             // set as amount 0 if none required
             if (requiredAmount == null) {

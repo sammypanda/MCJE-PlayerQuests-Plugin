@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player; // representing players
 
 import playerquests.builder.quest.data.LocationData;
@@ -47,6 +48,11 @@ public class QuestRegistry {
     private final Map<Player, QuestClient> questers = new HashMap<Player, QuestClient>();
 
     /**
+     * The inventories belonging to quests.
+     */
+    private Map<String, Map<Material, Integer>> inventories = new HashMap<>();
+
+    /**
      * The resource folder quests are in
      */
     private final String questPath = "quest/templates";
@@ -54,9 +60,19 @@ public class QuestRegistry {
     /**
      * Private constructor to prevent instantiation.
      */
-    private QuestRegistry() {}
+    private QuestRegistry() {
+        // recover the quest inventories as stored in the db
+        loadQuestInventories();
+    }
 
     /**
+     * Read and parse quest inventories from the database.
+     */
+    private void loadQuestInventories() {
+        this.inventories = Database.getInstance().getAllQuestInventories();
+    }
+
+    /** 
      * Returns the QuestRegistry instance.
      * @return singleton instance of the quest registry.
      */
@@ -333,5 +349,26 @@ public class QuestRegistry {
         }
 
         return result;
+    }
+
+    /**
+     * Get the current inventory/stock levels of a quest.
+     * @param quest the quest to get the inventory of.
+     * @return the inventory.
+     */
+    public Map<Material, Integer> getInventory(Quest quest) {
+        return this.inventories.get(quest.getID());
+    }
+
+    /**
+     * Set the current inventory/stock levels of a quest.
+     * @param quest quest to set for.
+     * @param inventory the inventory item/quantity map.
+     */
+    public void setInventory(Quest quest, Map<Material, Integer> inventory) {
+        this.inventories.put(questPath, inventory);
+
+        // preserve in database
+        Database.getInstance().setQuestInventory(quest, inventory);
     }
 }

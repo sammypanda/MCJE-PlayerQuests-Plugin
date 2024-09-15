@@ -1,7 +1,9 @@
 package playerquests.product;
 
 import java.io.IOException; // thrown if Quest cannot be saved
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.databind.SerializationFeature; // used to configure
 
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.action.RewardItem;
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
@@ -78,12 +81,6 @@ public class Quest {
      * The ID of this quest.
      */
     private String id;
-
-    /**
-     * The inventory of this quest.
-     * Resources that can be pulled from.
-     */
-    private Map<Material, Integer> inventory = Map.of();
     
     /**
      * Constructs a new Quest with the specified parameters.
@@ -94,8 +91,7 @@ public class Quest {
      * @param stages A map of stages used in the quest.
      * @param creator The UUID of the player who created the quest.
      * @param toggled Whether the quest is toggled (enabled).
-     * @param id the id of the quest.
-     * @param inventoryState what items/resources are stocked.
+     * @param id the id of the quest.   
      */
     public Quest(
         @JsonProperty("title") String title, 
@@ -104,8 +100,7 @@ public class Quest {
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
         @JsonProperty("toggled") Boolean toggled,
-        @JsonProperty("id") String id,
-        @JsonProperty("inventory") Map<Material, Integer> inventoryState
+        @JsonProperty("id") String id
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
@@ -138,9 +133,6 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
-
-        // Set inventory
-        this.inventory = inventoryState;
 
         // Submit quest to the registry
         QuestRegistry.getInstance().submit(this);
@@ -431,10 +423,33 @@ public class Quest {
     }
 
     /**
-     * Get the items and their stock amount.
-     * @return the pool of quest resources.
+     * Get how many of each item is required to be in the quest inventory.
+     * @return the minimum numbers of items required.
      */
-    public Map<Material, Integer> getInventory() {
-        return this.inventory;
+    @JsonIgnore
+    public Map<Material, Integer> getRequiredInventory() {
+        Map<Material, Integer> requiredInventory = new HashMap<>();
+
+        // get items the quest requires, from actions
+        this.getActions().forEach((_, action) -> {
+            // don't continue if not an eligible action
+            List<Class<?>> eligibleActions = Arrays.asList(RewardItem.class);
+            if (!eligibleActions.contains(action.getType())) {
+                return;
+            }
+
+            action.getItems().forEach(item -> {
+                Material material = item.getType();
+                Integer inventoryAmount = requiredInventory.get(material);
+
+                if (inventoryAmount == null) {
+                    inventoryAmount = 0;
+                }
+
+                requiredInventory.put(material, inventoryAmount + item.getAmount());
+            });
+        });
+
+        return requiredInventory;
     }
 }

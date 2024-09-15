@@ -1,10 +1,8 @@
 package playerquests.builder.quest;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
@@ -18,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serial
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
 import playerquests.Core; // gets the KeyHandler singleton
-import playerquests.builder.quest.action.RewardItem;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
@@ -165,9 +162,6 @@ public class QuestBuilder {
                 // set as the current quest in the director
                 director.setCurrentInstance(this);
             }
-
-            // set the inventory
-            this.inventory = product.getInventory();
 
             // create quest product from this builder
             this.build();
@@ -414,8 +408,7 @@ public class QuestBuilder {
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
             true, // always toggle cloned quests on when freshly cloned
-            this.getID(),
-            this.inventory
+            this.getID()
         );
 
         // set this quest as in-focus to the creator
@@ -493,73 +486,6 @@ public class QuestBuilder {
         }
 
         return this.build().isValid();
-    }
-
-    /**
-     * Get how many of each item is required to be in the quest inventory.
-     * @return the minimum numbers of items required.
-     */
-    @JsonIgnore
-    public Map<Material, Integer> getRequiredInventory() {
-        Map<Material, Integer> requiredInventory = new HashMap<>();
-
-        // get items the quest requires, from actions
-        this.getStages().forEach(stage -> {
-            this.questPlan.get(stage).getActions().forEach((_, action) -> {
-                // don't continue if not an eligible action
-                List<Class<?>> eligibleActions = Arrays.asList(RewardItem.class);
-                if (!eligibleActions.contains(action.getType())) {
-                    return;
-                }
-
-                action.getItems().forEach(item -> {
-                    Material material = item.getType();
-                    Integer inventoryAmount = requiredInventory.get(material);
-
-                    if (inventoryAmount == null) {
-                        inventoryAmount = 0;
-                    }
-
-                    requiredInventory.put(material, inventoryAmount + item.getAmount());
-                });
-            });
-        });
-
-        return requiredInventory;
-    }
-
-    /**
-     * Get the items and their stock amount.
-     * @return the pool of quest resources.
-     */
-    @JsonIgnore
-    public Map<Material, Integer> getInventory() {
-        Map<Material, Integer> predictiveInventory = new HashMap<>();
-
-        // add current inventory
-        if (this.inventory != null) {
-            predictiveInventory.putAll(this.inventory);
-        }
-
-        // get items the quest requires
-        this.getRequiredInventory().keySet().forEach(material -> {
-            if (!predictiveInventory.containsKey(material)) {
-                predictiveInventory.put(material, -1);
-            }
-        });
-
-        return predictiveInventory;
-    }
-
-    /**
-     * Set the items and their stock amount.
-     * Also compares with the existing quest so we don't drop anything on mutual edits.
-     * @param inventory the pool of quest resources.
-     * @return the state of the builder.
-     */
-    public QuestBuilder setInventory(Map<Material, Integer> inventory) {
-        this.inventory = inventory;
-        return this;
     }
 
     /**
