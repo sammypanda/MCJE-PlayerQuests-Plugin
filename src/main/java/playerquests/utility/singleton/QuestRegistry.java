@@ -366,7 +366,7 @@ public class QuestRegistry {
      * @param inventory the inventory item/quantity map.
      */
     public void setInventory(Quest quest, Map<Material, Integer> inventory) {
-        this.inventories.put(questPath, inventory);
+        this.inventories.put(quest.getID(), inventory);
 
         // preserve in database
         Database.getInstance().setQuestInventory(quest, inventory);
