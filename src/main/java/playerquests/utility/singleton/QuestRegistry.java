@@ -353,11 +353,22 @@ public class QuestRegistry {
 
     /**
      * Get the current inventory/stock levels of a quest.
+     * 
+     * Never returns null, if it doesn't exist, it will 
+     * create (and submit) an empty map.
+     * 
      * @param quest the quest to get the inventory of.
      * @return the inventory.
      */
     public Map<Material, Integer> getInventory(Quest quest) {
-        return this.inventories.get(quest.getID());
+        Map<Material, Integer> inventory = this.inventories.get(quest.getID());
+
+        if (inventory == null) {
+            inventory = new HashMap<>();
+            this.setInventory(quest, inventory);
+        }
+
+        return inventory;
     }
 
     /**
