@@ -50,6 +50,12 @@ public class PluginUtils {
         });
     }
 
+    /**
+     * Get the current inventory and what is needed in one map.
+     * @param quest the quest to predict needed inventory for.
+     * @param inventory the current inventory without any required.
+     * @return the current inventory combined with the required one.
+     */
     public static Map<Material, Integer> getPredictiveInventory(Quest quest, Map<Material, Integer> inventory) {
         // create inventory of required (and out of stock) and stocked
         Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
