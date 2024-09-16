@@ -91,7 +91,6 @@ public class Quest {
      * @param npcs A map of NPCs used in the quest.
      * @param stages A map of stages used in the quest.
      * @param creator The UUID of the player who created the quest.
-     * @param toggled Whether the quest is toggled (enabled).
      * @param id the id of the quest.   
      */
     public Quest(
@@ -100,7 +99,6 @@ public class Quest {
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
-        @JsonProperty("toggled") Boolean toggled,
         @JsonProperty("id") String id
     ) {
         // adding to key-value pattern handler
@@ -118,9 +116,6 @@ public class Quest {
         this.stages = stages;
         this.creator = creator;
 
-        // determine if should be toggled
-        this.toggled = Database.getInstance().getQuestToggled(this);
-
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (stages != null) {
             for (QuestStage stage : stages.values()) {
@@ -134,9 +129,6 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
-
-        // Submit quest to the registry
-        QuestRegistry.getInstance().submit(this);
     }
 
     /**

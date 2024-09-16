@@ -407,7 +407,6 @@ public class QuestBuilder {
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
-            true, // always toggle cloned quests on when freshly cloned
             this.getID()
         );
 
