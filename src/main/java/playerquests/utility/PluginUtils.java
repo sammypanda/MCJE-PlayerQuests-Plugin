@@ -1,8 +1,14 @@
 package playerquests.utility;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
+
+import org.bukkit.Material;
+
+import playerquests.product.Quest;
 
 /**
  * Utility class containing methods for common plugin-related operations.
@@ -42,5 +48,23 @@ public class PluginUtils {
         .ifPresent(index -> {
             throw new IllegalArgumentException("Parameter at index " + index + " does not match the expected type");
         });
+    }
+
+    public static Map<Material, Integer> getPredictiveInventory(Quest quest, Map<Material, Integer> inventory) {
+        // create inventory of required (and out of stock) and stocked
+        Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
+        Map<Material, Integer> requiredInventory = quest.getRequiredInventory();
+
+        // put required items (as missing)
+        if (requiredInventory != null) { 
+            requiredInventory.forEach((material, count) -> predictiveInventory.put(material, -1)); 
+        }
+        
+        // put stocked items (and replace/compensate for missing)
+        if (inventory != null) { 
+            predictiveInventory.putAll(inventory); 
+        }
+        
+        return predictiveInventory;
     }
 }

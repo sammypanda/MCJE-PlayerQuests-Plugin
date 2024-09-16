@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.ChatPrompt;
-import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageBuilder;

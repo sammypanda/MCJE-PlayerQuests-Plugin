@@ -8,19 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import net.md_5.bungee.api.ChatColor;
-import playerquests.Core;
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
+import playerquests.utility.PluginUtils;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -65,7 +64,7 @@ public class Dynamicquestinventory extends GUIDynamic {
 
         // retrieve the items
         this.inventory = QuestRegistry.getInstance().getInventory(quest);
-        this.requiredInventory = this.quest .getRequiredInventory();
+        this.requiredInventory = this.quest.getRequiredInventory();
     }
 
     @Override
@@ -121,32 +120,24 @@ public class Dynamicquestinventory extends GUIDynamic {
 
                             Material itemMaterial = item.getType();
                             Integer itemCount = item.getAmount();
-                            Integer inventoryCount = this.inventory.get(itemMaterial);
-                           
+                            final Integer inventoryCount = this.inventory.get(itemMaterial);
+
                             // update inventory item
                             if (inventoryCount == null) {
                                 this.inventory.put(itemMaterial, itemCount);
                                 continue;
                             }
-
-                            // un-notate (-1 is notated as out of stock)
-                            if (inventoryCount < 0) {
-                                inventoryCount = 0;
-                            }
-
-                            // update inventory item
+                            
                             this.inventory.put(itemMaterial, itemCount + inventoryCount);
                         };
 
                         // save the items!!
-                        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-                            QuestRegistry.getInstance().setInventory(quest, this.inventory); // set inv and save
-                        });
+                        QuestRegistry.getInstance().setInventory(quest, this.inventory); // set inv and save
 
                         // go back
                         gui.clearSlots(); // blank the inner screen
                         this.execute(); // re-populate the GUI with the main screen
-                    });         
+                    });
 
                 // show this restock inner screen
                 gui.getResult().draw();
@@ -163,9 +154,7 @@ public class Dynamicquestinventory extends GUIDynamic {
             .setLabel("Next");
 
         // create inventory of required (and out of stock) and stocked
-        Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
-        if (this.requiredInventory != null) { requiredInventory.forEach((material, count) -> predictiveInventory.put(material, -1)); } // put required items (as missing)   
-        if (this.inventory != null) { predictiveInventory.putAll(this.inventory); } // put stocked items (and replace/compensate for missing)
+        Map<Material, Integer> predictiveInventory = PluginUtils.getPredictiveInventory(quest, this.inventory);
 
         // create slot for each inventory material
         predictiveInventory.entrySet().stream().anyMatch((entry) -> {

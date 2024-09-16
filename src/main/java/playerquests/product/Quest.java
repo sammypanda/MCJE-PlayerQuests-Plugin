@@ -35,6 +35,7 @@ import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
+import playerquests.utility.PluginUtils;
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database; // the preservation everything store
 import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
@@ -323,6 +324,11 @@ public class Quest {
      * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
+        // check if able to be toggled
+        if (!isAllowed()) {
+            toEnable = false;
+        }
+
         // do toggling
         if (toEnable) {
             toEnable = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
@@ -369,13 +375,13 @@ public class Quest {
 
         // Validate quest entry
         if (this.entry == null) {
-            response.content(String.format("The %s quest has no starting point", this.title));
+            response.content(String.format("The '%s' quest has no starting point", this.title));
             isValid = false;
         }
 
         // Validate quest stages
         if (this.stages == null || this.stages.isEmpty()) {
-            response.content(String.format("The %s quest has no stages", this.title));
+            response.content(String.format("The '%s' quest has no stages", this.title));
             isValid = false;
         }
 
@@ -385,6 +391,47 @@ public class Quest {
         }
 
         return isValid;
+    }
+
+    /**
+     * Checks if this quest should be allowed to be enabled.
+     * 
+     * @return Whether the quest is allowed to be enabled.
+     */
+    @JsonIgnore
+    public boolean isAllowed() {
+        UUID questCreator = this.creator;
+        Player player = null;
+        MessageBuilder response = new MessageBuilder("Cannot enable the quest") // default message; default sends to console
+            .type(MessageType.ERROR)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN);
+        boolean isAllowed = true; // assume valid unless errors are found
+
+        // Check if the player is valid and set the player object if a creator is present
+        if (questCreator != null) {
+            player = Bukkit.getPlayer(questCreator); // get player from UUID
+            response.player(player).style(MessageStyle.PRETTY); // set message target to player if player is found
+        }
+
+        // Validate quest title
+        isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
+            Integer amount = entry.getValue();
+
+            if (amount <= 0) {
+                response.content(String.format("The '%s' quest is missing some stock", this.title));
+                return true; // exit
+            }
+
+            return false; // continue
+        });
+
+        // send the response
+        if (!isAllowed) {
+            response.send(); // send our :( message
+        }
+
+        return isAllowed;
     }
 
     /**

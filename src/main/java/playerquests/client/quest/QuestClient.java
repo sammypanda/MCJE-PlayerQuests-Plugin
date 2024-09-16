@@ -20,6 +20,7 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
 import playerquests.product.Quest; // represents a player quest
 import playerquests.utility.singleton.Database; // the preservation/backup store
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Quest tracking and interactions for each player.
@@ -114,7 +115,7 @@ public class QuestClient {
      */
     public synchronized void hideFX() {
         // get all active effects and cancel
-        this.activeFX.stream().forEach((task) -> {
+        this.activeFX.forEach((task) -> {
             // cancel FX loops
             scheduler.cancelTask(task.getTaskId());
         });
@@ -178,7 +179,6 @@ public class QuestClient {
      */
     public void removeQuest(Quest quest) {
         this.diary.removeQuest(quest);
-
         this.update(); // reflect changes
     }
 
@@ -212,11 +212,16 @@ public class QuestClient {
      * @param action the current question action to continue past.
      */
     public void gotoNext(QuestAction action) {
-        Quest quest = action.getStage().getQuest();
+        Quest quest = QuestRegistry.getInstance().getQuest(action.getStage().getQuest().getID());
         QuestNPC npc = action.getNPC();
 
         // Don't continue if there is no quest or action for this interaction
         if (action == null || quest == null) {
+            return;
+        }
+
+        // don't continue if untoggled
+        if (!quest.isToggled()) {
             return;
         }
 
@@ -237,26 +242,27 @@ public class QuestClient {
         updatedConnections.setPrev(diaryConnections.getCurr());
         updatedConnections.setCurr(next_step);
 
-        // update the diary
-        this.diary.setQuestProgress(quest, updatedConnections);
+        // run in sequence
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            // update the diary
+            this.diary.setQuestProgress(quest, updatedConnections);
 
-        // update the db for preservation sake
-        Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
+            // update the db for preservation sake
+            Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
 
-        if (npc != null) {
-            // remove NPCs pending interaction marker/sparkle
-            this.actionNPC.remove(npc);
-        }
+            if (npc != null) {
+                // remove NPCs pending interaction marker/sparkle
+                this.actionNPC.remove(npc);
+            }
 
-        // auto-execute next auto if no npc to wait for
-        QuestAction nextAction = next_step.getAction(quest);
-        if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
-            Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            // auto-execute next auto if no npc to wait for
+            QuestAction nextAction = next_step.getAction(quest);
+            if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
                 next_step.getAction(quest).Run(this);
-            });
-        }
+            }
 
-        // update quest state
-        this.update();
+            // update quest state
+            this.update();
+        });
     }
 }
