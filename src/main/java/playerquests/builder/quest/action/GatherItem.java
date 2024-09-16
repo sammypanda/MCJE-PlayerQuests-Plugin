@@ -228,12 +228,10 @@ public class GatherItem extends QuestAction {
 
     @Override
     public List<ActionOption> initOptions() {
-        List<ActionOption> options = List.of();
-
-        options.add(ActionOption.ITEMS);
-        options.add(ActionOption.FINISH_MESSAGE);
-
-        return options;
+        return Arrays.asList(
+            ActionOption.ITEMS,
+            ActionOption.FINISH_MESSAGE
+        );
     }
 
     @Override
