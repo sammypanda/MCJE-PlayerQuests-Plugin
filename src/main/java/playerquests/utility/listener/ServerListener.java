@@ -192,6 +192,7 @@ public class ServerListener implements Listener {
                     return;
                 }
 
+                newQuest.save(); // submit to registry
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {

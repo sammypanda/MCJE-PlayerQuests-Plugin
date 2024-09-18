@@ -1,7 +1,7 @@
 package playerquests.product;
 
-import java.util.ArrayList; // array type of list
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 
@@ -131,7 +131,7 @@ public class GUI {
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
 
             // Strip the ItemMeta
-            itemMeta.setLore(new ArrayList<String>());
+            itemMeta.setLore(List.of());
 
             // Edit the ItemMeta
             itemMeta.setDisplayName(slot.getLabel()); // set the slot label
@@ -141,6 +141,11 @@ public class GUI {
                 itemMeta.setLore( // set the slot description
                     Arrays.asList(slot.getDescription()) // list: each line of the description
                 );
+            }
+
+            // Determine the glint
+            if (slot.isGlinting()) {
+                itemMeta.setEnchantmentGlintOverride(true);
             }
 
             item.setAmount(slot.getCount());

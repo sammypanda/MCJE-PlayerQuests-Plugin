@@ -51,9 +51,9 @@ public class GatherItem extends QuestAction {
         private QuestClient quester;
 
         /**
-         * Constructs a new {@code SelectBlockListener}.
+         * Constructs a new {@code SelectMaterialListener}.
          *
-         * @param parent the parent {@code SelectBlock} instance
+         * @param parent the parent {@code SelectMaterial} instance
          * @param player the player associated with this listener
          */
         public GatherItemListener(GatherItem parent, QuestClient quester) {
@@ -138,7 +138,7 @@ public class GatherItem extends QuestAction {
         Map<Material, Integer> itemsCollected = new HashMap<Material, Integer>();
 
         // set up list of inventory items to loop through (and add the unaccounted for late item)
-        List<ItemStack> inventoryList = new ArrayList<ItemStack>(Arrays.asList(inventory.getContents()));
+        List<ItemStack> inventoryList = new ArrayList<>(Arrays.asList(inventory.getContents()));
         if (lateItem != null) { inventoryList.add(lateItem); }
 
         // check item list against inventory, until fail
@@ -228,12 +228,10 @@ public class GatherItem extends QuestAction {
 
     @Override
     public List<ActionOption> initOptions() {
-        List<ActionOption> options = new ArrayList<ActionOption>();
-
-        options.add(ActionOption.ITEMS);
-        options.add(ActionOption.FINISH_MESSAGE);
-
-        return options;
+        return Arrays.asList(
+            ActionOption.ITEMS,
+            ActionOption.FINISH_MESSAGE
+        );
     }
 
     @Override

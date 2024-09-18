@@ -25,6 +25,7 @@ import java.util.UUID; // how users are identified
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.bukkit.Bukkit; // the Bukkit API
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
@@ -147,7 +148,8 @@ public class Database {
             
             String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
             + "id TEXT PRIMARY KEY,"
-            + "toggled BOOLEAN NOT NULL DEFAULT TRUE);";
+            + "toggled BOOLEAN NOT NULL DEFAULT TRUE,"
+            + "inventory TEXT NOT NULL DEFAULT '{ }');";
             statement.execute(questsTableSQL);
             
             String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
@@ -232,6 +234,7 @@ public class Database {
             
             switch (version) {
                 case "0.7":
+                    query.append(MigrationUtils.dbV0_7());
                 case "0.6":
                 case "0.5.2":
                 case "0.5.1":
@@ -717,4 +720,73 @@ public class Database {
             return null;
         }
 	}
+
+    /**
+     * Updates the inventory for a specific quest in the database.
+     * 
+     * This method inserts or updates the inventory associated with the given quest. If a record with the same
+     * quest ID already exists in the database, the inventory will be updated with the new values provided. 
+     * The inventory is represented as a map of materials to quantities, which is converted to a string for storage.
+     *
+     * @param quest The {@link Quest} object representing the quest whose inventory is to be set.
+     * @param inventory A {@link Map} where keys are {@link Material} representing the items in the inventory, 
+     *                  and values are {@link Integer} representing the quantities of those items.
+     */
+    public void setQuestInventory(Quest quest, Map<Material, Integer> inventory) {
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id, inventory) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET inventory = EXCLUDED.inventory")) {
+
+            // preparedStatement
+            preparedStatement.setString(1, quest.getID());
+            preparedStatement.setString(2, inventory.toString());
+            preparedStatement.execute();
+            
+        } catch (SQLException e) {
+            System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
+        }
+    }
+
+    /**
+     * Retrieves all quest inventories from the database.
+     * 
+     * @return A map of quest inventory maps retrieved from the database, or an empty map if an error occurs.
+     */
+    public synchronized Map<String, Map<Material, Integer>> getAllQuestInventories() {
+        Map<String, Map<Material, Integer>> inventories = new HashMap<>();
+
+        try (Connection connection = getConnection();
+        Statement statement = connection.createStatement()) {
+            
+            String allQuestsSQL = "SELECT id, inventory FROM quests;";
+            ResultSet result = statement.executeQuery(allQuestsSQL);
+            
+            while (result.next()) {
+                Map<Material, Integer> inventoryMap = new HashMap<>();
+                String[] pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
+        
+                for (String pair : pairs) {
+                    String[] keyValue = pair.split("=");
+                    if (keyValue.length == 2) {
+                        Material material = Material.matchMaterial(keyValue[0].trim());
+                        Integer quantity;
+                        try {
+                            quantity = Integer.parseInt(keyValue[1].trim());
+                        } catch (NumberFormatException e) {
+                            // Handle the case where the quantity is not a valid integer
+                            System.err.println("Invalid quantity format: " + keyValue[1]);
+                            continue;
+                        }
+                        inventoryMap.put(material, quantity);   
+                    }
+                }
+
+                inventories.put(result.getString("id"), inventoryMap);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Could not retrieve quests from database. " + e.getMessage());
+        }
+
+        return inventories;
+    }
 }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors; // accumulating elements from a stream into 
 import java.util.stream.IntStream; // used to iterate over a range
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
@@ -77,6 +78,11 @@ public class QuestBuilder {
     private UUID originalCreator;
 
     /**
+     * The amount of stock in the quest.
+     */
+    private Map<Material, Integer> inventory = new HashMap<>();
+
+    /**
      * Operations to run whenever the class is instantiated.
      * This block registers the instance with the KeyHandler.
      */
@@ -143,6 +149,7 @@ public class QuestBuilder {
                 this.questNPCs.put(id, npc);
             });
 
+            // set the creator (if applicable, otherwise it's a universal quest)
             if (product.getCreator() == null) {
                 // set the quest as a universal one
                 this.universal = true;
@@ -400,7 +407,7 @@ public class QuestBuilder {
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
-            true // always toggle cloned quests on when freshly cloned
+            this.getID()
         );
 
         // set this quest as in-focus to the creator
@@ -478,5 +485,20 @@ public class QuestBuilder {
         }
 
         return this.build().isValid();
+    }
+
+    /**
+     * Get the would-be ID of this quest.
+     * @return the id for the quest.
+     */
+    public String getID() {
+        // the player creating/editing/saving the quest
+        String creator = this.getDirector().getPlayer().getUniqueId().toString(); 
+
+        // the format of the ID
+        return String.format("%s%s", 
+            title, 
+            creator != null ? "_"+creator : ""
+        );
     }
 }

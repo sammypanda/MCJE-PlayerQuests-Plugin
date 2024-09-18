@@ -13,7 +13,7 @@ Realistically 'Quest Actions' won't ever have to be called by their function nam
 | UpdateScreen               | 1: the dynamic GUI name                                                                                       | Changes the current GUI screen to a different GUI                         |
 | ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "none", "gui.title", "quest.title") | Prompts the user to sets a text value (by typing in the chat box)         |
 | Save                       | 1. key of instance to save (options: "quest")                                                                 | Calls the defined save processes for instances                            |
-| SelectBlock                | 1. the prompt to show the user<br>2. list of denied blocks<br>3. list of denied methods                       | Prompts the user to select a block (by hitting or selecting in inventory) |
+| SelectMaterial             | 1. the prompt to show the user<br>2. list of denied materials<br>3. list of denied methods<br>4. if has to be a block | Prompts the user to select a block (by hitting or selecting in inventory) |
 | SelectLocation             | 1. the prompt to show the user                                                                                | Prompts the user to place a block to set it as the location               |
 
 ###### Quest Actions (Actions)
@@ -34,6 +34,9 @@ Usually you would never need this, but this is what makes it all tick. When you 
     "entry": String, // Path: (as in 'entry point') where the quest starts
     "creator": UUID, // the player who created this quest
     "id": String, // the id, composed of: [Quest Title]_[Creator UUID]
+    "inventory": {
+        "[a minecraft material]": Integer // for instance: "BIRCH_LOG" : 1
+    },
     "npcs": { // directory of all the quest npcs
         "npc_0": { // NPC ID (automatically generated)
             "name": String, // the name of the NPC

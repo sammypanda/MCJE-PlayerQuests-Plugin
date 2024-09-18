@@ -16,6 +16,8 @@ import org.bukkit.inventory.PlayerInventory;
 import playerquests.builder.quest.data.ActionOption;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
+import playerquests.product.Quest;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Action for taking an item from the quester.
@@ -145,6 +147,8 @@ public class TakeItem extends QuestAction {
         PlayerInventory inventory = player.getInventory();
         Map<Material, Integer> remainingItems = new HashMap<>(this.items);
         ItemStack emptyItem = new ItemStack(Material.AIR, 0);
+        Quest quest = QuestRegistry.getInstance().getQuest(this.getStage().getQuest().getID());
+        Map<Material, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
 
         Boolean success = IntStream.range(0, inventory.getSize())
             .anyMatch((slot) -> {
@@ -178,6 +182,21 @@ public class TakeItem extends QuestAction {
                 // add it to the list, in case, for instance we have 10 ItemStacks with 1 item amount.
                 remainingItems.put(material, remainingItemCount + takeItemCount);
 
+                // if count is under how much we want to take
+                if (count < takeItemCount) {
+                    remainingItems.put(material, takeItemCount - count); // subtract how much we had in this stack from the remaining items list
+                    inventory.setItem(slot, emptyItem); // remove the stack completely
+                    return false;
+                }
+
+                // give to inventory
+                Integer inventoryCount = questInventory.get(material);
+                if (inventoryCount != null) {
+                    questInventory.put(material, inventoryCount + takeItemCount);
+                } else {
+                    questInventory.put(material, count);
+                }
+
                 // if count matches the same as how much we want to take
                 if (count == takeItemCount) {
                     remainingItems.remove(material);
@@ -192,13 +211,7 @@ public class TakeItem extends QuestAction {
                     return false;
                 }
 
-                // if count is under how much we want to take
-                if (count < takeItemCount) {
-                    remainingItems.put(material, takeItemCount - count); // subtract how much we had in this stack from the remaining items list
-                    inventory.setItem(slot, emptyItem); // remove the stack completely
-                    return false;
-                }
-
+                // continue
                 return false;
             });
 
@@ -207,7 +220,8 @@ public class TakeItem extends QuestAction {
             return false;
         }
 
-        // mark as successful
+        // mark as successful and submit to inventory
+        QuestRegistry.getInstance().setInventory(quest, questInventory);
         return true;
     }
 

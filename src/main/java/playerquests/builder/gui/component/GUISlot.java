@@ -44,7 +44,7 @@ public class GUISlot {
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
      */
-    private List<GUIFunction> functionList = new ArrayList<GUIFunction>();
+    private List<GUIFunction> functionList = new ArrayList<>();
 
     /**
      * Indicates whether the slot has encountered a syntax error. Defaults to {@code false}.
@@ -60,6 +60,11 @@ public class GUISlot {
      * The stack count for the item in this slot, indicating quantity. Defaults to 1.
      */
     private Integer stackCount = 1; // 1 default, being no number shown
+
+    /**
+     * If the slot item is shiny.
+     */
+    private Boolean glinting = false;
 
     /**
      * Constructs a new {@code GUISlot} with the specified parent {@code GUIBuilder}.
@@ -268,5 +273,23 @@ public class GUISlot {
      */
     public Integer getCount() {
         return this.stackCount;
+    }
+
+    /**
+     * Sets whether the item is shining/glinting.
+     * @param glinting if there is a glint.
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setGlinting(Boolean glinting) {
+        this.glinting = glinting;
+        return this;
+    }
+
+    /**
+     * Gets whether the item is shining/glinting.
+     * @return if there is a glint.
+     */
+    public boolean isGlinting() {
+        return this.glinting;
     }
 }

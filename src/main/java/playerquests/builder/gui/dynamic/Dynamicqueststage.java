@@ -75,7 +75,7 @@ public class Dynamicqueststage extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList("queststages")), // set the previous screen 
+            Arrays.asList("queststages"), // set the previous screen 
             director // set the client director
         ));
 
@@ -94,7 +94,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 this.director.setCurrentInstance(this.questStage.getConnections());
 
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    Arrays.asList("connectioneditor"), 
                     director
                 ).execute();
             });
@@ -125,7 +125,7 @@ public class Dynamicqueststage extends GUIDynamic {
                     this.questStage.setActionToEdit(actionKeys.get(index));
                     // prep the screen to be updated
                     actionSlot.addFunction(new UpdateScreen(
-                        new ArrayList<>(Arrays.asList("actioneditor")), 
+                        Arrays.asList("actioneditor"), 
                         director
                     ));
                     // manually start the slot functions (updating of the screen)
@@ -155,7 +155,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 .onClick(() -> {
                     if (this.questBuilder.removeStage(this.questStage)) { // if quest was removed
                         new UpdateScreen(
-                            new ArrayList<>(Arrays.asList(previousScreen)), 
+                            Arrays.asList(previousScreen), 
                             this.director
                         ).execute();
 

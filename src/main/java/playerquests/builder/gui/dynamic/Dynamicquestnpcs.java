@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // array list type
 import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
@@ -88,7 +87,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
                 this.director.setCurrentInstance(npc);
 
                 // declare swapping to 'questnpc' screen
-                new UpdateScreen(new ArrayList<>(Arrays.asList("npceditor")), director).execute();
+                new UpdateScreen(Arrays.asList("npceditor"), director).execute();
             });
         });
 
@@ -103,7 +102,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
             this.director.setCurrentInstance(npc);
 
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList("npceditor")), 
+                Arrays.asList("npceditor"), 
                 director
             ).execute();
         });
@@ -113,7 +112,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         backButton.setLabel("Back");
         backButton.setItem("OAK_DOOR");
         backButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director
         ));
     }

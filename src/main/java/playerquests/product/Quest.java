@@ -1,11 +1,14 @@
 package playerquests.product;
 
 import java.io.IOException; // thrown if Quest cannot be saved
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
 import org.bukkit.Bukkit; // Bukkit API
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,6 +24,7 @@ import com.fasterxml.jackson.databind.SerializationFeature; // used to configure
 
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.action.RewardItem;
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
@@ -31,6 +35,7 @@ import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
+import playerquests.utility.PluginUtils;
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database; // the preservation everything store
 import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
@@ -72,6 +77,11 @@ public class Quest {
      * If the quest is toggled.
      */
     private Boolean toggled = true;
+
+    /**
+     * The ID of this quest.
+     */
+    private String id;
     
     /**
      * Constructs a new Quest with the specified parameters.
@@ -81,7 +91,7 @@ public class Quest {
      * @param npcs A map of NPCs used in the quest.
      * @param stages A map of stages used in the quest.
      * @param creator The UUID of the player who created the quest.
-     * @param toggled Whether the quest is toggled (enabled).
+     * @param id the id of the quest.   
      */
     public Quest(
         @JsonProperty("title") String title, 
@@ -89,12 +99,14 @@ public class Quest {
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
-        @JsonProperty("toggled") Boolean toggled
+        @JsonProperty("id") String id
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
 
         this.title = title;
+
+        this.id = id;
         
         if (entry != null) {
             this.entry = entry;
@@ -103,9 +115,6 @@ public class Quest {
         this.npcs = npcs;
         this.stages = stages;
         this.creator = creator;
-
-        // determine if should be toggled
-        this.toggled = Database.getInstance().getQuestToggled(this);
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (stages != null) {
@@ -120,9 +129,6 @@ public class Quest {
                 npc.setQuest(this);
             }
         }
-
-        // Submit quest to the registry
-        QuestRegistry.getInstance().submit(this);
     }
 
     /**
@@ -216,10 +222,7 @@ public class Quest {
      */
     @JsonProperty("id") 
     public String getID() {
-        return String.format("%s%s", 
-            title, 
-            creator != null ? "_"+creator : ""
-        );
+        return this.id;
     }
 
     /**
@@ -313,14 +316,22 @@ public class Quest {
      * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
+        // check if able to be toggled
+        if (!isAllowed()) {
+            toEnable = false;
+        }
+
+        // do toggling
         if (toEnable) {
             toEnable = QuestRegistry.getInstance().toggle(this); // can overwrite toggle with false, if failed
         } else {
             QuestRegistry.getInstance().untoggle(this);
         }
 
+        // store toggle state
         this.toggled = toEnable;
 
+        // preserve toggle state
         Database.getInstance().setQuestToggled( // update database state (when we can)
             this,
             toEnable
@@ -356,13 +367,13 @@ public class Quest {
 
         // Validate quest entry
         if (this.entry == null) {
-            response.content(String.format("The %s quest has no starting point", this.title));
+            response.content(String.format("The '%s' quest has no starting point", this.title));
             isValid = false;
         }
 
         // Validate quest stages
         if (this.stages == null || this.stages.isEmpty()) {
-            response.content(String.format("The %s quest has no stages", this.title));
+            response.content(String.format("The '%s' quest has no stages", this.title));
             isValid = false;
         }
 
@@ -372,6 +383,47 @@ public class Quest {
         }
 
         return isValid;
+    }
+
+    /**
+     * Checks if this quest should be allowed to be enabled.
+     * 
+     * @return Whether the quest is allowed to be enabled.
+     */
+    @JsonIgnore
+    public boolean isAllowed() {
+        UUID questCreator = this.creator;
+        Player player = null;
+        MessageBuilder response = new MessageBuilder("Cannot enable the quest") // default message; default sends to console
+            .type(MessageType.ERROR)
+            .target(MessageTarget.CONSOLE)
+            .style(MessageStyle.PLAIN);
+        boolean isAllowed = true; // assume valid unless errors are found
+
+        // Check if the player is valid and set the player object if a creator is present
+        if (questCreator != null) {
+            player = Bukkit.getPlayer(questCreator); // get player from UUID
+            response.player(player).style(MessageStyle.PRETTY); // set message target to player if player is found
+        }
+
+        // Validate quest title
+        isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
+            Integer amount = entry.getValue();
+
+            if (amount <= 0) {
+                response.content(String.format("The '%s' quest is missing some stock", this.title));
+                return true; // exit
+            }
+
+            return false; // continue
+        });
+
+        // send the response
+        if (!isAllowed) {
+            response.send(); // send our :( message
+        }
+
+        return isAllowed;
     }
 
     /**
@@ -407,5 +459,36 @@ public class Quest {
             .player(player)
             .style(MessageStyle.PRETTY)
             .send();
+    }
+
+    /**
+     * Get how many of each item is required to be in the quest inventory.
+     * @return the minimum numbers of items required.
+     */
+    @JsonIgnore
+    public Map<Material, Integer> getRequiredInventory() {
+        Map<Material, Integer> requiredInventory = new HashMap<>();
+
+        // get items the quest requires, from actions
+        this.getActions().forEach((_, action) -> {
+            // don't continue if not an eligible action
+            List<Class<?>> eligibleActions = Arrays.asList(RewardItem.class);
+            if (!eligibleActions.contains(action.getType())) {
+                return;
+            }
+
+            action.getItems().forEach(item -> {
+                Material material = item.getType();
+                Integer inventoryAmount = requiredInventory.get(material);
+
+                if (inventoryAmount == null) {
+                    inventoryAmount = 0;
+                }
+
+                requiredInventory.put(material, inventoryAmount + item.getAmount());
+            });
+        });
+
+        return requiredInventory;
     }
 }

@@ -1,6 +1,5 @@
 package playerquests.client.gui;
 
-import java.util.ArrayList; // param for gui functions
 import java.util.Arrays; // listing params in gui function 'ArrayList's
 
 import org.bukkit.entity.HumanEntity; // managing the player
@@ -38,6 +37,6 @@ public class GUIClient {
     public void open() {
         this.director.clearCurrentInstances();
         this.director.newGUI(); // create a fresh GUIBuilder/GUI
-        new UpdateScreen(new ArrayList<>(Arrays.asList("main")), director).execute();
+        new UpdateScreen(Arrays.asList("main"), director).execute();
     }
 }

@@ -92,7 +92,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
             // switch GUI
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
+                Arrays.asList("queststage"), // set the previous screen 
                 director // set the client director
             ).execute();
         });
@@ -105,7 +105,7 @@ public class Dynamicactioneditor extends GUIDynamic {
                 this.director.setCurrentInstance(this.action.getConnections());
 
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    Arrays.asList("connectioneditor"), 
                     director
                 ).execute();
             });
@@ -132,7 +132,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 // update UI
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("queststage")), 
+                    Arrays.asList("queststage"), 
                     director
                 ).execute();
             });
@@ -143,7 +143,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         typeButton.setLabel("Change Type (" + this.action.toString() + ")");
         typeButton.onClick(() -> {
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList("actiontypes")),
+                Arrays.asList("actiontypes"),
                 director
             ).execute();
         });
@@ -207,7 +207,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 optionSlot.onClick(() -> {
                     new UpdateScreen(
-                        new ArrayList<>(Arrays.asList("selectnpc")), 
+                        Arrays.asList("selectnpc"), 
                         director
                     ).onFinish(function -> {
                         UpdateScreen functionUpdateScreen = (UpdateScreen) function;
@@ -233,7 +233,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 optionSlot.onClick(() -> { 
                     new ChatPrompt(
-                        new ArrayList<>(Arrays.asList("Enter the dialogue", "none")), 
+                        Arrays.asList("Enter the dialogue", "none"), 
                         this.director
                     ).onFinish((function) -> {
                         ChatPrompt prompt = (ChatPrompt) function; // cast the GUIFunction as ChatPrompt
@@ -263,7 +263,7 @@ public class Dynamicactioneditor extends GUIDynamic {
                     }
 
                     new UpdateScreen(
-                        new ArrayList<>(Arrays.asList("itemslist")), 
+                        Arrays.asList("itemslist"), 
                         director
                     ).onFinish((GUI) -> {
                         // get the itemslist gui instance
@@ -306,7 +306,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                     // create a new chat prompt to get the value
                     new ChatPrompt(
-                        new ArrayList<>(Arrays.asList("Enter the finish message", "none")), director
+                        Arrays.asList("Enter the finish message", "none"), director
                     )
                     .onFinish((f) -> {
                         ChatPrompt function = (ChatPrompt) f;

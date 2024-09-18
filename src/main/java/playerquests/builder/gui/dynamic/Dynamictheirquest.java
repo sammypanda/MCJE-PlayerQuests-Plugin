@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // list array type
 import java.util.Arrays; // generic array type
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -64,7 +63,7 @@ public class Dynamictheirquest extends GUIDynamic {
             .setLabel("Back")
             .setItem("OAK_DOOR")
             .addFunction(new UpdateScreen(
-                new ArrayList<>(Arrays.asList(previousScreen)), 
+                Arrays.asList(previousScreen), 
                 director
             ));
         
@@ -89,7 +88,7 @@ public class Dynamictheirquest extends GUIDynamic {
 
                 // enter editing mode for cloned quest
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("questeditor")), 
+                    Arrays.asList("questeditor"), 
                     director
                 ).execute();
             });

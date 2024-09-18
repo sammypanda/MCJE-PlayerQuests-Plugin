@@ -1,6 +1,6 @@
 package playerquests.builder.quest.npc;
 
-import java.util.ArrayList; // array type of list
+import java.util.Arrays;
 import java.util.List; // generic list type
 
 import org.bukkit.entity.Player;
@@ -29,19 +29,6 @@ public class NPCType {
      */
     @JsonBackReference
     protected QuestNPC npc;
-
-    /**
-     * The list of NPC types
-     */
-    private List<String> npcTypes = new ArrayList<>();
-
-    /**
-     * Following ran on every instantiation
-     */
-    {
-        // Adding types to the list
-        this.npcTypes = NPCType.allNPCTypes();
-    }
 
     /**
      * Type of this NPC.
@@ -79,11 +66,9 @@ public class NPCType {
      * @return a list of all NPC types
      */
     public static List<String> allNPCTypes() {
-        List<String> npcTypes = new ArrayList<>();
-
-        npcTypes.add("Block");
-
-        return npcTypes;
+        return Arrays.asList(
+            "Block"
+        );
     }
 
     /**
@@ -94,16 +79,6 @@ public class NPCType {
     @JsonIgnore
     public String getType() {
         return this.getClass().getSimpleName();
-    }
-
-    /**
-     * Gets the list of possible NPC types.
-     * 
-     * @return a list of NPC types
-     */
-    @JsonIgnore
-    public List<String> getTypes() {
-        return this.npcTypes;
     }
 
     /**

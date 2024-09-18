@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -11,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.ChatPrompt;
-import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageBuilder;
@@ -35,7 +33,7 @@ public class Dynamicitemeditor extends GUIDynamic {
     /**
      * Code to run when the item quantity is updated.
      */
-    private Consumer<Void> onUpdate;
+    private Consumer<ItemStack> onUpdate;
 
     /**
      * Code to run when the item is removed.
@@ -65,11 +63,9 @@ public class Dynamicitemeditor extends GUIDynamic {
         new GUISlot(gui, 1)
             .setItem(Material.OAK_DOOR)
             .setLabel("Back")
-            .addFunction(
-                new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(this.previousScreen)), director
-                )
-            );
+            .onClick(() -> {
+                this.finish();
+            });
 
         // edit quantity/amount/count button
         new GUISlot(gui, 2)
@@ -80,7 +76,7 @@ public class Dynamicitemeditor extends GUIDynamic {
             ))
             .onClick(() -> {
                 new ChatPrompt(
-                    new ArrayList<>(Arrays.asList("Type a number under 65", "none")), 
+                    Arrays.asList("Type a number under 65", "none"), 
                     director
                 ).onFinish((func) -> {
                     ChatPrompt function = (ChatPrompt) func;
@@ -113,7 +109,7 @@ public class Dynamicitemeditor extends GUIDynamic {
                     this.execute(); // refresh gui
 
                     // run consumable
-                    this.onUpdate.accept(null);;
+                    this.onUpdate.accept(this.item);;
                 }).execute(); // run chat prompt function
             });
 
@@ -124,9 +120,6 @@ public class Dynamicitemeditor extends GUIDynamic {
             .onClick(() -> {;
                 // run consumable
                 this.onRemove.accept(this.item);
-
-                // go back
-                new UpdateScreen(new ArrayList<>(Arrays.asList(this.previousScreen)), director).execute();
             });
     }
 
@@ -148,7 +141,7 @@ public class Dynamicitemeditor extends GUIDynamic {
      * 
      * @param onUpdate a {@link Consumer} that runs when the item quantity is updated.
      */
-    public void onUpdate(Consumer<Void> onUpdate) {
+    public void onUpdate(Consumer<ItemStack> onUpdate) {
         this.onUpdate = onUpdate;
     }
 

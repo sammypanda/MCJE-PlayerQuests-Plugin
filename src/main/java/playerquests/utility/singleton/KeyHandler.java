@@ -3,7 +3,6 @@ package playerquests.utility.singleton;
 import java.lang.reflect.InvocationTargetException; // report if a method accessed via reflection cannot invoke
 import java.lang.reflect.Method; // holds instances of methods
 import java.security.InvalidParameterException;
-import java.util.ArrayList; // handles a list of values
 import java.util.Arrays; // utilities for array literals
 import java.util.HashMap; // handles a map of values, important for this key-pair pattern {@see keyRegistry}
 import java.util.List; // utilities for list literals
@@ -56,7 +55,7 @@ public class KeyHandler {
      * @return A {@link List} of registered class instances.
      */
     public List<Object> getInstances() {
-        return new ArrayList<>(this.keyRegistry.keySet());
+        return Arrays.asList(this.keyRegistry.keySet());
     }
 
     /**

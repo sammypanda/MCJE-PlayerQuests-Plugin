@@ -38,7 +38,8 @@ import playerquests.client.quest.QuestClient; // the quester themselves
     @JsonSubTypes.Type(value = None.class, name = "None"),
     @JsonSubTypes.Type(value = Speak.class, name = "Speak"),
     @JsonSubTypes.Type(value = GatherItem.class, name = "GatherItem"),
-    @JsonSubTypes.Type(value = TakeItem.class, name ="TakeItem")
+    @JsonSubTypes.Type(value = TakeItem.class, name = "TakeItem"),
+    @JsonSubTypes.Type(value = RewardItem.class, name = "RewardItem")
 })
 public abstract class QuestAction {
 
@@ -117,7 +118,8 @@ public abstract class QuestAction {
             "None",
             "Speak",
             "GatherItem",
-            "TakeItem"
+            "TakeItem",
+            "RewardItem"
         );
     }
 
@@ -127,13 +129,13 @@ public abstract class QuestAction {
     }
 
     /**
-     * Gets the type of this action as a string.
+     * Gets the type of this action.
      * 
-     * @return The class name of the action type.
+     * @return The class of the action type.
      */
     @JsonIgnore
-    public String getType() {
-        return this.getClass().getSimpleName();
+    public Class<? extends QuestAction> getType() {
+        return this.getClass();
     }
 
     /** 
@@ -277,7 +279,7 @@ public abstract class QuestAction {
         }
 
         // construct itemstack list
-        List<ItemStack> itemslist = new ArrayList<ItemStack>();
+        List<ItemStack> itemslist = new ArrayList<>();
 
         this.items.forEach((material, count) -> {
             ItemStack item = new ItemStack(material);
