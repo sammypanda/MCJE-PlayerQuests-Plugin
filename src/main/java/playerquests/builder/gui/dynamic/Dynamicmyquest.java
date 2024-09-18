@@ -87,6 +87,17 @@ public class Dynamicmyquest extends GUIDynamic {
                 ).execute();
             });
 
+        // create quest inventory button
+        new GUISlot(gui, 4)
+            .setItem("ITEM_FRAME")
+            .setLabel("Quest Inventory")
+            .onClick(() -> {
+                new UpdateScreen(
+                    Arrays.asList("questinventory"), 
+                    director
+                ).execute();
+            });
+
         // create remove quest button (with confirmation check)
         if (confirm_delete.equals(false)) {
             new GUISlot(gui, 8)

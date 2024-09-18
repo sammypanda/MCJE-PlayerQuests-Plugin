@@ -103,16 +103,6 @@ public class Dynamicquesteditor extends GUIDynamic {
                 )
             );
 
-        new GUISlot(gui, 6) // quest inventory
-            .setItem("ITEM_FRAME")
-            .setLabel("Quest Inventory")
-            .onClick(() -> {
-                new UpdateScreen(
-                    Arrays.asList("questinventory"), 
-                    director
-                ).execute();
-            });
-
         new GUISlot(gui, 7) // change entry point
             .setItem("ENDER_EYE")
             .setLabel("Choose An Entry Point")

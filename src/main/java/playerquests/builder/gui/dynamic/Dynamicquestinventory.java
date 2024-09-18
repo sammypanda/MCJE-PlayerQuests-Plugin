@@ -16,7 +16,6 @@ import net.md_5.bungee.api.ChatColor;
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
-import playerquests.builder.quest.QuestBuilder;
 import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
 import playerquests.utility.PluginUtils;
@@ -43,11 +42,6 @@ public class Dynamicquestinventory extends GUIDynamic {
     Map<Material, Integer> requiredInventory;
 
     /**
-     * The quest the inventory is for.
-     */
-    QuestBuilder questBuilder;
-
-    /**
      * Creates a dynamic GUI showing the quest inventory.
      * @param director director for the client
      * @param previousScreen the screen to go back to
@@ -58,9 +52,8 @@ public class Dynamicquestinventory extends GUIDynamic {
 
     @Override
     protected void setUp_custom() {
-        // builder for the quest we are editing
-        this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
-        this.quest = this.questBuilder.build();
+        // quest we are setting the inventory of
+        this.quest = (Quest) this.director.getCurrentInstance(Quest.class);;
 
         // retrieve the items
         this.inventory = QuestRegistry.getInstance().getInventory(quest);
