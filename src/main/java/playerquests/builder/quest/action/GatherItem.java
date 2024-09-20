@@ -63,8 +63,8 @@ public class GatherItem extends QuestAction {
     }
 
     @Override
-    protected void custom_Listener(QuestClient quester) {
-        new GatherItemListener(this, quester);
+    protected ActionListener<?> custom_Listener(QuestClient quester) {
+        return new GatherItemListener(this, quester);
     }
 
     /**

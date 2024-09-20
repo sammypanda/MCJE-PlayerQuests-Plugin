@@ -152,8 +152,8 @@ public class TakeItem extends QuestAction {
     }
 
     @Override
-    protected void custom_Listener(QuestClient quester) {
-        new TakeItemListener(this, quester);
+    protected ActionListener<?> custom_Listener(QuestClient quester) {
+        return new TakeItemListener(this, quester);
     }
 
     @Override

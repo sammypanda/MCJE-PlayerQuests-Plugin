@@ -44,9 +44,6 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
 
         // register this listener
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
-
-        // check quester inventory from beginning
-        action.Check(quester, this);
     }
 
     /**

@@ -344,14 +344,14 @@ public abstract class QuestAction {
             return;
         }
 
+        // initial try + attach the finish listener
+        this.Check(quester, this.custom_Listener(quester));
+
         // run initial
         this.custom_Run(quester);
 
         // go to current to wait
         // TODO: go to current
-
-        // attach the finish listener
-        this.custom_Listener(quester);
     }
 
     /**
@@ -400,6 +400,8 @@ public abstract class QuestAction {
      * @return whether the action could successfully finish
      */
     public Boolean Finish(QuestClient quester, ActionListener<?> listener) {
+        listener.close(); // stop the listener
+
         // run action defined finish process
         if (!this.custom_Finish(quester, listener)) {
             // action failed to finish, must have a BAD check :0
@@ -408,9 +410,7 @@ public abstract class QuestAction {
             return false;
         }
 
-        listener.close(); // stop the listener
         quester.gotoNext(this); // go to next action
-
         return true;
     }
 
@@ -440,7 +440,7 @@ public abstract class QuestAction {
      * 
      * @param quester the representing class of the quest gamer
      */
-    protected abstract void custom_Listener(QuestClient quester);
+    protected abstract ActionListener<?> custom_Listener(QuestClient quester);
 
     /**
      * Check that the action has been completed.

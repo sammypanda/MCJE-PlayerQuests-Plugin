@@ -62,8 +62,8 @@ public class Speak extends QuestAction {
     }
 
     @Override
-    protected void custom_Listener(QuestClient quester) {
-        new EmptyActionListener(this, quester);
+    protected ActionListener<?> custom_Listener(QuestClient quester) {
+        return new EmptyActionListener(this, quester);
     }
 
     @Override

@@ -17,5 +17,4 @@ public class TakeItemListener extends ActionListener<TakeItem> {
     public TakeItemListener(TakeItem action, QuestClient quester) {
         super(action, quester);
     }
-    
 }

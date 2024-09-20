@@ -5,6 +5,7 @@ import java.util.List; // generic list type
 import java.util.Optional;
 
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.listener.EmptyActionListener;
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.stage.QuestStage; // refers to a stage which this action may belong to
 import playerquests.client.quest.QuestClient; // the quester themselves
@@ -38,7 +39,9 @@ public class None extends QuestAction {
     }
 
     @Override
-    protected void custom_Listener(QuestClient quester) {}
+    protected ActionListener<?> custom_Listener(QuestClient quester) {
+        return new EmptyActionListener(this, quester);
+    }
 
     @Override
     protected void custom_Run(QuestClient quester) {}
