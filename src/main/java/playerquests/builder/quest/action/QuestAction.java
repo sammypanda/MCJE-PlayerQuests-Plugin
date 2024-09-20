@@ -7,7 +7,9 @@ import java.util.List; // generic list type
 import java.util.Map;
 import java.util.Optional;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
@@ -16,11 +18,14 @@ import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when se
 import com.fasterxml.jackson.annotation.JsonSubTypes; // defines sub types of an abstract class
 import com.fasterxml.jackson.annotation.JsonTypeInfo; // where to find type definition
 
+import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.data.ConnectionsData; // indicates where this action is in the quest
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 import playerquests.client.quest.QuestClient; // the quester themselves
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Represents a quest stage action with predefined behavior.
@@ -88,6 +93,12 @@ public abstract class QuestAction {
      * The message to send on finish, if applicable.
      */
     private String finishMessage;
+
+    /**
+     * If waiting for the action to finish, and is siting on 'current' action.
+     */
+    @JsonIgnore
+    private Boolean waiting = false;
 
     /**
      * Default constructor for Jackson deserialization.
@@ -314,16 +325,6 @@ public abstract class QuestAction {
     }
 
     /**
-     * Executes the action with the given quest client.
-     * <p>
-     * This method should be implemented by subclasses to define specific behavior.
-     * </p>
-     * 
-     * @param quester The quest client executing this action.
-     */
-    public abstract void Run(QuestClient quester);
-
-    /**
      * Gets the connections data for this action.
      * 
      * @return The connections data.
@@ -334,6 +335,86 @@ public abstract class QuestAction {
     }
 
     /**
+     * Executes the QuestAction sequence.
+     * @param quester who the action is running for.
+     */
+    public void Run(QuestClient quester) {
+        // exit if invalid
+        if (!this.Validate()) {
+            return;
+        }
+
+        // initial try + attach the finish listener
+        this.Check(quester, this.custom_Listener(quester));
+
+        // run initial
+        this.custom_Run(quester);
+
+        // go to current to wait
+        // TODO: go to current
+    }
+
+    /**
+     * Checks if the QuestAction is valid to submit/save.
+     * @return whether the action is valid.
+     */
+    public Boolean Validate() {
+        // indicate as successful
+        Optional<String> validity = this.custom_Validate();
+        
+        if (validity.isEmpty()) {
+            return true;
+        }
+
+        // otherwise, exit and send error to creator if action is invalid
+        Player player = Bukkit.getPlayer(this.stage.getQuest().getCreator());
+        
+        ChatUtils.message(validity.get())
+            .player(player)
+            .type(MessageType.WARN)
+            .send();
+        return false;
+    }
+
+    /**
+     * Returns the success of the check sequence.
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return whether the action state passes the needed checks
+     */
+    public Boolean Check(QuestClient quester, ActionListener<?> listener) {
+        Boolean success = this.custom_Check(quester, listener);
+
+        if (success) {
+            this.Finish(quester, listener);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Executes the finish sequence, or goes to current.
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return whether the action could successfully finish
+     */
+    public Boolean Finish(QuestClient quester, ActionListener<?> listener) {
+        listener.close(); // stop the listener
+
+        // run action defined finish process
+        if (!this.custom_Finish(quester, listener)) {
+            // action failed to finish, must have a BAD check :0
+            System.err.println("An action failed to finish, retrying. Please reinforce the custom_Check implementation of " + this.getClass());
+            this.Run(quester); // retry :/
+            return false;
+        }
+
+        quester.gotoNext(this); // go to next action
+        return true;
+    }
+
+    /**
      * Validates the action and returns any validation errors.
      * <p>
      * This method should be implemented by subclasses to define specific validation logic.
@@ -341,5 +422,43 @@ public abstract class QuestAction {
      * 
      * @return An optional containing an error message if invalid, or empty if valid.
      */
-    public abstract Optional<String> validate();
+    protected abstract Optional<String> custom_Validate();
+
+    /**
+     * Executes the action with the given quest client.
+     * 
+     * This method should be implemented by subclasses to define specific behavior.
+     * IMPORTANT: put goto next in check(), and put listener creation in custom_Listener().
+     * 
+     * @param quester The quest client executing this action.
+     */
+    protected abstract void custom_Run(QuestClient quester);
+
+    /**
+     * A listener constructor that will check for finishing
+     * should be defined here.
+     * 
+     * @param quester the representing class of the quest gamer
+     */
+    protected abstract ActionListener<?> custom_Listener(QuestClient quester);
+
+    /**
+     * Check that the action has been completed.
+     * 
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return did pass the check; is action completed?
+     */
+    protected abstract Boolean custom_Check(QuestClient quester, ActionListener<?> listener);
+
+    /**
+     * Stuff to run when the action is finished.
+     * 
+     * No need to implement going to next action or staying on current.
+     * 
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return if the action could finish
+     */
+    protected abstract Boolean custom_Finish(QuestClient quester, ActionListener<?> listener);
 }
