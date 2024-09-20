@@ -439,6 +439,7 @@ public abstract class QuestAction {
      * should be defined here.
      * 
      * @param quester the representing class of the quest gamer
+     * @return the listener that prompts a Check
      */
     protected abstract ActionListener<?> custom_Listener(QuestClient quester);
 
