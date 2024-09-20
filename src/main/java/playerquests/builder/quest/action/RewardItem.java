@@ -10,6 +10,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.listener.RewardItemListener;
 import playerquests.builder.quest.data.ActionOption;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -42,10 +44,13 @@ public class RewardItem extends QuestAction {
     }
 
     @Override
-    public void Run(QuestClient quester) {
+    protected Optional<String> custom_Validate() {
+        return Optional.empty();
+    }
+
+    @Override
+    protected void custom_Run(QuestClient quester) {
         Player player = quester.getPlayer();
-        Location location = player.getLocation();
-        Quest quest = this.getStage().getQuest();
 
         // send messages
         player.sendMessage(" ");
@@ -54,6 +59,30 @@ public class RewardItem extends QuestAction {
             player.sendMessage("# " + material.name() + " (" + count + ")");
         });
         player.sendMessage(" ");
+    }
+
+    @Override
+    protected void custom_Listener(QuestClient quester) {
+        new RewardItemListener(this, quester);
+    }
+
+    /**
+     * Just passes the check indiscrimnantly.
+     * 
+     * @return true as it shouldn't not succeed. Whether
+     * the player picks up the item is not considered this
+     * actions success condition.
+     */
+    @Override
+    protected Boolean custom_Check(QuestClient quester, ActionListener<?> listener) {
+        return true;
+    }
+
+    @Override
+    protected Boolean custom_Finish(QuestClient quester, ActionListener<?> listener) {
+        Player player = quester.getPlayer();
+        Location location = player.getLocation();
+        Quest quest = this.getStage().getQuest();
 
         // take items from quest inventory and give to player
         Map<Material, Integer> inventory = QuestRegistry.getInstance().getInventory(quest);
@@ -76,13 +105,7 @@ public class RewardItem extends QuestAction {
             }
         });
 
-        // continue to next action
-        quester.gotoNext(this);
-    }
-
-    @Override
-    public Optional<String> validate() {
-        return Optional.empty();
+        return true;
     }
     
 }

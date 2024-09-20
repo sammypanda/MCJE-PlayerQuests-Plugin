@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.bukkit.entity.Player; // represents a bukkit player
 
+import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.listener.EmptyActionListener;
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.stage.QuestStage; // refers to a stage which this action may belong to
 import playerquests.client.quest.QuestClient; // the quester themselves
@@ -37,31 +39,45 @@ public class Speak extends QuestAction {
     }
 
     @Override
-    public void Run(QuestClient quester) {
-        Player player = quester.getPlayer();
-
+    public void custom_Run(QuestClient quester) {
         // insert empty dialogue if none set
         if (this.dialogue == null) {
             this.dialogue = Arrays.asList("...");
         }
+    }
 
-        // produce dialogue
+    @Override
+    public Optional<String> custom_Validate() {
+        if (this.npc == null) {
+            return Optional.of("NPC needs to be selected");
+        }
+        
+        return Optional.empty();
+    }
+
+    @Override
+    public Boolean custom_Check(QuestClient quester, ActionListener<?> listener) {
+        // pass check
+        return true;
+    }
+
+    @Override
+    protected void custom_Listener(QuestClient quester) {
+        new EmptyActionListener(this, quester);
+    }
+
+    @Override
+    protected Boolean custom_Finish(QuestClient quester, ActionListener<?> listener) {
+        // get the player to send to
+        Player player = quester.getPlayer();
+
+        // send dialogue
         dialogue.forEach(line -> {
             player.sendMessage(
                 String.format("> %s: \"%s\"", this.getNPC().getName(), line)
             );
         });
 
-        // goto next action
-        quester.gotoNext(this);
-    }
-
-    @Override
-    public Optional<String> validate() {
-        if (this.npc == null) {
-            return Optional.of("NPC needs to be selected");
-        }
-        
-        return Optional.empty();
+        return true;
     }
 }

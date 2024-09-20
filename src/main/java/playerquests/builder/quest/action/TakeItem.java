@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.listener.TakeItemListener;
 import playerquests.builder.quest.data.ActionOption;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -45,105 +47,19 @@ public class TakeItem extends QuestAction {
     }
 
     @Override
-    public void Run(QuestClient quester) {
-        Boolean failed = false;
-        Player player = quester.getPlayer();
-
-        // check (exit if the player does not have the items to take)
-        if (!check(player)) {
-            failed = true;
-        }
-
-        // take the items (exit if the taking wasn't successful)
-        if (!take(player)) {
-            failed = true;
-        }
-
-        if (failed) {
-            player.sendMessage("WIP: could not TakeItem, you don't have the items");
-            return;
-        }
-
-        // send messages
-        player.sendMessage(" ");
-        player.sendMessage("# Taking Items");
-        this.items.forEach((material, count) -> {
-            player.sendMessage("# " + material.name() + " (" + count + ")");
-        });
-        player.sendMessage(" ");
-
-        // continue to next action
-        quester.gotoNext(this);
-    }
-
-    /**
-     * Check if the player has the items to take.
-     * @param player the player to check
-     * @return if can take items from player
-     */
-    private Boolean check(Player player) {
-        List<ItemStack> inventoryList = new ArrayList<ItemStack>(Arrays.asList(player.getInventory().getContents()));
-        Map<Material, Integer> itemsChecked = new HashMap<>();
-        List<Material> itemsPassed = new ArrayList<>();
-
-        // check each inventory slot
-        // and determine if it passes the check (if the player has the correct items/amounts to take)
-        Boolean success = inventoryList.stream().anyMatch(item -> {
-            // if no item in this slot
-            if (item == null) {
-                return false;
-            }
-
-            Material material = item.getType();
-            Integer count = item.getAmount();
-
-            // if this item isn't one to take
-            if (!this.items.containsKey(material)) {
-                return false;
-            }
-
-            // get amount checked/amount to take
-            Integer checkedCount = itemsChecked.get(material);
-            Integer takeCount = this.items.get(material);
-
-            // if this item isn't in the list yet
-            if (checkedCount == null) {
-                checkedCount = 0;
-            }
-
-            // get amount of item in inventory, up to the amount to take
-            Integer clamp = Math.clamp(count+checkedCount, 0, takeCount);
-            itemsChecked.put(material, clamp);
-
-            // if the amount is the amount to take
-            if (clamp == takeCount) {
-                itemsPassed.add(material);
-            }
-
-            // if successful
-            return this.items.size() == itemsPassed.size();
-        });
-
-        // check passing condition
-        //
-        // fail case: if the size of items to take is not the same as size of items 
-        // from inventory that match the required quantity and material.
-        if (!success) {
-            return false;
-        }
-
-        // ..otherwise successful pass of the check
-        return true;
-    }
+    public void custom_Run(QuestClient quester) {}
 
     /**
      * Take the items.
      * It's safe to assume the items can be taken during the func 
      * runtime. Since it's been checked beforehand.
-     * @param player the player to take from.
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
      * @return if taking items was successful
      */
-    private Boolean take(Player player) {
+    @Override
+    protected Boolean custom_Finish(QuestClient quester, ActionListener<?> listener) {
+        Player player = quester.getPlayer();
         PlayerInventory inventory = player.getInventory();
         Map<Material, Integer> remainingItems = new HashMap<>(this.items);
         ItemStack emptyItem = new ItemStack(Material.AIR, 0);
@@ -222,11 +138,83 @@ public class TakeItem extends QuestAction {
 
         // mark as successful and submit to inventory
         QuestRegistry.getInstance().setInventory(quest, questInventory);
+
+        // send messages
+        player.sendMessage(" ");
+        player.sendMessage("# Taking Items");
+        this.items.forEach((material, count) -> {
+            player.sendMessage("# " + material.name() + " (" + count + ")");
+        });
+        player.sendMessage(" ");
+
+        // mark as successful
         return true;
     }
 
     @Override
-    public Optional<String> validate() {
+    protected void custom_Listener(QuestClient quester) {
+        new TakeItemListener(this, quester);
+    }
+
+    @Override
+    protected Optional<String> custom_Validate() {
         return Optional.empty();
+    }
+
+    @Override
+    protected Boolean custom_Check(QuestClient quester, ActionListener<?> listener) {
+        Player player = quester.getPlayer(); // get the questing player
+        List<ItemStack> inventoryList = new ArrayList<ItemStack>(Arrays.asList(player.getInventory().getContents())); // ..their inventory
+        Map<Material, Integer> itemsChecked = new HashMap<>();
+        List<Material> itemsPassed = new ArrayList<>();
+
+        // check each inventory slot
+        // and determine if it passes the check (if the player has the correct items/amounts to take)
+        Boolean success = inventoryList.stream().anyMatch(item -> {
+            // if no item in this slot
+            if (item == null) {
+                return false;
+            }
+
+            Material material = item.getType();
+            Integer count = item.getAmount();
+
+            // if this item isn't one to take
+            if (!this.items.containsKey(material)) {
+                return false;
+            }
+
+            // get amount checked/amount to take
+            Integer checkedCount = itemsChecked.get(material);
+            Integer takeCount = this.items.get(material);
+
+            // if this item isn't in the list yet
+            if (checkedCount == null) {
+                checkedCount = 0;
+            }
+
+            // get amount of item in inventory, up to the amount to take
+            Integer clamp = Math.clamp(count+checkedCount, 0, takeCount);
+            itemsChecked.put(material, clamp);
+
+            // if the amount is the amount to take
+            if (clamp == takeCount) {
+                itemsPassed.add(material);
+            }
+
+            // if successful
+            return this.items.size() == itemsPassed.size();
+        });
+
+        // check passing condition
+        //
+        // fail case: if the size of items to take is not the same as size of items 
+        // from inventory that match the required quantity and material.
+        if (!success) {
+            return false;
+        }
+
+        // ..otherwise successful pass of the check
+        return true;
     }
 }
