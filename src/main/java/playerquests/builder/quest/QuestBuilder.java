@@ -143,6 +143,7 @@ public class QuestBuilder {
                 this.questNPCs.put(id, npc);
             });
 
+            // set the creator (if applicable, otherwise it's a universal quest)
             if (product.getCreator() == null) {
                 // set the quest as a universal one
                 this.universal = true;
@@ -400,7 +401,7 @@ public class QuestBuilder {
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
-            true // always toggle cloned quests on when freshly cloned
+            this.getID()
         );
 
         // set this quest as in-focus to the creator
@@ -478,5 +479,20 @@ public class QuestBuilder {
         }
 
         return this.build().isValid();
+    }
+
+    /**
+     * Get the would-be ID of this quest.
+     * @return the id for the quest.
+     */
+    public String getID() {
+        // the player creating/editing/saving the quest
+        String creator = this.getDirector().getPlayer().getUniqueId().toString(); 
+
+        // the format of the ID
+        return String.format("%s%s", 
+            title, 
+            creator != null ? "_"+creator : ""
+        );
     }
 }

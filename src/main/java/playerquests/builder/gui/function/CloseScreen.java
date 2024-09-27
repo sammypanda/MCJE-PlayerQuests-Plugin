@@ -1,6 +1,6 @@
 package playerquests.builder.gui.function;
 
-import java.util.ArrayList; // used to store the params for this meta action
+import java.util.List; // used to store the params for this meta action
 
 import playerquests.client.ClientDirector; // powers functionality for functions
 
@@ -14,7 +14,7 @@ public class CloseScreen extends GUIFunction {
      * @param params none required
      * @param director used to control the plugin
      */
-    public CloseScreen(ArrayList<Object> params, ClientDirector director) {
+    public CloseScreen(List<Object> params, ClientDirector director) {
         super(params, director);
     }
 

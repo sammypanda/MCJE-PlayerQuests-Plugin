@@ -127,7 +127,7 @@ public class Dynamicactiontypes extends GUIDynamic {
                 Class<?> classRef = Class.forName("playerquests.builder.quest.action." + type);
 
                 // Then it means the action type has been implemented:
-                if (stage.getActions().get(stage.getActionToEdit()).getType().equals(type)) { // compare action type being modified with action type in this loop
+                if (stage.getActions().get(stage.getActionToEdit()).getType().equals(classRef)) { // compare action type being modified with action type in this loop
                     typeButton.setItem("GLOWSTONE_DUST");
                     typeButton.setLabel(type + " (Selected)");
                 } else {
@@ -151,7 +151,7 @@ public class Dynamicactiontypes extends GUIDynamic {
                         this.gui.clearSlots(); // clear to prevent duplicates
                         this.execute(); // re-run to show changes
                     } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                        throw new IllegalStateException("Action type " + type + " could not be instantiated.");
+                        throw new IllegalStateException("Action type " + type + " could not be instantiated.", e);
                     }
                 });
 
@@ -175,7 +175,7 @@ public class Dynamicactiontypes extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director
         ));
 

@@ -1,6 +1,9 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.function.Consumer;
+
 import playerquests.builder.gui.GUIBuilder; // creating the Dynamic GUI on the screen
+import playerquests.builder.gui.function.GUIFunction;
 import playerquests.client.ClientDirector; // enables the dynamic GUI to retrieve info
 
 /**
@@ -24,14 +27,19 @@ public abstract class GUIDynamic {
     protected String previousScreen;
 
     /**
-     * If the setup has been ran
+     * If the setup has been ran.
      */
     protected Boolean wasSetUp = false;
 
     /**
-     * the GUI instance
+     * the GUI instance.
      */
     protected GUIBuilder gui;
+
+    /**
+     * The code to run when GUI finishes.
+     */
+    protected Consumer<GUIDynamic> onFinish;
 
     /**
      * Not intended to be created directly, is abstract class for dynamic GUI screens.
@@ -94,4 +102,27 @@ public abstract class GUIDynamic {
      * For creating the GUI/functionality.
      */
     protected abstract void execute_custom();
+
+    /**
+     * For when everything is done in the GUI.
+     */
+    protected void finish() {
+        if (this.onFinish != null) {
+            onFinish.accept(this);
+        }
+    }
+
+    /**
+     * Sets the code to be executed when the function is finished.
+     * <p>
+     * This method allows for defining custom actions that should take place once the function has completed its execution.
+     * </p>
+     * 
+     * @param onFinish The code to run when the function completes, implemented as a {@link Consumer} of {@link GUIFunction}.
+     * @return The current instance of {@code GUIFunction} for method chaining.
+     */
+    public GUIDynamic onFinish(Consumer<GUIDynamic> onFinish) {
+        this.onFinish = onFinish;
+        return this;
+    }
 }

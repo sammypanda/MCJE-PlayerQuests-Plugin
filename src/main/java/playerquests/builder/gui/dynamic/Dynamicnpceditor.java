@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // list array type
 import java.util.Arrays; // generic array type
 import java.util.Optional; // for handling nullables
 
@@ -66,7 +65,7 @@ public class Dynamicnpceditor extends GUIDynamic {
         backButton.setLabel("Back");
         backButton.addFunction(
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                Arrays.asList(this.previousScreen), 
                 director
             )
         );
@@ -78,7 +77,7 @@ public class Dynamicnpceditor extends GUIDynamic {
         nameButton.setLabel(label);
         nameButton.addFunction(
             new ChatPrompt(
-                new ArrayList<>(Arrays.asList("Set the name for this NPC", "npc.name")), 
+                Arrays.asList("Set the name for this NPC", "npc.name"), 
                 director
             ).onFinish((function) -> {
                 this.execute();
@@ -96,7 +95,7 @@ public class Dynamicnpceditor extends GUIDynamic {
         assignButton.setItem(this.npc.getBlock().getMaterial().toString());
         assignButton.addFunction(
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList("npctypes")), 
+                Arrays.asList("npctypes"), 
                 director
             )
         );
@@ -110,7 +109,7 @@ public class Dynamicnpceditor extends GUIDynamic {
             quest.build().save();
 
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                Arrays.asList(this.previousScreen), 
                 director
             ).execute();
         });
@@ -132,7 +131,7 @@ public class Dynamicnpceditor extends GUIDynamic {
 
                 // go back to previous screen
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(this.previousScreen)), 
+                    Arrays.asList(this.previousScreen), 
                     director
                 ).execute();
             }
@@ -144,5 +143,4 @@ public class Dynamicnpceditor extends GUIDynamic {
         backDivider.setItem("BLACK_STAINED_GLASS_PANE");
         saveDivider.setItem("BLACK_STAINED_GLASS_PANE");
     }
-    
 }

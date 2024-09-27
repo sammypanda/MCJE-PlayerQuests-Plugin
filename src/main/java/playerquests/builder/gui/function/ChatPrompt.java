@@ -1,6 +1,6 @@
 package playerquests.builder.gui.function;
 
-import java.util.ArrayList; // used to store the params for this meta action
+import java.util.List; // used to store the params for this meta action
 
 import org.bukkit.Bukkit; // used to access a Scheduler
 import org.bukkit.event.EventHandler; // handling spigot events
@@ -116,7 +116,7 @@ public class ChatPrompt extends GUIFunction {
      * @param params 1. the prompt 2. the key name
      * @param director to set values
      */
-    public ChatPrompt(ArrayList<Object> params, ClientDirector director) {
+    public ChatPrompt(List<Object> params, ClientDirector director) {
         super(params, director);
     }
 

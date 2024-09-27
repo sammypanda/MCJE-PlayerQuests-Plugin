@@ -5,14 +5,24 @@ package playerquests.builder.quest.data;
  */
 public enum ActionOption {
     /**
-     * Represents an action option to set an NPC.
+     * To set an NPC.
      */
     NPC("Set NPC", "VILLAGER_SPAWN_EGG"), 
 
     /**
-     * Represents an action option to set a dialogue.
+     * To set dialogue text.
      */
-    DIALOGUE("Set Dialogue", "OAK_SIGN");
+    DIALOGUE("Set Dialogue", "OAK_SIGN"),
+
+    /**
+     * To set one or more items.
+     */
+    ITEMS("Select Items", "CHEST"), 
+    
+    /**
+     * To set a message for when the action finishes.
+     */
+    FINISH_MESSAGE("Finish Message", "NAME_TAG");
 
     private final String label;
     private final String item;

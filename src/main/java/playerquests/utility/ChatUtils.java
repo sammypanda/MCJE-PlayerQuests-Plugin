@@ -195,6 +195,15 @@ public class ChatUtils {
             this.content = baseMessage;
             return this;
         }
+        
+        /**
+         * Gets the content of the message.
+         * 
+         * @return the string message content.
+         */
+        public String getContent() {
+            return this.content;
+        }
 
         /**
          * Sets the type of the message.

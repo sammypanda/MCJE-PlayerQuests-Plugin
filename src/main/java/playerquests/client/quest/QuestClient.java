@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitScheduler; // for doing actions later and etc
 import org.bukkit.scheduler.BukkitTask; // for particle effects (FX)
 
 import playerquests.Core;
+import playerquests.builder.quest.action.None;
 import playerquests.builder.quest.action.QuestAction; // quest action
 import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.LocationData;
@@ -43,9 +44,15 @@ public class QuestClient {
     private Map<QuestNPC, QuestAction> actionNPC = new HashMap<QuestNPC, QuestAction>();
 
     /**
+     * Quests which won't progress.
+     * Useful for if the main action is being waited to be finished.
+     */
+    private List<Quest> lockedQuests = new ArrayList<>();
+
+    /**
      * List of the running FX.
      */
-    private List<BukkitTask> activeFX = new ArrayList<BukkitTask>();
+    private List<BukkitTask> activeFX = new ArrayList<>();
 
     /**
      * Used for particle FX loops.
@@ -114,7 +121,7 @@ public class QuestClient {
      */
     public synchronized void hideFX() {
         // get all active effects and cancel
-        this.activeFX.stream().forEach((task) -> {
+        this.activeFX.forEach((task) -> {
             // cancel FX loops
             scheduler.cancelTask(task.getTaskId());
         });
@@ -122,8 +129,9 @@ public class QuestClient {
 
     /**
      * Update what the player sees.
+     * @param run whether it's the first time updating.
      */
-    public synchronized void update() {
+    public synchronized void update(Boolean run) {
         // clear action-npc-associations for the refresh! (good for if a quest is deleted)
         this.actionNPC.clear();
 
@@ -140,6 +148,14 @@ public class QuestClient {
 
             // don't continue if no npc matched to this action
             if (npc == null) {
+                // if first time running
+                if (run) {
+                    // auto-start actions that aren't interfacable with an NPC
+                    Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                        action.Run(this);
+                    });
+                }
+
                 return;
             }
             
@@ -157,12 +173,18 @@ public class QuestClient {
     }
 
     /**
+     * Update what the player sees.
+     */
+    public synchronized void update() {
+        this.update(false);
+    }
+
+    /**
      * Remove a quest for this quest client.
      * @param quest the quest to remove
      */
     public void removeQuest(Quest quest) {
         this.diary.removeQuest(quest);
-
         this.update(); // reflect changes
     }
 
@@ -172,46 +194,15 @@ public class QuestClient {
      */
     public synchronized void interact(QuestNPC npc) {
         // Find the action associated with this npc in a helper map
-        Quest quest = QuestRegistry.getInstance().getQuest(npc.getQuest().getID()); // inefficient way, but npc.getQuest() was returning bad data
         QuestAction action = this.actionNPC.get(npc);
 
-        // Don't continue if there is no quest or action for this interaction
-        if (action == null || quest == null) {
+        // Don't continue if no action associated with this npc
+        if (action == null) {
             return;
-        }
-
-        // Prepare interaction/next step vars
-        StagePath next_step = action.getConnections().getNext(); // could be action_?, stage_?
-        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest); // read current position in quest
-
-        if (diaryConnections == null) { // if no progress for this quest found
-            diaryConnections = quest.getStages().get(quest.getEntry().getStage()).getConnections(); // get quest entry point position
-        }
-
-        // move forward through connections
-        if (next_step != null) { // if there is a next step
-            ConnectionsData updatedConnections = new ConnectionsData();
-            updatedConnections.setPrev(diaryConnections.getCurr());
-            updatedConnections.setCurr(next_step);
-
-            // update the diary
-            this.diary.setQuestProgress(quest, updatedConnections);
-
-            // update the db for preservation sake
-            Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
-
-            // remove NPCs pending interaction marker/sparkle
-            this.actionNPC.remove(npc);
-
-            // update quest state
-            this.update();
         }
 
         // Do the action
         action.Run(this);
-
-        // Update what the player sees
-        this.update();
     }
 
     /**
@@ -220,5 +211,110 @@ public class QuestClient {
      */
     public QuestDiary getDiary() {
         return this.diary;
+    }
+
+    /**
+     * Start an action.
+     * @param action the action to continue to or past.
+     * @param next whether to go to 'current' or 'next' action      .
+     */
+    public void start(QuestAction action, Boolean next) {
+        Quest quest = QuestRegistry.getInstance().getQuest(action.getStage().getQuest().getID());
+        QuestNPC npc = action.getNPC();
+        ConnectionsData currentConnections = action.getConnections();
+
+        // Don't continue if there is no quest or action for this interaction
+        if (action == null || quest == null) {
+            return;
+        }
+
+        // don't continue if untoggled
+        if (!quest.isToggled()) {
+            return;
+        }
+
+        // Prepare interaction/next step vars
+        StagePath next_step;
+        if (next) {
+            next_step = currentConnections.getNext();
+        } else {    
+            next_step = currentConnections.getCurr();
+        }
+        
+        // read current position in quest
+        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest);
+        if (diaryConnections == null) { // if no progress for this quest found
+            diaryConnections = quest.getStages().get(quest.getEntry().getStage()).getConnections(); // get quest entry point position
+        }
+
+        // don't continue if no next step
+        if (next && next_step == null) { 
+            this.diary.removeQuest(quest);
+            this.update();
+            return;
+        }
+
+        ConnectionsData updatedConnections = new ConnectionsData();
+        updatedConnections.setPrev(diaryConnections.getCurr());
+        updatedConnections.setCurr(next_step);
+
+        // run in sequence
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            // update the diary
+            this.diary.setQuestProgress(quest, updatedConnections);
+
+            // update the db for preservation sake
+            if (!this.isLocked(quest)) {
+                Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
+            }
+
+            if (npc != null) {
+                // remove NPCs pending interaction marker/sparkle
+                this.actionNPC.remove(npc);
+            }
+
+            // auto-execute next auto if no npc to wait for
+            QuestAction nextAction = next_step.getAction(quest);
+            if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
+                nextAction.Run(this);
+            }
+
+            // update quest state
+            this.update();
+        });
+    }
+
+    /**
+     * Check if a quest is in the lock list.
+     * @param quest the quest to check.
+     * @return whether it is locked or not.
+     */
+    public boolean isLocked(Quest quest) {
+        return this.lockedQuests.contains(quest);
+    }
+
+    /**
+     * Set a quest as locked or unlocked.
+     * @param quest the quest to set.
+     * @param lock state of the lock.
+     */
+    public void setLocked(Quest quest, Boolean lock) {
+        if (lock) {
+            this.lockedQuests.add(quest);
+            return;
+        }
+
+        this.lockedQuests.remove(quest);
+    }
+
+    /**
+     * Put a quest in waiting for a main action to complete.
+     * @param action the action that we are waiting on.
+     */
+    public void wait(QuestAction action) {
+        Quest quest = action.getStage().getQuest();
+
+        this.setLocked(quest, true);
+        this.start(action, false); // start the 'current' action sequence.
     }
 }

@@ -1,7 +1,7 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
@@ -46,14 +46,14 @@ public class Dynamicmain extends GUIDynamic {
             .setItem("OAK_DOOR")
             .setLabel("Exit")
             .addFunction(
-                new CloseScreen(new ArrayList<>(), director)
+                new CloseScreen(List.of(), director)
             );
 
         new GUISlot(gui, 3)
             .setItem("LIME_DYE")
             .setLabel("Create Quest")
             .onClick(() -> {
-                new ChatPrompt(new ArrayList<>(Arrays.asList("Enter quest title", "none")), director)
+                new ChatPrompt(Arrays.asList("Enter quest title", "none"), director)
                     .onFinish((f) -> {
                         ChatPrompt function = (ChatPrompt) f; // retrieve the function state
                         String response = function.getResponse(); // retrieve the 'ChatPrompt' response from the function state
@@ -68,7 +68,7 @@ public class Dynamicmain extends GUIDynamic {
                         if (quest.getTitle() == "") {
                             return;
                         }
-                        new UpdateScreen(new ArrayList<>(Arrays.asList("questeditor")), director) // change screen to the quest editor
+                        new UpdateScreen(Arrays.asList("questeditor"), director) // change screen to the quest editor
                             .execute();
                     })
                     .execute();;
@@ -78,8 +78,7 @@ public class Dynamicmain extends GUIDynamic {
             .setItem("PAINTING")
             .setLabel("View Quests")
             .addFunction(
-                new UpdateScreen(new ArrayList<>(Arrays.asList("myquests")), director)
+                new UpdateScreen(Arrays.asList("myquests"), director)
             );
     }
-    
 }

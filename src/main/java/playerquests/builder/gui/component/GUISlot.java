@@ -4,6 +4,7 @@ import java.util.ArrayList; // used to transport GUI functions
 import java.util.List; // generic list type
 
 import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity; // refers to the player
 
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
@@ -43,7 +44,7 @@ public class GUISlot {
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
      */
-    private List<GUIFunction> functionList = new ArrayList<GUIFunction>();
+    private List<GUIFunction> functionList = new ArrayList<>();
 
     /**
      * Indicates whether the slot has encountered a syntax error. Defaults to {@code false}.
@@ -59,6 +60,11 @@ public class GUISlot {
      * The stack count for the item in this slot, indicating quantity. Defaults to 1.
      */
     private Integer stackCount = 1; // 1 default, being no number shown
+
+    /**
+     * If the slot item is shiny.
+     */
+    private Boolean glinting = false;
 
     /**
      * Constructs a new {@code GUISlot} with the specified parent {@code GUIBuilder}.
@@ -115,6 +121,23 @@ public class GUISlot {
             System.err.println(exception.getMessage());
         }
         
+        return this;
+    }
+
+    /**
+     * Sets the material to be displayed in this slot.
+     * 
+     * <p>This method updates the item in the slot to be represented by the given {@link Material}.
+     * The provided material is converted to its string representation and stored in the internal
+     * item field. This method is typically used to configure the slot with a specific material
+     * for display or interaction purposes.</p>
+     * 
+     * @param material The {@link Material} to be displayed in the slot. This is converted to a
+     *                 string and assigned to the slot's item.
+     * @return The current instance of {@link GUISlot}, allowing for method chaining.
+     */
+    public GUISlot setItem(Material material) {
+        this.item = material.toString();
         return this;
     }
 
@@ -250,5 +273,23 @@ public class GUISlot {
      */
     public Integer getCount() {
         return this.stackCount;
+    }
+
+    /**
+     * Sets whether the item is shining/glinting.
+     * @param glinting if there is a glint.
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setGlinting(Boolean glinting) {
+        this.glinting = glinting;
+        return this;
+    }
+
+    /**
+     * Gets whether the item is shining/glinting.
+     * @return if there is a glint.
+     */
+    public boolean isGlinting() {
+        return this.glinting;
     }
 }

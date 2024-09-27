@@ -1,6 +1,5 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import playerquests.builder.gui.component.GUISlot;
@@ -51,7 +50,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
             .setItem("OAK_DOOR")
             .onClick(() -> {
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(previousScreen)),
+                    Arrays.asList(previousScreen),
                     director
                 ).execute();
             });
@@ -105,7 +104,7 @@ public class Dynamicconnectioneditor extends GUIDynamic {
      */
     UpdateScreen selectMenu(String connection) {
         return (UpdateScreen) new UpdateScreen(
-            new ArrayList<>(Arrays.asList("selectconnection")), 
+            Arrays.asList("selectconnection"), 
             director
         ).onFinish(function -> {
             UpdateScreen functionUpdateScreen = (UpdateScreen) function;
@@ -129,10 +128,9 @@ public class Dynamicconnectioneditor extends GUIDynamic {
                 // go back to origin screen when done selecting
                 // (user DAMSTACEY UI recommendation)
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList(this.previousScreen)), director
+                    Arrays.asList(this.previousScreen), director
                 ).execute();
             });
         });
     }
-    
 }

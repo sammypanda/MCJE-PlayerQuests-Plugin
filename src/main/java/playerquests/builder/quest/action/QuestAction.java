@@ -1,8 +1,16 @@
 package playerquests.builder.quest.action;
 
 import java.util.ArrayList; // array type of list
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List; // generic list type
+import java.util.Map;
 import java.util.Optional;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // ignoring fields when serialising
@@ -10,11 +18,15 @@ import com.fasterxml.jackson.annotation.JsonProperty; // defining fields when se
 import com.fasterxml.jackson.annotation.JsonSubTypes; // defines sub types of an abstract class
 import com.fasterxml.jackson.annotation.JsonTypeInfo; // where to find type definition
 
+import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.data.ConnectionsData; // indicates where this action is in the quest
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 import playerquests.client.quest.QuestClient; // the quester themselves
+import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Represents a quest stage action with predefined behavior.
@@ -30,7 +42,10 @@ import playerquests.client.quest.QuestClient; // the quester themselves
     property = "type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = None.class, name = "None"),
-    @JsonSubTypes.Type(value = Speak.class, name = "Speak")
+    @JsonSubTypes.Type(value = Speak.class, name = "Speak"),
+    @JsonSubTypes.Type(value = GatherItem.class, name = "GatherItem"),
+    @JsonSubTypes.Type(value = TakeItem.class, name = "TakeItem"),
+    @JsonSubTypes.Type(value = RewardItem.class, name = "RewardItem")
 })
 public abstract class QuestAction {
 
@@ -53,6 +68,12 @@ public abstract class QuestAction {
     protected List<String> dialogue;
 
     /**
+     * The items associated with this action, if applicable.
+     */
+    @JsonProperty("items")
+    protected Map<Material, Integer> items;
+
+    /**
      * The quest stage that this action belongs to.
      */
     @JsonBackReference
@@ -68,6 +89,17 @@ public abstract class QuestAction {
      */
     @JsonProperty("connections")
     private ConnectionsData connections = new ConnectionsData();
+
+    /**
+     * The message to send on finish, if applicable.
+     */
+    private String finishMessage;
+
+    /**
+     * If waiting for the action to finish, and is siting on 'current' action.
+     */
+    @JsonIgnore
+    private Boolean waiting = false;
 
     /**
      * Default constructor for Jackson deserialization.
@@ -94,12 +126,13 @@ public abstract class QuestAction {
      * @return A list of action type names.
      */
     public static List<String> allActionTypes() {
-        List<String> actionTypes = new ArrayList<>();
-
-        actionTypes.add("None");
-        actionTypes.add("Speak");
-
-        return actionTypes;
+        return Arrays.asList(
+            "None",
+            "Speak",
+            "GatherItem",
+            "TakeItem",
+            "RewardItem"
+        );
     }
 
     @Override
@@ -108,13 +141,13 @@ public abstract class QuestAction {
     }
 
     /**
-     * Gets the type of this action as a string.
+     * Gets the type of this action.
      * 
-     * @return The class name of the action type.
+     * @return The class of the action type.
      */
     @JsonIgnore
-    public String getType() {
-        return this.getClass().getSimpleName();
+    public Class<? extends QuestAction> getType() {
+        return this.getClass();
     }
 
     /** 
@@ -225,14 +258,72 @@ public abstract class QuestAction {
     }
 
     /**
-     * Executes the action with the given quest client.
-     * <p>
-     * This method should be implemented by subclasses to define specific behavior.
-     * </p>
+     * Gets the finish message associated with this action.
      * 
-     * @param quester The quest client executing this action.
+     * @return the message to send when the action is finished
      */
-    public abstract void Run(QuestClient quester);
+    public String getFinishMessage() {
+        return this.finishMessage;
+    }
+
+    /**
+     * Sets the finish message associated with this action.
+     * 
+     * @param finishMessage the message to send when the action is finished
+     * @return the updated quest action.
+     */
+    public QuestAction setFinishMessage(String finishMessage) {
+        this.finishMessage = finishMessage;
+
+        return this;
+    }
+
+    /**
+     * Gets the items associated with this action.
+     * 
+     * @return A list of items.
+     */
+    @JsonIgnore
+    public List<ItemStack> getItems() {
+        // return null if no items
+        if (this.items == null) {
+            return null;
+        }
+
+        // construct itemstack list
+        List<ItemStack> itemslist = new ArrayList<>();
+
+        this.items.forEach((material, count) -> {
+            ItemStack item = new ItemStack(material);
+            item.setAmount(count);
+
+            itemslist.add(item);
+        });
+
+        // return data in itemstack list form
+        return itemslist;
+    }
+
+    /**
+     * Sets the items associated with this action.
+     * 
+     * Strips out all discriminators except for material and amount/count.
+     * 
+     * @param items A list of items to set.
+     * @return The updated quest action.
+     */
+    @JsonIgnore
+    public QuestAction setItems(List<ItemStack> items) {
+        Map<Material, Integer> itemslist = new HashMap<Material, Integer>();
+
+        items.forEach(item -> {
+            itemslist.put(item.getType(), item.getAmount());
+        });
+
+        this.items = itemslist;
+
+        return this;
+    }
 
     /**
      * Gets the connections data for this action.
@@ -245,6 +336,94 @@ public abstract class QuestAction {
     }
 
     /**
+     * Executes the QuestAction sequence.
+     * @param quester who the action is running for.
+     */
+    public void Run(QuestClient quester) {
+        // exit if invalid
+        if (!this.Validate()) {
+            return;
+        }
+
+        // determine if is during a wait
+        Quest quest = this.getStage().getQuest();
+        if (quester.isLocked(quest)) {
+            this.waiting = true;
+        }
+
+        // run initial
+        this.custom_Run(quester);
+
+        // initial try + attach the finish listener
+        this.Check(quester, this.custom_Listener(quester));
+    }
+
+    /**
+     * Checks if the QuestAction is valid to submit/save.
+     * @return whether the action is valid.
+     */
+    public Boolean Validate() {
+        // indicate as successful
+        Optional<String> validity = this.custom_Validate();
+        
+        if (validity.isEmpty()) {
+            return true;
+        }
+
+        // otherwise, exit and send error to creator if action is invalid
+        Player player = Bukkit.getPlayer(this.stage.getQuest().getCreator());
+        
+        ChatUtils.message(validity.get())
+            .player(player)
+            .type(MessageType.WARN)
+            .send();
+        return false;
+    }
+
+    /**
+     * Returns the success of the check sequence.
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return whether the action state passes the needed checks
+     */
+    public Boolean Check(QuestClient quester, ActionListener<?> listener) {
+        Boolean success = this.custom_Check(quester, listener);
+
+        if (success) {
+            this.Finish(quester, listener);
+            return true;
+        }
+
+        quester.wait(this);
+        return false;
+    }
+
+    /**
+     * Executes the finish sequence, or goes to current.
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return whether the action could successfully finish
+     */
+    public Boolean Finish(QuestClient quester, ActionListener<?> listener) {
+        Quest quest = this.getStage().getQuest();
+        listener.close(); // stop the listener
+
+        // run action defined finish process
+        if (!this.custom_Finish(quester, listener)) {
+            // action failed to finish, must have a BAD check :0
+            System.err.println("An action failed to finish, retrying. Please reinforce the custom_Check implementation of " + this.getClass());
+            this.Run(quester); // retry :/
+            return false;
+        }
+
+        if (!this.waiting) {
+            quester.setLocked(quest, false); // unlock (since im a main action that just finished)
+        }
+        quester.start(this, true); // go to next action
+        return true;
+    }
+
+    /**
      * Validates the action and returns any validation errors.
      * <p>
      * This method should be implemented by subclasses to define specific validation logic.
@@ -252,5 +431,44 @@ public abstract class QuestAction {
      * 
      * @return An optional containing an error message if invalid, or empty if valid.
      */
-    public abstract Optional<String> validate();
+    protected abstract Optional<String> custom_Validate();
+
+    /**
+     * Executes the action with the given quest client.
+     * 
+     * This method should be implemented by subclasses to define specific behavior.
+     * IMPORTANT: put goto next in check(), and put listener creation in custom_Listener().
+     * 
+     * @param quester The quest client executing this action.
+     */
+    protected abstract void custom_Run(QuestClient quester);
+
+    /**
+     * A listener constructor that will check for finishing
+     * should be defined here.
+     * 
+     * @param quester the representing class of the quest gamer
+     * @return the listener that prompts a Check
+     */
+    protected abstract ActionListener<?> custom_Listener(QuestClient quester);
+
+    /**
+     * Check that the action has been completed.
+     * 
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return did pass the check; is action completed?
+     */
+    protected abstract Boolean custom_Check(QuestClient quester, ActionListener<?> listener);
+
+    /**
+     * Stuff to run when the action is finished.
+     * 
+     * No need to implement going to next action or staying on current.
+     * 
+     * @param quester the representing class of the quest gamer
+     * @param listener instance of the gather item listener to call the check
+     * @return if the action could finish
+     */
+    protected abstract Boolean custom_Finish(QuestClient quester, ActionListener<?> listener);
 }

@@ -1,8 +1,14 @@
 package playerquests.utility;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
+
+import org.bukkit.Material;
+
+import playerquests.product.Quest;
 
 /**
  * Utility class containing methods for common plugin-related operations.
@@ -27,7 +33,7 @@ public class PluginUtils {
      *                                  the number of expected types, or if any 
      *                                  parameter does not match its expected type.
      */
-    public static void validateParams(ArrayList<Object> params, Class<?>... expectedTypes) throws IllegalArgumentException {
+    public static void validateParams(List<Object> params, Class<?>... expectedTypes) throws IllegalArgumentException {
         Objects.requireNonNull(params, "Params cannot be null");
 
         // check if the size of the params list is the same as the size of the expectedTypes list
@@ -42,5 +48,29 @@ public class PluginUtils {
         .ifPresent(index -> {
             throw new IllegalArgumentException("Parameter at index " + index + " does not match the expected type");
         });
+    }
+
+    /**
+     * Get the current inventory and what is needed in one map.
+     * @param quest the quest to predict needed inventory for.
+     * @param inventory the current inventory without any required.
+     * @return the current inventory combined with the required one.
+     */
+    public static Map<Material, Integer> getPredictiveInventory(Quest quest, Map<Material, Integer> inventory) {
+        // create inventory of required (and out of stock) and stocked
+        Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
+        Map<Material, Integer> requiredInventory = quest.getRequiredInventory();
+
+        // put required items (as missing)
+        if (requiredInventory != null) { 
+            requiredInventory.forEach((material, count) -> predictiveInventory.put(material, -1)); 
+        }
+        
+        // put stocked items (and replace/compensate for missing)
+        if (inventory != null) { 
+            predictiveInventory.putAll(inventory); 
+        }
+        
+        return predictiveInventory;
     }
 }

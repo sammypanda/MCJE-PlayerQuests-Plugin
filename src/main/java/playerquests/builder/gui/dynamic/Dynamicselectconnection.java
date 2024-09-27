@@ -174,5 +174,4 @@ public class Dynamicselectconnection extends GUIDynamic {
         this.onSelect = onSelect;
         return onSelect;
     }
-    
 }

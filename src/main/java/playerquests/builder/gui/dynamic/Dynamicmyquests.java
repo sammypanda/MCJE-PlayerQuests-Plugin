@@ -3,6 +3,7 @@ package playerquests.builder.gui.dynamic;
 import java.util.ArrayList; // stores the quests this player owns
 import java.util.Arrays; // working with literal arrays
 import java.util.LinkedHashSet; // hash set, but with order :D
+import java.util.List;
 import java.util.Set; // generic set type
 import java.util.UUID; // for working with in-game player IDs
 import java.util.concurrent.CompletableFuture; // async methods
@@ -154,7 +155,7 @@ public class Dynamicmyquests extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            new ArrayList<>(Arrays.asList(this.previousScreen)), // set the previous screen 
+            Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director
         ));
 
@@ -194,7 +195,7 @@ public class Dynamicmyquests extends GUIDynamic {
             String questID = remainingTemplates.get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
-            ArrayList<Object> screen;
+            List<Object> screen;
 
             Quest quest = QuestRegistry.getInstance().getQuest(questID);
 
@@ -227,10 +228,10 @@ public class Dynamicmyquests extends GUIDynamic {
             questSlot.setLabel(questID.split("_")[0]);
 
             if (playerUUID.equals(quest.getCreator())) {
-                screen = new ArrayList<>(Arrays.asList("myquest"));
+                screen = Arrays.asList("myquest");
                 questSlot.setItem("BOOK");
             } else {
-                screen = new ArrayList<>(Arrays.asList("theirquest"));
+                screen = Arrays.asList("theirquest");
                 questSlot.setItem("ENCHANTED_BOOK");
                 questSlot.setLabel(questSlot.getLabel() + " (Shared)");
             }
@@ -248,5 +249,4 @@ public class Dynamicmyquests extends GUIDynamic {
             return false; // continue the loop (as in match not found, continue)
         });
     }
-    
 }

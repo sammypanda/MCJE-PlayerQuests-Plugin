@@ -4,6 +4,8 @@ import java.util.ArrayList; // array list type
 import java.util.List; // generic list type
 import java.util.Optional;
 
+import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.listener.EmptyActionListener;
 import playerquests.builder.quest.data.ActionOption; // enums for possible options to add to an action
 import playerquests.builder.quest.stage.QuestStage; // refers to a stage which this action may belong to
 import playerquests.client.quest.QuestClient; // the quester themselves
@@ -32,10 +34,25 @@ public class None extends QuestAction {
     }
 
     @Override
-    public void Run(QuestClient quester) {}
+    protected Boolean custom_Finish(QuestClient quester, ActionListener<?> listener) {
+        return true;
+    }
 
     @Override
-    public Optional<String> validate() {
+    protected ActionListener<?> custom_Listener(QuestClient quester) {
+        return new EmptyActionListener(this, quester);
+    }
+
+    @Override
+    protected void custom_Run(QuestClient quester) {}
+
+    @Override
+    protected Optional<String> custom_Validate() {
         return Optional.empty(); // valid
+    }
+
+    @Override
+    protected Boolean custom_Check(QuestClient quester, ActionListener<?> listener) {
+        return true;
     }
 }

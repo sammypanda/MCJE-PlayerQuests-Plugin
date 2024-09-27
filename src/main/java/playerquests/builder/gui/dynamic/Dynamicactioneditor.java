@@ -4,9 +4,10 @@ import java.util.ArrayList; // array type of list
 import java.util.Arrays; // generic array handling
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
-import java.util.Optional; // for a value that may be null
 import java.util.stream.Collectors; // summising a stream to a data type
 import java.util.stream.IntStream; // functional loops
+
+import org.bukkit.inventory.ItemStack;
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.function.ChatPrompt; // prompts the user for input
@@ -74,23 +75,15 @@ public class Dynamicactioneditor extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.onClick(() -> {
-            Optional<String> validity = action.validate(); // check if action is valid
-
-            // exit and send error if action is invalid
-            if (!validity.isEmpty()) {
-                ChatUtils.message(validity.get())
-                    .player(this.director.getPlayer())
-                    .type(MessageType.WARN)
-                    .send();
-                return;
-            }
+            // check if action is valid
+            action.Validate();
 
             // update quest
             QuestRegistry.getInstance().submit(this.stage.getQuest());
 
             // switch GUI
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList("queststage")), // set the previous screen 
+                Arrays.asList("queststage"), // set the previous screen 
                 director // set the client director
             ).execute();
         });
@@ -103,7 +96,7 @@ public class Dynamicactioneditor extends GUIDynamic {
                 this.director.setCurrentInstance(this.action.getConnections());
 
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("connectioneditor")), 
+                    Arrays.asList("connectioneditor"), 
                     director
                 ).execute();
             });
@@ -130,7 +123,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 // update UI
                 new UpdateScreen(
-                    new ArrayList<>(Arrays.asList("queststage")), 
+                    Arrays.asList("queststage"), 
                     director
                 ).execute();
             });
@@ -141,7 +134,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         typeButton.setLabel("Change Type (" + this.action.toString() + ")");
         typeButton.onClick(() -> {
             new UpdateScreen(
-                new ArrayList<>(Arrays.asList("actiontypes")),
+                Arrays.asList("actiontypes"),
                 director
             ).execute();
         });
@@ -205,7 +198,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 optionSlot.onClick(() -> {
                     new UpdateScreen(
-                        new ArrayList<>(Arrays.asList("selectnpc")), 
+                        Arrays.asList("selectnpc"), 
                         director
                     ).onFinish(function -> {
                         UpdateScreen functionUpdateScreen = (UpdateScreen) function;
@@ -231,7 +224,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 optionSlot.onClick(() -> { 
                     new ChatPrompt(
-                        new ArrayList<>(Arrays.asList("Enter the dialogue", "none")), 
+                        Arrays.asList("Enter the dialogue", "none"), 
                         this.director
                     ).onFinish((function) -> {
                         ChatPrompt prompt = (ChatPrompt) function; // cast the GUIFunction as ChatPrompt
@@ -248,6 +241,75 @@ public class Dynamicactioneditor extends GUIDynamic {
                         this.execute();
                     }).execute();
                 });
+                break;
+            case ITEMS:
+                // open the items list screen
+                optionSlot.onClick(() -> {
+                    // fetch existing items list
+                    ArrayList<ItemStack> items = (ArrayList<ItemStack>) this.action.getItems();
+
+                    // if items list exists, set it as the current instance to use
+                    if (items != null) {
+                        this.director.setCurrentInstance(items);
+                    }
+
+                    new UpdateScreen(
+                        Arrays.asList("itemslist"), 
+                        director
+                    ).onFinish((GUI) -> {
+                        // get the itemslist gui instance
+                        UpdateScreen updateScreen = (UpdateScreen) GUI;
+                        Dynamicitemslist itemslistGUI = (Dynamicitemslist) updateScreen.getDynamicGUI();
+
+                        itemslistGUI.onFinish((_) -> {
+                            List<ItemStack> itemslist = itemslistGUI.getItems();
+
+                            // exit if no items in the list
+                            if (itemslist == null) {
+                                return;
+                            }
+                            
+                            // set this as the list of items
+                            this.action.setItems(itemslist);
+
+                            // update quest
+                            this.stage.getQuest().save();
+                            
+                            // refresh to see changes
+                            this.execute();
+                        });
+                    }).execute();
+                });
+                break;
+        case FINISH_MESSAGE:
+                String finishMessage = this.action.getFinishMessage();
+
+                if (finishMessage != null) {
+                    Integer maxLength = 16;
+                    optionSlot.setDescription(String.format("%s%s", 
+                        finishMessage.length() >= maxLength ? finishMessage.substring(0, maxLength) : finishMessage,
+                        finishMessage.length() > maxLength ? "..." : ""
+                    ));
+                }
+
+                // handle clicking the option slot
+                optionSlot.onClick(() -> {
+
+                    // create a new chat prompt to get the value
+                    new ChatPrompt(
+                        Arrays.asList("Enter the finish message", "none"), director
+                    )
+                    .onFinish((f) -> {
+                        ChatPrompt function = (ChatPrompt) f;
+                        
+                        // get the value
+                        this.action.setFinishMessage(function.getResponse());
+
+                        // refresh to see updated value
+                        this.execute();
+                    }).execute();;
+                });
+                break;
         }
     }
 }

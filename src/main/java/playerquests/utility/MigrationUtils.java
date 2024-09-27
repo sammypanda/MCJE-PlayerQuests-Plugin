@@ -134,4 +134,27 @@ public class MigrationUtils {
             COMMIT;
         """;
     }
+
+    /**
+     * Gets the migration query for version 0.7.
+     * 
+     * This query script adds the capability for quest inventories.
+     * <ul>
+     *     <li>Begins a transaction to ensure atomicity of the operations.</li>
+     *     <li>Adds the inventory column to the quests table.</li>
+     * </ul>
+     * 
+     * @return The SQL script string for migrating to version 0.7.
+     */
+    public static Object dbV0_7() {
+        return """
+            -- Begin a transaction to ensure all operations are atomic
+            BEGIN TRANSACTION;
+
+            ALTER TABLE quests ADD COLUMN inventory TEXT NOT NULL DEFAULT "{ }"  ;
+
+            -- Commit the transaction if everything is successful
+            COMMIT;
+        """;    
+    }
 }

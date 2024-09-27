@@ -1,6 +1,6 @@
 package playerquests.builder.gui.function;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,7 +28,7 @@ public class SelectLocation extends GUIFunction {
 
     private class SelectLocationListener implements Listener {
         /**
-         * The SelectBlock instance.
+         * The SelectMaterial instance.
          */
         private SelectLocation parentClass;
 
@@ -125,7 +125,7 @@ public class SelectLocation extends GUIFunction {
      *               to contain a single {@link String} representing the prompt message.
      * @param director The {@link ClientDirector} used to interact with the GUI and player.
      */
-    public SelectLocation(ArrayList<Object> params, ClientDirector director) {
+    public SelectLocation(List<Object> params, ClientDirector director) {
         super(params, director);
     }
 
