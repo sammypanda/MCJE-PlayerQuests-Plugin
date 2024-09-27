@@ -24,6 +24,7 @@ import playerquests.builder.quest.data.ConnectionsData; // indicates where this 
 import playerquests.builder.quest.npc.QuestNPC; // represents NPCs
 import playerquests.builder.quest.stage.QuestStage; // represents quest stages
 import playerquests.client.quest.QuestClient; // the quester themselves
+import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageType;
 
@@ -344,14 +345,17 @@ public abstract class QuestAction {
             return;
         }
 
-        // initial try + attach the finish listener
-        this.Check(quester, this.custom_Listener(quester));
+        // determine if is during a wait
+        Quest quest = this.getStage().getQuest();
+        if (quester.isLocked(quest)) {
+            this.waiting = true;
+        }
 
         // run initial
         this.custom_Run(quester);
 
-        // go to current to wait
-        // TODO: go to current
+        // initial try + attach the finish listener
+        this.Check(quester, this.custom_Listener(quester));
     }
 
     /**
@@ -390,6 +394,7 @@ public abstract class QuestAction {
             return true;
         }
 
+        quester.wait(this);
         return false;
     }
 
@@ -400,6 +405,7 @@ public abstract class QuestAction {
      * @return whether the action could successfully finish
      */
     public Boolean Finish(QuestClient quester, ActionListener<?> listener) {
+        Quest quest = this.getStage().getQuest();
         listener.close(); // stop the listener
 
         // run action defined finish process
@@ -410,7 +416,10 @@ public abstract class QuestAction {
             return false;
         }
 
-        quester.gotoNext(this); // go to next action
+        if (!this.waiting) {
+            quester.setLocked(quest, false); // unlock (since im a main action that just finished)
+        }
+        quester.start(this, true); // go to next action
         return true;
     }
 
