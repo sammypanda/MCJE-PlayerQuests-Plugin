@@ -73,7 +73,7 @@ public abstract class GUIDynamic {
     }
 
     /**
-     * Method to be overridden by each meta action class.
+     * Method to be overridden by each gui function class.
      */
     public void execute() {
         // run setup on first time

@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException; // Thrown when JSON c
 import com.fasterxml.jackson.databind.JsonMappingException; // Thrown when JSON is malformed
 
 import playerquests.Core; // Access to plugin singleton
-import playerquests.client.quest.QuestClient; // Represents a quest client for player quest tracking
 import playerquests.product.Quest; // Represents a quest product class
 import playerquests.utility.ChatUtils; // Utility for sending chat messages
 import playerquests.utility.ChatUtils.MessageStyle; // Enum for different message styles
@@ -62,7 +61,6 @@ public class ServerListener implements Listener {
         // Ensure quest processing runs on the main thread
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             processQuests();
-            createQuestClients();
         });
 
         startWatchService(); // start fs watching
@@ -207,16 +205,6 @@ public class ServerListener implements Listener {
             if (errorOccurred) {
                 Database.getInstance().removeQuest(id);
             }
-        });
-    }
-
-    /**
-     * Creates a quest client for each online player and adds it to the quest registry.
-     */
-    private void createQuestClients() {
-        Bukkit.getServer().getOnlinePlayers().forEach(player -> {
-            QuestClient quester = new QuestClient(player);
-            QuestRegistry.getInstance().addQuester(quester);
         });
     }
 

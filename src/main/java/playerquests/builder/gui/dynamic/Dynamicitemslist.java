@@ -176,8 +176,7 @@ public class Dynamicitemslist extends GUIDynamic {
 
     /**
      * Go back after item editor (should be to this itemlist screen).
-     * Aiming to preserve the onFinish function from the action editor.
-     * @param function
+     * @param function the function gone back from.
      */
     private void goBack(UpdateScreen function) {
         new UpdateScreen(

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serial
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
 import playerquests.Core; // gets the KeyHandler singleton
-import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
@@ -27,8 +26,8 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 /**
  * For creating and managing a Quest.
  * 
- * The {@link QuestBuilder} class provides methods to build and configure quests, including
- * defining stages, adding NPCs, and setting entry points. It also supports loading from existing
+ * The {@link QuestBuilder} class provides methods to build and configure quests.
+ * It also supports loading from existing
  * quest templates and validating the quest setup.
  */
 public class QuestBuilder {
@@ -53,11 +52,6 @@ public class QuestBuilder {
      */
     @JsonProperty("title")
     private String title = ""; // default quest title
-
-    /**
-     * Entry point for the quest.
-     */
-    private StagePath entryPoint;
 
     /**
      * Map of the NPC characters.
@@ -93,17 +87,13 @@ public class QuestBuilder {
     public QuestBuilder(ClientDirector director) {
         this.director = director;
 
-        // default entry point as first stage (stage_0)
+        // default first stage (stage_0)
         QuestStage stage = new QuestStage(this.build(), 0);
-        this.entryPoint = new StagePath(
-            stage,
-            null
-        );
         
         // make it modifiable
         director.setCurrentInstance(stage);
 
-        // add default entry point stage to questPlan map
+        // add default stage to questPlan map
         this.questPlan.put(stage.getID(), stage);
 
         // set as the current quest in the director
@@ -123,11 +113,6 @@ public class QuestBuilder {
 
             // set the new quest title the same as the product quest title
             this.title = product.getTitle();
-
-            // add the entry point stage from the product
-            QuestStage entryStage = product.getStages().get(product.getEntry().getStage());
-            this.entryPoint = new StagePath(entryStage, null);
-            director.setCurrentInstance(entryStage); // make it modifiable
 
             // add the stages from the product
             this.questPlan = product.getStages();
@@ -225,29 +210,6 @@ public class QuestBuilder {
     @Key("Quest")
     public String getTitle() {
         return this.title;
-    }
-
-    /**
-     * Get the entry point ID.
-     * <p>
-     * Should be a stage.
-     * 
-     * @return The string representation of the entry point.
-     */
-    @JsonProperty("entry")
-    public String getEntryPointString() {
-        return this.entryPoint.toString();
-    }
-
-    /**
-     * Set the entry point for this quest.
-     * <p>
-     * Should be a stage.
-     * 
-     * @param path The {@link StagePath} representing the entry point stage.
-     */
-    public void setEntryPoint(StagePath path) {
-        this.entryPoint = path;
     }
 
     /**
@@ -397,7 +359,6 @@ public class QuestBuilder {
         // compose the quest product from the builder state
         Quest product = new Quest(
             this.title,
-            this.entryPoint,
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
@@ -436,15 +397,6 @@ public class QuestBuilder {
      */
     public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
         Boolean canRemove = true; // whether the stage is safe to remove
-
-        // tests for if any is dependent on this stage
-        Boolean connectionsDependency = !this.questPlan.get(questStage.getID()).getConnections().isEmpty(); // if the stage is connected to anything else
-        Boolean entryDependency = this.entryPoint.getStage() == questStage.getID(); // if the stage is part of the quest entry point
-
-        // check if unable to remove (if are dependencies)
-        if (connectionsDependency || entryDependency) {
-            canRemove = false;
-        }
         
         if (dryRun) { // if just to test if removable
             return canRemove; // don't continue

@@ -14,7 +14,7 @@ import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
  * A dynamic GUI screen for displaying and managing a specific quest.
  * <p>
  * This screen allows users to view the details of a quest, edit the quest, delete the quest with confirmation,
- * and toggle the quest's active status. The layout includes buttons for each of these actions.
+ * and toggle the quest's active status.
  * </p>
  */
 public class Dynamicmyquest extends GUIDynamic {

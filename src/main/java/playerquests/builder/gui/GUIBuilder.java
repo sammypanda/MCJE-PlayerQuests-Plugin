@@ -74,7 +74,7 @@ public class GUIBuilder implements Builder {
 
     /**
      * Instantiate a GUIBuilder with default GUI and set as current GUIBuilder.
-     * @param director director for meta actions to utilise.
+     * @param director director for the gui to utilise.
      */
     public GUIBuilder(ClientDirector director) {
         new GUIBuilder(director, true); // create and set as current GUIBuilder
@@ -82,7 +82,7 @@ public class GUIBuilder implements Builder {
 
     /**
      * Instantiate a GUIBuilder with default GUI + choice if set as current GUIBuilder.
-     * @param director director for meta actions to utilise.
+     * @param director director for the gui to utilise.
      * @param current if to set the builder as the current builder instance.
      */
     public GUIBuilder(ClientDirector director, Boolean current) {

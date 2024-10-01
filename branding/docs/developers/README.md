@@ -7,7 +7,7 @@
 ###### How pre-defined but flexible functionality is actually associated with buttons and other behaviours.
 Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. Here is a list for devs or if you're a very brave user.
 
-###### Meta Actions (Functions)
+###### gui functions (Functions)
 | Function (How to refer to) | Parameters (How to customise)                                                                                 | Purpose (What it does)                                                    |
 |----------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
 | UpdateScreen               | 1: the dynamic GUI name                                                                                       | Changes the current GUI screen to a different GUI                         |
@@ -31,7 +31,6 @@ Usually you would never need this, but this is what makes it all tick. When you 
 ```json
 {
     "title": String, // label of the entire quest
-    "entry": String, // Path: (as in 'entry point') where the quest starts
     "creator": UUID, // the player who created this quest
     "id": String, // the id, composed of: [Quest Title]_[Creator UUID]
     "inventory": {
@@ -57,28 +56,6 @@ Usually you would never need this, but this is what makes it all tick. When you 
         "stage_0": { // Stage ID (automatically generated)
             "notable": Boolean, // if it would show up as a chapter in a book; a notable stage
             "label": String, // the label for just this stage, as if it were a chapter
-            "entry": String, // Path: where the stage starts
-            "actions": { // directory of all this stage's actions
-                "action_0": {  // Action ID (automatically generated)
-                    "type": String, // Quest Action type
-                    "id": String, // Quest Action ID
-                    "npc": String, // NPC ID (if applicable)
-                    "dialogue": String Array, // Dialogue lines (if applicable) 
-                    "items": {
-                        "MATERIAL": Integer // a map of items
-                    },
-                    "connections": { // defining where the action is in the stage
-                        "next": @Nullable String, // where to go if the action succeeds
-                        "curr": @Nullable String, // where to return to if the action is exited
-                        "prev": @Nullable String // where to go if the actions fails
-                    }
-                }
-            },
-            "connections": { // defining where the stage is in the quest
-                "next": @Nullable String, // Path: where to go if the stage succeeds
-                "curr": @Nullable String, // Path: where to return to if the stage is exited
-                "prev": @Nullable String // Path: where to go if the stage fails
-            }
         },
     }
 }

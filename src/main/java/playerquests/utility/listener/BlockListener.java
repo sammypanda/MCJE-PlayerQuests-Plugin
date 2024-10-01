@@ -20,9 +20,7 @@ import org.bukkit.inventory.EquipmentSlot; // identifies which hand was used to 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC; // the core information about an NPC
-import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // final quest products
-import playerquests.utility.singleton.QuestRegistry; // application quest state
 
 /**
  * Listens for block-related events to manage interactions with BlockNPCs in the game.
@@ -119,10 +117,6 @@ public class BlockListener implements Listener {
 
         // stop accidental modification of the quest block
         event.setCancelled(true);
-
-        QuestNPC npc = activeBlockNPCs.get(block).getNPC();
-        QuestClient quester = QuestRegistry.getInstance().getQuester(event.getPlayer());
-        quester.interact(npc);
     }
 
     /**
