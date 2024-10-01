@@ -1,7 +1,7 @@
 package playerquests.builder.gui.function;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List; // used to store the params for this meta action
+import java.util.List; // used to store the params for this gui function
 
 import playerquests.builder.gui.GUIBuilder; // used to work with the GUI screen
 import playerquests.builder.gui.dynamic.GUIDynamic;

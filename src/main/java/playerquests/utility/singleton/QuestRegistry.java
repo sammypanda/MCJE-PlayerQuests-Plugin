@@ -14,7 +14,6 @@ import org.bukkit.entity.Player; // representing players
 
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC;
-import playerquests.client.quest.QuestClient; // player quest state
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
 import playerquests.utility.FileUtils;
@@ -41,11 +40,6 @@ public class QuestRegistry {
      * The map holding the quests.
      */
     private final Map<String, Quest> registry = new HashMap<String, Quest>();
-
-    /**
-     * The map holding the quest clients (questers).
-     */
-    private final Map<Player, QuestClient> questers = new HashMap<Player, QuestClient>();
 
     /**
      * The inventories belonging to quests.
@@ -260,34 +254,6 @@ public class QuestRegistry {
     }
 
     /**
-     * Adds a quest client to the registry, identified by the player behind the client.
-     * 
-     * @param quester a quest client
-     */
-    public void addQuester(QuestClient quester) {
-        questers.put(quester.getPlayer(), quester);
-    }
-
-    /**
-     * Gets a quest client associated with a player.
-     * 
-     * @param player the player the quest client is for
-     * @return a quest client instance
-     */
-    public QuestClient getQuester(Player player) {
-        return questers.get(player);
-    }
-
-    /**
-     * Gets all the quest clients associated with all the players. 
-     * 
-     * @return a map of quest client instances
-     */
-    public Map<Player, QuestClient> getQuesters() {
-        return questers;
-    }
-
-    /**
      * Gets the map of all quests that have been registered.
      * 
      * @return the map of registered quests
@@ -301,7 +267,6 @@ public class QuestRegistry {
      */
     public void clear() {
         this.registry.clear();
-        this.questers.clear();
     }
 
     /**

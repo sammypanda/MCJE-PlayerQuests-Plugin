@@ -1,10 +1,7 @@
 package playerquests.builder.quest.data;
 
-import javax.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.product.Quest;
 
@@ -25,7 +22,6 @@ import playerquests.product.Quest;
  */
 public class StagePath {
     private String stage;
-    private String action;
 
     /**
      * Constructs a new {@code StagePath} from a string value. 
@@ -41,19 +37,8 @@ public class StagePath {
         // segment[1] (if exists) = action_?
         String[] segments = path.split("\\.");
 
-        // for backwards compatibility and dummies; segment[0] = action_?
-        if (segments[0].contains("action")) {
-            this.action = segments[0];
-            return;
-        }
-
         // for correct string representation/template behaviour
         this.stage = segments[0];
-        this.action = null;
-
-        if (segments.length > 1) {
-            this.action = segments[1]; 
-        }
     }
 
     /**
@@ -62,26 +47,9 @@ public class StagePath {
      * The ID of the provided {@code QuestStage} is used as the stage ID. If an action is provided, its ID is used as the action ID.
      * 
      * @param stage the {@code QuestStage} object representing the stage
-     * @param action the {@code QuestAction} object representing the action, or {@code null} if there is no action
      */
-    public StagePath(QuestStage stage, @Nullable QuestAction action) {
+    public StagePath(QuestStage stage) {
         this.stage = stage.getID();
-        this.action = null;
-
-        if (action != null) {
-            this.action = action.getID();
-        }
-    }
-
-    /**
-     * Constructs a new {@code StagePath} from disjoined strings.
-     * 
-     * @param stage the ID of the quest stage
-     * @param action the ID of the quest action, or {@code null} if there is no action
-     */
-    public StagePath(String stage, @Nullable String action) {
-        this.stage = stage;
-        this.action = action;
     }
 
     /**
@@ -109,31 +77,6 @@ public class StagePath {
     }
 
     /**
-     * Returns the quest action ID.
-     *
-     * @return the quest action ID
-     */
-    public String getAction() {
-        return action != null ? action : null;
-    }
-
-    /**
-     * Returns the {@code QuestAction} object associated with this path.
-     * 
-     * @param quest the {@code Quest} object containing the actions
-     * @return the {@code QuestAction} object for the stored action ID, or the default action if the ID is null
-     */
-    public QuestAction getAction(Quest quest) {
-        QuestStage stage = this.getStage(quest);
-
-        if (this.action == null) {
-            return stage.getEntryPoint().getAction(quest); // try next entry point
-        }
-
-        return stage.getActions().get(action);
-    }
-
-    /**
      * Returns a string representation of this {@code StagePath}, in the format
      * "[stage ID].[action ID]" or "[stage ID]".
      *
@@ -141,11 +84,8 @@ public class StagePath {
      */
     @JsonValue
     public String toString() {
-        String action = this.getAction(); // will be action if it exists, otherwise null
-
-        return String.format("%s%s",
-            this.getStage(),
-            action != null ? "."+action : ""
+        return String.format("%s",
+            this.getStage()
         );
     }
 }

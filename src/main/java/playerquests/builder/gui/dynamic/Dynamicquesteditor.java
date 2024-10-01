@@ -7,7 +7,6 @@ import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
-import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector; // accessing the client state
 import playerquests.utility.singleton.QuestRegistry;
 
@@ -102,28 +101,6 @@ public class Dynamicquesteditor extends GUIDynamic {
                     director
                 )
             );
-
-        new GUISlot(gui, 7) // change entry point
-            .setItem("ENDER_EYE")
-            .setLabel("Choose An Entry Point")
-            .onClick(() -> {
-                new UpdateScreen(
-                    Arrays.asList("selectconnection"), 
-                    director
-                ).onFinish((f) -> {
-                    UpdateScreen function = (UpdateScreen) f;
-                    Dynamicselectconnection selector = (Dynamicselectconnection) function.getDynamicGUI();
-
-                    selector.onSelect((selected) -> {
-                        // get the chosen entry point (as a stage path 'stage_[num].action_[num]' for precision)
-                        StagePath path = (StagePath) selected;
-                        questBuilder.setEntryPoint(new StagePath(path.getStage(), path.getAction()));
-
-                        // update the quest
-                        QuestRegistry.getInstance().submit(this.questBuilder.build());
-                    });
-                }).execute();
-            });
 
         new GUISlot(gui, 9) // save quest button
             .setItem("GREEN_DYE")
