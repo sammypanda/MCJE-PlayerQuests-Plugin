@@ -151,16 +151,6 @@ public class Database {
             + "FOREIGN KEY (player) REFERENCES players(uuid));";
             statement.execute(diariesTableSQL);
             
-            String diary_questsTableSQL = "CREATE TABLE IF NOT EXISTS diary_quests ("
-            + "id TEXT PRIMARY KEY,"
-            + "stage TEXT NOT NULL,"
-            + "action TEXT,"
-            + "quest TEXT,"
-            + "diary TEXT,"
-            + "FOREIGN KEY (quest) REFERENCES quests(id)"
-            + "FOREIGN KEY (diary) REFERENCES diaries(id));";
-            statement.execute(diary_questsTableSQL);
-            
             migrate(version, dbVersion);
 
         } catch (SQLException e) {
@@ -227,6 +217,7 @@ public class Database {
             
             switch (version) {
                 case "0.8":
+                    query.append(MigrationUtils.dbV0_8());
                 case "0.7":
                     query.append(MigrationUtils.dbV0_7());
                 case "0.6":
