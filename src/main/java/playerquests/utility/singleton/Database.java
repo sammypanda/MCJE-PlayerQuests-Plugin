@@ -233,6 +233,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
             
             switch (version) {
+                case "0.8":
                 case "0.7":
                     query.append(MigrationUtils.dbV0_7());
                 case "0.6":
