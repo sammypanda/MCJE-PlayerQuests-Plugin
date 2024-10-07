@@ -70,7 +70,7 @@ They all require logic (shown in runtime order):
 - ``Automated: The check method; to trigger the validate or finish``
 - A validate method; logic to validate if was successful or not. 
 - ``Automated: The stop method; to complete the action``
-- A finish method; like giving rewards or other completion logic.
+- onSuccess and onFailure methods; like giving rewards and other completion logic.
 - (if not valid or already finished) A private``Listener`` class to trigger future checks.
 
 They should all be set up with some data:
