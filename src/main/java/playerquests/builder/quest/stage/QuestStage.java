@@ -2,9 +2,11 @@ package playerquests.builder.quest.stage;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
+import com.fasterxml.jackson.annotation.JsonKey;
 import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
 import playerquests.Core; // accessing plugin singeltons
+import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -22,8 +24,14 @@ public class QuestStage {
     /**
      * The id for the stage
      */
-    @JsonProperty("id")
-    private String stageID = "stage_-1";
+    @JsonKey    
+    private String stageID;
+
+    /**
+     * Entry point action for the stage.
+     */
+    @JsonProperty("entry")
+    private StagePath entryPoint;
 
     /**
      * Default constructor for Jackson deserialization.
@@ -32,7 +40,6 @@ public class QuestStage {
 
     /**
      * Constructs a new {@code QuestStage} with the specified stage ID.
-     *
      * @param stageID the unique identifier for this stage
      */
     public QuestStage(String stageID) {
@@ -44,7 +51,6 @@ public class QuestStage {
 
     /**
      * Constructs a new {@code QuestStage} for the given quest with a numeric stage ID.
-     *
      * @param quest the quest this stage belongs to
      * @param stageIDNumber the numeric identifier for this stage
      */
@@ -60,9 +66,7 @@ public class QuestStage {
 
     /**
      * Constructs a new {@code QuestStage} for the given quest with a fully qualified stage ID.
-     * 
      * This constructor parses the stage ID from the provided string and initializes the stage.
-     *
      * @param quest the quest this stage belongs to
      * @param stageID the fully qualified stage ID (e.g., "stage_1")
      */
@@ -72,7 +76,6 @@ public class QuestStage {
 
     /**
      * Sets the quest associated with this stage.
-     *
      * @param quest the quest to associate with this stage
      */
     public void setQuest(Quest quest) {
@@ -81,7 +84,6 @@ public class QuestStage {
 
     /**
      * Gets the quest associated with this stage.
-     *
      * @return the quest associated with this stage
      */
     public Quest getQuest() {
@@ -90,23 +92,26 @@ public class QuestStage {
 
     /**
      * Returns the unique identifier for this stage.
-     *
      * @return the stage ID
      */
+    @JsonIgnore
     public String getID() {
+        if (this.stageID == null) {
+            throw new IllegalArgumentException("Stage IDs cannot be null.");
+        }
+
         return this.stageID;
     }
 
     /**
      * Returns the title of the stage. Currently represented as the stage ID.
-     *
      * @return the title of the stage
      */
     @JsonIgnore
     @Key("QuestStage")
     public String getTitle() {
         return this.stageID;
-    }
+    }                           
 
     @Override
     public String toString() {
