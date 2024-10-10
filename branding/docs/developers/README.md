@@ -67,11 +67,11 @@ It is an extendable (inheritable) class.
 They all require logic (shown in runtime order):
 - ``Automated: The run method; to start the action``
 - A preparation method; before registering the listener.
+- A private``Listener`` class to trigger checks.
 - ``Automated: The check method; to trigger the validate or finish``
 - A validate method; logic to validate if was successful or not. 
 - ``Automated: The stop method; to complete the action``
 - onSuccess and onFailure methods; like giving rewards and other completion logic.
-- (if not valid or already finished) A private``Listener`` class to trigger future checks.
 
 They should all be set up with some data:
 - A list of action option objects (see below).
