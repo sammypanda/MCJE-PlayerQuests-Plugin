@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.stage.QuestStage;
-import playerquests.client.quest.QuestClient;
 
 /**
  * The class that lays out how functionality
@@ -42,58 +42,61 @@ public abstract class QuestAction {
 
     /**
      * Starts the action.
-     * @param quester who the action is running for.
+     * @param context the action data for the current runtime.
      */
-    public void run(QuestClient quester) {}
+    public void run(ActionData<? extends ActionListener<?>> context) {}
 
     /**
      * Setting up the action before any 
      * checking.
+     * @param context the action data for the current runtime.
      */
-    protected abstract void prepare();
+    protected abstract void prepare(ActionData<? extends ActionListener<?>> context);
 
     /**
      * Determines if the action should
      * now finish.
-     * @param quester the client for the quester.
-     * @param listener instance of the listener that called the check.
+     * @param context the action data for the current runtime.
      */
-    public void check(QuestClient quester, ActionListener<?> listener) {}
+    public void check(ActionData<? extends ActionListener<?>> context) {}
 
     /**
      * Logic to indicate that the quest
      * was successfully completed.
      * Should set values to help other methods.
-     * @param quester the client for the quester.
-     * @param listener instance of the listener that called the check.
+     * @param context the action data for the current runtime.
      * @return if was successful
      */
-    protected abstract Boolean validate(QuestClient quester, ActionListener<?> listener);
+    protected abstract Boolean validate(ActionData<? extends ActionListener<?>> context);
 
     /**
      * Completes the action.
      * - Determines whether should call 
-     * {@link #onSuccess()} or {@link #onFailure()}
+     * {@link #onSuccess(ActionData)} or {@link #onFailure(ActionData)}
+     * @param context the action data for the current runtime.
      */
-    private void stop() {}
+    protected void stop(ActionData<? extends ActionListener<?>> context) {}
 
     /**
      * Things to do when the action was
      * successfully completed.
+     * @param context the action data for the current runtime.
      * @return a block of code to run
      */
-    protected abstract Runnable onSuccess();
+    protected abstract Runnable onSuccess(ActionData<? extends ActionListener<?>> context);
 
     /**
      * Things to do when the action was
      * aborted early.
+     * @param context the action data for the current runtime.
      * @return a block of code to run
      */
-    protected abstract Runnable onFailure();
+    protected abstract Runnable onFailure(ActionData<? extends ActionListener<?>> context);
 
     /**
      * Starts listener that will trigger checks.
+     * @param context the action data for the current runtime.
      * @return the listener for the action
      */
-    protected abstract ActionListener<?> startListener();
+    protected abstract ActionListener<?> startListener(ActionData<? extends ActionListener<?>> context);
 }
