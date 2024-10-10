@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/seria
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
 import playerquests.Core; // the main class of this plugin
-import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat

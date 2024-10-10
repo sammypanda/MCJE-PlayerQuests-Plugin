@@ -3,10 +3,8 @@ package playerquests.builder.quest.stage;
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
 import com.fasterxml.jackson.annotation.JsonKey;
-import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -26,12 +24,6 @@ public class QuestStage {
      */
     @JsonKey    
     private String stageID;
-
-    /**
-     * Entry point action for the stage.
-     */
-    @JsonProperty("entry")
-    private StagePath entryPoint;
 
     /**
      * Default constructor for Jackson deserialization.
