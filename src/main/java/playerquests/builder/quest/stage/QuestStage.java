@@ -1,10 +1,14 @@
 package playerquests.builder.quest.stage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.Core; // accessing plugin singeltons
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -24,6 +28,12 @@ public class QuestStage {
      */
     @JsonProperty("id")
     private String id;
+
+    /**
+     * The map of actions
+     */
+    @JsonProperty("actions")
+    private Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
 
     /**
      * Constructs a new {@code QuestStage} with the specified stage ID.
@@ -107,5 +117,27 @@ public class QuestStage {
      */
     public void setID(String id) {
         this.id = id;
+    }
+
+    /**
+     * Gets a map of actions in this stage.
+     * @return the actions
+     */
+    public Map<String, QuestAction> getActions() {
+        return this.actions;    
+    }
+
+    /**
+     * Adds a new action to this stage.
+     * This method generates a new action ID, assigns it to the action, and adds it to the actions map.
+     * @param action the action to add
+     * @return the ID of the newly added action
+     */
+    @JsonIgnore
+    public String addAction(QuestAction action) {
+        String actionID = "action_"+this.actions.size(); // get next ID
+        action.setID(actionID); // set the ID local to the action
+        this.actions.put(action.getID(), action); // add to the actions map
+        return actionID;
     }
 }

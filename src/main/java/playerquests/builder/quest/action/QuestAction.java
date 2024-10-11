@@ -2,6 +2,7 @@ package playerquests.builder.quest.action;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.data.ActionData;
@@ -23,6 +24,12 @@ public abstract class QuestAction {
     private final QuestStage stage;
 
     /**
+     * The unique identifier of this action.
+     */
+    @JsonProperty("id")
+    private String id;
+
+    /**
      * Constructs a new QuestAction with the specified stage.
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to.
@@ -38,6 +45,23 @@ public abstract class QuestAction {
     @JsonIgnore
     public QuestStage getStage() {
         return this.stage;
+    }
+
+    /**
+     * Sets the unique identifier for this action.
+     * @param id the unique identifier
+     */
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets the unique identifier for this action.
+     * @return the unique identifier
+     */
+    @JsonIgnore
+    public String getID() {
+        return this.id;
     }
 
     /**
