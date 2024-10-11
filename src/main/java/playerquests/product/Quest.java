@@ -103,16 +103,26 @@ public class Quest {
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (this.stages != null) {
-            for (QuestStage stage : this.stages.values()) {
+            stages.forEach((stage_id, stage) -> {
                 stage.setQuest(this);
-            }
+
+                // set stage ID if it's missing
+                if (stage_id != stage.getID()) {
+                    stage.setID(stage_id);
+                }
+            });
         }
 
         // Set Quest dependency for each QuestNPC instead of custom deserialize
         if (this.npcs != null) { 
-            for (QuestNPC npc : this.npcs.values()) {
+            npcs.forEach((npc_id, npc) -> {
                 npc.setQuest(this);
-            }
+
+                // set npc ID if it's missing
+                if (npc_id != npc.getID()) {
+                    npc.setID(npc_id);
+                }
+            });
         }
     }
 
