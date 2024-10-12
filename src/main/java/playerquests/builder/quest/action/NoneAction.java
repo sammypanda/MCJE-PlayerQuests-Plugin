@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action;
 
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.stage.QuestStage;
 
@@ -18,33 +19,27 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void prepare(ActionData<? extends ActionListener<?>> context) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'prepare'");
+    public String getName() {
+        return "None";
     }
+
+    @Override
+    protected void prepare(ActionData<? extends ActionListener<?>> context) {}
 
     @Override
     protected Boolean validate(ActionData<? extends ActionListener<?>> context) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'validate'");
+        return true;
     }
 
     @Override
-    protected Runnable onSuccess(ActionData<? extends ActionListener<?>> context) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onSuccess'");
-    }
+    protected void onSuccess(ActionData<? extends ActionListener<?>> context) {}
 
     @Override
-    protected Runnable onFailure(ActionData<? extends ActionListener<?>> context) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'onFailure'");
-    }
+    protected void onFailure(ActionData<? extends ActionListener<?>> context) {}
 
     @Override
     protected ActionListener<?> startListener(ActionData<? extends ActionListener<?>> context) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'startListener'");
+        return new NoneListener(this, context);
     }
     
 }

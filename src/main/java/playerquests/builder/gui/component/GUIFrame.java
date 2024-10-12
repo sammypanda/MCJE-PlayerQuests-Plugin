@@ -44,8 +44,9 @@ public class GUIFrame {
      * Set the title of the GUI frame.
      * @param title string of the gui title
      */
-    public void setTitle(String title) {
+    public GUIFrame setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     /**
@@ -80,8 +81,9 @@ public class GUIFrame {
      * Set's the number of slots in the GUI screen.
      * @param size the number of slots (has to be a multiple of 9. Like 9 or 18. Up to 54.
      */
-    public void setSize(int size) {
+    public GUIFrame setSize(int size) {
         this.size = size;
+        return this;
     }
 
     /**
@@ -96,8 +98,9 @@ public class GUIFrame {
      * Sets the mode the GUI is in.
      * @param mode how the GUI can be interacted with
      */
-    public void setMode(GUIMode mode) {
+    public GUIFrame setMode(GUIMode mode) {
         this.mode = mode;
+        return this;
     }
 
 /**

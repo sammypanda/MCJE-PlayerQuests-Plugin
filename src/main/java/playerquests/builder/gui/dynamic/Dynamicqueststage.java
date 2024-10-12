@@ -10,6 +10,7 @@ import playerquests.builder.gui.data.GUIMode;
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.NoneAction;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.singleton.QuestRegistry;
@@ -27,7 +28,7 @@ public class Dynamicqueststage extends GUIDynamic {
     /**
      * The action IDs
      */
-    private List<String> actionKeys;
+    private List<QuestAction> actionKeys;
 
     /**
      * Staging to delete the stage
@@ -65,7 +66,7 @@ public class Dynamicqueststage extends GUIDynamic {
     @Override
     protected void execute_custom() {
         // set actionKeys
-        this.actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
+        this.actionKeys = new ArrayList<QuestAction>(this.questStage.getActions().values());
 
         // set frame title/style
         this.gui.getFrame().setTitle("{QuestStage} Editor");
@@ -94,11 +95,14 @@ public class Dynamicqueststage extends GUIDynamic {
         if (!confirm_actionKeys) {
             IntStream.range(0, actionKeys.size()).anyMatch(index -> {
 
-                String action = actionKeys.get(index);
+                QuestAction action = actionKeys.get(index);
                 Integer nextEmptySlot = this.gui.getEmptySlot();
                 GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
 
                 // TODO: style and distinguish which actions are the stage entry points
+                actionSlot.setLabel(String.format("%s", action.toString()))
+                          .setDescription(String.format("Type: %s", action.getName()))
+                          .setItem("RAIL");
 
                 actionSlot.onClick(() -> {
                     if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
@@ -106,7 +110,7 @@ public class Dynamicqueststage extends GUIDynamic {
                     }
 
                     // set the action as the current action to modify
-                    this.director.setCurrentInstance(action);
+                    this.director.setCurrentInstance(action, QuestAction.class);
 
                     // go to action editor screen
                     actionSlot.addFunction(new UpdateScreen(

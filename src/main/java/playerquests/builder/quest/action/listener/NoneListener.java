@@ -13,7 +13,7 @@ public class NoneListener extends ActionListener<NoneAction> {
      * @param action the quest action this listener is for.
      * @param context the data for the action.
      */
-    public NoneListener(NoneAction action, ActionData<? extends ActionListener<NoneAction>> context) {
+    public NoneListener(NoneAction action, ActionData<? extends ActionListener<?>> context) {
         super(action, context);
     }
     

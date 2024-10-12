@@ -31,7 +31,7 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
      * @param action the quest action this listener is for.
      * @param context the action data for the current runtime.
      */
-    public ActionListener(A action, ActionData<? extends ActionListener<A>> context) {
+    public ActionListener(A action, ActionData<? extends ActionListener<?>> context) {
         this.action = action;
         this.context = new ActionData<>(context.getQuester(), context.getPlayer(), context.getWorld(), context.getLocation(), this);
 

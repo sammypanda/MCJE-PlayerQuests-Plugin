@@ -1,11 +1,17 @@
 package playerquests.builder.gui.dynamic;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.client.ClientDirector;
 
 /**
- * Shows a           GUI used for editing a quest action.
+ * Shows a GUI used for editing a quest action.
  */
 public class Dynamicactioneditor extends GUIDynamic {
+
+    /**
+     * The action being edited.
+     */
+    private QuestAction action;
 
     /**
      * Creates a dynamic GUI to edit a quest stage action.
@@ -14,19 +20,17 @@ public class Dynamicactioneditor extends GUIDynamic {
      */
     public Dynamicactioneditor(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
-        //TODO Auto-generated constructor stub
     }
 
     @Override
     protected void setUp_custom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setUp_custom'");
+        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
     }
 
     @Override
     protected void execute_custom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'execute_custom'");
+        // set frame title/style
+        this.gui.getFrame().setTitle(String.format("%s Editor", this.action.getID()))
+                           .setSize(18);
     }
-    
 }

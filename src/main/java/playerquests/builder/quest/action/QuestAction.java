@@ -64,6 +64,17 @@ public abstract class QuestAction {
         return this.id;
     }
 
+    @Override
+    public String toString() {
+        return this.getID();
+    }
+    
+    /**
+     * Gets the name of the action.
+     * @return the readable name.
+     */
+    public abstract String getName();
+
     /**
      * Starts the action.
      * @param context the action data for the current runtime.
@@ -105,17 +116,15 @@ public abstract class QuestAction {
      * Things to do when the action was
      * successfully completed.
      * @param context the action data for the current runtime.
-     * @return a block of code to run
      */
-    protected abstract Runnable onSuccess(ActionData<? extends ActionListener<?>> context);
+    protected abstract void onSuccess(ActionData<? extends ActionListener<?>> context);
 
     /**
      * Things to do when the action was
      * aborted early.
      * @param context the action data for the current runtime.
-     * @return a block of code to run
      */
-    protected abstract Runnable onFailure(ActionData<? extends ActionListener<?>> context);
+    protected abstract void onFailure(ActionData<? extends ActionListener<?>> context);
 
     /**
      * Starts listener that will trigger checks.
