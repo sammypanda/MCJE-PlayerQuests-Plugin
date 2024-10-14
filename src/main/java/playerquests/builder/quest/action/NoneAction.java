@@ -24,22 +24,22 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void prepare(ActionData<? extends ActionListener<?>> context) {}
+    protected void prepare(ActionData actionData) {}
 
     @Override
-    protected Boolean validate(ActionData<? extends ActionListener<?>> context) {
+    protected Boolean validate(ActionData actionData) {
         return true;
     }
 
     @Override
-    protected void onSuccess(ActionData<? extends ActionListener<?>> context) {}
+    protected void onSuccess(ActionData actionData) {}
 
     @Override
-    protected void onFailure(ActionData<? extends ActionListener<?>> context) {}
+    protected void onFailure(ActionData actionData) {}
 
     @Override
-    protected ActionListener<?> startListener(ActionData<? extends ActionListener<?>> context) {
-        return new NoneListener(this, context);
+    protected ActionListener<?> startListener(ActionData actionData) {
+        return new NoneListener(this, actionData);
     }
     
 }

@@ -11,10 +11,8 @@ import playerquests.client.quest.QuestClient;
  * The entire game context that could possibly 
  * be needed for actions.
  * Especially useful for checking conditionals.
- * @param <L> the action listener for this action
  */
-// TODO: add all possible dependencies for conditionals to constructor.
-public class ActionData<L extends ActionListener<?>> {
+public class ActionData {
 
     /**
      * Useful for communicating action progress.
@@ -43,7 +41,7 @@ public class ActionData<L extends ActionListener<?>> {
     /**
      * Useful for pulling in values.
      */
-    private final L listener;
+    private final ActionListener<?> listener;
 
     /**
      * Constructor for providing action context.
@@ -59,7 +57,7 @@ public class ActionData<L extends ActionListener<?>> {
         Player player, 
         World world, 
         Location location, 
-        L listener
+        ActionListener<?> listener
     ) {
         this.quester = quester;
         this.player = player;
@@ -104,7 +102,7 @@ public class ActionData<L extends ActionListener<?>> {
      * Returns the action listener associated with this action.
      * @return the listener
      */
-    public L getListener() {
+    public ActionListener<?> getListener() {
         return listener;
     }
 }

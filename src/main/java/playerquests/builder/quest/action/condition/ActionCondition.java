@@ -1,6 +1,5 @@
 package playerquests.builder.quest.action.condition;
 
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.data.ActionData;
 
 /**
@@ -15,18 +14,18 @@ public abstract class ActionCondition {
      * All the data needed to create a context 
      * to check the condition is met or not.
      */
-    protected ActionData<?> context;
+    protected ActionData actionData;
 
     /**
      * Constructor for creating action conditions.
-     * @param context all relevant data for the condition to use
+     * @param actionData all relevant data for the condition to use
      */
-    public ActionCondition(ActionData<? extends ActionListener<?>> context) {
-        if (context == null) {
+    public ActionCondition(ActionData actionData) {
+        if (actionData == null) {
             throw new IllegalArgumentException("ActionData context cannot be completely null");
         }
 
-        this.context = context;
+        this.actionData = actionData;
     }
 
     /**

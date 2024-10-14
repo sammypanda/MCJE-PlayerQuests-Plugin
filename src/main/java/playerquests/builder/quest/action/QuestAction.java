@@ -77,59 +77,59 @@ public abstract class QuestAction {
 
     /**
      * Starts the action.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    public void run(ActionData<? extends ActionListener<?>> context) {}
+    public void run(ActionData actionData) {}
 
     /**
      * Setting up the action before any 
      * checking.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    protected abstract void prepare(ActionData<? extends ActionListener<?>> context);
+    protected abstract void prepare(ActionData actionData);
 
     /**
      * Determines if the action should
      * now finish.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    public void check(ActionData<? extends ActionListener<?>> context) {}
+    public void check(ActionData actionData) {}
 
     /**
      * Logic to indicate that the quest
      * was successfully completed.
      * Should set values to help other methods.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      * @return if was successful
      */
-    protected abstract Boolean validate(ActionData<? extends ActionListener<?>> context);
+    protected abstract Boolean validate(ActionData actionData);
 
     /**
      * Completes the action.
      * - Determines whether should call 
      * {@link #onSuccess(ActionData)} or {@link #onFailure(ActionData)}
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    protected void stop(ActionData<? extends ActionListener<?>> context) {}
+    protected void stop(ActionData actionData) {}
 
     /**
      * Things to do when the action was
      * successfully completed.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    protected abstract void onSuccess(ActionData<? extends ActionListener<?>> context);
+    protected abstract void onSuccess(ActionData actionData);
 
     /**
      * Things to do when the action was
      * aborted early.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    protected abstract void onFailure(ActionData<? extends ActionListener<?>> context);
+    protected abstract void onFailure(ActionData actionData);
 
     /**
      * Starts listener that will trigger checks.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      * @return the listener for the action
      */
-    protected abstract ActionListener<?> startListener(ActionData<? extends ActionListener<?>> context);
+    protected abstract ActionListener<?> startListener(ActionData actionData);
 }

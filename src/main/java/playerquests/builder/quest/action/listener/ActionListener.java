@@ -24,22 +24,22 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
     /**
      * The quest client for the player.
      */
-    protected final ActionData<? extends ActionListener<A>> context;
+    protected final ActionData actionData;
 
     /**
      * Constructs a new abstract action listener.
      * @param action the quest action this listener is for.
-     * @param context the action data for the current runtime.
+     * @param actionData the action data for the current runtime.
      */
-    public ActionListener(A action, ActionData<? extends ActionListener<?>> context) {
+    public ActionListener(A action, ActionData actionData) {
         this.action = action;
-        this.context = new ActionData<>(context.getQuester(), context.getPlayer(), context.getWorld(), context.getLocation(), this);
+        this.actionData = new ActionData(actionData.getQuester(), actionData.getPlayer(), actionData.getWorld(), actionData.getLocation(), this);
 
         // register the events
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
 
         // check if has already been completed
-        action.check(context);
+        action.check(actionData);
     }
 
     /**
