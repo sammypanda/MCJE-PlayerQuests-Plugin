@@ -1,5 +1,9 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.Arrays;
+
+import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.client.ClientDirector;
 
@@ -32,5 +36,29 @@ public class Dynamicactioneditor extends GUIDynamic {
         // set frame title/style
         this.gui.getFrame().setTitle(String.format("%s Editor", this.action.getID()))
                            .setSize(18);
+        
+        // the back button
+        new GUISlot(this.gui, 10)
+            .setLabel("Back")
+            .setItem("OAK_DOOR")
+            .addFunction(new UpdateScreen( // set function as 'UpdateScreen'
+                Arrays.asList("queststages"), // set the previous screen 
+                director // set the client director
+            ));
+
+        // left side dividers
+        new GUISlot(this.gui, 1)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+
+        new GUISlot(this.gui, 2)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+
+        new GUISlot(this.gui, 11)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+
+        // summon option buttons
+        this.action.getOptions().forEach(option -> {
+            option.createSlot(this.gui, this.gui.getEmptySlot());
+        });
     }
 }

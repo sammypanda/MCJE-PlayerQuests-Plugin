@@ -1,27 +1,39 @@
 package playerquests.builder.quest.action;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.stage.QuestStage;
 
 /**
  * The class that lays out how functionality
  * is programmed for quest actions.
+ * Requires:
+ * - QuestStage constructor
+ * - Default constructor (for jackson)
  * @see playerquests.builder.quest.action.option.ActionOption
  * @see playerquests.builder.quest.action.listener.ActionListener
  */
-// TODO: Determine if it's possible to annotate the back reference on the constructor arg to avoid adding the ugly no-arg constructor.
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type") // Specify the property name
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = NoneAction.class, name = "NoneAction") // Add your concrete actions here
+})
 public abstract class QuestAction {
 
     /**
      * The quest stage that this action belongs to.
      */
     @JsonBackReference
-    private final QuestStage stage;
+    private QuestStage stage;
 
     /**
      * The unique identifier of this action.
@@ -30,10 +42,16 @@ public abstract class QuestAction {
     private String id;
 
     /**
+     * Constructor for jackson.
+     */
+    public QuestAction() {}
+
+    /**
      * Constructs a new QuestAction with the specified stage.
      * This constructor initializes the action ID and action options.
-     * @param stage the stage this action belongs to.
+     * @param stage the stage this action belongs to
      */
+    @JsonCreator
     public QuestAction(QuestStage stage) {
         this.stage = stage;
     }
@@ -46,6 +64,22 @@ public abstract class QuestAction {
     public QuestStage getStage() {
         return this.stage;
     }
+
+    /**
+     * Sets the stage that this action belongs to.
+     * @param stage the quest stage
+     */
+    @JsonBackReference
+    private void setStage(QuestStage stage) {
+        this.stage = stage;
+    }
+
+    /**
+     * Gets a list of configured options.
+     * Used for the quest creator to modify the action.
+     * @return a list of action options
+     */
+    public abstract List<ActionOption> getOptions();
 
     /**
      * Sets the unique identifier for this action.
@@ -73,6 +107,7 @@ public abstract class QuestAction {
      * Gets the name of the action.
      * @return the readable name.
      */
+    @JsonIgnore
     public abstract String getName();
 
     /**
