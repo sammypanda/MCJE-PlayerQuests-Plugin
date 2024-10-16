@@ -1,11 +1,10 @@
 package playerquests.builder.quest.data;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
+import java.util.ArrayList;
+import java.util.List;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
-import playerquests.client.quest.QuestClient;
 
 /**
  * The entire game context that could possibly 
@@ -15,94 +14,60 @@ import playerquests.client.quest.QuestClient;
 public class ActionData {
 
     /**
-     * Useful for communicating action progress.
-     * May not be present if some other client is in use.
-     */
-    private final QuestClient quester;
-
-    /**
-     * Useful for checking player inventory and more.
-     * May not be present for something like 'plants growing'.
-     */
-    private final Player player;
-
-    /**
-     * Useful for checking time, world environment and more
-     * May not be present for something like 'has player completed x quest'.
-     */
-    private final World world;
-
-    /**
-     * Useful for checking location/biome/other.
-     * May not be present for something like 'has player completed x quest'.
-     */
-    private final Location location;
-
-    /**
      * Useful for pulling in values.
      */
-    private final ActionListener<?> listener;
+    private ActionListener<?> listener;
+
+    /**
+     * The actions slated to come after this one.
+     */
+    private List<QuestAction> nextActions = new ArrayList<QuestAction>();
 
     /**
      * Constructor for providing action context.
      * Args (if you're sure they aren't needed) can be nullified.
-     * @param quester the QuestClient associated with this action
-     * @param player the player this action is happening with
-     * @param world the world this action is taking place in
-     * @param location the location this action is taking place in
      * @param listener the action listener for this action
+     * @param nextActions the actions slated to come next
      */
-    public ActionData(
-        QuestClient quester, 
-        Player player, 
-        World world, 
-        Location location, 
-        ActionListener<?> listener
+    public ActionData( 
+        ActionListener<?> listener,
+        List<QuestAction> nextActions
     ) {
-        this.quester = quester;
-        this.player = player;
-        this.world = world;
-        this.location = location;
         this.listener = listener;
+        this.nextActions = nextActions;
     }
 
     /**
-     * Returns the QuestClient associated with this action.
-     * @return the quester
-     */
-    public QuestClient getQuester() {
-        return quester;
-    }
-
-    /**
-     * Returns the player this action is happening with.
-     * @return the player
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Returns the world this action is taking place in.
-     * @return the world
-     */
-    public World getWorld() {
-        return world;
-    }
-
-    /**
-     * Returns the location this action is taking place in.
-     * @return the location
-     */
-    public Location getLocation() {
-        return location;
-    }
-
-    /**
-     * Returns the action listener associated with this action.
+     * Gets the action listener associated with this action.
      * @return the listener
      */
     public ActionListener<?> getListener() {
         return listener;
+    }
+
+    /**
+     * Sets the action listener for this action.
+     * @param actionListener the listener that will trigger action checking
+     * @return the passed in listener
+     */
+    public ActionListener<?> setListener(ActionListener<?> actionListener) {
+        this.listener = actionListener;
+        return actionListener;
+    }
+
+    /**
+     * Gets the action listener for this action.
+     * @return the listener that will trigger action checking
+     */
+    public List<QuestAction> getNextActions() {
+        return this.nextActions;
+    }
+
+    /**
+     * Adds an action to the list of those slated to come next.
+     * @param action a quest action
+     */
+    public void addNextAction(QuestAction action) {
+        this.nextActions.add(action);
     }
 }

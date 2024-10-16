@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.data.ActionData;
+import playerquests.builder.quest.data.QuesterData;
 
 /**
  * Triggers checking if the related action 
@@ -22,24 +22,25 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
     protected final A action;
 
     /**
-     * The quest client for the player.
+     * The quester that the action listener is for.
      */
-    protected final ActionData actionData;
+    protected final QuesterData questerData;
 
     /**
      * Constructs a new abstract action listener.
      * @param action the quest action this listener is for.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the quester the listener is for.
      */
-    public ActionListener(A action, ActionData actionData) {
+    public ActionListener(A action, QuesterData questerData) {
         this.action = action;
-        this.actionData = new ActionData(actionData.getQuester(), actionData.getPlayer(), actionData.getWorld(), actionData.getLocation(), this);
+        this.questerData = questerData;
+        action.getData().setListener(this);
 
         // register the events
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
 
         // check if has already been completed
-        action.check(actionData);
+        action.check(questerData);
     }
 
     /**

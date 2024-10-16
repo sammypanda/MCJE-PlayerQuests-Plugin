@@ -6,6 +6,7 @@ import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
+import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.stage.QuestStage;
 
 /**
@@ -23,7 +24,13 @@ public class NoneAction extends QuestAction {
      * @param stage stage this action belongs to
      */
     public NoneAction(QuestStage stage) {
-        super(stage);
+        super(
+            stage, 
+            new ActionData(
+                null, 
+                null
+            )
+        );
     }
 
     @Override
@@ -32,22 +39,22 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void prepare(ActionData actionData) {}
+    protected void prepare() {}
 
     @Override
-    protected Boolean validate(ActionData actionData) {
+    protected Boolean validate(QuesterData questerData) {
         return true;
     }
 
     @Override
-    protected void onSuccess(ActionData actionData) {}
+    protected void onSuccess(QuesterData questerData) {}
 
     @Override
-    protected void onFailure(ActionData actionData) {}
+    protected void onFailure(QuesterData questerData) {}
 
     @Override
-    protected ActionListener<?> startListener(ActionData actionData) {
-        return new NoneListener(this, actionData);
+    protected ActionListener<?> startListener(QuesterData questerData) {
+        return new NoneListener(this, questerData);
     }
 
     @Override

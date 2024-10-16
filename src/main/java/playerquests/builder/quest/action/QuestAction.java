@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
+import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.stage.QuestStage;
 
 /**
@@ -36,6 +37,11 @@ public abstract class QuestAction {
     private QuestStage stage;
 
     /**
+     * The context data of this action.
+     */
+    private ActionData actionData;
+
+    /**
      * The unique identifier of this action.
      */
     @JsonProperty("id")
@@ -50,10 +56,12 @@ public abstract class QuestAction {
      * Constructs a new QuestAction with the specified stage.
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to
+     * @param actionData the context of this action
      */
     @JsonCreator
-    public QuestAction(QuestStage stage) {
+    public QuestAction(QuestStage stage, ActionData actionData) {
         this.stage = stage;
+        this.actionData = actionData;
     }
 
     /**
@@ -112,59 +120,69 @@ public abstract class QuestAction {
 
     /**
      * Starts the action.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the data about the quester playing the action.
      */
-    public void run(ActionData actionData) {}
+    public void run(QuesterData questerData) {
+        this.prepare(); // prepare the action to be checked
+        this.getData().setListener(this.startListener(questerData)); // start the action listener that triggers checks
+    }
 
     /**
      * Setting up the action before any 
      * checking.
-     * @param actionData the action data for the current runtime.
      */
-    protected abstract void prepare(ActionData actionData);
+    protected abstract void prepare();
 
     /**
      * Determines if the action should
      * now finish.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the data about the quester playing the action.
      */
-    public void check(ActionData actionData) {}
+    public void check(QuesterData questerData) {}
 
     /**
      * Logic to indicate that the quest
      * was successfully completed.
      * Should set values to help other methods.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the data about the quester playing the action.
      * @return if was successful
      */
-    protected abstract Boolean validate(ActionData actionData);
+    protected abstract Boolean validate(QuesterData questerData);
 
     /**
      * Completes the action.
      * - Determines whether should call 
-     * {@link #onSuccess(ActionData)} or {@link #onFailure(ActionData)}
-     * @param actionData the action data for the current runtime.
+     * {@link #onSuccess(questerData)} or {@link #onFailure(questerData)}
+     * @param questerData the data about the quester playing the action.
      */
-    protected void stop(ActionData actionData) {}
+    protected void stop(QuesterData questerData) {}
 
     /**
      * Things to do when the action was
      * successfully completed.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the data about the quester playing the action.
      */
-    protected abstract void onSuccess(ActionData actionData);
+    protected abstract void onSuccess(QuesterData questerData);
 
     /**
      * Things to do when the action was
      * aborted early.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the data about the quester playing the action.
      */
-    protected abstract void onFailure(ActionData actionData);
+    protected abstract void onFailure(QuesterData questerData);
 
     /**
      * Starts listener that will trigger checks.
-     * @param actionData the action data for the current runtime.
+     * @param questerData the data about the quester playing the action.
      * @return the listener for the action
      */
-    protected abstract ActionListener<?> startListener(ActionData actionData);
+    protected abstract ActionListener<?> startListener(QuesterData questerData);
+
+    /**
+     * Gets the data attributed to this action.
+     * @return the context of this action
+     */
+	public ActionData getData() {
+        return this.actionData;
+	}
 }

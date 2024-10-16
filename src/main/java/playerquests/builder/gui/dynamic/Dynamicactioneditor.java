@@ -42,14 +42,22 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setLabel("Back")
             .setItem("OAK_DOOR")
             .addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-                Arrays.asList("queststages"), // set the previous screen 
+                Arrays.asList(this.previousScreen), // set the previous screen 
                 director // set the client director
             ));
 
-        // left side dividers
+        // select next actions button
         new GUISlot(this.gui, 1)
-            .setItem("BLACK_STAINED_GLASS_PANE");
+            .setItem("HOPPER")
+            .setLabel("Next Actions")
+            .setDescription("Select actions to come after this one.")
+            .onClick(() -> {
+                this.director.setCurrentInstance(action.getData());
+                new UpdateScreen(Arrays.asList("nextactioneditor"), director).execute();;
+            });
+            // TODO: implement nextactioneditor and execute
 
+        // left side dividers
         new GUISlot(this.gui, 2)
             .setItem("BLACK_STAINED_GLASS_PANE");
 
