@@ -39,13 +39,8 @@ public abstract class QuestAction {
     /**
      * The context data of this action.
      */
-    private ActionData actionData;
-
-    /**
-     * The unique identifier of this action.
-     */
-    @JsonProperty("id")
-    private String id;
+    @JsonProperty("data")
+    private ActionData actionData = new ActionData(null, null, null);
 
     /**
      * Constructor for jackson.
@@ -56,12 +51,10 @@ public abstract class QuestAction {
      * Constructs a new QuestAction with the specified stage.
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to
-     * @param actionData the context of this action
      */
     @JsonCreator
-    public QuestAction(QuestStage stage, ActionData actionData) {
+    public QuestAction(QuestStage stage) {
         this.stage = stage;
-        this.actionData = actionData;
     }
 
     /**
@@ -79,6 +72,10 @@ public abstract class QuestAction {
      */
     @JsonBackReference
     private void setStage(QuestStage stage) {
+        if (stage == null) {
+            return;
+        }
+        
         this.stage = stage;
     }
 
@@ -94,7 +91,7 @@ public abstract class QuestAction {
      * @param id the unique identifier
      */
     public void setID(String id) {
-        this.id = id;
+        this.actionData.setID(id);
     }
 
     /**
@@ -103,7 +100,7 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public String getID() {
-        return this.id;
+        return this.actionData.getID();
     }
 
     @Override

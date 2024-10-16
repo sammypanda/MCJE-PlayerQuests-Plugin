@@ -53,9 +53,8 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setDescription("Select actions to come after this one.")
             .onClick(() -> {
                 this.director.setCurrentInstance(action.getData());
-                new UpdateScreen(Arrays.asList("nextactioneditor"), director).execute();;
+                new UpdateScreen(Arrays.asList("nextactioneditor"), director).execute();
             });
-            // TODO: implement nextactioneditor and execute
 
         // left side dividers
         new GUISlot(this.gui, 2)

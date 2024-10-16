@@ -5,7 +5,6 @@ import java.util.List;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.action.option.ActionOption;
-import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.stage.QuestStage;
 
@@ -24,13 +23,7 @@ public class NoneAction extends QuestAction {
      * @param stage stage this action belongs to
      */
     public NoneAction(QuestStage stage) {
-        super(
-            stage, 
-            new ActionData(
-                null, 
-                null
-            )
-        );
+        super(stage);
     }
 
     @Override

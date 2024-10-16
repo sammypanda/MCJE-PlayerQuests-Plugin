@@ -3,6 +3,9 @@ package playerquests.builder.quest.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 
@@ -13,26 +16,43 @@ import playerquests.builder.quest.action.listener.ActionListener;
  */
 public class ActionData {
 
+
+    /**
+     * The unique identifier of this action.
+     */
+    @JsonProperty("id")
+    private String id;
+
     /**
      * Useful for pulling in values.
      */
+    @JsonIgnore
     private ActionListener<?> listener;
 
     /**
      * The actions slated to come after this one.
      */
+    @JsonProperty("next")
     private List<QuestAction> nextActions = new ArrayList<QuestAction>();
+
+    /**
+     * Default constructor for Jackson
+     */
+    public ActionData() {}
 
     /**
      * Constructor for providing action context.
      * Args (if you're sure they aren't needed) can be nullified.
+     * @param id the unique identifier for the action
      * @param listener the action listener for this action
      * @param nextActions the actions slated to come next
      */
     public ActionData( 
+        String id,
         ActionListener<?> listener,
         List<QuestAction> nextActions
     ) {
+        this.id = id;
         this.listener = listener;
         this.nextActions = nextActions;
     }
@@ -69,5 +89,29 @@ public class ActionData {
      */
     public void addNextAction(QuestAction action) {
         this.nextActions.add(action);
+    }
+
+    /**
+     * Replaces actions slated to come next.
+     * @param nextActions the actions slated to come next
+     */
+    public void setNextActions(List<QuestAction> nextActions) {
+        this.nextActions = nextActions;
+    }
+
+    /**
+     * Sets the unique identifier for this action.
+     * @param id the unique identifier
+     */
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets the unique identifier for this action.
+     * @return the unique identifier
+     */
+    public String getID() {
+        return this.id;
     }
 }
