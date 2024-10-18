@@ -1,10 +1,14 @@
 package playerquests.builder.quest.stage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
-import com.fasterxml.jackson.annotation.JsonProperty; // specifiying fields for showing when json serialised
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.Core; // accessing plugin singeltons
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -23,20 +27,20 @@ public class QuestStage {
      * The id for the stage
      */
     @JsonProperty("id")
-    private String stageID = "stage_-1";
+    private String id;
 
     /**
-     * Default constructor for Jackson deserialization.
+     * The map of actions
      */
-    public QuestStage() {}
+    @JsonProperty("actions")
+    private Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
 
     /**
      * Constructs a new {@code QuestStage} with the specified stage ID.
-     *
-     * @param stageID the unique identifier for this stage
+     * @param id the unique identifier for this stage
      */
-    public QuestStage(String stageID) {
-        this.stageID = stageID;
+    public QuestStage(@JsonProperty("id") String id) {
+        this.id = id;
 
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
@@ -44,12 +48,11 @@ public class QuestStage {
 
     /**
      * Constructs a new {@code QuestStage} for the given quest with a numeric stage ID.
-     *
      * @param quest the quest this stage belongs to
-     * @param stageIDNumber the numeric identifier for this stage
+     * @param idNumber the numeric identifier for this stage
      */
-    public QuestStage(Quest quest, Integer stageIDNumber) {
-        this.stageID = "stage_"+stageIDNumber;
+    public QuestStage(Quest quest, Integer idNumber) {
+        this.id = "stage_"+idNumber;
 
         // set which quest this stage belongs to
         this.quest = quest;
@@ -60,19 +63,16 @@ public class QuestStage {
 
     /**
      * Constructs a new {@code QuestStage} for the given quest with a fully qualified stage ID.
-     * 
      * This constructor parses the stage ID from the provided string and initializes the stage.
-     *
      * @param quest the quest this stage belongs to
-     * @param stageID the fully qualified stage ID (e.g., "stage_1")
+     * @param id the fully qualified stage ID (e.g., "stage_1")
      */
-    public QuestStage(Quest quest, String stageID) {
-        this(quest, Integer.parseInt(stageID.substring(6)));
+    public QuestStage(Quest quest, String id) {
+        this(quest, Integer.parseInt(id.substring(6)));
     }
 
     /**
      * Sets the quest associated with this stage.
-     *
      * @param quest the quest to associate with this stage
      */
     public void setQuest(Quest quest) {
@@ -81,7 +81,6 @@ public class QuestStage {
 
     /**
      * Gets the quest associated with this stage.
-     *
      * @return the quest associated with this stage
      */
     public Quest getQuest() {
@@ -90,26 +89,55 @@ public class QuestStage {
 
     /**
      * Returns the unique identifier for this stage.
-     *
      * @return the stage ID
      */
+    @JsonIgnore
     public String getID() {
-        return this.stageID;
+        return this.id;
     }
 
     /**
      * Returns the title of the stage. Currently represented as the stage ID.
-     *
      * @return the title of the stage
      */
     @JsonIgnore
     @Key("QuestStage")
     public String getTitle() {
-        return this.stageID;
-    }
+        return this.id;
+    }                           
 
     @Override
     public String toString() {
-        return this.stageID;
+        return this.id;
+    }
+
+    /**
+     * Sets the unique identifier for this stage.
+     * @param id the stage ID to set
+     */
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Gets a map of actions in this stage.
+     * @return the actions
+     */
+    public Map<String, QuestAction> getActions() {
+        return this.actions;    
+    }
+
+    /**
+     * Adds a new action to this stage.
+     * This method generates a new action ID, assigns it to the action, and adds it to the actions map.
+     * @param action the action to add
+     * @return the ID of the newly added action
+     */
+    @JsonIgnore
+    public String addAction(QuestAction action) {
+        String actionID = "action_"+this.actions.size(); // get next ID
+        action.setID(actionID); // set the ID local to the action
+        this.actions.put(action.getID(), action); // add to the actions map
+        return actionID;
     }
 }

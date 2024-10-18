@@ -87,15 +87,6 @@ public class QuestBuilder {
     public QuestBuilder(ClientDirector director) {
         this.director = director;
 
-        // default first stage (stage_0)
-        QuestStage stage = new QuestStage(this.build(), 0);
-        
-        // make it modifiable
-        director.setCurrentInstance(stage);
-
-        // add default stage to questPlan map
-        this.questPlan.put(stage.getID(), stage);
-
         // set as the current quest in the director
         director.setCurrentInstance(this);
         this.build(); // build default product

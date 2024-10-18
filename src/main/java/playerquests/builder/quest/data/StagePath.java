@@ -16,6 +16,9 @@ import playerquests.product.Quest;
  *   <li>Separate strings for stage and action IDs.</li>
  * </ul>
  * 
+ * TODO: how about?: stage_0.action_0,action_1,action_2,action_3 vs stage_0.action_0, stage_0.action_1...
+ * TODO: add actions to me ^ im leaning towards the second one. No need to artifically handicap by trying to be strict about keeping stages and actions tightly coupled for QuestAction.next lists.
+ * 
  * The class provides methods to retrieve the associated {@code QuestStage} and {@code QuestAction} 
  * objects from a {@code Quest} based on the stored IDs. It also supports serialization and deserialization 
  * of paths.

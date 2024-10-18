@@ -1,10 +1,16 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList;
 import java.util.Arrays; // generic array handling
+import java.util.List;
+import java.util.stream.IntStream;
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
+import playerquests.builder.gui.data.GUIMode;
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.action.NoneAction;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.singleton.QuestRegistry;
@@ -17,17 +23,27 @@ public class Dynamicqueststage extends GUIDynamic {
     /**
      * The current quest stage
      */
-    QuestStage questStage;
+    private QuestStage questStage;
+
+    /**
+     * The action IDs
+     */
+    private List<QuestAction> actionKeys;
 
     /**
      * Staging to delete the stage
      */
-    Boolean confirm_delete = false;
+    private boolean confirm_delete = false;
+
+    /**
+     * Specify if actionKeys has already been looped through
+     */
+    private boolean confirm_actionKeys = false;
 
     /**
      * The builder object for this quest
      */
-    QuestBuilder questBuilder;
+    private QuestBuilder questBuilder;
 
     /**
      * Creates a dynamic GUI to edit a quest stage.
@@ -49,6 +65,10 @@ public class Dynamicqueststage extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
+        // set actionKeys
+        this.actionKeys = new ArrayList<QuestAction>(this.questStage.getActions().values());
+
+        // set frame title/style
         this.gui.getFrame().setTitle("{QuestStage} Editor");
         this.gui.getFrame().setSize(18);
 
@@ -62,11 +82,49 @@ public class Dynamicqueststage extends GUIDynamic {
         ));
 
         // left side dividers
+        new GUISlot(this.gui, 1)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+
         new GUISlot(this.gui, 2)
             .setItem("BLACK_STAINED_GLASS_PANE");
 
         new GUISlot(this.gui, 11)
             .setItem("BLACK_STAINED_GLASS_PANE");
+
+        // produce slots listing current actions
+        if (!confirm_actionKeys) {
+            IntStream.range(0, actionKeys.size()).anyMatch(index -> {
+
+                QuestAction action = actionKeys.get(index);
+                Integer nextEmptySlot = this.gui.getEmptySlot();
+                GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
+
+                // TODO: style and distinguish which actions are the stage entry points
+                actionSlot.setLabel(String.format("%s", action.toString()))
+                          .setDescription(String.format("Type: %s", action.getName()))
+                          .setItem("RAIL");
+
+                actionSlot.onClick(() -> {
+                    if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
+                        return;
+                    }
+
+                    // set the action as the current action to modify
+                    this.director.setCurrentInstance(action, QuestAction.class);
+
+                    // go to action editor screen
+                    actionSlot.addFunction(new UpdateScreen(
+                        Arrays.asList("actioneditor"), 
+                        director
+                    )).execute(this.director.getPlayer());
+                });
+
+                return false; // continue the loop
+            });
+
+            // set actionKeys as confirmed
+            this.confirm_actionKeys = true;
+        }
 
         // add 'delete stage' button (with confirm)
         if (!this.confirm_delete) { // if delete hasn't been confirmed
@@ -104,5 +162,26 @@ public class Dynamicqueststage extends GUIDynamic {
                 .setDescription("This stage is connected to other stages and actions.");
         }
 
+        // add 'new action' button
+        GUISlot newActionButton = new GUISlot(this.gui, this.gui.getFrame().getSize());
+        if (this.questStage.getActions().size() < 12) {
+            newActionButton.setLabel("Add Action");
+            newActionButton.setItem("LIME_DYE");
+            newActionButton.onClick(() -> {
+                // new None(this.questStage).submit(); // create the new action
+                questStage.addAction(new NoneAction(questStage));
+
+                // update the quest
+                QuestRegistry.getInstance().submit(this.questBuilder.build());
+
+                // refresh UI
+                this.confirm_actionKeys = false; // set actionKeys to be looped through again
+                this.gui.clearSlots();
+                this.execute(); // re-run to see new action in list
+            });
+        } else {
+            newActionButton.setLabel("No More Action Slots");
+            newActionButton.setItem("BARRIER");
+        }
     }
 }

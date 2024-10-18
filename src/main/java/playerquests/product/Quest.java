@@ -91,26 +91,38 @@ public class Quest {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
 
+        // remove null NPCs and stages
+        npcs.entrySet().removeIf(stage -> stage.getValue() == null);
+        stages.entrySet().removeIf(npc -> npc.getValue() == null);
+
         this.title = title;
-
         this.id = id;
-
+        this.creator = creator;
         this.npcs = npcs;
         this.stages = stages;
-        this.creator = creator;
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
-        if (stages != null) {
-            for (QuestStage stage : stages.values()) {
+        if (this.stages != null) {
+            stages.forEach((stage_id, stage) -> {
                 stage.setQuest(this);
-            }
+
+                // set stage ID if it's missing
+                if (stage_id != stage.getID()) {
+                    stage.setID(stage_id);
+                }
+            });
         }
 
         // Set Quest dependency for each QuestNPC instead of custom deserialize
-        if (npcs != null) {
-            for (QuestNPC npc : npcs.values()) {
+        if (this.npcs != null) { 
+            npcs.forEach((npc_id, npc) -> {
                 npc.setQuest(this);
-            }
+
+                // set npc ID if it's missing
+                if (npc_id != npc.getID()) {
+                    npc.setID(npc_id);
+                }
+            });
         }
     }
 
@@ -217,6 +229,12 @@ public class Quest {
     @Key("quest")
     public String save() {
         String questName = "quest/templates/" + this.getID() + ".json"; // name pattern
+        Player player = null;
+
+        // set player if this quest has one
+        if (this.creator != null) {
+            player = Bukkit.getPlayer(this.creator);
+        };
 
         // create quest in fs, or update it
         try {
@@ -230,11 +248,19 @@ public class Quest {
             );
             return "'" + this.title + "' was saved.";
         } catch (IOException e) {
-            ChatUtils.message(e.getMessage())
-                .player(Bukkit.getPlayer(this.creator))
-                .type(MessageType.ERROR)
-                .send();
-            System.err.println(e);
+            MessageBuilder errorMessage = ChatUtils.message(e.getMessage())
+                                                   .type(MessageType.ERROR)
+                                                   .target(MessageTarget.CONSOLE)
+                                                   .style(MessageStyle.PLAIN);
+            
+            // send error to console regardless
+            errorMessage.send();
+
+            // also send to player if they are around
+            if (player != null) {
+                errorMessage.player(player).send();
+            }
+
             return "'" + this.title + "' could not save.";
         }
     }
@@ -308,12 +334,6 @@ public class Quest {
         // Validate quest title
         if (this.title == null) {
             response.content("A quest has no title");
-            isValid = false;
-        }
-
-        // Validate quest stages
-        if (this.stages == null || this.stages.isEmpty()) {
-            response.content(String.format("The '%s' quest has no stages", this.title));
             isValid = false;
         }
 
