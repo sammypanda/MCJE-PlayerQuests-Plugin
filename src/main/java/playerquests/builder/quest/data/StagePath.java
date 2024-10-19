@@ -57,9 +57,13 @@ public class StagePath {
         // segment[1] (if exists) = action_?
         String[] segments = path.split("\\.");
 
-        // for correct string representation/template behaviour
+        // get the stage
         this.stage = segments[0];
-        this.actions = List.of(segments[1].split(","));
+
+        // get the actions
+        if (segments.length > 1) {
+            this.actions = List.of(segments[1].split(","));
+        }
     }
 
     /**
