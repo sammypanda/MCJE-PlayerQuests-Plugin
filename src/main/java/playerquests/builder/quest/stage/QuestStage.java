@@ -1,14 +1,18 @@
 package playerquests.builder.quest.stage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
 import playerquests.utility.annotation.Key; // to associate a key name with a method
 
@@ -24,16 +28,22 @@ public class QuestStage {
     private Quest quest;
 
     /**
-     * The id for the stage
+     * The id for the stage.
      */
     @JsonProperty("id")
     private String id;
 
     /**
-     * The map of actions
+     * The map of actions.
      */
-    @JsonProperty("actions")
+    @JsonManagedReference
     private Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
+
+    /**
+     * List of starting points.
+     */
+    @JsonProperty("startpoints")
+    private List<StagePath> startPoints = new ArrayList<StagePath>();
 
     /**
      * Constructs a new {@code QuestStage} with the specified stage ID.
@@ -139,5 +149,13 @@ public class QuestStage {
         action.setID(actionID); // set the ID local to the action
         this.actions.put(action.getID(), action); // add to the actions map
         return actionID;
+    }
+
+    /**
+     * Gets the actions the quest starts with.
+     * @return the starting actions
+     */
+    public List<StagePath> getStartPoints() {
+        return this.startPoints;
     }
 }

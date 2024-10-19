@@ -1,9 +1,20 @@
 package playerquests.builder.quest.data;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.product.Quest;
+import playerquests.utility.exception.MissingActionException;
+import playerquests.utility.exception.MissingStageException;
 
 /**
  * Represents a path within a quest, consisting of a stage and optionally an action.
@@ -16,15 +27,21 @@ import playerquests.product.Quest;
  *   <li>Separate strings for stage and action IDs.</li>
  * </ul>
  * 
- * TODO: how about?: stage_0.action_0,action_1,action_2,action_3 vs stage_0.action_0, stage_0.action_1...
- * TODO: add actions to me ^ im leaning towards the second one. No need to artifically handicap by trying to be strict about keeping stages and actions tightly coupled for QuestAction.next lists.
- * 
  * The class provides methods to retrieve the associated {@code QuestStage} and {@code QuestAction} 
  * objects from a {@code Quest} based on the stored IDs. It also supports serialization and deserialization 
  * of paths.
  */
 public class StagePath {
+
+    /**
+     * The ID of the stage.
+     */
     private String stage;
+
+    /**
+     * The ID of the action.
+     */
+    private List<String> actions = new ArrayList<String>();
 
     /**
      * Constructs a new {@code StagePath} from a string value. 
@@ -42,17 +59,28 @@ public class StagePath {
 
         // for correct string representation/template behaviour
         this.stage = segments[0];
+        this.actions = List.of(segments[1].split(","));
     }
 
     /**
      * Constructs a new {@code StagePath} from {@code QuestStage} and optional {@code QuestAction} objects.
      * 
-     * The ID of the provided {@code QuestStage} is used as the stage ID. If an action is provided, its ID is used as the action ID.
+     * - The ID of the provided {@code QuestStage} is used as the stage ID. 
+     * - If {@code QuestAction}s are provided, their IDs are kept as a list.
      * 
      * @param stage the {@code QuestStage} object representing the stage
+     * @param action the {@code QuestAction} object representing the action
      */
-    public StagePath(QuestStage stage) {
+    public StagePath(QuestStage stage, @Nullable List<QuestAction> action) {
+        // store stage ID
         this.stage = stage.getID();
+
+        if (action != null) {
+            // store action IDs
+            this.actions = action.stream()
+                .map(QuestAction::getID)
+                .collect(Collectors.toList());
+        }
     }
 
     /**
@@ -61,22 +89,101 @@ public class StagePath {
      * @return the quest stage ID
      */
     public String getStage() {
-        return stage != null ? stage : "stage_0";
+        if (this.stage == null) {
+            throw new MissingStageException(
+                "Stage ID is null.",
+                new IllegalStateException("Stage ID must always exist in StagePath.")
+            );
+        }
+
+        return this.stage;
+    }
+
+    /**
+     * Determine whether this StagePath has any actions 
+     * listed in it.
+     * 
+     * @return if the StagePath has actions.
+     */
+    public boolean hasActions() {
+        return !this.actions.isEmpty();
+    }
+
+    /**
+     * Gets all the action IDs in this path.
+     * 
+     * @return list of action IDs.
+     */
+    public List<String> getActions() {
+        if (!this.hasActions()) {
+            throw new MissingActionException(
+                "No actions are in this StagePath.",
+                new IllegalStateException("Action IDs must be set before retrieval.")
+            );
+        }
+
+        return this.actions;
     }
 
     /**
      * Returns the {@code QuestStage} object associated with this path.
      * 
-     * @param quest the {@code Quest} object containing the stages
+     * @param quest the {@code Quest} object containing the stage
      * @return the {@code QuestStage} object for the stored stage ID
      */
     public QuestStage getStage(Quest quest) {
-        // if somehow the stage is null
-        if (stage == null) {
-            return quest.getStages().values().iterator().next();
+        if (this.stage == null) {
+            // Attempt to retrieve the first available stage
+            Map<String, QuestStage> stages = quest.getStages();
+
+            // shouldn't be requesting a stage that won't exist
+            if (stages.isEmpty()) {
+                throw new MissingStageException(
+                    String.format("No stage found for a StagePath in quest: %s", quest.getID()),
+                    new NoSuchElementException("StagePath contains no stages.")
+                );
+            }
+
+            return stages.values().iterator().next(); // Return the first stage
         }
 
-        return quest.getStages().get(stage);
+        // Retrieve the stage associated with the stored ID
+        QuestStage stage = quest.getStages().get(this.stage);
+        if (stage == null) {
+            throw new MissingStageException(
+                String.format("No stage found for ID: %s in quest: %s.", this.stage, quest.getID()),
+                new NoSuchElementException("Stage not present in the quest stages.")
+            );
+        }
+
+        return stage;
+    }
+
+    /**
+     * Returns the {@code QuestAction} list associated with this path.
+     * 
+     * @param quest the {@code Quest} object containing the actions
+     * @return the {@code QuestAction} list based on the action IDs in the path
+     */
+    public List<QuestAction> getActions(Quest quest) {
+        List<QuestAction> actions = new ArrayList<QuestAction>();
+
+        this.actions.forEach(action_id -> {
+            QuestAction action = this.getStage(quest).getActions().get(action_id);
+
+            // check the action exists in the actions map
+            if (action == null) {
+                throw new MissingActionException(
+                    String.format("No action found for identifier: %s in quest: %s.", action_id, quest.getID()),
+                    new NoSuchElementException("Action not present in the stage actions.")
+                );
+            }
+
+            // add it to the list
+            actions.add(action);
+        });
+
+        return actions;
     }
 
     /**
@@ -87,8 +194,9 @@ public class StagePath {
      */
     @JsonValue
     public String toString() {
-        return String.format("%s",
-            this.getStage()
+        return String.format("%s%s",
+            this.getStage(),
+            this.hasActions() ? "."+String.join(",", this.actions) : ""
         );
     }
 }

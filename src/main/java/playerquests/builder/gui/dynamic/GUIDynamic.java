@@ -125,4 +125,12 @@ public abstract class GUIDynamic {
         this.onFinish = onFinish;
         return this;
     }
+
+    /**
+     * Refreshes the GUI screen.
+     */
+    protected void refresh() {
+        this.gui.clearSlots();
+        this.execute();
+    }
 }

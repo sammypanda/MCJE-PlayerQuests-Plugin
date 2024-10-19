@@ -6,7 +6,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 
 /**
@@ -33,7 +32,7 @@ public class ActionData {
      * The actions slated to come after this one.
      */
     @JsonProperty("next")
-    private List<QuestAction> nextActions = new ArrayList<QuestAction>();
+    private List<StagePath> nextActions = new ArrayList<StagePath>();
 
     /**
      * Default constructor for Jackson
@@ -50,7 +49,7 @@ public class ActionData {
     public ActionData( 
         String id,
         ActionListener<?> listener,
-        List<QuestAction> nextActions
+        List<StagePath> nextActions
     ) {
         this.id = id;
         this.listener = listener;
@@ -79,23 +78,27 @@ public class ActionData {
      * Gets the action listener for this action.
      * @return the listener that will trigger action checking
      */
-    public List<QuestAction> getNextActions() {
+    public List<StagePath> getNextActions() {
         return this.nextActions;
     }
 
     /**
      * Adds an action to the list of those slated to come next.
-     * @param action a quest action
+     * @param path path to the quest action
      */
-    public void addNextAction(QuestAction action) {
-        this.nextActions.add(action);
+    public void addNextAction(StagePath path) {
+        this.nextActions.add(path);
     }
 
     /**
      * Replaces actions slated to come next.
      * @param nextActions the actions slated to come next
      */
-    public void setNextActions(List<QuestAction> nextActions) {
+    public void setNextActions(List<StagePath> nextActions) {
+        if (nextActions == null) {
+            return;
+        }
+
         this.nextActions = nextActions;
     }
 

@@ -3,7 +3,6 @@ package playerquests.builder.quest.action;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -52,7 +51,6 @@ public abstract class QuestAction {
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to
      */
-    @JsonCreator
     public QuestAction(QuestStage stage) {
         this.stage = stage;
     }
