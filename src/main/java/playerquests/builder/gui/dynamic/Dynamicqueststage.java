@@ -5,12 +5,15 @@ import java.util.Arrays; // generic array handling
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.data.GUIMode;
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.NoneAction;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.singleton.QuestRegistry;
@@ -81,10 +84,27 @@ public class Dynamicqueststage extends GUIDynamic {
             director // set the client director
         ));
 
-        // left side dividers
-        new GUISlot(this.gui, 1)
-            .setItem("BLACK_STAINED_GLASS_PANE");
+        // setting startpoint actions
+        List<StagePath> startPoints = this.questStage.getStartPoints();
+        new GUISlot(gui, 1)
+            .setItem(Material.PISTON)
+            .setLabel(String.format("%s start point actions", 
+                startPoints.isEmpty() ? "Set" : "Change"
+            ))
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.questStage.getQuest());
 
+                new UpdateScreen(List.of("actionselector"), director)
+                    .onFinish((f) -> {
+                        UpdateScreen updateScreen = (UpdateScreen) f;
+                        Dynamicactionselector actionSelector = (Dynamicactionselector) updateScreen.getDynamicGUI();
+
+                        this.questStage.setStartPoints(actionSelector.getSelectedActions());
+                    })    
+                    .execute();
+            });
+
+        // left side dividers
         new GUISlot(this.gui, 2)
             .setItem("BLACK_STAINED_GLASS_PANE");
 

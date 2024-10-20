@@ -158,4 +158,12 @@ public class QuestStage {
     public List<StagePath> getStartPoints() {
         return this.startPoints;
     }
+
+    /**
+     * Sets the actions the quest starts with.
+     * @param startPoints a list of paths to actions
+     */
+    public void setStartPoints(List<StagePath> startPoints) {
+        this.startPoints = startPoints;
+    }
 }
