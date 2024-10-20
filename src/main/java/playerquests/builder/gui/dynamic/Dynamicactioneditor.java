@@ -1,6 +1,7 @@
 package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays;
+import java.util.List;
 
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
@@ -50,7 +51,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         new GUISlot(this.gui, 1)
             .setItem("HOPPER")
             .setLabel("Next Actions")
-            .setDescription("Select actions to come after this one.")
+            .setDescription(List.of("Select actions to come after this one."))
             .onClick(() -> {
                 this.director.setCurrentInstance(action); // set this action as the one to edit
                 new UpdateScreen(Arrays.asList("nextactioneditor"), director).execute(); // open 'next action editor' screen

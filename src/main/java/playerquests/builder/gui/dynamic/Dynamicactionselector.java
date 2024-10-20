@@ -53,10 +53,15 @@ public class Dynamicactionselector extends GUIDynamic {
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 
-        // disallow taking actions from other stages for:
-        // - coming from the questStage screen
+        // set up for if coming from queststage screen
         if (this.previousScreen.equals("queststage")) {
+            this.selectedActions = this.selectedStage.getStartPoints();
             this.stageSelection = false;
+        }
+
+        // set up for if coming from questeditor screen
+        if (this.previousScreen.equals("questeditor")) {
+            this.selectedActions = this.quest.getStartPoints();
         }
     }
 
@@ -134,6 +139,7 @@ public class Dynamicactionselector extends GUIDynamic {
         // (p = stage path)
 
         Boolean isPresent = this.selectedActions.stream()
+            .filter(p -> p.getStage().equals(action.getStage().getID()))
             .filter(p -> p.getActions().contains(action_id))
             .findFirst()
             .isPresent();

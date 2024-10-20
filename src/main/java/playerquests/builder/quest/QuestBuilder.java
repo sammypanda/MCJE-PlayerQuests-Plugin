@@ -1,8 +1,10 @@
 package playerquests.builder.quest;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
@@ -15,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serial
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
 import playerquests.Core; // gets the KeyHandler singleton
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
@@ -69,6 +72,12 @@ public class QuestBuilder {
      * The original creator of this quest.
      */
     private UUID originalCreator;
+
+    /**
+     * Start points for this quest
+     */
+    @JsonProperty("startpoints")
+    private List<StagePath> startPoints = new ArrayList<StagePath>();
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -132,6 +141,9 @@ public class QuestBuilder {
                 // set as the current quest in the director
                 director.setCurrentInstance(this);
             }
+
+            // add the start points
+            this.startPoints = product.getStartPoints();
 
             // create quest product from this builder
             this.build();
@@ -353,7 +365,8 @@ public class QuestBuilder {
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
-            this.getID()
+            this.getID(),
+            this.startPoints
         );
 
         // set this quest as in-focus to the creator
@@ -437,5 +450,13 @@ public class QuestBuilder {
             title, 
             creator != null ? "_"+creator : ""
         );
+    }
+
+    /**
+     * Set the list of starting points for this quest.
+     * @param startPoints a list of stage paths.
+     */
+    public void setStartPoints(List<StagePath> startPoints) {
+        this.startPoints = startPoints;
     }
 }

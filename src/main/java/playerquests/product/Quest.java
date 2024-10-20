@@ -2,6 +2,7 @@ package playerquests.product;
 
 import java.io.IOException; // thrown if Quest cannot be saved
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/seria
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
 import playerquests.Core; // the main class of this plugin
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.utility.ChatUtils; // helpers for in-game chat
@@ -71,6 +73,11 @@ public class Quest {
      * The ID of this quest.
      */
     private String id;
+
+    /**
+     * Start points for this quest
+     */
+    private List<StagePath> startPoints = List.of();
     
     /**
      * Constructs a new Quest with the specified parameters.
@@ -80,13 +87,15 @@ public class Quest {
      * @param stages A map of stages used in the quest.
      * @param creator The UUID of the player who created the quest.
      * @param id the id of the quest.   
+     * @param startpoints the actions that start when the quest starts.
      */
     public Quest(
         @JsonProperty("title") String title,
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
-        @JsonProperty("id") String id
+        @JsonProperty("id") String id,
+        @JsonProperty("startpoints") List<StagePath> startpoints
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
@@ -100,6 +109,7 @@ public class Quest {
         this.creator = creator;
         this.npcs = npcs;
         this.stages = stages;
+        this.startPoints = startpoints;
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (this.stages != null) {
@@ -430,5 +440,14 @@ public class Quest {
         Map<Material, Integer> requiredInventory = new HashMap<>();
 
         return requiredInventory;
+    }
+
+    /**
+     * Get the list of starting points for this quest.
+     * @return a list of stage paths (which can include actions).
+     */
+    @JsonProperty("startpoints")
+    public List<StagePath> getStartPoints() {
+        return this.startPoints;
     }
 }

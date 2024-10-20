@@ -119,10 +119,19 @@ public class Dynamicqueststage extends GUIDynamic {
                 Integer nextEmptySlot = this.gui.getEmptySlot();
                 GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
 
-                // TODO: style and distinguish which actions are the stage entry points
-                actionSlot.setLabel(String.format("%s", action.toString()))
-                          .setDescription(String.format("Type: %s", action.getName()))
-                          .setItem("RAIL");
+                boolean isPresent = this.questStage.getStartPoints().stream()
+                    .filter(p -> p.getStage().equals(this.questStage.getID()))
+                    .filter(p -> p.getActions().contains(action.getID()))
+                    .findFirst()
+                    .isPresent();
+                actionSlot
+                    .setLabel(String.format(
+                        "%s", action.toString()))
+                    .setDescription(List.of(
+                        String.format("Type: %s", action.getName()),
+                        isPresent ? "Is an entry point" : ""))
+                    .setItem(
+                        isPresent ? Material.DETECTOR_RAIL : Material.RAIL);
 
                 actionSlot.onClick(() -> {
                     if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
@@ -179,7 +188,7 @@ public class Dynamicqueststage extends GUIDynamic {
             new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
                 .setItem("GRAY_DYE")
                 .setLabel("Cannot Delete")
-                .setDescription("This stage is connected to other stages and actions.");
+                .setDescription(List.of("This stage is connected to other stages and actions."));
         }
 
         // add 'new action' button

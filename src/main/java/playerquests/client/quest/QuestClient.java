@@ -9,5 +9,7 @@ public class QuestClient {
     /**
      * Constructs a new client on behalf of a quester (quest player).
      */
-    public QuestClient() {}
+    public QuestClient() {
+        System.out.println("created a quest client");
+    }
 }

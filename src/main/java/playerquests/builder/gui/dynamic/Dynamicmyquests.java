@@ -124,7 +124,7 @@ public class Dynamicmyquests extends GUIDynamic {
             .setLabel(String.format("Unreadable Quests: %s", 
                 this.invalidQuests >= 64 ? "(More than 64)" : this.invalidQuests
             ))
-            .setDescription("An unreadable quest, is a quest that is corrupt/malformed/incorrect.")
+            .setDescription(List.of("An unreadable quest, is a quest that is corrupt/malformed/incorrect."))
             .setCount(this.invalidQuests);
 
         // modify the new GUI to show the quests in
