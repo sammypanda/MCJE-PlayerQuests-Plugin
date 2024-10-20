@@ -60,16 +60,25 @@ public class ClientDirector extends Director {
 
     /**
      * Put the current/working instance of a class.
-     * @param instance type of instance to store (and replace if already exists).
+     * @param instance class instance to store (and replace if already exists).
      */
     public void setCurrentInstance(Object instance) {
+        this.setCurrentInstance(instance, instance.getClass());
+    }
+
+    /**
+     * Put the current/working instance of a class.
+     * @param instance class instance to store (and replace if already exists).
+     * @param classType type of the instance.
+     */
+    public void setCurrentInstance(Object instance, Class<?> classType) {
         // remove if it exists
         if (this.currentInstances.containsKey(instance)) {
-            this.currentInstances.remove(instance.getClass());
+            this.currentInstances.remove(classType);
         }
 
         // set the current class instance for access
-        this.currentInstances.put(instance.getClass(), instance);
+        this.currentInstances.put(classType, instance);
     }
 
     /**

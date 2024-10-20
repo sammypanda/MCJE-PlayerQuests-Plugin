@@ -34,7 +34,7 @@
   },
   "stages" : {
     "stage_0" : {
-      "id" : "stage_0"
+      "id": "stage_0"
     }
   },
   "id" : "beans-tester-bonus"

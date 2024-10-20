@@ -217,9 +217,11 @@ public class GUISlot {
     /**
      * Sets the function to be executed when the slot is clicked.
      * @param onClick The {@code Runnable} to be executed on click.
+     * @return the state of the GUI slot.
      */
-    public void onClick(Runnable onClick) {
+    public GUISlot onClick(Runnable onClick) {
         this.onClick = onClick;
+        return this;
     }
 
     /**
