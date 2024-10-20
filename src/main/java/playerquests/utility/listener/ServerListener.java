@@ -55,15 +55,24 @@ public class ServerListener implements Listener {
      */
     @EventHandler
     public void onLoad(ServerLoadEvent event) {
-        createDirectories(); // ensure dirs are created
-        initializeDatabase(); // init db
+        // ensure dirs are created
+        createDirectories();
+        
+        // init db
+        initializeDatabase();
 
         // Ensure quest processing runs on the main thread
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             processQuests();
         });
 
-        startWatchService(); // start fs watching
+        // start fs watching
+        startWatchService();
+
+        // create questers
+        Bukkit.getServer().getOnlinePlayers().stream().forEach(player -> {
+            QuestRegistry.getInstance().createQuester(player);
+        });
     }
     
     /**
@@ -81,13 +90,15 @@ public class ServerListener implements Listener {
         HandlerList.unregisterAll();
 
         // Close/clear the plugin
+        // - releases questers
+        // - clears registry
         PlayerQuests.getInstance().clear();
 
         // Stop the WatchService used for monitoring file changes.
         // This ensures that no further file watching occurs after 
         // the plugin is disabled, and resources related to file 
         // monitoring are properly released.
-        stopWatchService();        
+        stopWatchService();
     }
 
     /**

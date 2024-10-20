@@ -1,6 +1,7 @@
 package playerquests.utility.singleton;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap; // hash table map
 import java.util.List;
 import java.util.Map; // generic map type
@@ -14,6 +15,7 @@ import org.bukkit.entity.Player; // representing players
 
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC;
+import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
 import playerquests.utility.FileUtils;
@@ -50,6 +52,11 @@ public class QuestRegistry {
      * The resource folder quests are in
      */
     private final String questPath = "quest/templates";
+
+    /**
+     * A list of questers that are currently playing.
+     */
+    private List<QuestClient> questers = new ArrayList<QuestClient>();
 
     /**
      * Private constructor to prevent instantiation.
@@ -267,6 +274,7 @@ public class QuestRegistry {
      */
     public void clear() {
         this.registry.clear();
+        this.clearQuesters();
     }
 
     /**
@@ -346,5 +354,34 @@ public class QuestRegistry {
 
         // preserve in database
         Database.getInstance().setQuestInventory(quest, inventory);
+    }
+
+    /**
+     * Creates a new quester instance and adds it to an index.
+     * @param player the player the quest client is on behalf of
+     */
+    public void createQuester(Player player) {
+        QuestClient quester = new QuestClient(player);
+
+        Optional<QuestClient> questClient = this.questers.stream()
+            .filter(qc -> qc.getPlayer().equals(player))
+            .findFirst();
+
+        if (questClient.isPresent()) {
+            this.questers.set(
+                questers.indexOf(questClient.get()), 
+                quester
+            );
+            return;
+        }
+
+        this.questers.add(quester);
+    }
+
+    /**
+     * Cleans up and clears out questers list.
+     */
+    public void clearQuesters() {
+        this.questers.clear();
     }
 }
