@@ -1,6 +1,8 @@
 package playerquests.builder.quest.action;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -8,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
@@ -177,4 +180,17 @@ public abstract class QuestAction {
 	public ActionData getData() {
         return this.actionData;
 	}
+
+    @SuppressWarnings("unchecked") // it is checked :)
+    public static List<Class<? extends QuestAction>> getAllTypes() {
+        JsonSubTypes jsonSubTypes = QuestAction.class.getDeclaredAnnotation(JsonSubTypes.class);
+
+        return Arrays.stream(jsonSubTypes.value())
+            .map(type -> type.value())
+            .filter(clazz -> QuestAction.class.isAssignableFrom(clazz)) // Type check
+            .map(clazz -> (Class<? extends QuestAction>) clazz) // Safe cast
+            .collect(Collectors.toList());
+    }
+
+    public abstract void createSlot(GUIBuilder gui, Integer slot);
 }

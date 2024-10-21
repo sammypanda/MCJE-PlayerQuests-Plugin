@@ -67,7 +67,8 @@ public class Dynamicactioneditor extends GUIDynamic {
                 String.format("Currently: %s", action.getName())
             ))
             .onClick(() -> {
-                // TODO: implement action screen
+                this.director.setCurrentInstance(this.action);
+                new UpdateScreen(List.of("actiontypeselector"), director).execute();
             });
 
         // options editor button
