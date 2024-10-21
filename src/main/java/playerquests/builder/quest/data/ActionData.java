@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.action.option.ActionOption;
 
 /**
  * The entire game context that could possibly 
@@ -14,7 +15,6 @@ import playerquests.builder.quest.action.listener.ActionListener;
  * Especially useful for checking conditionals.
  */
 public class ActionData {
-
 
     /**
      * The unique identifier of this action.
@@ -35,6 +35,12 @@ public class ActionData {
     private List<StagePath> nextActions = new ArrayList<StagePath>();
 
     /**
+     * The options in this action.
+     */
+    @JsonProperty("options")
+    private List<ActionOption> options = new ArrayList<ActionOption>();
+
+    /**
      * Default constructor for Jackson
      */
     public ActionData() {}
@@ -45,15 +51,22 @@ public class ActionData {
      * @param id the unique identifier for the action
      * @param listener the action listener for this action
      * @param nextActions the actions slated to come next
+     * @param options the options configured
      */
     public ActionData( 
         String id,
         ActionListener<?> listener,
-        List<StagePath> nextActions
+        List<StagePath> nextActions,
+        List<ActionOption> options
     ) {
         this.id = id;
         this.listener = listener;
         this.nextActions = nextActions;
+
+        // set options if they exist
+        if (options != null) {
+            this.options = options;
+        }
     }
 
     /**
@@ -116,5 +129,23 @@ public class ActionData {
      */
     public String getID() {
         return this.id;
+    }
+
+    @JsonProperty("options")
+    private void setOptions(List<ActionOption> options) {
+        if (options == null) {
+            this.options = List.of();
+            return;
+        }
+
+        this.options = options;
+    }
+
+    /**
+     * Gets the list of options.
+     * @return a list of action options
+     */
+    public List<ActionOption> getOptions() {
+        return this.options;
     }
 }

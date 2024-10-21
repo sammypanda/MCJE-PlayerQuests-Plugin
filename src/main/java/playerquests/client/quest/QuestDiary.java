@@ -16,7 +16,6 @@ import playerquests.utility.singleton.QuestRegistry;
  * Also serves as a cache between game and database.
  * @see playerquests.client.quest.QuestClient
  */
-// TODO: plan
 public class QuestDiary {
 
     /**

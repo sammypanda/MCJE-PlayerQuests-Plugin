@@ -25,7 +25,9 @@ import playerquests.builder.quest.stage.QuestStage;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type") // Specify the property name
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = NoneAction.class, name = "NoneAction") // Add your concrete actions here
+    // Add concrete actions here
+    @JsonSubTypes.Type(value = NoneAction.class, name = "NoneAction"),
+    @JsonSubTypes.Type(value = SpeakAction.class, name = "SpeakAction")
 })
 public abstract class QuestAction {
 
@@ -35,11 +37,13 @@ public abstract class QuestAction {
     @JsonBackReference
     private QuestStage stage;
 
+    private List<ActionOption> actionOptions = List.of();
+
     /**
      * The context data of this action.
      */
     @JsonProperty("data")
-    private ActionData actionData = new ActionData(null, null, null);
+    private ActionData actionData = new ActionData(null, null, null, this.actionOptions);
 
     /**
      * Constructor for jackson.
@@ -76,13 +80,6 @@ public abstract class QuestAction {
         
         this.stage = stage;
     }
-
-    /**
-     * Gets a list of configured options.
-     * Used for the quest creator to modify the action.
-     * @return a list of action options
-     */
-    public abstract List<ActionOption> getOptions();
 
     /**
      * Sets the unique identifier for this action.

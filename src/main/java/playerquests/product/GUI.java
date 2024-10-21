@@ -7,6 +7,7 @@ import java.util.Optional; // evaluates nullable values
 import org.bukkit.Bukkit; // to create the inventory
 import org.bukkit.inventory.Inventory; // to modify the inventory
 import org.bukkit.inventory.InventoryView; // the view of the GUI
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack; // to visually represent buttons
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 import org.bukkit.persistence.PersistentDataType; // tagging GUI items with GUI=true
@@ -135,6 +136,10 @@ public class GUI {
             // Edit the ItemMeta
             itemMeta.setDisplayName(slot.getLabel()); // set the slot label
 
+            // Hide item tooltips and attributes
+            itemMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_ATTRIBUTES);
+
+            // Add the description
             itemMeta.setLore(null);
             if (!slot.getDescription().isEmpty()) {
                 itemMeta.setLore( // set the slot description

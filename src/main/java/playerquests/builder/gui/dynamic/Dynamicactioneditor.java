@@ -3,6 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
@@ -36,10 +38,10 @@ public class Dynamicactioneditor extends GUIDynamic {
     protected void execute_custom() {
         // set frame title/style
         this.gui.getFrame().setTitle(String.format("%s Editor", this.action.getID()))
-                           .setSize(18);
+                           .setSize(9);
         
         // the back button
-        new GUISlot(this.gui, 10)
+        new GUISlot(this.gui, 1)
             .setLabel("Back")
             .setItem("OAK_DOOR")
             .addFunction(new UpdateScreen( // set function as 'UpdateScreen'
@@ -48,7 +50,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             ));
 
         // select next actions button
-        new GUISlot(this.gui, 1)
+        new GUISlot(this.gui, 2)
             .setItem("HOPPER")
             .setLabel("Next Actions")
             .setDescription(List.of("Select actions to come after this one."))
@@ -57,16 +59,24 @@ public class Dynamicactioneditor extends GUIDynamic {
                 new UpdateScreen(Arrays.asList("nextactioneditor"), director).execute(); // open 'next action editor' screen
             });
 
-        // left side dividers
-        new GUISlot(this.gui, 2)
-            .setItem("BLACK_STAINED_GLASS_PANE");
+        // change action type button
+        new GUISlot(this.gui, 3)
+            .setItem(Material.FIREWORK_ROCKET)
+            .setLabel("Change action type")
+            .setDescription(List.of(
+                String.format("Currently: %s", action.getName())
+            ))
+            .onClick(() -> {
+                // TODO: implement action screen
+            });
 
-        new GUISlot(this.gui, 11)
-            .setItem("BLACK_STAINED_GLASS_PANE");
-
-        // summon option buttons
-        this.action.getOptions().forEach(option -> {
-            option.createSlot(this.gui, this.gui.getEmptySlot());
-        });
+        // options editor button
+        new GUISlot(this.gui, 4)
+            .setItem(Material.STONE_BUTTON)
+            .setLabel("Edit action options")
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.action.getData());
+                new UpdateScreen(List.of("optioneditor"), director).execute();
+            });
     }
 }

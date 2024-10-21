@@ -1,31 +1,14 @@
 package playerquests.builder.quest.action;
 
 import playerquests.builder.quest.action.listener.ActionListener;
-import playerquests.builder.quest.action.listener.NoneListener;
+import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.data.QuesterData;
-import playerquests.builder.quest.stage.QuestStage;
 
-/**
- * An action that does nothing. :D      
- */
-public class NoneAction extends QuestAction {
-
-    /**
-     * Constructor for jackson.
-     */
-    public NoneAction() {}
-
-    /**
-     * Skips the currently tasked quest action.
-     * @param stage stage this action belongs to
-     */
-    public NoneAction(QuestStage stage) {
-        super(stage);
-    }
+public class SpeakAction extends QuestAction {
 
     @Override
     public String getName() {
-        return "None";
+        return "Speak";
     }
 
     @Override
@@ -44,6 +27,7 @@ public class NoneAction extends QuestAction {
 
     @Override
     protected ActionListener<?> startListener(QuesterData questerData) {
-        return new NoneListener(this, questerData);
+        return new SpeakListener(this, questerData);
     }
+    
 }
