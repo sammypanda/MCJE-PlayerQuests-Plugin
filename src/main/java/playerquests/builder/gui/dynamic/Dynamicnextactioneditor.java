@@ -172,7 +172,13 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
                 // unselect
                 if (isSelected) {
-                    this.nextActions.removeIf(path -> path.getActions().contains(action_id));
+                    this.nextActions.removeIf(path -> {
+                        if (!path.hasActions()) {
+                            return false;
+                        }
+
+                        return path.getActions().contains(action_id);
+                    });
                 }
 
                 // select
