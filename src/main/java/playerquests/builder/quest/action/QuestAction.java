@@ -181,6 +181,10 @@ public abstract class QuestAction {
         return this.actionData;
 	}
 
+    /**
+     * Gets all the existing QuestAction types annotated.
+     * @return all known quest action class types
+     */
     @SuppressWarnings("unchecked") // it is checked :)
     public static List<Class<? extends QuestAction>> getAllTypes() {
         JsonSubTypes jsonSubTypes = QuestAction.class.getDeclaredAnnotation(JsonSubTypes.class);
@@ -192,5 +196,11 @@ public abstract class QuestAction {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Creates the slots in a GUI that would be used
+     * to select this action.
+     * @param gui the GUI to put the slot on
+     * @param slot the position to create the slot in on the GUI
+     */
     public abstract void createSlot(GUIBuilder gui, Integer slot);
 }

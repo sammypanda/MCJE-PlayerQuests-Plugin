@@ -9,6 +9,7 @@ import playerquests.builder.gui.GUIBuilder;
  */
 // TODO: plan
 public interface ActionOption {
+    
     /**
      * Creates the slots in a GUI that would be used
      * to edit this option.

@@ -10,7 +10,15 @@ import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.data.QuesterData;
 
+/**
+ * Action for an NPC speaking.
+ */
 public class SpeakAction extends QuestAction {
+
+    /**
+     * Default constructor for Jackson.
+     */
+    public SpeakAction() {}
 
     @Override
     public String getName() {

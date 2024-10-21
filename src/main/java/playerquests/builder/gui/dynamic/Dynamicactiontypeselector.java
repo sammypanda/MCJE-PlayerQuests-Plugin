@@ -10,6 +10,9 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.client.ClientDirector;
 
+/**
+ * GUI for selecting action types.
+ */
 public class Dynamicactiontypeselector extends GUIDynamic {
 
     /**
@@ -22,6 +25,11 @@ public class Dynamicactiontypeselector extends GUIDynamic {
      */
     List<QuestAction> actionTypes;
 
+    /**
+     * Constructor for a GUI that shows all known action types.
+     * @param director the client director that handles the GUI and interactions.
+     * @param previousScreen the identifier of the previous screen to navigate back to.
+     */
     public Dynamicactiontypeselector(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
@@ -30,6 +38,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     protected void setUp_custom() {
         this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
 
+        // get all annotated action types
         this.actionTypes = QuestAction.getAllTypes()
             .stream()
             .map(actionClass -> {
