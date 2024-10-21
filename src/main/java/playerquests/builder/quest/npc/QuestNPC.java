@@ -288,10 +288,11 @@ public class QuestNPC {
 
     /**
      * Places the NPC in the world according to its assigned type.
+     * @param player the player who can see the placement
      */
     @JsonIgnore
-    public void place() {
-        this.assigned.place();
+    public void place(Player player) {
+        this.assigned.place(player);
     }
 
     /**

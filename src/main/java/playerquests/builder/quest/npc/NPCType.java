@@ -92,10 +92,11 @@ public class NPCType {
 
     /**
      * Places the NPC in the world.
+     * @param player the player who can see the placement
      * 
      * @throws IllegalStateException if the method is not overridden in a subclass
      */
-    public void place() {
+    public void place(Player player) {
         throw new IllegalStateException("Tried to place an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 

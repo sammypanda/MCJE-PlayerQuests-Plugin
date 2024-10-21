@@ -392,4 +392,12 @@ public class QuestRegistry {
     public void removeQuester(Player player) {
         this.questers.removeIf(client -> client.getPlayer().equals(player));
     }
+
+    /**
+     * Gets the list of questers
+     * @return the list of registered QuestClients
+     */
+    public List<QuestClient> getAllQuesters() {
+        return this.questers;
+    }
 }
