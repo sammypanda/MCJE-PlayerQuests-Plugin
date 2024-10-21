@@ -384,4 +384,12 @@ public class QuestRegistry {
     public void clearQuesters() {
         this.questers.clear();
     }
+
+    /**
+     * Removes a quester from the list.
+     * @param player player to remove
+     */
+    public void removeQuester(Player player) {
+        this.questers.removeIf(client -> client.getPlayer().equals(player));
+    }
 }

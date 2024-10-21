@@ -4,6 +4,7 @@ import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import playerquests.Core; // accessing plugin singeltons
 
@@ -29,6 +30,15 @@ public class PlayerListener implements Listener {
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        Core.getQuestRegistry().createQuester(event.getPlayer());
+    }
 
+    /**
+     * Ran when a player leaves the server.
+     * @param event player quit event data
+     */
+    @EventHandler
+    public void onLeave(PlayerQuitEvent event) {
+        Core.getQuestRegistry().removeQuester(event.getPlayer());
     }
 }

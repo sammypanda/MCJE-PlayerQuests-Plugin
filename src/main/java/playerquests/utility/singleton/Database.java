@@ -635,4 +635,6 @@ public class Database {
 
         return inventories;
     }
+
+    // public synchronized setQuestDiary(QuestDiary diary)
 }
