@@ -8,6 +8,7 @@ import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
+import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.stage.QuestStage;
 
@@ -59,5 +60,10 @@ public class NoneAction extends QuestAction {
             .setLabel(this.getName())
             .setDescription(List.of("Does nothing."))
             .setItem(Material.BLACK_CONCRETE);
+    }
+
+    @Override
+    public List<Class<? extends ActionOption>> getOptions() {
+        return List.of();
     }
 }

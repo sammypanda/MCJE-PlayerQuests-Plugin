@@ -8,6 +8,8 @@ import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
+import playerquests.builder.quest.action.option.ActionOption;
+import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
 
 /**
@@ -50,6 +52,13 @@ public class SpeakAction extends QuestAction {
             .setLabel(this.getName())
             .setDescription(List.of("Makes an NPC speak."))
             .setItem(Material.OAK_SIGN);
+    }
+
+    @Override
+    public List<Class<? extends ActionOption>> getOptions() {
+        return List.of(
+            NPCOption.class
+        );
     }
     
 }

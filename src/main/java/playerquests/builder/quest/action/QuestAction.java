@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -40,13 +41,12 @@ public abstract class QuestAction {
     @JsonBackReference
     private QuestStage stage;
 
-    private List<ActionOption> actionOptions = List.of();
-
     /**
      * The context data of this action.
      */
+    @JsonManagedReference
     @JsonProperty("data")
-    private ActionData actionData = new ActionData(null, null, null, this.actionOptions);
+    private ActionData actionData = new ActionData(this, null, null, null);
 
     /**
      * Constructor for jackson.
@@ -61,6 +61,13 @@ public abstract class QuestAction {
     public QuestAction(QuestStage stage) {
         this.stage = stage;
     }
+
+    /**
+     * Get the option types that qualify for this action.
+     * @return a list of action option classes
+     */
+    @JsonIgnore
+    public abstract List<Class<? extends ActionOption>> getOptions();
 
     /**
      * Gets the stage that this action belongs to.

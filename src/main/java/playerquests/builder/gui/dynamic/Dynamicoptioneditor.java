@@ -29,7 +29,6 @@ public class Dynamicoptioneditor extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         this.actionData = (ActionData) this.director.getCurrentInstance(ActionData.class);
-        System.out.println(this.actionData.getOptions());
     }
 
     @Override
@@ -50,7 +49,8 @@ public class Dynamicoptioneditor extends GUIDynamic {
 
         // summon option buttons
         this.actionData.getOptions().forEach(option -> {
-            option.createSlot(this.gui, this.gui.getEmptySlot());
+            // create the slot to edit options
+            option.createSlot(this, this.gui, this.gui.getEmptySlot(), this.director);
         });
     }
     

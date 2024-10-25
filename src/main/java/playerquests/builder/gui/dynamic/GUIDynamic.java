@@ -129,7 +129,7 @@ public abstract class GUIDynamic {
     /**
      * Refreshes the GUI screen.
      */
-    protected void refresh() {
+    public void refresh() {
         this.gui.clearSlots();
         this.execute();
     }

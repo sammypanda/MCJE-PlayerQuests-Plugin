@@ -114,12 +114,12 @@ public class QuestNPC {
      */
     @JsonIgnore
     public String getTitle() {
-        return this.toString();
+        return this.getName();
     }
 
     @Override
     public String toString() {
-        return this.getName();
+        return this.getID();
     }
 
     /**

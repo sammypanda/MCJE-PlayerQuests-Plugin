@@ -1,11 +1,17 @@
 package playerquests.builder.quest.data;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 
@@ -15,6 +21,12 @@ import playerquests.builder.quest.action.option.ActionOption;
  * Especially useful for checking conditionals.
  */
 public class ActionData {
+
+    /**
+     * The action this data belongs to.
+     */
+    @JsonBackReference
+    private QuestAction action;
 
     /**
      * The unique identifier of this action.
@@ -32,13 +44,14 @@ public class ActionData {
      * The actions slated to come after this one.
      */
     @JsonProperty("next")
-    private List<StagePath> nextActions = new ArrayList<StagePath>();
+    private List<StagePath> nextActions = new ArrayList<>();
 
     /**
      * The options in this action.
      */
     @JsonProperty("options")
-    private List<ActionOption> options = new ArrayList<ActionOption>();
+    @JsonManagedReference
+    private List<ActionOption> options = new ArrayList<>();
 
     /**
      * Default constructor for Jackson
@@ -48,25 +61,21 @@ public class ActionData {
     /**
      * Constructor for providing action context.
      * Args (if you're sure they aren't needed) can be nullified.
+     * @param action the action that owns this data
      * @param id the unique identifier for the action
      * @param listener the action listener for this action
      * @param nextActions the actions slated to come next
-     * @param options the options configured
      */
     public ActionData( 
+        QuestAction action,
         String id,
         ActionListener<?> listener,
-        List<StagePath> nextActions,
-        List<ActionOption> options
+        List<StagePath> nextActions
     ) {
+        this.action = action;
         this.id = id;
         this.listener = listener;
         this.nextActions = nextActions;
-
-        // set options if they exist
-        if (options != null) {
-            this.options = options;
-        }
     }
 
     /**
@@ -146,6 +155,46 @@ public class ActionData {
      * @return a list of action options
      */
     public List<ActionOption> getOptions() {
-        return this.options;
+        return this.getAction().getOptions().stream()
+            .map(clazz -> {
+                // search in existing list for option with matching subclass type
+                Optional<ActionOption> existingOption = this.options.stream()
+                    .filter(option -> clazz.isAssignableFrom(option.getClass()))
+                    .findFirst();
+
+                // don't continue if already in options list
+                if (existingOption.isPresent()) {
+                    return existingOption.get();
+                }
+
+                // create options
+                try {
+                    // create the instance of the option
+                    return clazz.getDeclaredConstructor(ActionData.class).newInstance(this);
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                        | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            })
+            .filter(option -> option != null) // filter out any null values
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the action this data belongs to.
+     * @return a quest action.
+     */
+    public QuestAction getAction() {
+        return this.action;
+    }
+
+    /**
+     * Set (or replace) the settings of an option.
+     * @param option the action option to put
+     */
+    public void setOption(ActionOption option) {
+        this.options.removeIf(o -> option.getClass().isAssignableFrom(o.getClass()));
+        this.options.add(option);
     }
 }
