@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.ActionData;
 import playerquests.client.ClientDirector;
 
 /**
@@ -36,6 +37,8 @@ public class Dynamicactioneditor extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
+        ActionData actionData = this.action.getData();
+
         // set frame title/style
         this.gui.getFrame().setTitle(String.format("%s Editor", this.action.getID()))
                            .setSize(9);
@@ -72,12 +75,15 @@ public class Dynamicactioneditor extends GUIDynamic {
             });
 
         // options editor button
-        new GUISlot(this.gui, 4)
-            .setItem(Material.STONE_BUTTON)
-            .setLabel("Edit action options")
-            .onClick(() -> {
-                this.director.setCurrentInstance(this.action.getData());
-                new UpdateScreen(List.of("optioneditor"), director).execute();
-            });
+        if (!action.getOptions().isEmpty()) {
+            // only show if the action has more than one option
+            new GUISlot(this.gui, 4)
+                .setItem(Material.STONE_BUTTON)
+                .setLabel("Edit action options")
+                .onClick(() -> {
+                    this.director.setCurrentInstance(actionData);
+                    new UpdateScreen(List.of("optioneditor"), director).execute();
+                });
+        }
     }
 }
