@@ -47,8 +47,8 @@ public class SpeakAction extends QuestAction {
     }
 
     @Override
-    public void createSlot(GUIBuilder gui, Integer slot) {
-        new GUISlot(gui, slot)
+    public GUISlot createSlot(GUIBuilder gui, Integer slot) {
+        return new GUISlot(gui, slot)
             .setLabel(this.getName())
             .setDescription(List.of("Makes an NPC speak."))
             .setItem(Material.OAK_SIGN);

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import playerquests.builder.gui.GUIBuilder;
+import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
@@ -209,5 +210,5 @@ public abstract class QuestAction {
      * @param gui the GUI to put the slot on
      * @param slot the position to create the slot in on the GUI
      */
-    public abstract void createSlot(GUIBuilder gui, Integer slot);
+    public abstract GUISlot createSlot(GUIBuilder gui, Integer slot);
 }

@@ -55,8 +55,8 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    public void createSlot(GUIBuilder gui, Integer slot) {
-        new GUISlot(gui, slot)
+    public GUISlot createSlot(GUIBuilder gui, Integer slot) {
+        return new GUISlot(gui, slot)
             .setLabel(this.getName())
             .setDescription(List.of("Does nothing."))
             .setItem(Material.BLACK_CONCRETE);

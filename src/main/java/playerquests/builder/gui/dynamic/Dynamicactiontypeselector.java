@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
@@ -79,7 +81,13 @@ public class Dynamicactiontypeselector extends GUIDynamic {
 
         // create the action selection buttons
         this.actionTypes.forEach(action -> {
-            action.createSlot(this.gui, this.gui.getEmptySlot());
+            GUISlot slot = action.createSlot(this.gui, this.gui.getEmptySlot());
+
+            if (action.getClass().isAssignableFrom(this.action.getClass())) {
+                slot
+                    .setLabel(String.format("%s (Selected)", slot.getLabel()))
+                    .setItem(Material.FIREWORK_ROCKET);
+            }
         });
                 
     }
