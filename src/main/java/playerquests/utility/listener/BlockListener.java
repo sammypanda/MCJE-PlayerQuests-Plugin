@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block; // the one and only great block type
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
 import org.bukkit.event.block.Action; // identifying what action was done to a block
@@ -109,11 +110,19 @@ public class BlockListener implements Listener {
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         Optional<BlockNPC> activeNPC = this.isActiveNPC(block);
+        Player player = event.getPlayer();
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             if (activeNPC.isPresent()) {
-                event.getPlayer().sendBlockChange(block.getLocation(), activeNPC.get().getBlock());
+                Location blockLocation = block.getLocation();
+                Location barrierLocation = blockLocation.clone().add(0, 1, 0);
+
+                // put a barrier block above the NPC to avoid 'kicked for flying'
+                blockLocation.getWorld().setBlockData(barrierLocation, Material.BARRIER.createBlockData());
+
+                // show the NPC block
+                event.getPlayer().sendBlockChange(blockLocation, activeNPC.get().getBlock());
             }
         });
 
