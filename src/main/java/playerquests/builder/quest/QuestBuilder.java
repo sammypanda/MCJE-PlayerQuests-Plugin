@@ -457,6 +457,11 @@ public class QuestBuilder {
      * @param startPoints a list of stage paths.
      */
     public void setStartPoints(List<StagePath> startPoints) {
+        if (startPoints == null) {
+            this.startPoints = List.of();
+            return;
+        }
+
         this.startPoints = startPoints;
     }
 }

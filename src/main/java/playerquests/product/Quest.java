@@ -109,7 +109,11 @@ public class Quest {
         this.creator = creator;
         this.npcs = npcs;
         this.stages = stages;
-        this.startPoints = startpoints;
+
+        // only set startpoints if not null
+        if (this.startPoints != null) {
+            this.startPoints = startpoints;
+        }
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (this.stages != null) {
@@ -448,6 +452,10 @@ public class Quest {
      */
     @JsonProperty("startpoints")
     public List<StagePath> getStartPoints() {
+        if (this.startPoints == null) {
+            return List.of();
+        }
+        
         return this.startPoints;
     }
 }

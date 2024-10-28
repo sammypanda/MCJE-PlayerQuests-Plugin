@@ -156,6 +156,10 @@ public class QuestStage {
      * @return the starting actions
      */
     public List<StagePath> getStartPoints() {
+        if (startPoints == null) {
+            return List.of();
+        }
+
         return this.startPoints;
     }
 
@@ -164,6 +168,11 @@ public class QuestStage {
      * @param startPoints a list of paths to actions
      */
     public void setStartPoints(List<StagePath> startPoints) {
+        if (startPoints == null) {
+            this.startPoints = List.of();
+            return;
+        }
+
         this.startPoints = startPoints;
     }
 }
