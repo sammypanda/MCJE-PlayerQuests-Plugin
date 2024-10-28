@@ -101,6 +101,10 @@ public class ActionData {
      * @return the listener that will trigger action checking
      */
     public List<StagePath> getNextActions() {
+        if (this.nextActions == null) {
+            return List.of();
+        }
+
         return this.nextActions;
     }
 
