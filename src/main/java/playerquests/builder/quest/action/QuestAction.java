@@ -209,6 +209,7 @@ public abstract class QuestAction {
      * to select this action.
      * @param gui the GUI to put the slot on
      * @param slot the position to create the slot in on the GUI
+     * @return the GUI slot created
      */
     public abstract GUISlot createSlot(GUIBuilder gui, Integer slot);
 }
