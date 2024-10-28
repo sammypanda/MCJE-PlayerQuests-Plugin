@@ -175,4 +175,24 @@ public class QuestStage {
 
         this.startPoints = startPoints;
     }
+
+    /**
+     * Replace an action with another.
+     * @param oldAction the action to get rid of.
+     * @param newAction the action to replace the old one.
+     * @return the completed new action after replacement.
+     */
+    public QuestAction replaceAction(QuestAction oldAction, QuestAction newAction) {
+        String id = oldAction.getID();
+        
+        // set inner action meta
+        newAction.setStage(this);
+        newAction.setID(id);
+
+        // replace the old action
+        this.actions.replace(id, newAction);
+
+        // return the completed action
+        return newAction;
+    }
 }

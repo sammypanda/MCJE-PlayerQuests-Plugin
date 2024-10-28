@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 
 /**
@@ -28,6 +29,11 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     List<QuestAction> actionTypes;
 
     /**
+     * The stage the action belongs to.
+     */
+    QuestStage stage;
+
+    /**
      * Constructor for a GUI that shows all known action types.
      * @param director the client director that handles the GUI and interactions.
      * @param previousScreen the identifier of the previous screen to navigate back to.
@@ -39,6 +45,12 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.stage = this.action.getStage();
+
+        // hmm actions should always have stages!
+        if (this.stage == null) {
+            throw new RuntimeException("When changing action types, an action had a null stage.");
+        }
 
         // get all annotated action types
         this.actionTypes = QuestAction.getAllTypes()
@@ -88,8 +100,26 @@ public class Dynamicactiontypeselector extends GUIDynamic {
                     .setLabel(String.format("%s (Selected)", slot.getLabel()))
                     .setItem(Material.FIREWORK_ROCKET);
             }
-        });
-                
+
+            // functionality for changing the action type
+            slot.onClick(() -> {
+                this.changeType(this.action, action);
+            });
+        });                
+    }
+
+    /**
+     * The logic to actually change the type of the current action.
+     * @param oldAction the action being edited.
+     * @param newAction the action to replace it with, that has the new type.
+     */
+    private void changeType(QuestAction oldAction, QuestAction newAction) {
+        // replace the action in the stage
+        this.action = this.stage.replaceAction(oldAction, newAction);
+
+        // show the replaced action here
+        this.director.setCurrentInstance(this.action, QuestAction.class); // update in director
+        this.refresh(); // update the screen
     }
     
 }

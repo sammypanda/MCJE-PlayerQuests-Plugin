@@ -84,7 +84,7 @@ public abstract class QuestAction {
      * @param stage the quest stage
      */
     @JsonBackReference
-    private void setStage(QuestStage stage) {
+    public void setStage(QuestStage stage) {
         if (stage == null) {
             return;
         }
