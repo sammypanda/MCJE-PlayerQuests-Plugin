@@ -110,7 +110,6 @@ public class BlockListener implements Listener {
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         Optional<BlockNPC> activeNPC = this.isActiveNPC(block);
-        Player player = event.getPlayer();
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
