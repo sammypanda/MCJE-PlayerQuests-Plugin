@@ -110,18 +110,8 @@ public class BlockNPC extends NPCType {
                 return;
             }
 
-            // establish initial values
-            QuestNPC npc = this.getNPC();
-            Location npcBukkitLocation = npc.getLocation().toBukkitLocation();
-
-            // set the block in the world for this NPC to register to
-            player.sendBlockChange(
-                npcBukkitLocation,
-                this.getBlock()
-            );
-
             // register the block
-            blockListener.registerBlockNPC(this);
+            blockListener.registerBlockNPC(this, player);
         });   
     }
 

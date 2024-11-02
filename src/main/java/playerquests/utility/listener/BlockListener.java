@@ -61,9 +61,16 @@ public class BlockListener implements Listener {
      * 
      * @param blockNPC the BlockNPC to register
      */
-    public void registerBlockNPC(BlockNPC blockNPC) {
+    public void registerBlockNPC(BlockNPC blockNPC, Player player) {
         synchronized (activeBlockNPCs) {
+            // add the block to the list to be refreshed
             activeBlockNPCs.add(blockNPC);
+
+            // send initial update of block
+            player.sendBlockChange(
+                blockNPC.getNPC().getLocation().toBukkitLocation(),
+                blockNPC.getBlock()
+            );
         }
     }
 
