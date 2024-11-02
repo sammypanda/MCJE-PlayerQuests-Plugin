@@ -122,7 +122,7 @@ public class BlockListener implements Listener {
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             if (activeNPC.isPresent()) {
                 Location blockLocation = block.getLocation();
-                Location barrierLocation = blockLocation.clone().add(0, 1, 0);
+                Location barrierLocation = blockLocation.clone().add(0, 2, 0);
 
                 // put a barrier block above the NPC to avoid 'kicked for flying'
                 blockLocation.getWorld().setBlockData(barrierLocation, Material.BARRIER.createBlockData());
