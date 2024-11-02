@@ -67,11 +67,35 @@ public class BlockListener implements Listener {
             activeBlockNPCs.add(blockNPC);
 
             // send initial update of block
-            player.sendBlockChange(
-                blockNPC.getNPC().getLocation().toBukkitLocation(),
-                blockNPC.getBlock()
-            );
+            this.setBlockNPC(blockNPC, player);
         }
+    }
+
+    private void setBlockNPC(BlockNPC blockNPC, Player player) {
+        Location blockLocation = blockNPC.getNPC().getLocation().toBukkitLocation();
+        Location barrierLocation = blockLocation.clone().add(0, 2, 0);
+        World world = blockLocation.getWorld();
+
+        // update the client side NPC block
+        player.sendBlockChange(blockLocation, blockNPC.getBlock());
+
+        // exit if barrier already in place
+        if (barrierLocation.getBlock().getType().equals(Material.BARRIER)) {
+            return;
+        }
+        
+        // place barrier to stop "flying" when standing on NPC block
+        world.setBlockData(barrierLocation, Material.BARRIER.createBlockData());
+    }
+
+    private void unsetBlockNPC(BlockNPC blockNPC) {
+        Location blockLocation = blockNPC.getNPC().getLocation().toBukkitLocation();
+        Location barrierLocation = blockLocation.clone().add(0, 2, 0);
+        World world = blockLocation.getWorld();
+        BlockData airData = Material.AIR.createBlockData();
+
+        world.setBlockData(blockLocation, airData); // unset NPC block
+        world.setBlockData(barrierLocation, airData); // unset barrier above NPC
     }
 
     /**
@@ -121,14 +145,7 @@ public class BlockListener implements Listener {
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             if (activeNPC.isPresent()) {
-                Location blockLocation = block.getLocation();
-                Location barrierLocation = blockLocation.clone().add(0, 2, 0);
-
-                // put a barrier block above the NPC to avoid 'kicked for flying'
-                blockLocation.getWorld().setBlockData(barrierLocation, Material.BARRIER.createBlockData());
-
-                // show the NPC block
-                event.getPlayer().sendBlockChange(blockLocation, activeNPC.get().getBlock());
+                this.setBlockNPC(activeNPC.get(),event.getPlayer());
             }
         });
 
@@ -220,5 +237,12 @@ public class BlockListener implements Listener {
                 return true;
             });
         }
+    }
+
+    public void clear() {
+        this.activeBlockNPCs.forEach(blockNPC -> {
+            // remove NPC blocks from world
+            this.unsetBlockNPC(blockNPC);
+        });
     }
 }

@@ -166,5 +166,6 @@ public class PlayerQuests {
             director.close();  // Close the director
             return true;       // Remove the entry
         });
+        PlayerQuests.blockListener.clear();
     }
 }
