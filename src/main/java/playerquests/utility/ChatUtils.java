@@ -286,7 +286,7 @@ public class ChatUtils {
      * @return an array of newline elements
      */
     private static String[] newlineArray(Integer start, Integer end) {
-        return IntStream.range(start, end).mapToObj(i -> "\n").toArray(String[]::new);
+        return IntStream.range(start, end).mapToObj(_ -> "\n").toArray(String[]::new);
     }
 
     /**

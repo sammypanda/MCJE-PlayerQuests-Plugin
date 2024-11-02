@@ -63,7 +63,7 @@ public class NPCOption extends ActionOption {
                                 this.actionData.setOption(this);
                             });
 
-                            selectNPC.onFinish(npc -> {
+                            selectNPC.onFinish(_ -> {
                                 screen.refresh();
                             });
                         });
