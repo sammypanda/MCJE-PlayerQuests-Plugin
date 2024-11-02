@@ -553,12 +553,12 @@ public class Database {
             PreparedStatement preparedStatement;
             
             String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
-            preparedStatement = getConnection().prepareStatement(removeQuestSQL);
+            preparedStatement = connection.prepareStatement(removeQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
             String removeDiaryQuestSQL = "DELETE FROM diary_quests WHERE quest = ?;";
-            preparedStatement = getConnection().prepareStatement(removeDiaryQuestSQL);
+            preparedStatement = connection.prepareStatement(removeDiaryQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
