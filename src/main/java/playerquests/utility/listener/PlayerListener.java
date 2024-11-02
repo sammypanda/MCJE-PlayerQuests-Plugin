@@ -30,7 +30,10 @@ public class PlayerListener implements Listener {
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Core.getQuestRegistry().createQuester(event.getPlayer());
+        // wait 30 ticks for join to finish, and create quester
+        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
+            Core.getQuestRegistry().createQuester(event.getPlayer());
+        }, 60);
     }
 
     /**
