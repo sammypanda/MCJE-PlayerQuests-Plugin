@@ -1,9 +1,9 @@
 package playerquests.utility.listener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -42,7 +42,7 @@ public class BlockListener implements Listener {
     /**
      * A map of active BlockNPCs, where the key is the block and the value is the BlockNPC.
      */
-    private List<BlockNPC> activeBlockNPCs = new ArrayList<BlockNPC>();
+    private Map<Player, BlockNPC> activeBlockNPCs = new HashMap<Player, BlockNPC>();
 
     /**
      * Constructs a new {@code BlockListener} and registers it with the Bukkit event system.
@@ -60,11 +60,12 @@ public class BlockListener implements Listener {
      * </ul>
      * 
      * @param blockNPC the BlockNPC to register
+     * @param player the player to register the NPC for
      */
     public void registerBlockNPC(BlockNPC blockNPC, Player player) {
         synchronized (activeBlockNPCs) {
             // add the block to the list to be refreshed
-            activeBlockNPCs.add(blockNPC);
+            activeBlockNPCs.put(player, blockNPC);
 
             // send initial update of block
             this.setBlockNPC(blockNPC, player);
@@ -107,8 +108,9 @@ public class BlockListener implements Listener {
      * </ul>
      * 
      * @param blockNPC the BlockNPC to unregister
+     * @param player the player to register the NPC for
      */
-    public void unregisterBlockNPC(BlockNPC blockNPC) {
+    public void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
         QuestNPC npc = blockNPC.getNPC();
 
         // don't continue if no NPC associated
@@ -118,12 +120,7 @@ public class BlockListener implements Listener {
 
         // merge with the active list of block NPCs
         synchronized (activeBlockNPCs) {
-            List<BlockNPC> filteredBlockNPCs = activeBlockNPCs.stream()
-                .filter(currentBlockNPC -> !currentBlockNPC.equals(blockNPC)) // filter out the blockNPC to unregister
-                .collect(Collectors.toList()); // collect stream back to list
-
-            // replace the NPCs list with the filtered
-            activeBlockNPCs = filteredBlockNPCs;
+            this.activeBlockNPCs.replace(player, blockNPC);
         }
     }
     
@@ -140,12 +137,13 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
-        Optional<BlockNPC> activeNPC = this.isActiveNPC(block);
+        Player player = event.getPlayer();
+        Optional<BlockNPC> activeNPC = this.isActiveNPC(block, player);
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             if (activeNPC.isPresent()) {
-                this.setBlockNPC(activeNPC.get(),event.getPlayer());
+                this.setBlockNPC(activeNPC.get(), player);
             }
         });
 
@@ -169,15 +167,18 @@ public class BlockListener implements Listener {
     /**
      * Checks if the passed in block is an active block NPC.
      * @param block the block to check.
+     * @param player the player to register the NPC for
      * @return optional which may not be present.
      */
-    private Optional<BlockNPC> isActiveNPC(Block block) {
+    private Optional<BlockNPC> isActiveNPC(Block block, Player player) {
         if (block == null) {
             return Optional.empty();
         }
 
-        return activeBlockNPCs.stream() // determine if is an active NPC:
-            .filter(blockNPC -> blockNPC.getNPC().getLocation().toBukkitLocation().equals(block.getLocation())) // match on location
+        return activeBlockNPCs.entrySet().stream() // determine if is an active NPC:
+            .filter(entry -> entry.getValue().getNPC().getLocation().toBukkitLocation().equals(block.getLocation())) // match on location
+            .filter(entry -> entry.getKey().equals(player)) // match on player
+            .map(Entry::getValue)
             .findFirst();
     }
 
@@ -194,7 +195,8 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onBlockNPCBreak(BlockBreakEvent event) {
         Block brokenBlock = event.getBlock();
-        Optional<BlockNPC> possibleNPC = this.isActiveNPC(brokenBlock);
+        Player player = event.getPlayer();
+        Optional<BlockNPC> possibleNPC = this.isActiveNPC(brokenBlock, player);
 
         if (possibleNPC.isEmpty()) {
             return; // don't continue if not an NPC block
@@ -217,7 +219,7 @@ public class BlockListener implements Listener {
         BlockData replacementBlock = Material.AIR.createBlockData();
 
         synchronized (activeBlockNPCs) {
-            this.activeBlockNPCs.removeIf(blockNPC -> {
+            this.activeBlockNPCs.values().removeIf(blockNPC -> {
                 if (!blockNPC.getNPC().getQuest().getID().equals(quest.getID())) {
                     return false; // keep entry that doesn't match quest removal
                 }
@@ -239,8 +241,11 @@ public class BlockListener implements Listener {
         }
     }
 
+    /**
+     * Clear out blockNPCs.
+     */
     public void clear() {
-        this.activeBlockNPCs.forEach(blockNPC -> {
+        this.activeBlockNPCs.forEach((_, blockNPC) -> {
             // remove NPC blocks from world
             this.unsetBlockNPC(blockNPC);
         });

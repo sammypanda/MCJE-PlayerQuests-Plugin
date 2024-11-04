@@ -106,7 +106,7 @@ public class BlockNPC extends NPCType {
 
             // if no location has been set, don't try to register
             if (this.getNPC() == null || this.getNPC().getLocation() == null) {
-                blockListener.unregisterBlockNPC(this);
+                blockListener.unregisterBlockNPC(this, player);
                 return;
             }
 
