@@ -90,9 +90,24 @@ public class QuestClient {
             });
 	}
 
+    /**
+     * Start actions from a path pointing to stages/actions.
+     * @param path the pointer
+     * @param quest the quest to use the pointer on
+     */
     public void start(StagePath path, Quest quest) {
+        // if no actions, point to stage start points
+        if (!path.hasActions()) {
+            path.getStage(quest).getStartPoints().forEach(
+                p -> this.start(p, quest)
+            );
+            return;
+        }
+
+        // get actions
         List<QuestAction> actions = path.getActions(quest);
 
+        // for each action, start
         actions.forEach(action -> {
             // find NPC option if applies
             Optional<NPCOption> npcOption = action.getData().getOptions().stream()
