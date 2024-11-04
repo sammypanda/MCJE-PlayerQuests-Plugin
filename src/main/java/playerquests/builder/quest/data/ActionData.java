@@ -186,6 +186,19 @@ public class ActionData {
     }
 
     /**
+     * Gets the option by the class type.
+     * @param optionType the class of the option type
+     * @return the option object
+     */
+    public <T extends ActionOption> Optional<T> getOption(Class<T> optionType) {
+        return action.getData().getOptions().stream()
+            .filter(optionType::isInstance)
+            .map(optionType::cast)
+            .findFirst();
+
+    }
+
+    /**
      * Get the action this data belongs to.
      * @return a quest action.
      */

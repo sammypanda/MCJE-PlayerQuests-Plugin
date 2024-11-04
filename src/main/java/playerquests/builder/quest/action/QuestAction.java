@@ -126,7 +126,7 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void run(QuesterData questerData) {
-        this.prepare(); // prepare the action to be checked
+        this.prepare(questerData); // prepare the action to be checked
         this.getData().setListener(this.startListener(questerData)); // start the action listener that triggers checks
     }
 
@@ -134,7 +134,7 @@ public abstract class QuestAction {
      * Setting up the action before any 
      * checking.
      */
-    protected abstract void prepare();
+    protected abstract void prepare(QuesterData questerData);
 
     /**
      * Determines if the action should

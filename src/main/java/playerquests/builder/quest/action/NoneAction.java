@@ -36,7 +36,7 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void prepare() {}
+    protected void prepare(QuesterData questerData) {}
 
     @Override
     protected Boolean validate(QuesterData questerData) {

@@ -18,6 +18,7 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector;
+import playerquests.product.Quest;
 
 /**
  * The action option for defining an NPC.
@@ -87,5 +88,14 @@ public class NPCOption extends ActionOption {
     @JsonIgnore
     public String getNPC() {
         return this.npcID;
+    }
+
+    /**
+     * Gets the NPC object for this option.
+     * @param quest the quest to search for the NPC in
+     * @return the quest NPC object
+     */
+    public QuestNPC getNPC(Quest quest) {
+        return quest.getNPCs().get(this.getNPC());
     }
 }

@@ -1,16 +1,13 @@
 package playerquests.client.quest;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
-import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest;
 
 /**
@@ -105,22 +102,8 @@ public class QuestClient {
 
         // for each action, start
         actions.forEach(action -> {
-            // find NPC option if applies
-            Optional<NPCOption> npcOption = action.getData().getOptions().stream()
-                .filter(NPCOption.class::isInstance)
-                .map(NPCOption.class::cast)
-                .findFirst();
-            
-            if (npcOption.isPresent()) {
-                // get the NPC
-                QuestNPC npc = quest.getNPCs().get(npcOption.get().getNPC());
-
-                // spawn the NPC for this quester
-                npc.place(player);
-
-                // run the action
-                action.run(new QuesterData(this, this.player.getLocation()));
-            }
+            // run the action
+            action.run(new QuesterData(this, this.player.getLocation()));
         });
     }
 }

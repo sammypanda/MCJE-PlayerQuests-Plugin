@@ -128,16 +128,14 @@ public class PlayerQuests {
     }
 
     /**
-     * Adds quest objects into the world.
+     * Install quest into the world.
      * 
      * @param quest The {@link Quest} object that will be installed.
      */
     public static void install(Quest quest) {
-        // add all NPCs
+        // set quest NPCs should belong to
         quest.getNPCs().values().forEach(npc -> {
             npc.setQuest(quest);
-            // note: it is the responsibility of QuestClient to 
-            // call the QuestNPC.place() and pass in what player it shows for.
         });
     }
 
