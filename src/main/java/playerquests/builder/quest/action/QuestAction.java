@@ -164,7 +164,7 @@ public abstract class QuestAction {
     /**
      * Completes the action.
      * - Determines whether should call 
-     * {@link #onSuccess(questerData)} or {@link #onFailure(questerData)}
+     * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      */
     protected void stop(QuesterData questerData) {}
