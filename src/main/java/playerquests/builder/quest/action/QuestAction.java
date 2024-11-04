@@ -165,14 +165,14 @@ public abstract class QuestAction {
      * successfully completed.
      * @param questerData the data about the quester playing the action.
      */
-    protected abstract void onSuccess(QuesterData questerData);
+    protected abstract void success(QuesterData questerData);
 
     /**
      * Things to do when the action was
      * aborted early.
      * @param questerData the data about the quester playing the action.
      */
-    protected abstract void onFailure(QuesterData questerData);
+    protected abstract void failure(QuesterData questerData);
 
     /**
      * Starts listener that will trigger checks.

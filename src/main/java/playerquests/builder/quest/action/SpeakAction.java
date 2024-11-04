@@ -36,10 +36,12 @@ public class SpeakAction extends QuestAction {
     }
 
     @Override
-    protected void onSuccess(QuesterData questerData) {}
+    protected void success(QuesterData questerData) {
+        System.out.println("successful");
+    }
 
     @Override
-    protected void onFailure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {}
 
     @Override
     protected ActionListener<?> startListener(QuesterData questerData) {

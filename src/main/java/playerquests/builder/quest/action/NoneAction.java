@@ -44,10 +44,10 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void onSuccess(QuesterData questerData) {}
+    protected void success(QuesterData questerData) {}
 
     @Override
-    protected void onFailure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {}
 
     @Override
     protected ActionListener<?> startListener(QuesterData questerData) {
