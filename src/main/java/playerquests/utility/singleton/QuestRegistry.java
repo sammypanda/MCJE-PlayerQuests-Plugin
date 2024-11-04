@@ -61,15 +61,12 @@ public class QuestRegistry {
     /**
      * Private constructor to prevent instantiation.
      */
-    private QuestRegistry() {
-        // recover the quest inventories as stored in the db
-        loadQuestInventories();
-    }
+    private QuestRegistry() {}
 
     /**
      * Read and parse quest inventories from the database.
      */
-    private void loadQuestInventories() {
+    public void loadQuestInventories() {
         this.inventories = Database.getInstance().getAllQuestInventories();
     }
 

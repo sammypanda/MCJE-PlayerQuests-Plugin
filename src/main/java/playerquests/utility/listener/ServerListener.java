@@ -55,24 +55,25 @@ public class ServerListener implements Listener {
      */
     @EventHandler
     public void onLoad(ServerLoadEvent event) {
-        // ensure dirs are created
-        createDirectories();
-        
-        // init db
-        initializeDatabase();
-
-        // Ensure quest processing runs on the main thread
+        // Ensure start runs in sequence
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            // ensure dirs are created
+            createDirectories();
+            
+            // init db
+            initializeDatabase();
+
+            // find and submit to quest registry
             processQuests();
 
             // create questers
             Bukkit.getServer().getOnlinePlayers().stream().forEach(player -> {
                 QuestRegistry.getInstance().createQuester(player);
             });
-        });
 
-        // start fs watching
-        startWatchService();
+            // start fs watching
+            startWatchService();
+        });
     }
     
     /**

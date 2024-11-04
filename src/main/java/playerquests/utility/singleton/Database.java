@@ -31,6 +31,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import playerquests.Core;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.MigrationUtils;
@@ -156,6 +157,9 @@ public class Database {
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
         }
+
+        // recover the quest inventories as stored in the db
+        Core.getQuestRegistry().loadQuestInventories();
 
         return this;
     }
