@@ -219,24 +219,25 @@ public class BlockListener implements Listener {
         BlockData replacementBlock = Material.AIR.createBlockData();
 
         synchronized (activeBlockNPCs) {
-            this.activeBlockNPCs.values().removeIf(blockNPC -> {
-                if (!blockNPC.getNPC().getQuest().getID().equals(quest.getID())) {
-                    return false; // keep entry that doesn't match quest removal
+            this.activeBlockNPCs.forEach((player, blockNPC) -> {
+                QuestNPC npc = blockNPC.getNPC();
+
+                if (!npc.getQuest().getID().equals(quest.getID())) {
+                    return; // keep entries that don't match quest to remove
                 }
 
-                Location npcLocation = blockNPC.getNPC().getLocation().toBukkitLocation();
-                World npcWorld = npcLocation.getWorld();
-        
-                // replace the NPC block
-                Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // synchronously
-                    npcWorld.setBlockData(
+                Location npcLocation = npc.getLocation().toBukkitLocation();
+
+                // synchronously replace the NPC block
+                Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+                    player.sendBlockChange(
                         npcLocation, 
                         replacementBlock
                     );
                 });
-        
+
                 // remove the 'active npc'
-                return true;
+                this.activeBlockNPCs.remove(player, blockNPC);
             });
         }
     }
