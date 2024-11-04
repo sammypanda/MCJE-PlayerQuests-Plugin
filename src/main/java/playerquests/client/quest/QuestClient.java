@@ -28,11 +28,6 @@ public class QuestClient {
     private QuestDiary diary;
 
     /**
-     * List of active NPCs
-     */
-    private List<QuestNPC> activeNPCs;
-
-    /**
      * Constructs a new client on behalf of a quester (quest player).
      * @param player the quester as a Bukkit player object
      */
