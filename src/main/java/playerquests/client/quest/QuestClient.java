@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.option.NPCOption;
+import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest;
@@ -116,6 +117,9 @@ public class QuestClient {
 
                 // spawn the NPC for this quester
                 npc.place(player);
+
+                // run the action
+                action.run(new QuesterData(this, this.player.getLocation()));
             }
         });
     }
