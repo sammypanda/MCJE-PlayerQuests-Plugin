@@ -142,14 +142,13 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void check(QuesterData questerData) {
-        // run failure method and don't continue
+        // if not successful don't finish
         if (!this.validate(questerData)) {
-            this.failure(questerData);
             return;
         }
 
-        // run success method
-        this.success(questerData);
+        // finish the action
+        this.stop(questerData);
     }
 
     /**
@@ -167,7 +166,12 @@ public abstract class QuestAction {
      * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      */
-    protected void stop(QuesterData questerData) {}
+    protected void stop(QuesterData questerData) {
+        // TODO: implement action failures
+
+        // run success method
+        this.success(questerData);
+    }
 
     /**
      * Things to do when the action was
