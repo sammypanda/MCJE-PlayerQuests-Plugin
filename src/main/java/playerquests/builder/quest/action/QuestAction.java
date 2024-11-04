@@ -141,7 +141,16 @@ public abstract class QuestAction {
      * now finish.
      * @param questerData the data about the quester playing the action.
      */
-    public void check(QuesterData questerData) {}
+    public void check(QuesterData questerData) {
+        // run failure method and don't continue
+        if (!this.validate(questerData)) {
+            this.failure(questerData);
+            return;
+        }
+
+        // run success method
+        this.success(questerData);
+    }
 
     /**
      * Logic to indicate that the quest
