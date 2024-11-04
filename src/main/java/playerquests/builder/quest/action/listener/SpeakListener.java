@@ -1,6 +1,5 @@
 package playerquests.builder.quest.action.listener;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 
 import playerquests.builder.quest.action.SpeakAction;
@@ -27,6 +26,6 @@ public class SpeakListener extends ActionListener<SpeakAction> {
      */
     @EventHandler
     private void onNPCInteract(NPCInteractEvent event) {
-        Bukkit.broadcastMessage("interacted with " + event.getNPC().getName());
+        action.check(questerData);
     }
 }

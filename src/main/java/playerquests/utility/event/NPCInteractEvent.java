@@ -56,4 +56,12 @@ public class NPCInteractEvent extends Event {
     public Player getPlayer() {
         return this.player;
     }
+
+    /**
+     * Get the hander list for this event.
+     * @return the event handler list
+     */
+    static public HandlerList getHandlerList() {
+        return handlers;
+    }
 }
