@@ -38,9 +38,6 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
 
         // register the events
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
-
-        // check if has already been completed
-        action.check(questerData);
     }
 
     /**

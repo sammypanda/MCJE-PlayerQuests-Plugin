@@ -15,6 +15,9 @@ public class NoneListener extends ActionListener<NoneAction> {
      */
     public NoneListener(NoneAction action, QuesterData questerData) {
         super(action, questerData);
+
+        // complete immediately
+        action.check(questerData);
     }
     
 }
