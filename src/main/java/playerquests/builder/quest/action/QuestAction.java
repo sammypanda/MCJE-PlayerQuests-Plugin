@@ -171,6 +171,9 @@ public abstract class QuestAction {
 
         // run success method
         this.success(questerData);
+
+        // close the listener
+        this.actionData.getListener().close();
     }
 
     /**
