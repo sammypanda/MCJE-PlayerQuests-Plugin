@@ -71,7 +71,7 @@ public class BlockListener implements Listener {
     public synchronized void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
         // remove the BlockNPC from the player's active map
         this.activeBlockNPCs.computeIfPresent(player, (_, npcMap) -> {
-            npcMap.remove(blockNPC);  // remove the BlockNPC from the map // TODO: fix
+            npcMap.remove(blockNPC);  // remove the BlockNPC from the map
             this.unsetBlockNPC(blockNPC); // remove the BlockNPC from the world
             return npcMap.isEmpty() ? null : npcMap;  // if the map is empty, return null to remove the entry for the player
         });
