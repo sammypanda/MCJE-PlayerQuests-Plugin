@@ -187,6 +187,7 @@ public class ActionData {
 
     /**
      * Gets the option by the class type.
+     * @param <T> the option type
      * @param optionType the class of the option type
      * @return the option object
      */
