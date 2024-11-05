@@ -1,8 +1,10 @@
 package playerquests.utility.listener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -216,24 +218,23 @@ public class BlockListener implements Listener {
      * @param quest the quest whose BlockNPCs should be removed
      */
     public void remove(Quest quest) {
-        BlockData replacementBlock = Material.AIR.createBlockData();
-
         synchronized (activeBlockNPCs) {
-            this.activeBlockNPCs.forEach((player, blockNPC) -> {
-                QuestNPC npc = blockNPC.getNPC();
+            // filter for only the matching quest npcs
+            List<Map.Entry<Player, BlockNPC>> toRemove = this.activeBlockNPCs.entrySet().stream()
+                .filter(entry -> {
+                    QuestNPC npc = entry.getValue().getNPC();
+                    return npc.getQuest().getID().equals(quest.getID()); // get entries that match quest to remove
+                })
+                .collect(Collectors.toList());  // collect matching entries to be removed
 
-                if (!npc.getQuest().getID().equals(quest.getID())) {
-                    return; // keep entries that don't match quest to remove
-                }
+            // remove the matching quest npcs
+            toRemove.forEach(entry -> {
+                BlockNPC blockNPC = entry.getValue();
+                Player player = entry.getKey();
 
-                Location npcLocation = npc.getLocation().toBukkitLocation();
-
-                // synchronously replace the NPC block
+                // synchronously unset the NPC block
                 Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-                    player.sendBlockChange(
-                        npcLocation, 
-                        replacementBlock
-                    );
+                    this.unsetBlockNPC(blockNPC);
                 });
 
                 // remove the 'active npc'
