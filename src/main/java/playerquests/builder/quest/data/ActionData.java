@@ -196,7 +196,6 @@ public class ActionData {
             .filter(optionType::isInstance)
             .map(optionType::cast)
             .findFirst();
-
     }
 
     /**
