@@ -1,16 +1,12 @@
 package playerquests.utility.listener;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block; // the one and only great block type
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
@@ -22,8 +18,9 @@ import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts w
 import org.bukkit.inventory.EquipmentSlot; // identifies which hand was used to interact
 
 import playerquests.Core; // accessing plugin singeltons
+import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
-import playerquests.builder.quest.npc.QuestNPC; // the core information about an NPC
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest; // final quest products
 import playerquests.utility.event.NPCInteractEvent;
 
@@ -44,7 +41,7 @@ public class BlockListener implements Listener {
     /**
      * A map of active BlockNPCs, where the key is the block and the value is the BlockNPC.
      */
-    private Map<Player, BlockNPC> activeBlockNPCs = new HashMap<Player, BlockNPC>();
+    private Map<Player, Map<BlockNPC, LocationData>> activeBlockNPCs = new HashMap<>();
 
     /**
      * Constructs a new {@code BlockListener} and registers it with the Bukkit event system.
@@ -55,92 +52,79 @@ public class BlockListener implements Listener {
 
     /**
      * Registers a BlockNPC as active, associating it with a specific block.
-     * 
-     * <ul>
-     *   <li>Adds the given BlockNPC to the list of active BlockNPCs.</li>
-     *   <li>Synchronizes access to the map to ensure thread safety.</li>
-     * </ul>
-     * 
      * @param blockNPC the BlockNPC to register
      * @param player the player to register the NPC for
      */
     public void registerBlockNPC(BlockNPC blockNPC, Player player) {
-        synchronized (activeBlockNPCs) {
-            // add the block to the list to be refreshed
-            activeBlockNPCs.put(player, blockNPC);
-
-            // send initial update of block
-            this.setBlockNPC(blockNPC, player);
-        }
-    }
-
-    private void setBlockNPC(BlockNPC blockNPC, Player player) {
-        Location blockLocation = blockNPC.getNPC().getLocation().toBukkitLocation();
-        Location barrierLocation = blockLocation.clone().add(0, 2, 0);
-        World world = blockLocation.getWorld();
-
-        // update the client side NPC block
-        player.sendBlockChange(blockLocation, blockNPC.getBlock());
-
-        // exit if barrier already in place
-        if (barrierLocation.getBlock().getType().equals(Material.BARRIER)) {
-            return;
-        }
-        
-        // place barrier to stop "flying" when standing on NPC block
-        world.setBlockData(barrierLocation, Material.BARRIER.createBlockData());
-    }
-
-    private void unsetBlockNPC(BlockNPC blockNPC) {
-        Location blockLocation = blockNPC.getNPC().getLocation().toBukkitLocation();
-        Location barrierLocation = blockLocation.clone().add(0, 2, 0);
-        World world = blockLocation.getWorld();
-        BlockData airData = Material.AIR.createBlockData();
-
-        world.setBlockData(blockLocation, airData); // unset NPC block
-        world.setBlockData(barrierLocation, airData); // unset barrier above NPC
+        // ensure the player's NPC map exists or is created
+        Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.computeIfAbsent(player, _ -> new HashMap<>());
+    
+        npcMap.put(blockNPC, blockNPC.getNPC().getLocation()); // add the BlockNPC and its location to the map
+        this.setBlockNPC(blockNPC, player); // add the BlockNPC to the world
     }
 
     /**
      * Unregisters a BlockNPC, removing it from the list of active BlockNPCs and performing cleanup.
-     * 
-     * <ul>
-     *   <li>Removes the BlockNPC from the active map.</li>
-     *   <li>Removes the associated quest from the QuestRegistry.</li>
-     * </ul>
-     * 
      * @param blockNPC the BlockNPC to unregister
      * @param player the player to register the NPC for
      */
     public void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
+        // remove the BlockNPC from the player's active map
+        this.activeBlockNPCs.computeIfPresent(player, (_, npcMap) -> {
+            npcMap.remove(blockNPC);  // remove the BlockNPC from the map
+            this.unsetBlockNPC(blockNPC); // remove the BlockNPC from the world
+            return npcMap.isEmpty() ? null : npcMap;  // if the map is empty, return null to remove the entry for the player
+        });
+    }
+
+    /**
+     * Puts a block NPC in the world for a specific player.
+     * @param blockNPC the npc block object
+     * @param player the player who can see the npc
+     */
+    private void setBlockNPC(BlockNPC blockNPC, Player player) {
+        Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
         QuestNPC npc = blockNPC.getNPC();
+        Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
+        BlockData npcBlockData = npc.getBlock();
 
-        // don't continue if no NPC associated
-        if (npc == null) {
-            return;
-        }
+        player.sendBlockChange(npcLocation, npcBlockData); // create the NPC block in the world
+        player.sendBlockChange(npcLocation.clone().add(0, 2, 0), Material.BARRIER.createBlockData()); // create the block to stop 'flying'
+    }
 
-        // merge with the active list of block NPCs
-        synchronized (activeBlockNPCs) {
-            this.activeBlockNPCs.replace(player, blockNPC);
-        }
+    /**
+     * Removes a block NPC from the world.
+     * @param blockNPC the npc block object to remove
+     */
+    private void unsetBlockNPC(BlockNPC blockNPC) {
+        this.activeBlockNPCs.keySet().forEach(player -> {
+            this.unsetBlockNPC(blockNPC, player);
+        });
+    }
+
+    /**
+     * Removes a block NPC from the world for a specific player.
+     * @param blockNPC the npc block object to remove
+     * @param player the player to remove for
+     */
+    private void unsetBlockNPC(BlockNPC blockNPC, Player player) {
+        Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
+        Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
+        BlockData emptyBlockData = Material.AIR.createBlockData();
+
+        player.sendBlockChange(npcLocation, emptyBlockData); // remove the NPC
+        player.sendBlockChange(npcLocation.clone().add(0, 2, 0), emptyBlockData); // remvove remove the barrier
     }
     
     /**
      * Handles player interactions with BlockNPCs.
-     * 
-     * <ul>
-     *   <li>Checks if the block is a BlockNPC and if the interaction should be processed.</li>
-     *   <li>Stops any modifications to the block and processes the interaction with the NPC.</li>
-     * </ul>
-     * 
      * @param event the {@code PlayerInteractEvent} to handle
      */
     @EventHandler
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         Player player = event.getPlayer();
-        Optional<BlockNPC> activeNPC = this.isActiveNPC(block, player);
+        Optional<BlockNPC> activeNPC = this.getActiveNPC(block, player);
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
@@ -172,33 +156,29 @@ public class BlockListener implements Listener {
      * @param player the player to register the NPC for
      * @return optional which may not be present.
      */
-    private Optional<BlockNPC> isActiveNPC(Block block, Player player) {
-        if (block == null) {
-            return Optional.empty();
-        }
-
-        return activeBlockNPCs.entrySet().stream() // determine if is an active NPC:
-            .filter(entry -> entry.getValue().getNPC().getLocation().toBukkitLocation().equals(block.getLocation())) // match on location
-            .filter(entry -> entry.getKey().equals(player)) // match on player
-            .map(Entry::getValue)
-            .findFirst();
+    private Optional<BlockNPC> getActiveNPC(Block block, Player player) {
+        // get the block's location
+        Location blockLocation = block.getLocation();
+        
+        // check if the player exists in the activeBlockNPCs map
+        return Optional.ofNullable(this.activeBlockNPCs.get(player))
+            // stream over the inner map associated with the player
+            .map(npcDataMap -> npcDataMap.keySet().stream()
+                // use findFirst to get the first match based on location
+                .filter(blockNPC -> blockNPC.getNPC().getLocation().toBukkitLocation().equals(blockLocation))
+                .findFirst())           // find the first matching BlockNPC
+            .orElse(Optional.empty());  // if no matching NPC, return an empty Optional
     }
 
     /**
      * Handles block break events for blocks associated with BlockNPCs.
-     * 
-     * <ul>
-     *   <li>Prevents the block from dropping items and replaces it with air.</li>
-     *   <li>Unregisters the BlockNPC if its block is broken.</li>
-     * </ul>
-     * 
      * @param event the {@code BlockBreakEvent} to handle
      */
     @EventHandler
     public void onBlockNPCBreak(BlockBreakEvent event) {
         Block brokenBlock = event.getBlock();
         Player player = event.getPlayer();
-        Optional<BlockNPC> possibleNPC = this.isActiveNPC(brokenBlock, player);
+        Optional<BlockNPC> possibleNPC = this.getActiveNPC(brokenBlock, player);
 
         if (possibleNPC.isEmpty()) {
             return; // don't continue if not an NPC block
@@ -208,48 +188,30 @@ public class BlockListener implements Listener {
     }
 
     /**
-     * Removes all active BlockNPCs associated with a specific quest and replaces their blocks with air.
-     * 
-     * <ul>
-     *   <li>Iterates through the map of active BlockNPCs and removes those associated with the specified quest.</li>
-     *   <li>Replaces the blocks with air and removes the NPCs from the active list.</li>
-     * </ul>
-     * 
+     * Removes all active BlockNPCs associated with a specific quest.
      * @param quest the quest whose BlockNPCs should be removed
      */
     public void remove(Quest quest) {
-        synchronized (activeBlockNPCs) {
-            // filter for only the matching quest npcs
-            List<Map.Entry<Player, BlockNPC>> toRemove = this.activeBlockNPCs.entrySet().stream()
-                .filter(entry -> {
-                    QuestNPC npc = entry.getValue().getNPC();
-                    return npc.getQuest().getID().equals(quest.getID()); // get entries that match quest to remove
-                })
-                .collect(Collectors.toList());  // collect matching entries to be removed
-
-            // remove the matching quest npcs
-            toRemove.forEach(entry -> {
-                BlockNPC blockNPC = entry.getValue();
-                Player player = entry.getKey();
-
-                // synchronously unset the NPC block
-                Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-                    this.unsetBlockNPC(blockNPC);
+        quest.getNPCs().values().stream()
+            .filter(npc -> npc.getAssigned().getClass().isAssignableFrom(BlockNPC.class))
+            .map(QuestNPC::getAssigned)
+            .forEach((blockNPC) -> {
+                this.activeBlockNPCs.keySet().forEach(player -> {
+                    this.unregisterBlockNPC((BlockNPC) blockNPC, player);
                 });
-
-                // remove the 'active npc'
-                this.activeBlockNPCs.remove(player, blockNPC);
             });
-        }
     }
 
     /**
-     * Clear out blockNPCs.
+     * Clear all block NPCs.
      */
     public void clear() {
-        this.activeBlockNPCs.forEach((_, blockNPC) -> {
-            // remove NPC blocks from world
-            this.unsetBlockNPC(blockNPC);
+        this.activeBlockNPCs.entrySet().forEach(entry -> {
+            // for each player
+            entry.getValue().forEach((blockNPC, _) -> {
+                // unregister each block
+                this.unregisterBlockNPC(blockNPC, entry.getKey());
+            });
         });
     }
 }
