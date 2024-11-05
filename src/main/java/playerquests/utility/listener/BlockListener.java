@@ -168,13 +168,21 @@ public class BlockListener implements Listener {
         Location blockLocation = block.getLocation();
         
         // check if the player exists in the activeBlockNPCs map
-        return Optional.ofNullable(this.activeBlockNPCs.get(player))
+        Optional<BlockNPC> activeNPC = Optional.ofNullable(this.activeBlockNPCs.get(player))
             // stream over the inner map associated with the player
             .map(npcDataMap -> npcDataMap.keySet().stream()
                 // use findFirst to get the first match based on location
                 .filter(blockNPC -> blockNPC.getNPC().getLocation().toBukkitLocation().equals(blockLocation))
                 .findFirst())           // find the first matching BlockNPC
             .orElse(Optional.empty());  // if no matching NPC, return an empty Optional
+
+        // check the block below (in case clicked on barrier)
+        if (activeNPC.isEmpty()) {
+            Block blockBelow = blockLocation.getWorld().getBlockAt(blockLocation.clone().subtract(0, 2, 0));
+            activeNPC = this.getActiveNPC(blockBelow, player);
+        }
+
+        return activeNPC;
     }
 
     /**
