@@ -15,6 +15,7 @@ import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest;
+import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * Action for an NPC speaking.
@@ -49,6 +50,7 @@ public class SpeakAction extends QuestAction {
     @Override
     protected void success(QuesterData questerData) {
         System.out.println("successful");
+        this.npc.remove();
     }
 
     @Override

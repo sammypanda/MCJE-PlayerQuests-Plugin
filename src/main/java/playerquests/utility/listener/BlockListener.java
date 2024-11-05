@@ -86,6 +86,9 @@ public class BlockListener implements Listener {
      */
     private void setBlockNPC(BlockNPC blockNPC, Player player) {
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
+
+        if (npcMap == null) { return; }
+
         QuestNPC npc = blockNPC.getNPC();
         Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
         BlockData npcBlockData = npc.getBlock();
@@ -176,12 +179,6 @@ public class BlockListener implements Listener {
                 .findFirst())           // find the first matching BlockNPC
             .orElse(Optional.empty());  // if no matching NPC, return an empty Optional
 
-        // check the block below (in case clicked on barrier)
-        if (activeNPC.isEmpty()) {
-            Block blockBelow = blockLocation.getWorld().getBlockAt(blockLocation.clone().subtract(0, 2, 0));
-            activeNPC = this.getActiveNPC(blockBelow, player);
-        }
-
         return activeNPC;
     }
 
@@ -210,8 +207,18 @@ public class BlockListener implements Listener {
         quest.getNPCs().values().stream()
             .filter(npc -> npc.getAssigned().getClass().isAssignableFrom(BlockNPC.class))
             .map(QuestNPC::getAssigned)
-            .forEach((blockNPC) -> {
-                this.activeBlockNPCs.keySet().forEach(player -> {
+            .forEach(blockNPC -> {
+                // Create a deep copy of the activeBlockNPCs map (copy of outer and inner maps)
+                Map<Player, Map<BlockNPC, LocationData>> activeBlockNPCsCopy = new HashMap<>();
+                
+                // Create a deep copy of each player's inner map (BlockNPC -> LocationData)
+                this.activeBlockNPCs.forEach((player, blockNPCs) -> {
+                    activeBlockNPCsCopy.put(player, new HashMap<>(blockNPCs));
+                });
+
+                // Now iterate over the copy and unregister NPCs
+                activeBlockNPCsCopy.keySet().forEach(player -> {
+                    // Unregister the BlockNPC for each player
                     this.unregisterBlockNPC((BlockNPC) blockNPC, player);
                 });
             });
