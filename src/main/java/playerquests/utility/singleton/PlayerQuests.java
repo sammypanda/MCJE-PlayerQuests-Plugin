@@ -3,6 +3,7 @@ package playerquests.utility.singleton;
 import java.util.ArrayList;
 import java.util.List;
 
+import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
 import playerquests.utility.listener.BlockListener; // for block-related events
@@ -114,9 +115,6 @@ public class PlayerQuests {
 
     /**
      * Removes all traces of a quest from the world.
-     * <p>
-     * This method removes all NPCs and associated data related to the specified quest.
-     * </p>
      * 
      * @param quest The {@link Quest} object whose traces are to be removed.
      */
@@ -124,11 +122,12 @@ public class PlayerQuests {
         // remove all NPCs
         quest.getNPCs().values().forEach(npc -> {
             npc.remove();
+            npc.getAssigned().remove();
         });
     }
 
     /**
-     * Install quest into the world.
+     * Install a quest.
      * 
      * @param quest The {@link Quest} object that will be installed.
      */
@@ -136,6 +135,11 @@ public class PlayerQuests {
         // set quest NPCs should belong to
         quest.getNPCs().values().forEach(npc -> {
             npc.setQuest(quest);
+        });
+
+        // put quest into each quester
+        Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
+            quester.getDiary().add(quest);
         });
     }
 

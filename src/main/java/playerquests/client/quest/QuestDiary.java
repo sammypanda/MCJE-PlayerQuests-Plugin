@@ -106,4 +106,29 @@ public class QuestDiary {
 
         return Map.of(quest, this.questProgress.get(quest));
     }
+
+    /**
+     * Set or replace quest progress with new paths.
+     * @param quest the quest to replace
+     * @param paths current actions/stages ongoing
+     */
+    public void setQuestProgress(Quest quest, List<StagePath> paths) {
+        this.questProgress.put(quest, paths);
+    }
+
+    /**
+     * Adds a quest to the diary and client.
+     * @param quest the quest to add.
+     */
+    public void add(Quest quest) {
+        List<StagePath> startPoints = quest.getStartPoints();
+
+        // start for quester
+        startPoints.forEach(path -> {
+            client.start(path, quest);
+        });
+
+        // put or replace in diary
+        this.setQuestProgress(quest, startPoints);
+    }
 }

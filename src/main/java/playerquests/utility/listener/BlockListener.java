@@ -109,6 +109,9 @@ public class BlockListener implements Listener {
      */
     private void unsetBlockNPC(BlockNPC blockNPC, Player player) {
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
+
+        if (npcMap.isEmpty() || npcMap.get(blockNPC) == null) { return; } // don't continue if empty map
+
         Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
         BlockData emptyBlockData = Material.AIR.createBlockData();
 
