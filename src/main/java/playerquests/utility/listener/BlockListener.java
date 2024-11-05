@@ -56,6 +56,8 @@ public class BlockListener implements Listener {
      * @param player the player to register the NPC for
      */
     public void registerBlockNPC(BlockNPC blockNPC, Player player) {
+        this.unsetBlockNPC(blockNPC);
+
         // ensure the player's NPC map exists or is created
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.computeIfAbsent(player, _ -> new HashMap<>());
     
@@ -160,6 +162,8 @@ public class BlockListener implements Listener {
      * @return optional which may not be present.
      */
     private Optional<BlockNPC> getActiveNPC(Block block, Player player) {
+        if (block == null) { return Optional.empty(); } 
+
         // get the block's location
         Location blockLocation = block.getLocation();
         
