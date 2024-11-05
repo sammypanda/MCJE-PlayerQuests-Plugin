@@ -68,10 +68,10 @@ public class BlockListener implements Listener {
      * @param blockNPC the BlockNPC to unregister
      * @param player the player to register the NPC for
      */
-    public void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
+    public synchronized void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
         // remove the BlockNPC from the player's active map
         this.activeBlockNPCs.computeIfPresent(player, (_, npcMap) -> {
-            npcMap.remove(blockNPC);  // remove the BlockNPC from the map
+            npcMap.remove(blockNPC);  // remove the BlockNPC from the map // TODO: fix
             this.unsetBlockNPC(blockNPC); // remove the BlockNPC from the world
             return npcMap.isEmpty() ? null : npcMap;  // if the map is empty, return null to remove the entry for the player
         });
@@ -208,13 +208,22 @@ public class BlockListener implements Listener {
     /**
      * Clear all block NPCs.
      */
-    public void clear() {
-        this.activeBlockNPCs.entrySet().forEach(entry -> {
-            // for each player
+    public synchronized void clear() {
+        // copy the entire map, but with deep copies of the inner maps
+        Map<Player, Map<BlockNPC, LocationData>> activeBlockNPCsCopy = new HashMap<>();
+    
+        this.activeBlockNPCs.forEach((player, blockNPCs) -> {
+            // Make a deep copy of the inner map
+            Map<BlockNPC, LocationData> copiedBlockNPCs = new HashMap<>(blockNPCs);
+            activeBlockNPCsCopy.put(player, copiedBlockNPCs);
+        });
+    
+        // iterate over the copied map safely
+        activeBlockNPCsCopy.entrySet().forEach(entry -> {
             entry.getValue().forEach((blockNPC, _) -> {
-                // unregister each block
+                // Unregister each block
                 this.unregisterBlockNPC(blockNPC, entry.getKey());
             });
         });
-    }
+    }    
 }
