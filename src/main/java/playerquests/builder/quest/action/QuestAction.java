@@ -133,6 +133,7 @@ public abstract class QuestAction {
     /**
      * Setting up the action before any 
      * checking.
+     * @param questerData the data about the quester playing the action.
      */
     protected abstract void prepare(QuesterData questerData);
 
