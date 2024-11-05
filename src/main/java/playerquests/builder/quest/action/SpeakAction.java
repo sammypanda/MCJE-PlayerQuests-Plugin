@@ -49,7 +49,12 @@ public class SpeakAction extends QuestAction {
 
     @Override
     protected void success(QuesterData questerData) {
-        System.out.println("successful");
+        // send message
+        questerData.getQuester().getPlayer().sendMessage(
+            String.format("<%s> %s", this.npc.getName(), "[Dialogue]")
+        );
+
+        // remove the NPC
         this.npc.remove();
     }
 
