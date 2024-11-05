@@ -73,8 +73,8 @@ public class BlockListener implements Listener {
     public synchronized void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
         // remove the BlockNPC from the player's active map
         this.activeBlockNPCs.computeIfPresent(player, (_, npcMap) -> {
-            npcMap.remove(blockNPC);  // remove the BlockNPC from the map
             this.unsetBlockNPC(blockNPC); // remove the BlockNPC from the world
+            npcMap.remove(blockNPC);  // remove the BlockNPC from the map
             return npcMap.isEmpty() ? null : npcMap;  // if the map is empty, return null to remove the entry for the player
         });
     }
@@ -94,7 +94,7 @@ public class BlockListener implements Listener {
         BlockData npcBlockData = npc.getBlock();
 
         player.sendBlockChange(npcLocation, npcBlockData); // create the NPC block in the world
-        player.sendBlockChange(npcLocation.clone().add(0, 2, 0), Material.BARRIER.createBlockData()); // create the block to stop 'flying'
+        npcLocation.getWorld().setBlockData(npcLocation.clone().add(0, 2, 0), Material.BARRIER.createBlockData()); // create the block to stop 'flying'
     }
 
     /**
@@ -121,7 +121,7 @@ public class BlockListener implements Listener {
         BlockData emptyBlockData = Material.AIR.createBlockData();
 
         player.sendBlockChange(npcLocation, emptyBlockData); // remove the NPC
-        player.sendBlockChange(npcLocation.clone().add(0, 2, 0), emptyBlockData); // remvove remove the barrier
+        npcLocation.getWorld().setBlockData(npcLocation.clone().add(0, 2, 0), emptyBlockData); // remove the barrier
     }
     
     /**
