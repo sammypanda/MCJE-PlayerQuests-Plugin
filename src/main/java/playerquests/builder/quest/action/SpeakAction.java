@@ -15,7 +15,6 @@ import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest;
-import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * Action for an NPC speaking.
