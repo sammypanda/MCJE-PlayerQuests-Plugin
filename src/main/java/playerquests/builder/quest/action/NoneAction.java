@@ -69,7 +69,7 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected Optional<String> isValid() {
+    public Optional<String> isValid() {
         return Optional.empty();
     }
 }

@@ -97,7 +97,7 @@ public class SpeakAction extends QuestAction {
     }
 
     @Override
-    protected Optional<String> isValid() {
+    public Optional<String> isValid() {
         // TODO: check if NPC and dialogue set
         return Optional.empty();
     }
