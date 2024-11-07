@@ -124,9 +124,7 @@ public class QuestDiary {
         List<StagePath> startPoints = quest.getStartPoints();
 
         // start for quester
-        startPoints.forEach(path -> {
-            client.start(path, quest);
-        });
+        client.start(startPoints, quest);
 
         // put or replace in diary
         this.setQuestProgress(quest, startPoints);

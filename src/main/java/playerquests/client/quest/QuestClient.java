@@ -1,7 +1,6 @@
 package playerquests.client.quest;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
@@ -70,40 +69,32 @@ public class QuestClient {
             .forEach(entry -> {
                 Quest quest = entry.getKey();
 
-                // get actions
-                List<QuestAction> actions = entry.getValue().stream()
-                    .map(path -> path.getActions(quest)) // get actions from the path
-                    .flatMap(List::stream) // flatten out the list of actions into a one dimensional list
-                    .collect(Collectors.toList()); // store as a list
-
-                // for each action
-                actions.forEach(action -> 
-                    start(new StagePath(action.getStage(), List.of(action)), quest) // start the action
-                );
+                // start the actions
+                this.start(entry.getValue(), quest);
             });
 	}
 
     /**
      * Start actions from a path pointing to stages/actions.
-     * @param path the pointer
+     * @param paths the pointer
      * @param quest the quest to use the pointer on
      */
-    public void start(StagePath path, Quest quest) {
-        // if no actions, point to stage start points
-        if (!path.hasActions()) {
-            path.getStage(quest).getStartPoints().forEach(
-                p -> this.start(p, quest)
-            );
-            return;
-        }
-
-        // get actions
-        List<QuestAction> actions = path.getActions(quest);
-
-        // for each action, start
-        actions.forEach(action -> {
-            // run the action
-            action.run(new QuesterData(this, this.player.getLocation()));
+    public void start(List<StagePath> paths, Quest quest) {
+        paths.forEach(path -> {
+            // if no actions, point to stage start points
+            if (!path.hasActions()) {
+                this.start(path.getStage(quest).getStartPoints(), quest);
+                return;
+            }
+    
+            // get actions
+            List<QuestAction> actions = path.getActions(quest);
+    
+            // for each action, start
+            actions.forEach(action -> {
+                // run the action
+                action.run(new QuesterData(this, this.player.getLocation()));
+            });
         });
     }
 }
