@@ -61,7 +61,8 @@ public class Dynamicoptioneditor extends GUIDynamic {
                 // if the action is invalid, explain why
                 ChatUtils.message(errorMessage.get())
                     .player(this.director.getPlayer())
-                    .type(MessageType.WARN);
+                    .type(MessageType.WARN)
+                    .send();
             });
 
         // summon option buttons

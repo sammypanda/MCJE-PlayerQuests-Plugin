@@ -98,7 +98,10 @@ public class SpeakAction extends QuestAction {
 
     @Override
     public Optional<String> isValid() {
-        // TODO: check if NPC and dialogue set
+        if (this.getData().getOption(NPCOption.class).get().getNPC() == null) {
+            return Optional.of("NPC is missing, try choosing an NPC.");
+        }
+
         return Optional.empty();
     }
 }
