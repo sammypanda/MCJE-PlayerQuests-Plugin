@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Material;
 
@@ -39,7 +40,7 @@ public class NoneAction extends QuestAction {
     protected void prepare(QuesterData questerData) {}
 
     @Override
-    protected Boolean validate(QuesterData questerData) {
+    protected Boolean isCompleted(QuesterData questerData) {
         return true;
     }
 
@@ -65,5 +66,10 @@ public class NoneAction extends QuestAction {
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
         return List.of();
+    }
+
+    @Override
+    protected Optional<String> isValid() {
+        return Optional.empty();
     }
 }

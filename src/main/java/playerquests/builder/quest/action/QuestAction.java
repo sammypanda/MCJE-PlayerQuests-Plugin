@@ -2,6 +2,7 @@ package playerquests.builder.quest.action;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -144,7 +145,7 @@ public abstract class QuestAction {
      */
     public void check(QuesterData questerData) {
         // if not successful don't finish
-        if (!this.validate(questerData)) {
+        if (!this.isCompleted(questerData)) {
             return;
         }
 
@@ -159,7 +160,7 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      * @return if was successful
      */
-    protected abstract Boolean validate(QuesterData questerData);
+    protected abstract Boolean isCompleted(QuesterData questerData);
 
     /**
      * Completes the action.
@@ -229,4 +230,11 @@ public abstract class QuestAction {
      * @return the GUI slot created
      */
     public abstract GUISlot createSlot(GUIBuilder gui, Integer slot);
+
+    /**
+     * Logic to indicate that the quest 
+     * action is valid, or requires further editing.
+     * @return empty if was successful
+     */
+    protected abstract Optional<String> isValid();
 }

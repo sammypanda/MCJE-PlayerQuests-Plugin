@@ -42,7 +42,7 @@ public class SpeakAction extends QuestAction {
     }
 
     @Override
-    protected Boolean validate(QuesterData questerData) {
+    protected Boolean isCompleted(QuesterData questerData) {
         return true;
     }
 
@@ -94,5 +94,11 @@ public class SpeakAction extends QuestAction {
             this.npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
             this.npc.place(player); // spawn the NPC for this quester
         }
+    }
+
+    @Override
+    protected Optional<String> isValid() {
+        // TODO: check if NPC and dialogue set
+        return Optional.empty();
     }
 }
