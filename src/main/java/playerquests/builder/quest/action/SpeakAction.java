@@ -11,6 +11,7 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.action.option.ActionOption;
+import playerquests.builder.quest.action.option.DialogueOption;
 import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.QuestNPC;
@@ -48,9 +49,12 @@ public class SpeakAction extends QuestAction {
 
     @Override
     protected void success(QuesterData questerData) {
+        String firstEntry = this.getData().getOption(DialogueOption.class).get().getText().getFirst();
+        // TODO: support multiple entries ^
+
         // send message
         questerData.getQuester().getPlayer().sendMessage(
-            String.format("<%s> %s", this.npc.getName(), "[Dialogue]")
+            String.format("<%s> %s", this.npc.getName(), firstEntry)
         );
 
         // remove the NPC
@@ -76,7 +80,8 @@ public class SpeakAction extends QuestAction {
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
         return List.of(
-            NPCOption.class
+            NPCOption.class,
+            DialogueOption.class
         );
     }
 
@@ -100,6 +105,10 @@ public class SpeakAction extends QuestAction {
     public Optional<String> isValid() {
         if (this.getData().getOption(NPCOption.class).get().getNPC() == null) {
             return Optional.of("NPC is missing, try choosing an NPC.");
+        }
+
+        if (this.getData().getOption(DialogueOption.class).get().getText().isEmpty()) {
+            return Optional.of("Dialogue is missing, try setting some dialogue for the NPC to speak.");
         }
 
         return Optional.empty();
