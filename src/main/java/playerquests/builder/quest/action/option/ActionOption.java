@@ -20,7 +20,8 @@ import playerquests.client.ClientDirector;
     include = JsonTypeInfo.As.PROPERTY,
     property = "option")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = NPCOption.class, name = "NPC")
+    @JsonSubTypes.Type(value = NPCOption.class, name = "NPC"),
+    @JsonSubTypes.Type(value = DialogueOption.class, name = "Dialogue")
 })
 public abstract class ActionOption {
 
