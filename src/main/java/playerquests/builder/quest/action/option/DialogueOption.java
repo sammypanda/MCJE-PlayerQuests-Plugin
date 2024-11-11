@@ -3,7 +3,6 @@ package playerquests.builder.quest.action.option;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.GUIDynamic;
+import playerquests.builder.gui.function.ChatPrompt;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.client.ClientDirector;
 
@@ -43,15 +43,28 @@ public class DialogueOption extends ActionOption {
 
         // get the text tooltip to show, indicating what the dialogue is 
         String joinedText = String.join(", ", this.text); // join all the text list elements
-        String shortenedText = String.format("%s...", // shorten the text
-            joinedText.length() >= 0.8 ? joinedText.substring(0, 8) : joinedText); // cut off at index 8 or put whole dialogue
+        System.out.println(joinedText);
+        String shortenedText = String.format("%s", // shorten the text
+            joinedText.length() >= 8 ? joinedText.substring(0, 8) + "..." : joinedText); // cut off at index 8 or put whole dialogue
+        System.out.println(shortenedText);
 
         return new GUISlot(gui, slot)
             .setLabel(this.text.isEmpty() ? "Set the Dialogue" : String.format("Change the Dialogue (%s)", shortenedText))
             .setItem(Material.OAK_SIGN)
             .onClick(() -> {
-                Bukkit.broadcastMessage("Implement Me :)"); // TODO: implement setting dialogue text entries
+                new ChatPrompt(List.of("Enter dialogue", "none"), director)
+                    .onFinish((f) -> {
+                        ChatPrompt function = (ChatPrompt) f; // retrieve the function state
+                        String response = function.getResponse(); // retrieve the 'ChatPrompt' response from the function state
+                        this.setText(List.of(response)); // set the text
+                        screen.refresh();
+                    })
+                    .execute();
             });
+    }
+
+    public void setText(List<String> text) {
+        this.text = text;
     }
 
     /**
@@ -59,10 +72,6 @@ public class DialogueOption extends ActionOption {
      * @return the lines of dialogue
      */
     public List<String> getText() {
-        this.text.clear();
-        this.text.add("[Dialogue]");
-        // TODO: remove test entry ^
-
         return this.text;
     }
 }
