@@ -18,6 +18,7 @@ import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 
 /**
@@ -237,4 +238,18 @@ public abstract class QuestAction {
      * @return empty if was successful
      */
     public abstract Optional<String> isValid();
+
+    /**
+     * Continues onto the next action(s) according to the context.
+     * Warning: Make sure you only put this on actions that require interaction
+     *          for success, otherwise you'll get in an infinite loop.
+     * @param questerData the context.
+     */
+    public void proceed(QuesterData questerData) {
+        // get next actions
+        List<StagePath> nextActions = this.getData().getNextActions();
+
+        // trigger next actions
+        questerData.getQuester().start(nextActions, actionData.getAction().getStage().getQuest());
+    }
 }

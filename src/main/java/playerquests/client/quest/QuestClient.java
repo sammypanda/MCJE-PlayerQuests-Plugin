@@ -63,9 +63,9 @@ public class QuestClient {
 
         this.diary = diary;
 
-        // get all quest progress
+        // get all current quest progress
         diary.getQuestProgress(null).entrySet().stream()
-            // and initialise for each quest
+            // and initialise on the first action for each quest
             .forEach(entry -> {
                 Quest quest = entry.getKey();
 

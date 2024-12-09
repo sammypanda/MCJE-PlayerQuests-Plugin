@@ -39,10 +39,10 @@ public class DialogueOption extends ActionOption {
     }
 
     @Override
-    public GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director) {
-
+    public synchronized GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director) {
         // get the text tooltip to show, indicating what the dialogue is 
-        String joinedText = String.join(", ", this.text); // join all the text list elements
+        System.out.println("this.text: " + this.getText());
+        String joinedText = String.join(", ", this.getText()); // join all the text list elements
         System.out.println(joinedText);
         String shortenedText = String.format("%s", // shorten the text
             joinedText.length() >= 8 ? joinedText.substring(0, 8) + "..." : joinedText); // cut off at index 8 or put whole dialogue
