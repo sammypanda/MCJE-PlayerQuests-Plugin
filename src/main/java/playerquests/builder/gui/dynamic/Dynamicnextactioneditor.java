@@ -168,7 +168,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
             )
             .onClick(() -> {
-                StagePath stagePath = new StagePath(this.action.getStage(), List.of(this.action));
+                StagePath stagePath = new StagePath(this.action.getStage(), List.of(action));
 
                 // unselect
                 if (isSelected) {
