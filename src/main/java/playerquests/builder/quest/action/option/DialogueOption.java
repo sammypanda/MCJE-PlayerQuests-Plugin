@@ -57,6 +57,7 @@ public class DialogueOption extends ActionOption {
                         ChatPrompt function = (ChatPrompt) f; // retrieve the function state
                         String response = function.getResponse(); // retrieve the 'ChatPrompt' response from the function state
                         this.setText(List.of(response)); // set the text
+                        this.actionData.setOption(this); // set the option
                         screen.refresh();
                     })
                     .execute();

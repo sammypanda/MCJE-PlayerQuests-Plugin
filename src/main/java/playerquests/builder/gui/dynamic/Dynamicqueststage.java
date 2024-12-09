@@ -197,11 +197,8 @@ public class Dynamicqueststage extends GUIDynamic {
             newActionButton.setLabel("Add Action");
             newActionButton.setItem("LIME_DYE");
             newActionButton.onClick(() -> {
-                // new None(this.questStage).submit(); // create the new action
+                // create the new action
                 questStage.addAction(new NoneAction(questStage));
-
-                // update the quest
-                QuestRegistry.getInstance().submit(this.questBuilder.build());
 
                 // refresh UI
                 this.confirm_actionKeys = false; // set actionKeys to be looped through again

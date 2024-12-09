@@ -118,7 +118,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
         this.action = this.stage.replaceAction(oldAction, newAction);
 
         // show the replaced action here
-        this.director.setCurrentInstance(this.action, QuestAction.class); // update in director
+        this.director.setCurrentInstance(newAction, QuestAction.class); // update in director
         this.refresh(); // update the screen
     }
     
