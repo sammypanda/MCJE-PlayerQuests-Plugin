@@ -3,7 +3,10 @@ package playerquests.client.quest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 
@@ -128,5 +131,29 @@ public class QuestDiary {
 
         // put or replace in diary
         this.setQuestProgress(quest, startPoints);
+    }
+
+    /**
+     * Removes a quest from the diary and client.
+     * @param quest the quest to remove.
+     */
+    public void remove(Quest quest) {
+        // find by quest ID
+        Optional<Entry<Quest, List<StagePath>>> entry = this.questProgress
+            .entrySet()
+            .stream()
+            .filter(theQuest -> theQuest.getKey().getID().equals(quest.getID()))
+            .findFirst();
+
+        // exit if quest progress not found
+        if (entry.get() == null) {
+            System.out.println(this.questProgress);
+            return;
+        }
+
+        // stop each action in the progress list
+        entry.get().getValue().forEach(action -> {
+            client.stop(quest, action);
+        });
     }
 }

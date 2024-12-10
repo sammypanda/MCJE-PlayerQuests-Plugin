@@ -97,4 +97,17 @@ public class QuestClient {
             });
         });
     }
+
+    /**
+     * Stop an aciton based on a quest.
+     * @param quest quest to use the pointer on
+     * @param path the pointer
+     */
+    public void stop(Quest quest, StagePath path) {
+        // get the actions attached to this path
+        path.getActions(quest).forEach(action -> {
+            // stop the action
+            action.stop(new QuesterData(this, this.player.getLocation()));
+        });
+    }
 }

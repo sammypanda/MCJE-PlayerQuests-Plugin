@@ -124,6 +124,11 @@ public class PlayerQuests {
             npc.remove();
             npc.getAssigned().remove();
         });
+
+        // remove from each quester
+        Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
+            quester.getDiary().remove(quest);
+        });
     }
 
     /**

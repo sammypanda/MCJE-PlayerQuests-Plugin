@@ -142,6 +142,8 @@ public abstract class QuestAction {
     /**
      * Determines if the action should
      * now finish.
+     * - Determines whether should call 
+     * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      */
     public void check(QuesterData questerData) {
@@ -149,6 +151,11 @@ public abstract class QuestAction {
         if (!this.isCompleted(questerData)) {
             return;
         }
+
+        // TODO: implement action failures
+
+        // run success method
+        this.success(questerData);
 
         // finish the action
         this.stop(questerData);
@@ -165,16 +172,9 @@ public abstract class QuestAction {
 
     /**
      * Completes the action.
-     * - Determines whether should call 
-     * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      */
-    protected void stop(QuesterData questerData) {
-        // TODO: implement action failures
-
-        // run success method
-        this.success(questerData);
-
+    public void stop(QuesterData questerData) {
         // close the listener
         this.actionData.getListener().close();
     }
