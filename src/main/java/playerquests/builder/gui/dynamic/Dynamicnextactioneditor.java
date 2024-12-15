@@ -40,11 +40,6 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     QuestStage selectedStage;
 
     /**
-     * If the stage itself is selected as the next.
-     */
-    Boolean stageIsSelected;
-
-    /**
      * The selected next action paths
      */
     List<StagePath> nextActions;
@@ -90,20 +85,18 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
             // just select the stage button
             new GUISlot(gui, 2)
-                .setLabel(this.stageIsSelected ? "Unselect this stage" : "Select this stage")
-                .setItem(this.stageIsSelected ? Material.ORANGE_DYE : Material.YELLOW_DYE)
+                .setLabel(this.stageIsSelected() ? "Unselect this stage" : "Select this stage")
+                .setItem(this.stageIsSelected() ? Material.ORANGE_DYE : Material.YELLOW_DYE)
                 .onClick(() -> {
                     Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
                         StagePath stagePath = new StagePath(this.selectedStage, null);
 
-                        if (this.stageIsSelected) {
+                        if (this.stageIsSelected()) {
                             this.nextActions.removeIf(path -> !path.hasActions() && path.getStage() == this.selectedStage.getID());
-                            this.stageIsSelected = false;
                             
                         } else {
                             // add the stage
                             this.nextActions.add(stagePath);
-                            this.stageIsSelected = true;
                         }
 
                         this.refresh();
@@ -132,7 +125,6 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             .setItem(Material.CHEST)
             .onClick(() -> {
                 this.selectedStage = stage; // set the stage at the actions of
-                this.stageIsSelected = true;
                 this.refresh();
             });
     }
@@ -145,7 +137,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * @return a GUI slot button
      */
     private GUISlot createActionButton(String action_id, QuestAction action) {
-        boolean isStartPoint = this.stageIsSelected && this.action.getStage().getStartPoints()
+        boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
             .stream()
             .filter(path -> path.hasActions())
             .filter(path -> path.getActions().contains(action_id))
@@ -218,10 +210,16 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                 } else { // go to stages view if is viewing stage actions list
                     this.selectedStage = null; // unset the stage to go back
-                    this.stageIsSelected = false;
                     this.refresh();
                 }
             });
     }
     
+    private Boolean stageIsSelected() {
+        String stageID = this.selectedStage.getID(); // find selected stage ID
+
+        return this.nextActions.stream()
+            .filter(path -> path.getStage().equals(stageID)) // stage is the same as the selected one
+            .anyMatch(stage -> !stage.hasActions()); // stage has no actions (just a pointer to the stage)
+    }
 }
