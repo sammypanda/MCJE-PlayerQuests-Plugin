@@ -164,6 +164,9 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 action_id,
                 isSelected ? "Selected" : (isStartPoint ? "Start Point" : "Select")
             ))
+            .setDescription(List.of(
+                String.format("Type: %s", action.getName())
+            ))
             .setItem(
                 isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
             )
