@@ -1,9 +1,12 @@
 package playerquests.builder.quest.stage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // stops infinite recursion
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showing when json serialised
@@ -194,5 +197,37 @@ public class QuestStage {
 
         // return the completed action
         return newAction;
+    }
+
+    /**
+     * Remove an action from this stage.
+     * @param action the action to remove
+     * @return empty if was successful
+     */
+    public Optional<String> removeAction(QuestAction action) {
+        // get all actions
+        List<QuestAction> allActions = this.quest.getStages().values().stream()
+            .map(QuestStage::getActions)
+            .map(Map::values)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+
+        // check if any action of all actions, contains the passed in one as
+        // a dependency (a 'next action').
+        List<String> dependencies = allActions.stream()
+            .filter(actions -> actions.getData().getNextActions().stream()
+                .flatMap(path -> path.getActions(quest).stream())
+                .anyMatch(actionMatch -> actionMatch.equals(action)))
+            .map(actions -> actions.getID())
+            .collect(Collectors.toList());
+    
+
+        // if it's depended, then return error message early
+        if (!dependencies.isEmpty()) {
+            return Optional.of("This action is pointed to by another. Please remove it as a 'next' action. (on " + String.join(", ", dependencies) + ")");
+        }
+        
+        this.actions.remove(action.getID());
+        return Optional.empty(); // success
     }
 }

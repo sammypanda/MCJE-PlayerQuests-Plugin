@@ -2,6 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Material;
 
@@ -10,6 +11,9 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.client.ClientDirector;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Shows a GUI used for editing a quest action.
@@ -85,5 +89,26 @@ public class Dynamicactioneditor extends GUIDynamic {
                     new UpdateScreen(List.of("optioneditor"), director).execute();
                 });
         }
+
+        // delete action button
+        new GUISlot(gui, 9)
+            .setItem(Material.RED_DYE)
+            .setLabel("Delete action")
+            .onClick(() -> {
+                Optional<String> issueMessage = this.action.delete(); // remove the action
+
+                if (issueMessage.isEmpty()) {
+                    // success
+                    new UpdateScreen(List.of(this.previousScreen), director).execute(); // show deleted, by going to previous screen
+                    return;
+                }
+
+                // when not success, share the issue with the player
+                ChatUtils.message(issueMessage.get())
+                    .style(MessageStyle.PRETTY)
+                    .type(MessageType.WARN)
+                    .player(this.director.getPlayer())
+                    .send();
+            });
     }
 }

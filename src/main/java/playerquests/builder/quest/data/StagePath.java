@@ -177,10 +177,7 @@ public class StagePath {
 
             // check the action exists in the actions map
             if (action == null) {
-                throw new MissingActionException(
-                    String.format("No action found for identifier: %s in quest: %s.", action_id, quest.getID()),
-                    new NoSuchElementException("Action not present in the stage actions.")
-                );
+                return; // exit if it's not in the actions map
             }
 
             // add it to the list

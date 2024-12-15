@@ -255,4 +255,12 @@ public abstract class QuestAction {
         // trigger next actions
         questerData.getQuester().start(nextActions, actionData.getAction().getStage().getQuest());
     }
+
+    /**
+     * Remove this action from the stage.
+     * @return empty optional if was successful
+     */
+    public Optional<String> delete() {
+        return this.getStage().removeAction(this);
+    }
 }
