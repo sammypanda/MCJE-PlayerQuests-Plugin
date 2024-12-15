@@ -150,9 +150,7 @@ public class QuestDiary {
             return;
         }
 
-        // stop each action in the progress list
-        entry.get().getValue().forEach(action -> {
-            client.stop(quest, action);
-        });
+        // stop each ongoing action in the client
+        client.stop(quest);
     }
 }

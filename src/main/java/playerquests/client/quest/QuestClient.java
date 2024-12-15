@@ -1,6 +1,8 @@
 package playerquests.client.quest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
@@ -23,6 +25,11 @@ public class QuestClient {
      * The players quest diary.
      */
     private QuestDiary diary;
+
+    /**
+     * Tracked actions.
+     */
+    private List<QuestAction> trackedActions = new ArrayList<>();
 
     /**
      * Constructs a new client on behalf of a quester (quest player).
@@ -94,8 +101,31 @@ public class QuestClient {
             actions.forEach(action -> {
                 // run the action
                 action.run(new QuesterData(this, this.player.getLocation()));
+
+                // track the action
+                this.trackAction(action);
             });
         });
+    }
+
+    /**
+     * Start tracking an action.
+     * WARNING: does not run or do anything 
+     * else, it's just an indication.
+     * @param action the quest action to track
+     */
+    private void trackAction(QuestAction action) {
+        this.trackedActions.add(action);
+    }
+
+    /**
+     * Stop tracking an action.
+     * WARNING: does not stop or do anything 
+     * else, it's just removing the indication.
+     * @param action the quest action to untrack
+     */
+    public void untrackAction(QuestAction action) {
+        this.trackedActions.removeIf(theAction -> theAction.equals(action));
     }
 
     /**
@@ -109,5 +139,31 @@ public class QuestClient {
             // stop the action
             action.stop(new QuesterData(this, this.player.getLocation()));
         });
+    }
+
+    /**
+     * Stop ongoing actions based on the quest 
+     * they're from.
+     * @param quest quest to halt.
+     */
+    public void stop(Quest quest) {
+        // avoid concurrent modification issues by creating a clone of state
+        List<QuestAction> trackedActions_clone = new ArrayList<>(this.trackedActions);
+
+        // filter through all the tracked actions
+        this.trackedActions = trackedActions_clone.stream().filter((action) -> {
+            // find the actions that match the quest
+            Boolean match = action.getStage().getQuest().equals(quest);
+
+            // if they do match the passed in quest
+            if (match) {
+                // ask for them to stop
+                action.stop(new QuesterData(this, this.player.getLocation()));
+            }
+
+            // only return predicates that don't match 
+            // (aka: clear out trackedActions of this quest)
+            return !match;
+        }).collect(Collectors.toList()); // get the filtered elements as a list
     }
 }

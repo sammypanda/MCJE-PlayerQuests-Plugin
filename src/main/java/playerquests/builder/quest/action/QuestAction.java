@@ -177,6 +177,9 @@ public abstract class QuestAction {
     public void stop(QuesterData questerData) {
         // close the listener
         this.actionData.getListener().close();
+
+        // remove this action instance from the quest client (the player basically)
+        questerData.getQuester().untrackAction(this);
     }
 
     /**
