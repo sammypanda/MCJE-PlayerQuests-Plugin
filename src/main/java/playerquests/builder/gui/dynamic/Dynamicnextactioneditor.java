@@ -1,5 +1,6 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     /**
      * If the stage itself is selected as the next.
      */
-    Boolean stageIsSelected = false;
+    Boolean stageIsSelected;
 
     /**
      * The selected next action paths
@@ -61,7 +62,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     protected void setUp_custom() {
         this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
         this.actionData = this.action.getData();
-        this.nextActions = this.actionData.getNextActions();
+        this.nextActions = new ArrayList<>(this.actionData.getNextActions());
     }
 
     @Override
@@ -96,7 +97,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                         StagePath stagePath = new StagePath(this.selectedStage, null);
 
                         if (this.stageIsSelected) {
-                            this.nextActions.removeIf(path -> path.getStage() == this.selectedStage.getID());
+                            this.nextActions.removeIf(path -> !path.hasActions() && path.getStage() == this.selectedStage.getID());
                             this.stageIsSelected = false;
                             
                         } else {
@@ -206,23 +207,21 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * @return a GUI slot button
      */
     private GUISlot createBackButton() {
-        GUISlot backButton = new GUISlot(gui, 1)
+        return new GUISlot(gui, 1)
             .setLabel("Back")
-            .setItem(Material.OAK_DOOR);
-        
-        // go to previous screen if not viewing a stage
-        if (this.selectedStage == null) {
-            return backButton.onClick(() -> {
-                new UpdateScreen(List.of(this.previousScreen), director).execute();
+            .setItem(Material.OAK_DOOR)
+            .onClick(() -> {
+                this.actionData.setNextActions(this.nextActions);
+
+                // go to previous screen if not viewing a stage
+                if (this.selectedStage == null) {
+                    new UpdateScreen(List.of(this.previousScreen), director).execute();
+                } else { // go to stages view if is viewing stage actions list
+                    this.selectedStage = null; // unset the stage to go back
+                    this.stageIsSelected = false;
+                    this.refresh();
+                }
             });
-        // go to stages view if is viewing stage actions list
-        } else {
-            return backButton.onClick(() -> {
-                this.selectedStage = null; // unset the stage to go back
-                this.stageIsSelected = false;
-                this.refresh();
-            });
-        }
     }
     
 }
