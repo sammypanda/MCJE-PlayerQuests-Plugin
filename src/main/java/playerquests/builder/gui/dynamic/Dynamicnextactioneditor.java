@@ -92,8 +92,8 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                         StagePath stagePath = new StagePath(this.selectedStage, null);
 
                         if (this.stageIsSelected()) {
-                            this.nextActions.removeIf(path -> !path.hasActions() && path.getStage() == this.selectedStage.getID());
-                            
+                            // remove the stage
+                            this.nextActions.removeIf(path -> !path.hasActions() && path.getStage().equals(this.selectedStage.getID()));
                         } else {
                             // add the stage
                             this.nextActions.add(stagePath);
