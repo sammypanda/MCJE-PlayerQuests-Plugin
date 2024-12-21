@@ -94,7 +94,6 @@ public class BlockListener implements Listener {
         BlockData npcBlockData = npc.getBlock();
 
         player.sendBlockChange(npcLocation, npcBlockData); // create the NPC block in the world
-        npcLocation.getWorld().setBlockData(npcLocation.clone().add(0, 2, 0), Material.BARRIER.createBlockData()); // create the block to stop 'flying'
     }
 
     /**
@@ -121,7 +120,6 @@ public class BlockListener implements Listener {
         BlockData emptyBlockData = Material.AIR.createBlockData();
 
         player.sendBlockChange(npcLocation, emptyBlockData); // remove the NPC
-        npcLocation.getWorld().setBlockData(npcLocation.clone().add(0, 2, 0), emptyBlockData); // remove the barrier
     }
     
     /**
