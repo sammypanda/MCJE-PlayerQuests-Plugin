@@ -143,7 +143,7 @@ public class QuestClient {
 
     /**
      * Stop ongoing actions based on the quest 
-     * they're from.
+     * they're from. This does not let them continue to next.
      * @param quest quest to halt.
      */
     public void stop(Quest quest) {
@@ -158,7 +158,7 @@ public class QuestClient {
             // if they do match the passed in quest
             if (match) {
                 // ask for them to stop
-                action.stop(new QuesterData(this, this.player.getLocation()));
+                action.stop(new QuesterData(this, this.player.getLocation()), true);
             }
 
             // only return predicates that don't match 

@@ -175,11 +175,25 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void stop(QuesterData questerData) {
+        this.stop(questerData, false);
+    }
+
+    /**
+     * Completes the action.
+     * @param questerData the data about the quester playing the action.
+     * @param halt if to halt continuation
+     */
+    public void stop(QuesterData questerData, Boolean halt) {
         // close the listener
         this.actionData.getListener().close();
 
         // remove this action instance from the quest client (the player basically)
         questerData.getQuester().untrackAction(this);
+
+        // go to next actions
+        if (!halt) {
+            this.proceed(questerData);
+        }
     }
 
     /**
@@ -253,7 +267,9 @@ public abstract class QuestAction {
         List<StagePath> nextActions = this.getData().getNextActions();
 
         // trigger next actions
-        questerData.getQuester().start(nextActions, actionData.getAction().getStage().getQuest());
+        if (!nextActions.isEmpty()) {
+            questerData.getQuester().start(nextActions, actionData.getAction().getStage().getQuest());
+        }
     }
 
     /**
