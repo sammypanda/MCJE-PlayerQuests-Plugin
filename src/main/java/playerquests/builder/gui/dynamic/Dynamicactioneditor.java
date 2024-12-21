@@ -51,10 +51,24 @@ public class Dynamicactioneditor extends GUIDynamic {
         new GUISlot(this.gui, 1)
             .setLabel("Back")
             .setItem("OAK_DOOR")
-            .addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-                Arrays.asList(this.previousScreen), // set the previous screen 
-                director // set the client director
-            ));
+            .onClick(() -> {
+                // do not allow leaving if there is an issue! dramaaaa
+                Optional<String> issueMessage = this.action.isValid();
+                if (!issueMessage.isEmpty()) {
+                    ChatUtils.message(issueMessage.get())
+                        .style(MessageStyle.PRETTY)
+                        .type(MessageType.WARN)
+                        .player(this.director.getPlayer())
+                        .send();
+                    return;
+                }
+
+                // go back to the previous screen
+                new UpdateScreen(
+                    List.of(this.previousScreen), 
+                    director
+                ).execute();
+            });
 
         // select next actions button
         new GUISlot(this.gui, 2)

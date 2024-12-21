@@ -107,7 +107,7 @@ public class SpeakAction extends QuestAction {
     @Override
     public Optional<String> isValid() {
         if (this.getData().getOption(NPCOption.class).get().getNPC() == null) {
-            return Optional.of("NPC is missing, try choosing an NPC.");
+            return Optional.of("NPC is missing, try choosing an NPC in the action options.");
         }
 
         if (this.getData().getOption(DialogueOption.class).get().getText().isEmpty()) {
