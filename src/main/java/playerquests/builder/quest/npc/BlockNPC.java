@@ -121,7 +121,7 @@ public class BlockNPC extends NPCType {
     @Override
     @JsonIgnore
     public void remove() {
-        PlayerQuests.getBlockListener().remove(this.npc.getQuest());
+        PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this);
     }
 
     /**

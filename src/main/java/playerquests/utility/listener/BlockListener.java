@@ -208,20 +208,24 @@ public class BlockListener implements Listener {
             .filter(npc -> npc.getAssigned().getClass().isAssignableFrom(BlockNPC.class))
             .map(QuestNPC::getAssigned)
             .forEach(blockNPC -> {
-                // Create a deep copy of the activeBlockNPCs map (copy of outer and inner maps)
-                Map<Player, Map<BlockNPC, LocationData>> activeBlockNPCsCopy = new HashMap<>();
-                
-                // Create a deep copy of each player's inner map (BlockNPC -> LocationData)
-                this.activeBlockNPCs.forEach((player, blockNPCs) -> {
-                    activeBlockNPCsCopy.put(player, new HashMap<>(blockNPCs));
-                });
-
-                // Now iterate over the copy and unregister NPCs
-                activeBlockNPCsCopy.keySet().forEach(player -> {
-                    // Unregister the BlockNPC for each player
-                    this.unregisterBlockNPC((BlockNPC) blockNPC, player);
-                });
+                this.remove(quest, (BlockNPC) blockNPC);
             });
+    }
+
+    public void remove(Quest quest, BlockNPC blockNPC) {
+        // Create a deep copy of the activeBlockNPCs map (copy of outer and inner maps)
+        Map<Player, Map<BlockNPC, LocationData>> activeBlockNPCsCopy = new HashMap<>();
+                        
+        // Create a deep copy of each player's inner map (BlockNPC -> LocationData)
+        this.activeBlockNPCs.forEach((player, blockNPCs) -> {
+            activeBlockNPCsCopy.put(player, new HashMap<>(blockNPCs));
+        });
+
+        // Now iterate over the copy and unregister NPCs
+        activeBlockNPCsCopy.keySet().forEach(player -> {
+            // Unregister the BlockNPC for each player
+            this.unregisterBlockNPC(blockNPC, player);
+        });
     }
 
     /**
