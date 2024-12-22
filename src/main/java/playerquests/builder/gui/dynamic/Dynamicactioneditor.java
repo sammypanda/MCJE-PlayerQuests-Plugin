@@ -104,6 +104,18 @@ public class Dynamicactioneditor extends GUIDynamic {
                 });
         }
 
+        // conditions editor button
+        new GUISlot(this.gui, 5)
+            .setItem(Material.CLOCK)
+            .setLabel("Edit conditions")
+            .setDescription(
+                List.of("Things like what times the", "action can be completed.")
+            )
+            .onClick(() -> {
+                this.director.setCurrentInstance(actionData);
+                new UpdateScreen(List.of("actionconditions"), director).execute();
+            });
+
         // delete action button
         new GUISlot(gui, 9)
             .setItem(Material.RED_DYE)

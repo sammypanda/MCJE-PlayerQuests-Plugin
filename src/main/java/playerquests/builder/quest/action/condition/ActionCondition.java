@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.builder.gui.GUIBuilder;
+import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.client.ClientDirector;
 
 /**
  * Abstract class to make helpers which determine if 
@@ -50,4 +54,15 @@ public abstract class ActionCondition {
      * @return boolean of the condition
      */
     public abstract Boolean isMet(QuesterData questerData);
+
+    /**
+     * Creates the slots in a GUI that would be used
+     * to edit this condition.
+     * @param screen the screen the slot is created in
+     * @param gui the GUI to put the slot on
+     * @param slot the position to create the slot in on the GUI
+     * @param director the director to control the plugin with
+     * @return the GUI slot created
+     */
+    public abstract GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director);
 }
