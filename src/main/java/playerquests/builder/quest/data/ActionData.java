@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 
@@ -54,6 +56,14 @@ public class ActionData {
     private List<ActionOption> options = new ArrayList<>();
 
     /**
+     * The conditionals that are required for this action to
+     * ever start.
+     */
+    @JsonProperty("conditions")
+    @JsonManagedReference
+    private List<ActionCondition> conditions = new ArrayList<>();
+
+    /**
      * Default constructor for Jackson
      */
     public ActionData() {}
@@ -65,17 +75,20 @@ public class ActionData {
      * @param id the unique identifier for the action
      * @param listener the action listener for this action
      * @param nextActions the actions slated to come next
+     * @param conditions the conditionals to allow the action to complete
      */
     public ActionData( 
         QuestAction action,
         String id,
         ActionListener<?> listener,
-        List<StagePath> nextActions
+        List<StagePath> nextActions,
+        List<ActionCondition> conditions
     ) {
         this.action = action;
         this.id = id;
         this.listener = listener;
         this.nextActions = nextActions;
+        this.conditions = conditions;
     }
 
     /**
@@ -213,5 +226,10 @@ public class ActionData {
     public void setOption(ActionOption option) {
         this.options.removeIf(o -> option.getClass().isAssignableFrom(o.getClass()));
         this.options.add(option);
+    }
+
+    public List<ActionCondition> getConditions() {
+        // return this.conditions;
+        return List.of(new TimeCondition(this));
     }
 }

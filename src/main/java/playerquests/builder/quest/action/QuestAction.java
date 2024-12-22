@@ -49,7 +49,7 @@ public abstract class QuestAction {
      */
     @JsonManagedReference
     @JsonProperty("data")
-    private ActionData actionData = new ActionData(this, null, null, null);
+    private ActionData actionData = new ActionData(this, null, null, null, null);
 
     /**
      * Constructor for jackson.
@@ -147,6 +147,17 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void check(QuesterData questerData) {
+        // check if any conditions aren't met
+        Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> { 
+            System.out.println("a conditional was found " + conditional);
+            return !conditional.isMet(questerData);
+        });
+
+        if (conditionsUnmet) {
+            return; // don't listen yet if conditions unmet
+            // TODO: probably needs a check-again-timer thing
+        }
+
         // if not successful don't finish
         if (!this.isCompleted(questerData)) {
             return;
