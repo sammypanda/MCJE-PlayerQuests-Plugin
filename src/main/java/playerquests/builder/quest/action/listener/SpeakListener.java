@@ -1,8 +1,11 @@
 package playerquests.builder.quest.action.listener;
 
+import java.util.Optional;
+
 import org.bukkit.event.EventHandler;
 
 import playerquests.builder.quest.action.SpeakAction;
+import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.utility.event.NPCInteractEvent;
 
@@ -26,6 +29,16 @@ public class SpeakListener extends ActionListener<SpeakAction> {
      */
     @EventHandler
     private void onNPCInteract(NPCInteractEvent event) {
-        action.check(questerData);
+        // see if an NPC exists for this action
+        Optional<NPCOption> npc = (Optional<NPCOption>) this.action.getData().getOption(NPCOption.class);
+        if (npc.isEmpty()) {
+            return; // nothing here to do
+        }
+
+        // if the NPC is the same as the one from the interact event
+        if (npc.get().getNPC(action.getStage().getQuest()).equals(event.getNPC())) {
+            // then proceed to check this action
+            action.check(questerData);
+        }
     }
 }

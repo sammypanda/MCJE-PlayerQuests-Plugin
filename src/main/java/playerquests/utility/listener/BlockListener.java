@@ -89,6 +89,8 @@ public class BlockListener implements Listener {
 
         if (npcMap == null) { return; }
 
+        if (npcMap.get(blockNPC) == null) { return; }
+
         QuestNPC npc = blockNPC.getNPC();
         Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
         BlockData npcBlockData = npc.getBlock();
