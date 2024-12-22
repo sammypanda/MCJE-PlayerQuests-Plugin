@@ -1,6 +1,8 @@
 package playerquests.builder.quest.action.condition;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
@@ -11,6 +13,13 @@ import playerquests.builder.quest.data.QuesterData;
  * Used to set start and finish conditions for actions.
  * @see playerquests.builder.quest.action.QuestAction
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "condition")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = TimeCondition.class, name = "Time")
+})
 public abstract class ActionCondition {
 
     /**

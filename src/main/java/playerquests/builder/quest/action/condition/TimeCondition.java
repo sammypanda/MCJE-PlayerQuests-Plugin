@@ -5,6 +5,11 @@ import playerquests.builder.quest.data.QuesterData;
 
 public class TimeCondition extends ActionCondition {
 
+    /**
+     * Default constructor for Jackson.
+     */
+    public TimeCondition() {}
+
     public TimeCondition(ActionData actionData) {
         super(actionData);
     }
