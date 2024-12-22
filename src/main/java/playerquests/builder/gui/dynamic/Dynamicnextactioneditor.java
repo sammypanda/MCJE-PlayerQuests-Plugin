@@ -139,15 +139,16 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     private GUISlot createActionButton(String action_id, QuestAction action) {
         boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
             .stream()
-            .filter(path -> path.hasActions())
-            .filter(path -> path.getActions().contains(action_id))
+            .filter(path -> path.hasActions()) // isn't just a stage in the path
+            .filter(path -> path.getActions().contains(action_id)) // the action ID matches
             .findFirst()
             .isPresent();
 
         boolean isSelected = this.nextActions
             .stream()
-            .filter(path -> path.hasActions())
-            .filter(path -> path.getActions().contains(action_id))
+            .filter(path -> path.hasActions()) // isn't just a stage in the path
+            .filter(path -> path.getStage().contains(action.getStage().getID())) // the stage ID matches
+            .filter(path -> path.getActions().contains(action_id)) // the action ID matches
             .findFirst()
             .isPresent();
 
@@ -164,7 +165,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
             )
             .onClick(() -> {
-                StagePath stagePath = new StagePath(this.action.getStage(), List.of(action));
+                StagePath stagePath = new StagePath(action.getStage(), List.of(action));
 
                 // unselect
                 if (isSelected) {
