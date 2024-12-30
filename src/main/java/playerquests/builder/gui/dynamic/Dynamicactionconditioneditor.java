@@ -1,6 +1,7 @@
 package playerquests.builder.gui.dynamic;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Material;
 
@@ -9,6 +10,9 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.client.ClientDirector;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Shows a GUI used for listing action conditions.
@@ -63,5 +67,26 @@ public class Dynamicactionconditioneditor extends GUIDynamic {
 
         // ask condition for the rest of the editor
         this.condition.createEditorGUI(this, gui, director);
+
+        // create delete button in last slot
+        new GUISlot(gui, this.gui.getFrame().getSize())
+            .setItem(Material.RED_DYE)
+            .setLabel("Delete Condition")
+            .onClick(() -> {
+                Optional<String> removalErr = this.actionData.removeCondition(this.condition);
+
+                if (removalErr.isEmpty()) {
+                    // go to previous screen if removing condition was successful
+                    new UpdateScreen(List.of(this.previousScreen), director).execute();
+                    return;
+                };
+
+                // send the warning message
+                ChatUtils.message(removalErr.get())
+                    .player(this.director.getPlayer())
+                    .type(MessageType.WARN)
+                    .style(MessageStyle.PRETTY)
+                    .send();
+            });
     }
 }

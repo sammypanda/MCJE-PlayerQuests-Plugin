@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import playerquests.builder.gui.dynamic.Dynamicactionconditioneditor;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
@@ -231,4 +232,12 @@ public class ActionData {
     public List<ActionCondition> getConditions() {
         return this.conditions;
     }
+
+	public Optional<String> removeCondition(ActionCondition condition) {
+        if (!this.conditions.remove(condition)) { // if failed to remove
+            return Optional.of("Could not remove this action");
+        }
+
+        return Optional.empty(); // successful
+	}
 }
