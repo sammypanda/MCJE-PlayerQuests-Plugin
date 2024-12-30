@@ -229,7 +229,6 @@ public class ActionData {
     }
 
     public List<ActionCondition> getConditions() {
-        // return this.conditions;
-        return List.of(new TimeCondition(this));
+        return this.conditions;
     }
 }
