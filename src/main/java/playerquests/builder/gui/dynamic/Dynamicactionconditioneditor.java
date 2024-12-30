@@ -6,6 +6,7 @@ import org.bukkit.Material;
 
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
+import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.client.ClientDirector;
 
@@ -13,7 +14,7 @@ import playerquests.client.ClientDirector;
  * Shows a GUI used for listing action conditions.
  * They are also editable if ActionData is available.
  */
-public class Dynamicactionconditions extends GUIDynamic {
+public class Dynamicactionconditioneditor extends GUIDynamic {
 
     /**
      * The quest action data.
@@ -21,17 +22,23 @@ public class Dynamicactionconditions extends GUIDynamic {
     private ActionData actionData;
 
     /**
+     * The action condition to edit.
+     */
+    private ActionCondition condition;
+
+    /**
      * Creates a dynamic GUI to edit a quest stage action.
      * @param director director for the client
      * @param previousScreen the screen to go back to
      */
-    public Dynamicactionconditions(ClientDirector director, String previousScreen) {
+    public Dynamicactionconditioneditor(ClientDirector director, String previousScreen) {
         super(director, previousScreen);
     }
 
     @Override
     protected void setUp_custom() {
         this.actionData = (ActionData) this.director.getCurrentInstance(ActionData.class);
+        this.condition = (ActionCondition) this.director.getCurrentInstance(ActionCondition.class);
     }
 
     @Override
@@ -39,7 +46,7 @@ public class Dynamicactionconditions extends GUIDynamic {
         // style the GUIs
         this.gui.getFrame()
             .setTitle(
-                String.format("%s Conditions", this.actionData.getAction().getID()))
+                String.format("%s Condition Editor", this.condition.getName()))
             .setSize(9);
 
         // create back button
@@ -54,22 +61,7 @@ public class Dynamicactionconditions extends GUIDynamic {
         new GUISlot(gui, 2)
             .setItem(Material.GRAY_STAINED_GLASS_PANE);
 
-        // view conditions button
-        new GUISlot(gui, 3)
-            .setLabel("View")
-            .setItem(Material.CHEST)
-            .onClick(() -> {
-                this.director.setCurrentInstance(this.actionData);
-                new UpdateScreen(List.of("actionconditionviewer"), director).execute();
-            });
-
-        // add new condition button
-        new GUISlot(gui, 4)
-            .setLabel("Create New")
-            .setItem(Material.BLUE_DYE)
-            .onClick(() -> {
-                this.director.setCurrentInstance(this.actionData);
-                new UpdateScreen(List.of("actionconditionselector"), director).execute();
-            });
+        // ask condition for the rest of the editor
+        this.condition.createEditorGUI(this, gui, director);
     }
 }

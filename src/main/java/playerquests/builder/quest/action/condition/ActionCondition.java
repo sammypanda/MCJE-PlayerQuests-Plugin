@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action.condition;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -65,4 +66,13 @@ public abstract class ActionCondition {
      * @return the GUI slot created
      */
     public abstract GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director);
+
+    /**
+     * Get the name of the action condition.
+     * @return name of the condition
+     */
+    @JsonIgnore
+    public abstract String getName();
+
+    public abstract void createEditorGUI(GUIDynamic screen, GUIBuilder gui, ClientDirector director);
 }
