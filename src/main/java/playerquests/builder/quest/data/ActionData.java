@@ -233,6 +233,11 @@ public class ActionData {
         return this.conditions;
     }
 
+    /**
+     * Remove a condition from the list.
+     * @param condition the condition to remove
+     * @return the error message, or empty if successful
+     */
 	public Optional<String> removeCondition(ActionCondition condition) {
         if (!this.conditions.remove(condition)) { // if failed to remove
             return Optional.of("Could not remove this action");
