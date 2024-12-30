@@ -245,4 +245,12 @@ public class ActionData {
 
         return Optional.empty(); // successful
 	}
+
+    /**
+     * Add a condition to the list.
+     * @param condition the condition to add
+     */
+	public void addCondition(ActionCondition condition) {
+        this.conditions.add(condition);
+	}
 }

@@ -1,5 +1,6 @@
 package playerquests.builder.gui.dynamic;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -56,11 +57,23 @@ public class Dynamicactionconditionselector extends GUIDynamic {
             .setItem(Material.GRAY_STAINED_GLASS_PANE);
 
         // summon option buttons
-        this.actionData.getConditions().forEach(condition -> {
+        this.actionData.getAction().getConditions().forEach(conditionClass -> {
+            ActionCondition condition;
+            
+            // get an instance of the condition
+            try {
+                condition = conditionClass.getDeclaredConstructor(ActionData.class).newInstance(this.actionData);
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                e.printStackTrace();
+                return;
+            }
+
             // create the slot to edit condition
             GUISlot slot = condition.createSlot(this, this.gui, this.gui.getEmptySlot(), this.director);
 
             slot.onClick(() -> {
+                this.actionData.addCondition(condition); // add the condition to the action
                 this.director.setCurrentInstance(condition, ActionCondition.class); // set the condition to edit
                 new UpdateScreen(List.of("actionconditioneditor"), director).execute();
             });

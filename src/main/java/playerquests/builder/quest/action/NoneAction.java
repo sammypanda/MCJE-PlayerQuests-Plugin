@@ -7,6 +7,8 @@ import org.bukkit.Material;
 
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.action.option.ActionOption;
@@ -71,5 +73,12 @@ public class NoneAction extends QuestAction {
     @Override
     public Optional<String> isValid() {
         return Optional.empty();
+    }
+
+    @Override
+    public List<Class<? extends ActionCondition>> getConditions() {
+        return List.of(
+            TimeCondition.class
+        );
     }
 }

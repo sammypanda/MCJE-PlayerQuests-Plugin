@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
@@ -71,6 +72,13 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract List<Class<? extends ActionOption>> getOptions();
+
+    /**
+     * Get the conditions that qualify for this action.
+     * @return a list of action condition classes
+     */
+    @JsonIgnore
+    public abstract List<Class<? extends ActionCondition>> getConditions();
 
     /**
      * Gets the stage that this action belongs to.
