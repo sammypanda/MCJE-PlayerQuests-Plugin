@@ -58,7 +58,7 @@ public class Dynamicactionconditionviewer extends GUIDynamic {
         this.actionData.getConditions().forEach(condition -> {
             new GUISlot(gui, gui.getEmptySlot())
                 .setLabel(condition.getName())
-                .setDescription(List.of("finish me")) // TODO: fix conditions not saving properly, it might need to not be long.. convert from standard json consumable int to long in getEndTime/getStartTime.. or at least try it
+                .setDescription(condition.getDetails())
                 .setItem(Material.BARRIER)
                 .onClick(() -> {
                     this.director.setCurrentInstance(condition, ActionCondition.class);

@@ -128,4 +128,16 @@ public class TimeCondition extends ActionCondition {
     private long getStartTime() {
         return this.startTime;
     }
+
+    @Override
+    public List<String> getDetails() {
+        return List.of(
+            String.format("%s to %s", this.startTime, this.endTime)
+        );
+    }
+
+    @Override
+    public List<String> getDescription() {
+        return List.of("Set the time of day", "this action can be played");
+    }
 }

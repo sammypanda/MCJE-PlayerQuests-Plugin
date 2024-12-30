@@ -79,7 +79,7 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract List<Class<? extends ActionCondition>> getConditions();
-
+    
     /**
      * Gets the stage that this action belongs to.
      * @return The quest stage instance.

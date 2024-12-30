@@ -1,5 +1,7 @@
 package playerquests.builder.quest.action.condition;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -75,4 +77,20 @@ public abstract class ActionCondition {
     public abstract String getName();
 
     public abstract void createEditorGUI(GUIDynamic screen, GUIBuilder gui, ClientDirector director);
+
+    /**
+     * Get the short summary of the condition state.
+     * For instance, a time condition may show the times selected.
+     * @return lines of a single string about the condition details.
+     */
+    @JsonIgnore
+    public abstract List<String> getDetails();
+
+    /**
+     * Get the condition description.
+     * A useful short explanation of what the condition is.
+     * @return lines of a single string about the condition.
+     */
+    @JsonIgnore
+    public abstract List<String> getDescription();
 }
