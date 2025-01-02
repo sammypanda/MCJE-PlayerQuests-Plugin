@@ -125,6 +125,15 @@ public class BlockNPC extends NPCType {
     }
 
     /**
+     * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
+     */
+    @Override
+    @JsonIgnore
+    public void remove(Player player) {
+        PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this, player);
+    }
+
+    /**
      * Refunds the block item to the player's inventory. If the inventory is full, drops the item at the player's location.
      * 
      * @param player the player to refund the item to

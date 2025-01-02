@@ -340,4 +340,12 @@ public class QuestNPC {
     public void remove() {
         this.getAssigned().remove();
     }
+
+    /**
+     * Remove the NPC for a player.
+     */
+    @JsonIgnore
+    public void remove(Player player) {
+        this.getAssigned().remove(player);
+    }
 }

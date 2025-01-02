@@ -212,19 +212,41 @@ public class BlockListener implements Listener {
             });
     }
 
+    /**
+     * Removes an NPC from all players.
+     * @param quest the quest the NPC belongs to
+     * @param blockNPC the NPC block
+     */
     public void remove(Quest quest, BlockNPC blockNPC) {
+        this.remove(quest, blockNPC, null);
+    }
+
+    /**
+     * Removes the BlockNPC associated with a specific player.
+     * @param quest the quest whose BlockNPCs should be removed
+     * @param blockNPC the npc to remove
+     * @param player the player to remove the NPC from
+     */
+    public void remove(Quest quest, BlockNPC blockNPC, Player player) {
         // Create a deep copy of the activeBlockNPCs map (copy of outer and inner maps)
         Map<Player, Map<BlockNPC, LocationData>> activeBlockNPCsCopy = new HashMap<>();
                         
         // Create a deep copy of each player's inner map (BlockNPC -> LocationData)
-        this.activeBlockNPCs.forEach((player, blockNPCs) -> {
-            activeBlockNPCsCopy.put(player, new HashMap<>(blockNPCs));
-        });
-
-        // Now iterate over the copy and unregister NPCs
-        activeBlockNPCsCopy.keySet().forEach(player -> {
+        // - this avoids concurrency issues
+        this.activeBlockNPCs.entrySet().stream()
+            .filter(entry -> {
+                if (player == null) { return true; } // don't filter out any players if no player passed in
+                return entry.getKey().equals(player);
+            })
+            .forEach(entry -> {
+                // put the key (the player) and the value (the blockNPC and its location)
+                activeBlockNPCsCopy.put(entry.getKey(), new HashMap<>(entry.getValue()));
+            });
+            
+        // Iterate over the copy and unregister the NPCs
+        activeBlockNPCsCopy.keySet().forEach(thePlayer -> {
             // Unregister the BlockNPC for each player
-            this.unregisterBlockNPC(blockNPC, player);
+            this.unregisterBlockNPC(blockNPC, thePlayer);
         });
     }
 

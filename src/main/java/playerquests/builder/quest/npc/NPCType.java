@@ -110,6 +110,15 @@ public class NPCType {
     }
 
     /**
+     * Removes the NPC for a player.
+     * 
+     * @param player the player to remove the NPC from
+     */
+    public void remove(Player player) {
+        throw new IllegalStateException("Tried to remove an NPC (from a player) that has not been given a type. (or the type has not correctly overriden the place method)");
+    }
+
+    /**
      * Refunds the resources used for the NPC.
      * 
      * @param player the player to refund the resources to

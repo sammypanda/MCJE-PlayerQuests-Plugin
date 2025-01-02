@@ -51,16 +51,18 @@ public class SpeakAction extends QuestAction {
 
     @Override
     protected void success(QuesterData questerData) {
+        Player player = questerData.getQuester().getPlayer();
+
         String firstEntry = this.getData().getOption(DialogueOption.class).get().getText().getFirst();
         // TODO: support multiple entries ^
 
         // send message
-        questerData.getQuester().getPlayer().sendMessage(
+        player.sendMessage(
             String.format("<%s> %s", this.npc.getName(), firstEntry)
         );
 
         // remove the NPC
-        this.npc.remove();
+        this.npc.remove(player);
     }
 
     @Override
