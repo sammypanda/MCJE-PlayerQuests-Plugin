@@ -29,16 +29,23 @@ public class SpeakListener extends ActionListener<SpeakAction> {
      */
     @EventHandler
     private void onNPCInteract(NPCInteractEvent event) {
-        // see if an NPC exists for this action
+        // exit if an NPC does not exist for this action
         Optional<NPCOption> npc = (Optional<NPCOption>) this.action.getData().getOption(NPCOption.class);
         if (npc.isEmpty()) {
-            return; // nothing here to do
+            return;
         }
 
-        // if the NPC is the same as the one from the interact event
-        if (npc.get().getNPC(action.getStage().getQuest()).equals(event.getNPC())) {
-            // then proceed to check this action
-            action.check(questerData);
+        // exit if the is different from the player in the interact event
+        if (!event.getPlayer().equals(this.questerData.getQuester().getPlayer())) {
+            return;
         }
+
+        // exit if the NPC is different from the one in the interact event
+        if (!npc.get().getNPC(action.getStage().getQuest()).equals(event.getNPC())) {
+            return;
+        }
+        
+        // then proceed to check this action
+        action.check(questerData);
     }
 }
