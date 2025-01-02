@@ -56,7 +56,7 @@ public class BlockListener implements Listener {
      * @param player the player to register the NPC for
      */
     public void registerBlockNPC(BlockNPC blockNPC, Player player) {
-        this.unsetBlockNPC(blockNPC);
+        this.unsetBlockNPC(blockNPC, player);
 
         // ensure the player's NPC map exists or is created
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.computeIfAbsent(player, _ -> new HashMap<>());
@@ -73,7 +73,7 @@ public class BlockListener implements Listener {
     public synchronized void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
         // remove the BlockNPC from the player's active map
         this.activeBlockNPCs.computeIfPresent(player, (_, npcMap) -> {
-            this.unsetBlockNPC(blockNPC); // remove the BlockNPC from the world
+            this.unsetBlockNPC(blockNPC, player); // remove the BlockNPC from the world
             npcMap.remove(blockNPC);  // remove the BlockNPC from the map
             return npcMap.isEmpty() ? null : npcMap;  // if the map is empty, return null to remove the entry for the player
         });
@@ -116,7 +116,7 @@ public class BlockListener implements Listener {
     private void unsetBlockNPC(BlockNPC blockNPC, Player player) {
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
 
-        if (npcMap.isEmpty() || npcMap.get(blockNPC) == null) { return; } // don't continue if empty map
+        if (npcMap == null || npcMap.isEmpty() || npcMap.get(blockNPC) == null) { return; } // don't continue if empty map
 
         Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
         BlockData emptyBlockData = Material.AIR.createBlockData();
