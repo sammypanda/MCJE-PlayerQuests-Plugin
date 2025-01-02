@@ -99,16 +99,6 @@ public class BlockListener implements Listener {
     }
 
     /**
-     * Removes a block NPC from the world.
-     * @param blockNPC the npc block object to remove
-     */
-    private void unsetBlockNPC(BlockNPC blockNPC) {
-        this.activeBlockNPCs.keySet().forEach(player -> {
-            this.unsetBlockNPC(blockNPC, player);
-        });
-    }
-
-    /**
      * Removes a block NPC from the world for a specific player.
      * @param blockNPC the npc block object to remove
      * @param player the player to remove for

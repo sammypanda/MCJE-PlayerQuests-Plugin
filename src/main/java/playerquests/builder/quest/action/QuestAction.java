@@ -50,7 +50,7 @@ public abstract class QuestAction {
      */
     @JsonManagedReference
     @JsonProperty("data")
-    private ActionData actionData = new ActionData(this, null, null, null, null);
+    private ActionData actionData = new ActionData(this, null, null, null);
 
     /**
      * Constructor for jackson.
@@ -137,7 +137,7 @@ public abstract class QuestAction {
      */
     public void run(QuesterData questerData) {
         this.prepare(questerData); // prepare the action to be checked
-        this.getData().setListener(this.startListener(questerData)); // start the action listener that triggers checks
+        questerData.addListener(this, this.startListener(questerData)); // start the action listener that triggers checks
     }
 
     /**
@@ -204,7 +204,7 @@ public abstract class QuestAction {
      */
     public void stop(QuesterData questerData, Boolean halt) {
         // close the listener
-        this.actionData.getListener().close();
+        questerData.getListener(this).close();
 
         // remove this action instance from the quest client (the player basically)
         questerData.getQuester().untrackAction(this);
@@ -214,6 +214,8 @@ public abstract class QuestAction {
             this.proceed(questerData);
         }
     }
+
+    protected abstract Class<?> getListenerType();
 
     /**
      * Things to do when the action was

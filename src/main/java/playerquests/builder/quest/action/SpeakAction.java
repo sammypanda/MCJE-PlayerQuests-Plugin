@@ -69,7 +69,7 @@ public class SpeakAction extends QuestAction {
     protected void failure(QuesterData questerData) {}
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected ActionListener<?> startListener(QuesterData questerData) {        
         return new SpeakListener(this, questerData);
     }
 
@@ -123,5 +123,10 @@ public class SpeakAction extends QuestAction {
         return List.of(
             TimeCondition.class
         );
+    }
+
+    @Override
+    protected Class<?> getListenerType() {
+        return SpeakListener.class;
     }
 }

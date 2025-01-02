@@ -34,7 +34,7 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
     public ActionListener(A action, QuesterData questerData) {
         this.action = action;
         this.questerData = questerData;
-        action.getData().setListener(this);
+        questerData.addListener(action, this);
 
         // register the events
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());

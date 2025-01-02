@@ -81,4 +81,9 @@ public class NoneAction extends QuestAction {
             TimeCondition.class
         );
     }
+
+    @Override
+    protected Class<?> getListenerType() {
+        return NoneListener.class;
+    }
 }

@@ -7,13 +7,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.condition.ActionCondition;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 
 /**
@@ -34,12 +32,6 @@ public class ActionData {
      */
     @JsonProperty("id")
     private String id;
-
-    /**
-     * Useful for pulling in values.
-     */
-    @JsonIgnore
-    private ActionListener<?> listener;
 
     /**
      * The actions slated to come after this one.
@@ -72,45 +64,24 @@ public class ActionData {
      * Args (if you're sure they aren't needed) can be nullified.
      * @param action the action that owns this data
      * @param id the unique identifier for the action
-     * @param listener the action listener for this action
      * @param nextActions the actions slated to come next
      * @param conditions the conditionals to allow the action to complete
      */
     public ActionData( 
         QuestAction action,
         String id,
-        ActionListener<?> listener,
         List<StagePath> nextActions,
         List<ActionCondition> conditions
     ) {
         this.action = action;
         this.id = id;
-        this.listener = listener;
         this.nextActions = nextActions;
         this.conditions = conditions;
     }
 
     /**
-     * Gets the action listener associated with this action.
-     * @return the listener
-     */
-    public ActionListener<?> getListener() {
-        return listener;
-    }
-
-    /**
-     * Sets the action listener for this action.
-     * @param actionListener the listener that will trigger action checking
-     * @return the passed in listener
-     */
-    public ActionListener<?> setListener(ActionListener<?> actionListener) {
-        this.listener = actionListener;
-        return actionListener;
-    }
-
-    /**
-     * Gets the action listener for this action.
-     * @return the listener that will trigger action checking
+     * Gets the next actions.
+     * @return a list of paths to next actions
      */
     public List<StagePath> getNextActions() {
         if (this.nextActions == null) {
