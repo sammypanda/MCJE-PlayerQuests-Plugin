@@ -228,6 +228,10 @@ public class ActionData {
     }
 
     public List<ActionCondition> getConditions() {
+        if (this.conditions == null) {
+            this.conditions = new ArrayList<>();
+        }
+
         return this.conditions;
     }
 
