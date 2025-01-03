@@ -156,8 +156,7 @@ public abstract class QuestAction {
      */
     public void check(QuesterData questerData) {
         // check if any conditions aren't met
-        Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> { 
-            System.out.println("a conditional was found " + conditional);
+        Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
             return !conditional.isMet(questerData);
         });
 
