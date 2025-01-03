@@ -70,13 +70,13 @@ public class Dynamicactionconditionselector extends GUIDynamic {
             }
 
             // create the slot to edit condition
-            GUISlot slot = condition.createSlot(this, this.gui, this.gui.getEmptySlot(), this.director);
-
-            slot.onClick(() -> {
-                this.actionData.addCondition(condition); // add the condition to the action
-                this.director.setCurrentInstance(condition, ActionCondition.class); // set the condition to edit
-                new UpdateScreen(List.of("actionconditioneditor"), director).execute();
-            });
+            condition.createSlot(this, this.gui, this.gui.getEmptySlot(), this.director)
+                .setDescription(condition.getDescription()) // override the description with the description of the condition, regardless
+                .onClick(() -> {
+                    this.actionData.addCondition(condition); // add the condition to the action
+                    this.director.setCurrentInstance(condition, ActionCondition.class); // set the condition to edit
+                    new UpdateScreen(List.of("actionconditioneditor"), director).execute();
+                });
         });
     }
 }
