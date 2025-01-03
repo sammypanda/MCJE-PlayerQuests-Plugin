@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
@@ -38,6 +39,7 @@ public class Dynamicactionselector extends GUIDynamic {
      * Get the selected actions.
      */
     List<StagePath> selectedActions = new ArrayList<StagePath>();
+    // TODO: make selectedActions quest-agnostic; select actions from any quest: Map<Quest, List<StagePath>> + add ``boolean questSelection`` field 
 
     /**
      * Creates a dynamic GUI to select actions.
@@ -52,6 +54,13 @@ public class Dynamicactionselector extends GUIDynamic {
     protected void setUp_custom() {
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
+
+        // set up for if coming from a CompletionCondition
+        CompletionCondition completionCondition = (CompletionCondition) this.director.getCurrentInstance(CompletionCondition.class);
+        if (completionCondition != null) {
+            this.selectedActions = completionCondition.getRequiredActions().getOrDefault(this.quest, selectedActions);
+            this.stageSelection = false;
+        }
 
         // set up for if coming from queststage screen
         if (this.previousScreen.equals("queststage")) {

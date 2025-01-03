@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.Dynamicactionselector;
@@ -24,7 +27,8 @@ public class CompletionCondition extends ActionCondition {
      * The actions that have been added as requirements for this 
      * condition to pass.
      */
-    Map<Quest, List<StagePath>> requiredActions = new HashMap<>();
+    @JsonProperty("actions")
+    Map<String, List<StagePath>> requiredActions = new HashMap<>();
 
     /**
      * Default constructor for Jackson.
@@ -44,7 +48,10 @@ public class CompletionCondition extends ActionCondition {
             // filter out any action that hasn't been completed (the key is quest, the value is the path **LIST**)
                 // checking every path in the lists belonging to each quest
             .filter(entry -> entry.getValue().stream()
-                .anyMatch(path -> !questerData.getQuester().getDiary().hasCompletedAction(entry.getKey(), path)))
+                .anyMatch(path -> !questerData.getQuester().getDiary().hasCompletedAction(
+                    Core.getQuestRegistry().getQuest(entry.getKey()), // search quest registry for the quest
+                    path
+                )))
             // collect back to a set to check if is empty
             .collect(Collectors.toSet())
             // if it's empty that means we succeeded
@@ -52,7 +59,7 @@ public class CompletionCondition extends ActionCondition {
             .isEmpty();
     }
 
-    private Map<Quest, List<StagePath>> getRequiredActions() {
+    public Map<String, List<StagePath>> getRequiredActions() {
         return this.requiredActions;
     }
 
@@ -77,7 +84,7 @@ public class CompletionCondition extends ActionCondition {
             .setDescription(List.of("Action can only be played after these actions."))
             .setItem(Material.CHEST)
             .onClick(() -> {
-                // TODO: set CompletionCondition to make the already selected stagepaths available to Dynamicactionselector
+                director.setCurrentInstance(this, CompletionCondition.class);
 
                 new UpdateScreen(List.of("actionselector"), director)
                     .onFinish((f) -> {
@@ -85,11 +92,19 @@ public class CompletionCondition extends ActionCondition {
                         Dynamicactionselector actionSelector = (Dynamicactionselector) function.getDynamicGUI();
                         
                         actionSelector.onFinish((_) -> {
-                            System.out.println("selected actions: " + actionSelector.getSelectedActions()); // TODO: save selected actions to this CompletionCondition
+                            Quest quest = (Quest) director.getCurrentInstance(Quest.class);
+
+                            System.out.println("selected actions: " + actionSelector.getSelectedActions()); 
+                            this.setRequiredActions(Map.of(quest.getID(), actionSelector.getSelectedActions())); // TODO: save selected actions to this CompletionCondition
+                            director.removeCurrentInstance(CompletionCondition.class); // cleanup
                         });
                     })
                     .execute();
             });
+    }
+
+    private void setRequiredActions(Map<String, List<StagePath>> requiredActions) {
+        this.requiredActions = requiredActions;
     }
 
     @Override
