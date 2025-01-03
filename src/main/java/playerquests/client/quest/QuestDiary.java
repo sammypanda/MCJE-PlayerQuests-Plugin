@@ -153,4 +153,13 @@ public class QuestDiary {
         // stop each ongoing action in the client
         client.stop(quest);
     }
+
+    /**
+     * Check if an action has been completed.
+     * @param quest the quest the action belongs to
+     * @param path the path to the action
+     */
+    public boolean hasCompletedAction(Quest quest, StagePath path) {
+        return true; // TODO: actually check if the action has been completed
+    }
 }

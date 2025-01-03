@@ -25,7 +25,8 @@ import playerquests.client.ClientDirector;
     include = JsonTypeInfo.As.PROPERTY,
     property = "condition")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = TimeCondition.class, name = "Time")
+    @JsonSubTypes.Type(value = TimeCondition.class, name = "Time"),
+    @JsonSubTypes.Type(value = CompletionCondition.class, name = "Completion")
 })
 public abstract class ActionCondition {
 

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
@@ -121,7 +122,8 @@ public class SpeakAction extends QuestAction {
     @Override
     public List<Class<? extends ActionCondition>> getConditions() {
         return List.of(
-            TimeCondition.class
+            TimeCondition.class,
+            CompletionCondition.class
         );
     }
 
