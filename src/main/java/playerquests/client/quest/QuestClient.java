@@ -10,6 +10,7 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
+import playerquests.utility.singleton.Database;
 
 /**
  * Functionality for questers (quest players).
@@ -38,8 +39,7 @@ public class QuestClient {
     public QuestClient(Player player) {
         this.player = player;
         
-        new QuestDiary(this, null);
-        // TODO: search database to populate this ^ diary currentProgress, if none create one
+        new QuestDiary(this);
     }
 
     /**
@@ -104,6 +104,10 @@ public class QuestClient {
 
                 // track the action
                 this.trackAction(action);
+
+                // update the Database
+                StagePath actionPath = new StagePath(action.getStage(), List.of(action));
+                Database.getInstance().setDiaryEntryCompletion(this.diary.getID(), quest.getID(), actionPath, false);
             });
         });
     }

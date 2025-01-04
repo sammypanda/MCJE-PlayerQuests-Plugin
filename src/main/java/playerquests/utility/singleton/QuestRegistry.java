@@ -372,6 +372,10 @@ public class QuestRegistry {
             return;
         }
 
+        // add player to Database
+        Database.getInstance().addPlayer(player.getUniqueId());
+
+        // add to registry list
         this.questers.add(quester);
     }
 

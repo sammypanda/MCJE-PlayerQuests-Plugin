@@ -26,12 +26,15 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import playerquests.Core;
+import playerquests.builder.quest.data.StagePath;
+import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.MigrationUtils;
@@ -327,7 +330,7 @@ public class Database {
      */
     public synchronized void addPlayer(UUID uuid) {
         try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (uuid) VALUES (?) RETURNING *;")) {
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO players (uuid) VALUES (?) RETURNING *;")) {
             
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.executeQuery();
@@ -571,7 +574,7 @@ public class Database {
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
-            String removeDiaryQuestSQL = "DELETE FROM diary_quests WHERE quest = ?;";
+            String removeDiaryQuestSQL = "DELETE FROM diary_entries WHERE quest = ?;";
             preparedStatement = connection.prepareStatement(removeDiaryQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
@@ -650,5 +653,86 @@ public class Database {
         return inventories;
     }
 
-    // public synchronized setQuestDiary(QuestDiary diary)
+    /**
+     * Add a quest diary to the diaries table.
+     * @param diary the QuestDiary to add
+     */
+    public synchronized void setQuestDiary(QuestDiary diary) {
+        Player player = diary.getQuestClient().getPlayer();
+        String playerUUIDString = player.getUniqueId().toString();
+        String diaryID = diary.getID();
+
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO diaries (id, player) VALUES (?, ?)")) {
+
+            // preparedStatement
+            preparedStatement.setString(1, diaryID);
+            preparedStatement.setString(2, playerUUIDString);
+            preparedStatement.execute();
+            
+        } catch (SQLException e) {
+            System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get all diary entries associated with a diary, 
+     * and their completion state.
+     * @param diary the QuestDiary to get entries of
+     * @return quests with each action and whether they are finished or ongoing.
+     */
+    public synchronized Map<Quest, List<Map<StagePath, Boolean>>> getDiaryEntries(QuestDiary diary) {
+        Map<Quest, List<Map<StagePath, Boolean>>> diaryEntries = new HashMap<>();
+        String diaryID = diary.getID();
+
+        try (Connection connection = getConnection();
+        Statement statement = connection.createStatement()) {
+            
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT diary, quest, action, completion FROM diary_entries WHERE diary = ?;");
+
+            preparedStatement.setString(1, diaryID);
+            ResultSet result = preparedStatement.executeQuery();
+            
+            while (result.next()) {
+                // get quest
+                Quest quest = Core.getQuestRegistry().getQuest(result.getString("quest"));
+
+                // create StagePath
+                StagePath path = new StagePath(result.getString("action"));
+
+                // create inner map
+                Map<StagePath, Boolean> completionMap = Map.of(path, result.getBoolean("completion"));
+
+                // get parent
+                List<Map<StagePath, Boolean>> entriesList = diaryEntries.getOrDefault(quest, new ArrayList<>());
+
+                // add our result to the entries list
+                entriesList.add(completionMap);
+
+                // replace in parent diaryEntries
+                diaryEntries.put(quest, entriesList);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Could not retrieve diary entries from database for " + diaryID + ". " + e.getMessage());
+        }
+
+        return diaryEntries;
+    }
+
+    public synchronized void setDiaryEntryCompletion(String diaryID, String questID, StagePath actionPath, boolean completionState) {
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("REPLACE INTO diary_entries (diary, quest, action, completion) VALUES (?, ?, ?, ?)")) {
+
+            // preparedStatement
+            preparedStatement.setString(1, diaryID);
+            preparedStatement.setString(2, questID);
+            preparedStatement.setString(3, actionPath.toString());
+            preparedStatement.setBoolean(4, completionState);
+            preparedStatement.execute();
+            
+        } catch (SQLException e) {
+            System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
+        }
+    }
 }

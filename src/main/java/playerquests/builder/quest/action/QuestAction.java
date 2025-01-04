@@ -21,6 +21,7 @@ import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
+import playerquests.utility.singleton.Database;
 
 /**
  * The class that lays out how functionality
@@ -285,6 +286,15 @@ public abstract class QuestAction {
     public void proceed(QuesterData questerData) {
         // get next actions
         List<StagePath> nextActions = this.getData().getNextActions();
+
+        // get the stage this action belongs to
+        QuestStage stage = this.getStage();
+
+        // designate this action as completed in the database
+        String diaryID = questerData.getQuester().getDiary().getID();
+        String questID = stage.getQuest().getID();
+        StagePath actionPath = new StagePath(stage, List.of(this));
+        Database.getInstance().setDiaryEntryCompletion(diaryID, questID, actionPath, true);
 
         // trigger next actions
         if (!nextActions.isEmpty()) {

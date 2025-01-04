@@ -125,6 +125,9 @@ public class PlayerQuests {
             npc.getAssigned().remove();
         });
 
+        // remove from all diary_entries in database
+        Database.getInstance().removeQuest(quest.getID());
+
         // remove from each quester
         Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
             quester.getDiary().remove(quest);

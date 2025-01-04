@@ -7,10 +7,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
-
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
+import playerquests.utility.singleton.Database;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -43,7 +42,7 @@ public class QuestDiary {
      * @param client who the diary belongs to
      * @param currentProgress the quest progress, used instead of the default quest start points
      */
-    public QuestDiary(QuestClient client, Map<String, List<StagePath>> currentProgress) {
+    public QuestDiary(QuestClient client) {
         // set the client
         this.client = client;
 
@@ -52,7 +51,24 @@ public class QuestDiary {
             client.getPlayer().getUniqueId().toString()
         );
 
-        // load in quest progress
+        // search database for unfinished quest actions
+        Map<Quest, List<Map<StagePath, Boolean>>> diaryEntries = Database.getInstance().getDiaryEntries(this);
+        Map<String, List<StagePath>> currentProgress = diaryEntries.entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> entry.getKey().getID(), // use the Quest ID as the key
+                entry -> entry.getValue().stream() // stream over the List<Map<StagePath, Boolean>> for each Quest
+                    .flatMap(map -> map.entrySet().stream()) // flatten the List of Maps into a stream of Map.Entry<StagePath, Boolean>
+                    .filter(stageEntry -> !stageEntry.getValue()) // keep only entries with a true value
+                    .map(Map.Entry::getKey) // extract the StagePath (the key)
+                    .collect(Collectors.toList()) // collect the filtered StagePaths into a List
+            ));
+
+        // if no current progress, quest diary might never have been added
+        if (currentProgress.isEmpty()) {
+            Database.getInstance().setQuestDiary(this);
+        }
+
+        // load in quest progress (w/ prioritising current progress as stored in database)
         QuestRegistry.getInstance()
             .getAllQuests()
             .values()
@@ -67,6 +83,11 @@ public class QuestDiary {
                     progress = currentProgress.get(quest.getID());
                 }
 
+                // if no paths, don't continue
+                if (progress == null) {
+                    return;
+                }
+
                 // put it in our diary progress list
                 questProgress.put(
                     quest, 
@@ -76,16 +97,6 @@ public class QuestDiary {
 
         // callback to client once finished loading diary
         this.client.start(this);
-
-        // TODO: remove the following debug thingy block:
-        this.questProgress.forEach((quest, list) -> {
-            String progressString = "";
-            if (list != null) {
-                progressString = list.stream().map(StagePath::toString).collect(Collectors.joining(", "));
-            }
-
-            Bukkit.broadcastMessage("added stuff to a quest diary " + this.getID() + " quest: " + quest.getID() + ": " + progressString);
-        });
     }
 
     /**
@@ -145,8 +156,7 @@ public class QuestDiary {
             .findFirst();
 
         // exit if quest progress not found
-        if (entry.get() == null) {
-            System.out.println(this.questProgress);
+        if (entry.isEmpty()) {
             return;
         }
 
@@ -161,5 +171,13 @@ public class QuestDiary {
      */
     public boolean hasCompletedAction(Quest quest, StagePath path) {
         return true; // TODO: actually check if the action has been completed
+    }
+
+    /**
+     * Get the quester this diary belongs to.
+     * @return the players QuestClient.
+     */
+    public QuestClient getQuestClient() {
+        return this.client;
     }
 }

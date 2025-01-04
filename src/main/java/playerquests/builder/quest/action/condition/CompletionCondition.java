@@ -94,7 +94,6 @@ public class CompletionCondition extends ActionCondition {
                         actionSelector.onFinish((_) -> {
                             Quest quest = (Quest) director.getCurrentInstance(Quest.class);
 
-                            System.out.println("selected actions: " + actionSelector.getSelectedActions()); 
                             this.setRequiredActions(Map.of(quest.getID(), actionSelector.getSelectedActions())); // TODO: save selected actions to this CompletionCondition
                             director.removeCurrentInstance(CompletionCondition.class); // cleanup
                         });
