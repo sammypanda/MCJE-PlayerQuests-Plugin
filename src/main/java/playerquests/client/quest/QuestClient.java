@@ -28,6 +28,11 @@ public class QuestClient {
     private QuestDiary diary;
 
     /**
+     * The data associated with this client.
+     */
+    private QuesterData data;
+
+    /**
      * Tracked actions.
      */
     private List<QuestAction> trackedActions = new ArrayList<>();
@@ -38,7 +43,11 @@ public class QuestClient {
      */
     public QuestClient(Player player) {
         this.player = player;
+
+        // create data
+        this.data = new QuesterData(this, this.player.getLocation());
         
+        // create diary
         new QuestDiary(this);
     }
 
@@ -100,7 +109,7 @@ public class QuestClient {
             // for each action, start
             actions.forEach(action -> {
                 // run the action
-                action.run(new QuesterData(this, this.player.getLocation()));
+                action.run(this.getData());
 
                 // track the action
                 this.trackAction(action);
@@ -139,10 +148,18 @@ public class QuestClient {
      */
     public void stop(Quest quest, StagePath path) {
         // get the actions attached to this path
-        path.getActions(quest).forEach(action -> {
+        this.getTrackedActions().forEach(action -> {
             // stop the action
-            action.stop(new QuesterData(this, this.player.getLocation()));
+            action.stop(this.getData());
         });
+    }
+
+    /**
+     * Get the actions currently ongoing.
+     * @return list of ongoing quest actions
+     */
+    private List<QuestAction> getTrackedActions() {
+        return this.trackedActions;
     }
 
     /**
@@ -157,17 +174,25 @@ public class QuestClient {
         // filter through all the tracked actions
         this.trackedActions = trackedActions_clone.stream().filter((action) -> {
             // find the actions that match the quest
-            Boolean match = action.getStage().getQuest().equals(quest);
+            Boolean match = action.getStage().getQuest().getID().equals(quest.getID());
 
             // if they do match the passed in quest
             if (match) {
                 // ask for them to stop
-                action.stop(new QuesterData(this, this.player.getLocation()), true);
+                action.stop(this.getData(), true);
             }
 
             // only return predicates that don't match 
             // (aka: clear out trackedActions of this quest)
             return !match;
         }).collect(Collectors.toList()); // get the filtered elements as a list
+    }
+
+    /**
+     * Get the quester data.
+     * @return a QuesterData object.
+     */
+    private QuesterData getData() {
+        return this.data;
     }
 }

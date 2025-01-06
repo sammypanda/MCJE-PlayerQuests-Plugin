@@ -138,7 +138,7 @@ public abstract class QuestAction {
      */
     public void run(QuesterData questerData) {
         this.prepare(questerData); // prepare the action to be checked
-        questerData.addListener(this, this.startListener(questerData)); // start the action listener that triggers checks
+        this.startListener(questerData); // start the action listener that triggers checks
     }
 
     /**
