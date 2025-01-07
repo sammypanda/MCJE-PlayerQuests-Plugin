@@ -687,9 +687,7 @@ public class Database {
         String diaryID = diary.getID();
 
         try (Connection connection = getConnection();
-        Statement statement = connection.createStatement()) {
-            
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT diary, quest, action, completion FROM diary_entries WHERE diary = ?;");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT diary, quest, action, completion FROM diary_entries WHERE diary = ?;")) {
 
             preparedStatement.setString(1, diaryID);
             ResultSet result = preparedStatement.executeQuery();
