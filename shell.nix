@@ -3,11 +3,11 @@ with (import <nixpkgs> {});
 mkShell {
   buildInputs = [
     maven
-    jdk22
+    jdk23
     glibc
   ];
 
   shellHook = ''
-    export JAVA_HOME=${jdk22.outPath}
+    export JAVA_HOME=${jdk23.outPath}
   '';
 }

@@ -1,7 +1,7 @@
 # How To Develop: 'Dependencies'
 - Maven (mvn)
     - Current build command: ``mvn -f [path/to/plugin/root/directory] clean install``
-- Java (JDK 22)
+- Java (JDK 23)
 
 # How To Get Functionality: 'Actions'
 ###### How pre-defined but flexible functionality is actually associated with buttons and other behaviours.
