@@ -58,7 +58,7 @@ public class Dynamicactionselector extends GUIDynamic {
         // set up for if coming from a CompletionCondition
         CompletionCondition completionCondition = (CompletionCondition) this.director.getCurrentInstance(CompletionCondition.class);
         if (completionCondition != null) {
-            this.selectedActions = completionCondition.getRequiredActions().getOrDefault(this.quest, selectedActions);
+            this.selectedActions = completionCondition.getRequiredActions().getOrDefault(this.quest.getID(), selectedActions);
             this.stageSelection = false;
         }
 
