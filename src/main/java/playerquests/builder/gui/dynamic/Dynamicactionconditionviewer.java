@@ -59,7 +59,7 @@ public class Dynamicactionconditionviewer extends GUIDynamic {
             new GUISlot(gui, gui.getEmptySlot())
                 .setLabel(condition.getName())
                 .setDescription(condition.getDetails())
-                .setItem(Material.BARRIER)
+                .setItem(Material.IRON_BARS)
                 .onClick(() -> {
                     this.director.setCurrentInstance(condition, ActionCondition.class);
                     new UpdateScreen(List.of("actionconditioneditor"), director).execute();
