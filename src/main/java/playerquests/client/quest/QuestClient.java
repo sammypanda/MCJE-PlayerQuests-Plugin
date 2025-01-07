@@ -148,7 +148,7 @@ public class QuestClient {
      */
     public void stop(Quest quest, StagePath path) {
         // get the actions attached to this path
-        this.getTrackedActions().forEach(action -> {
+        path.getActions(quest).forEach(action -> {
             // stop the action
             action.stop(this.getData());
         });
