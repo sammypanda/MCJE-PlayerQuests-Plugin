@@ -52,7 +52,7 @@ public class ActionData {
      */
     @JsonProperty("conditions")
     @JsonManagedReference
-    private List<ActionCondition> conditions = new ArrayList<>();
+    private List<ActionCondition> conditions;
 
     /**
      * Default constructor for Jackson
@@ -212,7 +212,7 @@ public class ActionData {
      * @return the error message, or empty if successful
      */
 	public Optional<String> removeCondition(ActionCondition condition) {
-        if (!this.conditions.remove(condition)) { // if failed to remove
+        if (!this.getConditions().remove(condition)) { // if failed to remove
             return Optional.of("Could not remove this action");
         }
 
@@ -224,6 +224,6 @@ public class ActionData {
      * @param condition the condition to add
      */
 	public void addCondition(ActionCondition condition) {
-        this.conditions.add(condition);
+        this.getConditions().add(condition);
 	}
 }
