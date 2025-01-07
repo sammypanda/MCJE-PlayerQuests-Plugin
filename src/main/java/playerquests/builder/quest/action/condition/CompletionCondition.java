@@ -108,10 +108,23 @@ public class CompletionCondition extends ActionCondition {
 
     @Override
     public List<String> getDetails() {
+        List<String> actions = this.requiredActions.values().stream()
+            .flatMap(List::stream)           
+            .flatMap(paths -> paths.getActions().stream())
+            .collect(Collectors.toList());
+        String actionsString = String.join(", ", actions);
+        Integer actionsStringLimit = 22;
+        Integer actionsStringLength = actionsString.length();
+
         return List.of(
-            // String.format("%s to %s", this.startTime, this.endTime)
-            "woof woof"
-        );
+            "Requires",
+            String.format("%s",
+                actionsStringLength > actionsStringLimit ? 
+                    actionsString.subSequence(0, actionsStringLimit).toString() + "..."
+                : actionsString
+            ),
+            "to complete"
+        );  
     }
 
     @Override
