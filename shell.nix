@@ -1,4 +1,5 @@
-with (import <nixpkgs> {});
+{ pkgs ? import (fetchTarball https://nixos.org/channels/nixos-24.11/nixexprs.tar.xz) { } }:
+with pkgs;
 
 mkShell {
   buildInputs = [
