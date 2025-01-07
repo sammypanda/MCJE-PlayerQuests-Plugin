@@ -22,12 +22,13 @@ import java.util.List; // generic list type
 import java.util.Map;
 import java.util.UUID; // how users are identified
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.maven.api.model.Model;
+import org.apache.maven.model.v4.MavenStaxReader;
 import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -120,13 +121,13 @@ public class Database {
         
         try (InputStream inputStream = getClass().getResourceAsStream("/META-INF/maven/moe.sammypanda/playerquests/pom.xml")) {
             if (inputStream != null) {
-                MavenXpp3Reader reader = new MavenXpp3Reader();
+                MavenStaxReader reader = new MavenStaxReader();
                 Model model = reader.read(new InputStreamReader(inputStream));
                 version = model.getVersion();
             } else {
                 System.err.println("Error: Resource not found.");
             }
-        } catch (IOException | XmlPullParserException e) {
+        } catch (IOException | XMLStreamException e) {
             System.err.println("Error reading pom.xml: " + e.getMessage());
         }
         
