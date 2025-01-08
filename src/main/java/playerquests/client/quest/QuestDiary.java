@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
+import playerquests.product.fx.ParticleFX;
 import playerquests.utility.singleton.Database;
 import playerquests.utility.singleton.QuestRegistry;
 
@@ -179,5 +180,14 @@ public class QuestDiary {
      */
     public QuestClient getQuestClient() {
         return this.client;
+    }
+
+    /**
+     * Get the particle that should show up as 
+     * an indicator an action can be interacted with.
+     * @return the type of particle FX
+     */
+    public ParticleFX getActionParticle() {
+        return ParticleFX.SPARKLE;
     }
 }

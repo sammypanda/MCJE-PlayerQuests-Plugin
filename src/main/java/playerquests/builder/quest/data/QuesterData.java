@@ -1,12 +1,14 @@
 package playerquests.builder.quest.data;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Location;
 
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.client.quest.QuestClient;
+import playerquests.product.FX;
 
 /**
  * The data about the quester playing the action.
@@ -29,6 +31,11 @@ public class QuesterData {
      * Useful for stopping listening to an action that has been completed.
      */
     private HashMap<QuestAction, ActionListener<?>> listeners = new HashMap<>();
+
+    /**
+     * Useful for stopping FXs from cycling.
+     */
+    private HashMap<QuestAction, List<FX>> effects = new HashMap<>();
 
     /**
      * The context of data useful for working with a QuestClient.
@@ -73,5 +80,25 @@ public class QuesterData {
      */
     public ActionListener<?> getListener(QuestAction action) {
         return this.listeners.get(action);
+    }
+
+    /**
+     * Adds action FX to be tracked by this Quester Data.
+     * @param action the action to associate the FX with
+     * @param effectList the list of FX to add
+     * @return the passed in list of FX
+     */
+    public List<FX> addFX(QuestAction action, List<FX> effectList) {
+        this.effects.put(action, effectList);
+        return effectList;
+    }
+
+    /**
+     * Get the ongoing FX associated with a Quest Action.
+     * @param questAction the quest action the FX is for
+     * @return a list of effects that are currently in the world
+     */
+    public List<FX> getFX(QuestAction action) {
+        return this.effects.get(action);
     }
 }

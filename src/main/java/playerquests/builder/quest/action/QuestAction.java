@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.bukkit.entity.Player;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -12,15 +14,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.data.ActionData;
+import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
+import playerquests.client.quest.QuestClient;
+import playerquests.client.quest.QuestDiary;
+import playerquests.product.fx.ParticleFX;
 import playerquests.utility.singleton.Database;
 
 /**
@@ -138,6 +145,7 @@ public abstract class QuestAction {
      */
     public void run(QuesterData questerData) {
         this.prepare(questerData); // prepare the action to be checked
+        this.startParticleFX(questerData); // start the FX
         this.startListener(questerData); // start the action listener that triggers checks
     }
 
@@ -206,6 +214,11 @@ public abstract class QuestAction {
         // close the listener
         questerData.getListener(this).close();
 
+        // stop all the FX effects
+        questerData.getFX(this).forEach(effect -> {
+            effect.stopEffect();
+        });
+
         // remove this action instance from the quest client (the player basically)
         questerData.getQuester().untrackAction(this);
 
@@ -237,6 +250,41 @@ public abstract class QuestAction {
      * @return the listener for the action
      */
     protected abstract ActionListener<?> startListener(QuesterData questerData);
+
+    /**
+     * Starts the FX that will indicate the action.
+     * @param questerData the data about the quester.
+     * @return the FX for the action
+     */
+    protected void startParticleFX(QuesterData questerData) {
+        // get the questers settings/preferences
+        QuestClient quester = questerData.getQuester();
+        QuestDiary questerDiary = quester.getDiary();
+
+        // get the player to show the FX to
+        Player player = quester.getPlayer();
+
+        // get FX
+        ParticleFX particleFX = questerDiary.getActionParticle();
+        FXBuilder fxBuilder = new FXBuilder();
+
+        // get the location for the particle
+        Optional.ofNullable(this.getLocation()).ifPresent(l -> {
+            LocationData location = new LocationData(l);
+            
+            // offset the location to above where the action takes place
+            location.setX(location.getX() + 0.5);
+            location.setY(location.getY() + 1.5);
+            location.setZ(location.getZ() + 0.5);
+
+            // add particle to FX
+            fxBuilder.addParticle(particleFX, location);
+        });
+
+        // run an FX task + track it in the QuesterData
+        // - it needs to be tracked so we can actually close it hehe
+        questerData.addFX(this, fxBuilder.run(player));
+    }
 
     /**
      * Gets the data attributed to this action.
@@ -309,4 +357,11 @@ public abstract class QuestAction {
     public Optional<String> delete() {
         return this.getStage().removeAction(this);
     }
+    
+    /**
+     * The location in which this action takes place.
+     * @return a location data object
+     */
+    @JsonIgnore
+    public abstract LocationData getLocation();
 }

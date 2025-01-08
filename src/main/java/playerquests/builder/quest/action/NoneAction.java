@@ -12,6 +12,7 @@ import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.action.option.ActionOption;
+import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.stage.QuestStage;
 
@@ -85,5 +86,10 @@ public class NoneAction extends QuestAction {
     @Override
     protected Class<?> getListenerType() {
         return NoneListener.class;
+    }
+
+    @Override
+    public LocationData getLocation() {
+        return null;
     }
 }

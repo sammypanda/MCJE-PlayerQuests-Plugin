@@ -39,6 +39,20 @@ public class LocationData {
     }
 
     /**
+     * Constructs a new Location with the specified parameters.
+     *
+     * @param location the location object to deep copy
+     */
+    public LocationData(LocationData location) {
+        this.world = location.getWorld();
+        this.x = location.getX();
+        this.y = location.getY();
+        this.z = location.getZ();
+        this.pitch = location.getPitch();
+        this.yaw = location.getYaw();
+    }
+
+    /**
      * Returns the name of the world.
      *
      * @return the name of the world

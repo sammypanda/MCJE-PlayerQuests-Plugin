@@ -16,6 +16,7 @@ import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.DialogueOption;
 import playerquests.builder.quest.action.option.NPCOption;
+import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest;
@@ -130,5 +131,10 @@ public class SpeakAction extends QuestAction {
     @Override
     protected Class<?> getListenerType() {
         return SpeakListener.class;
+    }
+
+    @Override
+    public LocationData getLocation() {
+        return new LocationData(this.npc.getLocation());
     }
 }
