@@ -85,6 +85,16 @@ public class Core extends JavaPlugin {
     }
 
     /**
+     * Gets the ?/ path for quest resources.
+     * - No preceding slash
+     * - Includes proceeding slash
+     * @return resource path for where quest JSON files are
+     */
+    public static String getQuestsPath() {
+        return "quests/";
+    }
+
+    /**
      * Returns a NamspacedKey for the GUI persistent metadata.
      * @return a NamespacedKey for metadata specifying a candidate as part of a GUI
      */

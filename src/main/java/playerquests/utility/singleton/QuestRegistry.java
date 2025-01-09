@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player; // representing players
 
+import playerquests.Core;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient;
@@ -47,11 +48,6 @@ public class QuestRegistry {
      * The inventories belonging to quests.
      */
     private Map<String, Map<Material, Integer>> inventories = new HashMap<>();
-
-    /**
-     * The resource folder quests are in
-     */
-    private final String questPath = "quest/templates";
 
     /**
      * A list of questers that are currently playing.
@@ -150,7 +146,7 @@ public class QuestRegistry {
             PlayerQuests.remove(quest);
 
             if (permanently) {
-                FileUtils.delete(this.questPath + "/" + quest.getID() + ".json");
+                FileUtils.delete(Core.getQuestsPath() + quest.getID() + ".json");
 
                 // refund resources
                 quest.refund();
@@ -300,11 +296,11 @@ public class QuestRegistry {
 
         // search in filesystem
         if (result == null && searchFS) {
-            System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the resources quest template files.");
+            System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the quest files.");
 
             // attempt finding it in the files and uploading to database
             try {
-                result = Quest.fromTemplateString(FileUtils.get(this.questPath + "/" + questID + ".json"));
+                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json"));
 
                 // if everything is okay, submit the quest to the database 
                 // to avoid having to search for it again like this.

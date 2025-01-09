@@ -25,7 +25,7 @@ TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage
 | Speak                  | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
 | GatherItem             | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
 
-# How To Get Functionality: 'Templates'
+# How To Store and Remotely Edit Quests: 'Quest Files'
 ###### We have Meta and Quest Actions, but how do we actually use them?
 Usually you would never need this, but this is what makes it all tick. When you create a Quest: stages, npcs, actions and all; this is the format and layout it is constructing:
 ```json
@@ -68,7 +68,7 @@ Usually you would never need this, but this is what makes it all tick. When you 
 
 | Folder                           | Purpose                          |
 |----------------------------------|----------------------------------|
-| ../../resources/quest/templates/ | Quest templates in JSON          |
+| ../../resources/quests/          | Quests stored in JSON            |
 | builder/                         | Produce product instances        |
 | product/                         | The product instances            |
 | client/                          | Ways to control the plugin       |

@@ -31,7 +31,7 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
  * 
  * The {@link QuestBuilder} class provides methods to build and configure quests.
  * It also supports loading from existing
- * quest templates and validating the quest setup.
+ * quest files and validating the quest setup.
  */
 public class QuestBuilder {
 
@@ -105,7 +105,7 @@ public class QuestBuilder {
      * Returns a new quest builder from an existing quest product object.
      * 
      * @param director The {@link ClientDirector} used to control the plugin.
-     * @param product The {@link Quest} template to create a new builder from.
+     * @param product The {@link Quest} file to create a new builder from.
      */
     public QuestBuilder(ClientDirector director, Quest product) {
         try {

@@ -18,7 +18,7 @@ import playerquests.utility.ChatUtils.MessageType;
  * <p>
  * This screen displays information about a shared quest and provides options to go back
  * or clone the quest for further editing. The clone functionality creates a copy of the
- * current quest using its template string.
+ * current quest using its JSON string.
  * </p>
  */
 public class Dynamictheirquest extends GUIDynamic {
@@ -77,10 +77,10 @@ public class Dynamictheirquest extends GUIDynamic {
                 try {
                     new QuestBuilder(
                         this.director,
-                        Quest.fromTemplateString(this.questProduct.toTemplateString())
+                        Quest.fromJSONString(this.questProduct.toJSONString())
                     ).setDirector(this.director);
                 } catch (JsonProcessingException e) {
-                    ChatUtils.message("Could not clone this quest, the quest template is invalid.")
+                    ChatUtils.message("Could not clone this quest, the quest is invalid.")
                         .player(this.director.getPlayer())
                         .type(MessageType.ERROR)
                         .send();

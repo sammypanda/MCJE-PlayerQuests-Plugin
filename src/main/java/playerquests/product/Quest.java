@@ -141,12 +141,12 @@ public class Quest {
     }
 
     /**
-     * Creates a quest from a JSON string template.
+     * Creates a quest from a JSON string.
      * 
-     * @param questTemplate The JSON string representing the quest template.
+     * @param questJSON The JSON string representing the quest file.
      * @return A {@link Quest} object created from the JSON string.
      */
-    public static Quest fromTemplateString(String questTemplate) {
+    public static Quest fromJSONString(String questJSON) {
         Quest quest = null;
         ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
         
@@ -157,11 +157,11 @@ public class Quest {
 
         // create the quest product
         try {
-            quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
+            quest = jsonObjectMapper.readValue(questJSON, Quest.class);
         } catch (JsonMappingException e) {
-            System.err.println("Could not map a quest template string to a valid quest product. " + e);
+            System.err.println("Could not map a quest JSON string to a valid quest product. " + e);
         } catch (JsonProcessingException e) {
-            System.err.println("Malformed JSON attempted as a quest template string. " + e);
+            System.err.println("Malformed JSON attempted as a quest string. " + e);
         }
 
         return quest;
@@ -216,12 +216,12 @@ public class Quest {
     }
 
     /**
-     * Converts this quest to a JSON string template.
+     * Converts this quest to a JSON string.
      * 
      * @return A JSON string representing this quest.
      * @throws JsonProcessingException If the JSON cannot be serialized.
      */
-    public String toTemplateString() throws JsonProcessingException {
+    public String toJSONString() throws JsonProcessingException {
         // get the product of this builder
         Quest product = this;
 
@@ -231,7 +231,7 @@ public class Quest {
         // configure the mapper
         jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
 
-        // present this quest product as a template json string (prettied)
+        // present this quest product as a json string (prettied)
         return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
     }
 
@@ -242,7 +242,7 @@ public class Quest {
      */
     @Key("quest")
     public String save() {
-        String questName = "quest/templates/" + this.getID() + ".json"; // name pattern
+        String questName = Core.getQuestsPath() + this.getID() + ".json"; // name pattern
         Player player = null;
 
         // set player if this quest has one
@@ -256,9 +256,9 @@ public class Quest {
                 Core.getQuestRegistry().submit(this);
             }
 
-            FileUtils.create( // create the template json file
+            FileUtils.create( // create the quest json file
                 questName, // name pattern
-                this.toTemplateString().getBytes() // put the content in the file
+                this.toJSONString().getBytes() // put the content in the file
             );
             return "'" + this.title + "' was saved.";
         } catch (IOException e) {
