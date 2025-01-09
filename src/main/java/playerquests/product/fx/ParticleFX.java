@@ -36,7 +36,6 @@ public enum ParticleFX implements FX {
                 5
             );
         }, 0, 20);
-
     }
 
     @Override
