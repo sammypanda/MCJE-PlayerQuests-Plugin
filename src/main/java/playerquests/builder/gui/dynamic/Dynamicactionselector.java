@@ -113,7 +113,7 @@ public class Dynamicactionselector extends GUIDynamic {
             .onClick(() -> {
                 if (this.selectedStage == null || this.stageSelection != true) {
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
-                    this.onFinish.accept(this); // trigger onfinish logics
+                    this.finish(); // trigger onfinish logics
                 } else {
                     this.selectedStage = null;
                     this.refresh();
