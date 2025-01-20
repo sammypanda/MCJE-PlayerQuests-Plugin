@@ -1,6 +1,7 @@
 package playerquests.builder.gui.dynamic;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -43,6 +44,11 @@ public class Dynamicquestdiary extends GUIDynamic {
         // get the player
         Player player = (Player) this.director.getPlayer();
 
+        // add dividers
+        IntStream.of(8, 17, 26, 35, 44, 53).forEach(position -> {
+            this.createDivider(position);
+        });
+        
         // add back button
         new GUISlot(gui, 1)
             .setItem(Material.OAK_DOOR)
@@ -65,6 +71,16 @@ public class Dynamicquestdiary extends GUIDynamic {
                 // show the player the book
                 player.openBook(book);
             });
+    }
+
+    /**
+     * Helper method for the divider slot template.
+     * @param position the position to put the divider
+     * @return the divider GUI slot
+     */
+    private GUISlot createDivider(int position) {
+        return new GUISlot(gui, position)
+            .setItem(Material.GRAY_STAINED_GLASS_PANE);
     }
 
     /**
