@@ -1,6 +1,9 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bukkit.Material;
@@ -8,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import playerquests.Core;
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
@@ -23,6 +27,21 @@ import playerquests.utility.singleton.QuestRegistry;
 public class Dynamicquestdiary extends GUIDynamic {
 
     /**
+     * The player viewing this GUI.
+     */
+    Player player;
+
+    /**
+     * The player as a quester/questclient
+     */
+    QuestClient quester; 
+
+    /**
+     * The tracked and untracked quest actions
+     */
+    Map<QuestAction, Boolean> actionState = new HashMap<>();
+
+    /**
      * Constructs a new {@code Dynamicquestdiary} instance.
      * @param director the client director that manages the GUI and interactions.
      * @param previousScreen the identifier of the previous screen to navigate back to.
@@ -32,7 +51,26 @@ public class Dynamicquestdiary extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {}
+    protected void setUp_custom() {
+        this.player = (Player) this.director.getPlayer();
+        this.quester = Core.getQuestRegistry().getQuester(player);
+
+        // map tracked quest actions
+        this.actionState.putAll(
+            this.quester.getTrackedActions().stream() // tracked
+                .collect(Collectors.toMap(action -> action, _ -> true))
+        );
+        
+        // map untracked quest actions, based on the difference from the tracked
+        this.actionState.putAll(
+            this.quester.getDiary().getQuestProgress().entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue().stream()
+                    .flatMap(path -> path.getActions(entry.getKey()).stream()))
+                .filter(action -> !this.actionState.containsKey((QuestAction) action))
+                .collect(Collectors.toMap(action -> (QuestAction) action, _ -> false))
+        );
+    }
 
     @Override
     protected void execute_custom() {
@@ -57,6 +95,9 @@ public class Dynamicquestdiary extends GUIDynamic {
                 new UpdateScreen(List.of(this.previousScreen), director)
             );
 
+        // add quest action buttons
+        this.generateActionButtons();
+
         // add diary book button
         new GUISlot(gui, 9)
             .setItem(Material.WRITTEN_BOOK)
@@ -71,6 +112,26 @@ public class Dynamicquestdiary extends GUIDynamic {
                 // show the player the book
                 player.openBook(book);
             });
+    }
+
+    /**
+     * Generate a slot for each action and discriminate 
+     * whether it is currently being tracked or is untracked.
+     */
+    private void generateActionButtons() {
+        this.actionState.forEach((action, state) -> {
+            new GUISlot(this.gui, this.gui.getEmptySlot())
+                .setLabel(action.getStage().getQuest().getTitle())
+                .setDescription(List.of(
+                    String.format("%s (%s)",
+                        action.getID(),
+                        state ? "Tracking" : "Untracked"
+                    ))
+                )
+                .setItem(
+                    state ? Material.GREEN_WOOL : Material.RED_WOOL
+                );
+        });
     }
 
     /**
