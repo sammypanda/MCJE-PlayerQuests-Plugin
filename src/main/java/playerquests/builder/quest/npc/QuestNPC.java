@@ -292,6 +292,7 @@ public class QuestNPC {
      */
     @JsonIgnore
     public void place(Player player) {
+        // place the NPC into the world
         this.assigned.place(player);
     }
 

@@ -1,8 +1,9 @@
 package playerquests.utility.listener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,7 +63,7 @@ public class BlockListener implements Listener {
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.computeIfAbsent(player, _ -> new HashMap<>());
     
         npcMap.put(blockNPC, blockNPC.getNPC().getLocation()); // add the BlockNPC and its location to the map
-        this.setBlockNPC(blockNPC, player); // add the BlockNPC to the world
+        this.setBlockNPCs(List.of(blockNPC), player); // add the BlockNPC to the world
     }
 
     /**
@@ -81,21 +82,33 @@ public class BlockListener implements Listener {
 
     /**
      * Puts a block NPC in the world for a specific player.
-     * @param blockNPC the npc block object
+     * @param blockNPCs list of npc block objects
      * @param player the player who can see the npc
      */
-    private void setBlockNPC(BlockNPC blockNPC, Player player) {
+    private void setBlockNPCs(List<BlockNPC> blockNPCs, Player player) {
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
 
+        // if no active blockNPCs for this player, exit
         if (npcMap == null) { return; }
 
-        if (npcMap.get(blockNPC) == null) { return; }
+        // if no blockNPCs to set, exit
+        if (blockNPCs.isEmpty()) { return; }
 
-        QuestNPC npc = blockNPC.getNPC();
-        Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
-        BlockData npcBlockData = npc.getBlock();
+        blockNPCs.forEach(blockNPC -> {
+            // get the NPC this BlockNPC represents
+            QuestNPC npc = blockNPC.getNPC();
 
-        player.sendBlockChange(npcLocation, npcBlockData); // create the NPC block in the world
+            // ignore inactive NPCs
+            if (!npcMap.keySet().contains(blockNPC)) {
+                return;
+            }
+
+            // create the NPC block in the world
+            player.sendBlockChange(
+                npcMap.get(blockNPC).toBukkitLocation(), 
+                npc.getBlock()
+            );
+        });
     }
 
     /**
@@ -122,19 +135,19 @@ public class BlockListener implements Listener {
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         Player player = event.getPlayer();
-        Optional<BlockNPC> activeNPC = this.getActiveNPC(block, player);
+        List<BlockNPC> activeBlockNPCs = this.getActiveNPCs(block, player);
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            if (activeNPC.isPresent()) {
-                this.setBlockNPC(activeNPC.get(), player);
+            if (!activeBlockNPCs.isEmpty()) {
+                this.setBlockNPCs(activeBlockNPCs, player);
             }
         });
 
         // conditions to not continue the event:
         if (
             block == null || // if block doesn't exist
-            activeNPC.isEmpty() || // if block is not an active NPC
+            activeBlockNPCs.isEmpty() || // if block is not an active NPC
             event.getHand().equals(EquipmentSlot.OFF_HAND) || // no duplicating interaction
             !event.getAction().equals(Action.RIGHT_CLICK_BLOCK) // if the interaction is not a right click
         ) { return; }
@@ -142,9 +155,14 @@ public class BlockListener implements Listener {
         // stop accidental modification of the quest block
         event.setCancelled(true);
 
+        // collect the NPCs that the BlockNPCs list represent
+        List<QuestNPC> activeNPCs = activeBlockNPCs.stream()
+            .map(blockNPC -> blockNPC.getNPC())
+            .toList();
+
         // call event
         Bukkit.getServer().getPluginManager().callEvent(
-            new NPCInteractEvent(activeNPC.get().getNPC(), event.getPlayer())
+            new NPCInteractEvent(activeNPCs, event.getPlayer())
         );
     }
 
@@ -152,24 +170,23 @@ public class BlockListener implements Listener {
      * Checks if the passed in block is an active block NPC.
      * @param block the block to check.
      * @param player the player to register the NPC for
-     * @return optional which may not be present.
+     * @return list which may be empty.
      */
-    private Optional<BlockNPC> getActiveNPC(Block block, Player player) {
-        if (block == null) { return Optional.empty(); } 
+    private List<BlockNPC> getActiveNPCs(Block block, Player player) {
+        if (block == null) { return List.of(); } 
 
         // get the block's location
         Location blockLocation = block.getLocation();
-        
-        // check if the player exists in the activeBlockNPCs map
-        Optional<BlockNPC> activeNPC = Optional.ofNullable(this.activeBlockNPCs.get(player))
-            // stream over the inner map associated with the player
-            .map(npcDataMap -> npcDataMap.keySet().stream()
-                // use findFirst to get the first match based on location
-                .filter(blockNPC -> blockNPC.getNPC().getLocation().toBukkitLocation().equals(blockLocation))
-                .findFirst())           // find the first matching BlockNPC
-            .orElse(Optional.empty());  // if no matching NPC, return an empty Optional
 
-        return activeNPC;
+        List<BlockNPC> activeNPCs = this.activeBlockNPCs.get(player).entrySet().stream()
+            // get all that match based on location
+            .filter(entry -> entry.getValue().toBukkitLocation().equals(blockLocation))
+            // just get the key (BlockNPC)
+            .map(Entry::getKey)
+            // collect to a list of active BlockNPCs
+            .toList();
+
+        return activeNPCs;
     }
 
     /**
@@ -180,9 +197,9 @@ public class BlockListener implements Listener {
     public void onBlockNPCBreak(BlockBreakEvent event) {
         Block brokenBlock = event.getBlock();
         Player player = event.getPlayer();
-        Optional<BlockNPC> possibleNPC = this.getActiveNPC(brokenBlock, player);
+        List<BlockNPC> possibleNPCs = this.getActiveNPCs(brokenBlock, player);
 
-        if (possibleNPC.isEmpty()) {
+        if (possibleNPCs.isEmpty()) {
             return; // don't continue if not an NPC block
         }
 
