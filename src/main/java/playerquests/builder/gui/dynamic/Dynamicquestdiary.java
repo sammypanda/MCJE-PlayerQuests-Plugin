@@ -37,7 +37,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     @Override
     protected void execute_custom() {
         // get and set the outer GUI frame
-        GUIFrame frame = this.gui.getFrame()
+        this.gui.getFrame()
             .setTitle("Quest Diary")
             .setSize(54);
 
