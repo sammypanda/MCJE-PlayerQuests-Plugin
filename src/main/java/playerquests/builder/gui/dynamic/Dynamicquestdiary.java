@@ -177,12 +177,14 @@ public class Dynamicquestdiary extends GUIDynamic {
         // get the QuestClient that represents the player
         QuestClient quester = QuestRegistry.getInstance().getQuester(player);
         
-        // TODO: replace this test code, !! there might not be a 0th elements !!
-        // TODO: clamp to 100 pags : 1024 characters per page
         // get the first tracked quest from the QuestClient to use as a sample page
         List<String> bookEntries = quester.getTrackedActions().stream()
             .map(action -> this.formatBookEntry(action))
             .toList();
+
+        // clamp to 100 entries
+        bookEntries
+            .subList(0, Math.clamp(bookEntries.size(), 0, 99));
         
         // return a series of generated pages
         return bookEntries;
