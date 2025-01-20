@@ -52,9 +52,9 @@ public class Dynamicquestdiary extends GUIDynamic {
             );
 
         // add diary book button
-        new GUISlot(gui, frame.getSize())
+        new GUISlot(gui, 9)
             .setItem(Material.WRITTEN_BOOK)
-            .setLabel("View Diary")
+            .setLabel("View Diary Entries")
             .onClick(() -> {
                 // get the GUI out of the way
                 this.gui.getResult().minimise();
