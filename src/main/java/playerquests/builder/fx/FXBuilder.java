@@ -18,8 +18,7 @@ public class FXBuilder {
     private List<FX> effects = new ArrayList<>();
 
     public void addParticle(ParticleFX particleFX, LocationData location) {
-        particleFX.setLocation(location); // add the location of this effect
-        this.effects.add(particleFX); // add the effect to the list
+        this.effects.add(new FX(location, particleFX));
     }
 
     /**
