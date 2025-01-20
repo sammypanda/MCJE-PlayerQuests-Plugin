@@ -78,7 +78,7 @@ public class Dynamicmain extends GUIDynamic {
 
         new GUISlot(gui, 4)
             .setItem("PAINTING")
-            .setLabel("View Quests")
+            .setLabel("Edit Quests")
             .addFunction(
                 new UpdateScreen(Arrays.asList("myquests"), director)
             );
