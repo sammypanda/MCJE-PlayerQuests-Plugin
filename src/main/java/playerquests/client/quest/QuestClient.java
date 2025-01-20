@@ -158,7 +158,7 @@ public class QuestClient {
      * Get the actions currently ongoing.
      * @return list of ongoing quest actions
      */
-    private List<QuestAction> getTrackedActions() {
+    public List<QuestAction> getTrackedActions() {
         return this.trackedActions;
     }
 

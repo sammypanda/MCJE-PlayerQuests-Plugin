@@ -397,4 +397,23 @@ public class QuestRegistry {
     public List<QuestClient> getAllQuesters() {
         return this.questers;
     }
+
+    /**
+     * Gets a quester
+     * return a quest client
+     */
+    public QuestClient getQuester(Player player) {
+        // filter the quester list for the quester being seeked
+        Optional<QuestClient> quester = this.questers.stream()
+            .filter(q -> q.getPlayer().equals(player))
+            .findFirst();
+
+        // error on catastrophe
+        if (quester.isEmpty()) {
+            throw new RuntimeException("Could not find a requested QuestClient, but all players should be assigned a QuestClient");
+        }
+
+        // return the quester
+        return quester.get();
+    }
 }

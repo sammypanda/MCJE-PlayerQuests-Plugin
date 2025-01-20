@@ -109,6 +109,14 @@ public class QuestDiary {
     }
 
     /**
+     * Gets the progress of all quests.
+     * @return the quest(s) and it's associated progress
+     */
+    public Map<Quest, List<StagePath>> getQuestProgress() {
+        return this.getQuestProgress(null);
+    }
+
+    /**
      * Gets the progress of a quest.
      * @param quest the quest to get progress for, if null it gives all progress
      * @return the quest(s) and it's associated progress

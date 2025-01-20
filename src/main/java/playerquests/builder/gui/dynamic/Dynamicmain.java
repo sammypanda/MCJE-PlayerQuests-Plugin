@@ -3,6 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.ChatPrompt;
@@ -79,6 +81,13 @@ public class Dynamicmain extends GUIDynamic {
             .setLabel("View Quests")
             .addFunction(
                 new UpdateScreen(Arrays.asList("myquests"), director)
+            );
+
+        new GUISlot(gui, 5)
+            .setItem(Material.WRITABLE_BOOK)
+            .setLabel("Quest Diary")
+            .addFunction(
+                new UpdateScreen(List.of("questdiary"), director)
             );
     }
 }
