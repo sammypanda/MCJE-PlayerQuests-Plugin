@@ -208,6 +208,7 @@ public class Quest {
      * 
      * @return the Player object of the creator, null if none.
      */
+    @JsonIgnore
     public Player getCreatorPlayer() {
         UUID creatorUUID = this.getCreator();
 
