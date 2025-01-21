@@ -229,16 +229,22 @@ public class QuestRegistry {
         }
 
         // get the creator as a player and...
-        UUID creator = quest.getCreator();
-        // send message if there is a creator
+        Player creator = quest.getCreatorPlayer();
+        
+        // create a message
+        MessageBuilder warningMessage = ChatUtils.message("Oops! The '" + collidingNPC.get().getName() + "' NPC, for your '" + quest.getTitle() + "' quest, can't be placed on another NPC's spot. Please try setting yours elsewhere.")
+            .type(MessageType.WARN)
+            .style(MessageStyle.PLAIN);
+
+        // if there is a creator, send it to them
         if (creator != null) {
-            Player player = Bukkit.getPlayer(quest.getCreator());
-            ChatUtils.message("Oops! The '" + collidingNPC.get().getName() + "' NPC, for your '" + quest.getTitle() + "' quest, can't be placed on another NPC's spot. Please try setting yours elsewhere.")
-                .player(player)
-                .style(MessageStyle.PRETTY)
-                .type(MessageType.WARN)
-                .send();
+            warningMessage
+                .player(creator)
+                .style(MessageStyle.PRETTY);
         }
+
+        // send the message
+        warningMessage.send();
 
         return false;
     }

@@ -197,10 +197,25 @@ public class Quest {
     /**
      * Gets the UUID of the player who created this quest.
      * 
-     * @return The UUID of the creator.
+     * @return The UUID of the creator, null if none.
      */
     public UUID getCreator() {
         return creator;
+    }
+
+    /**
+     * Gets the Player object for this quest creator if can be found.
+     * 
+     * @return the Player object of the creator, null if none.
+     */
+    public Player getCreatorPlayer() {
+        UUID creatorUUID = this.getCreator();
+
+        if (creatorUUID == null) {
+            return null;
+        }
+
+        return Bukkit.getPlayer(creatorUUID);
     }
 
     /**
