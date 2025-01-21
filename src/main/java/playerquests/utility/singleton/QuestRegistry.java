@@ -150,6 +150,9 @@ public class QuestRegistry {
 
                 // refund resources
                 quest.refund();
+
+                // remove from database
+                Database.getInstance().removeQuest(quest.getID());
             }
 
         } catch (IOException e) {
@@ -195,6 +198,9 @@ public class QuestRegistry {
         if (!this.canPlaceNPC(quest)) {
             return false;
         }
+
+        // toggle in database
+        Database.getInstance().setQuestToggled(quest, true);
 
         // install the quest into the world
         PlayerQuests.install(quest);
@@ -255,6 +261,9 @@ public class QuestRegistry {
      * @param quest the quest to hide/toggle off.
      */
     public void untoggle(Quest quest) {
+        // untoggle in database
+        Database.getInstance().setQuestToggled(quest, false);
+
         // remove the quest from the world
         PlayerQuests.remove(quest);
     }

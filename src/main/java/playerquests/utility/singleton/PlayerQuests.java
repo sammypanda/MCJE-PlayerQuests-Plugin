@@ -115,6 +115,7 @@ public class PlayerQuests {
 
     /**
      * Removes all traces of a quest from the world.
+     * Not from data.
      * 
      * @param quest The {@link Quest} object whose traces are to be removed.
      */
@@ -124,9 +125,6 @@ public class PlayerQuests {
             npc.remove();
             npc.getAssigned().remove();
         });
-
-        // remove from all diary_entries in database
-        Database.getInstance().removeQuest(quest.getID());
 
         // remove from each quester
         Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
