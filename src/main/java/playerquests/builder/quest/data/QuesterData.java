@@ -153,7 +153,7 @@ public class QuesterData {
         clashingActions.forEach((clashingAction) -> { // add actions
             // TODO: replace /pq command with a command that resolves the clash?
             message
-                .append(String.format("Play %s\n", clashingAction.getID()))
+                .append(String.format("Play %s.%s\n", clashingAction.getStage().getQuest().getTitle(), clashingAction.getID()))
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pq"));
         });
         player.spigot().sendMessage(message.build()); // send the message
