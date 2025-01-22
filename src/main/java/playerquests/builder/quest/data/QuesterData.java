@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import playerquests.Core;
@@ -148,12 +149,14 @@ public class QuesterData {
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
         Player player = quester.getPlayer(); // get the player
-        ComponentBuilder message = new ComponentBuilder("\nThis area offers more than one action:\n\n"); // establish the message to send
+        ComponentBuilder message = new ComponentBuilder("\nThis area offers more than one action\n")
+            .append("Click one of the following:\n\n").color(ChatColor.GRAY); // establish the message to send
 
         clashingActions.forEach((clashingAction) -> { // add actions
             // TODO: replace /pq command with a command that resolves the clash?
             message
-                .append(String.format("Play %s.%s\n", clashingAction.getStage().getQuest().getTitle(), clashingAction.getID()))
+                .append(String.format("> %s.%s\n", clashingAction.getStage().getQuest().getTitle(), clashingAction.getID()))
+                .reset() // clear inherited formatting
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pq"));
         });
         player.spigot().sendMessage(message.build()); // send the message
