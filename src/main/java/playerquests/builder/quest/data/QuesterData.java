@@ -1,10 +1,16 @@
 package playerquests.builder.quest.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.client.quest.QuestClient;
@@ -36,6 +42,11 @@ public class QuesterData {
      * Useful for stopping FXs from cycling.
      */
     private HashMap<QuestAction, List<FX>> effects = new HashMap<>();
+
+    /**
+     * Lock to wait for an ongoing action clash to be resolved.
+     */
+    private Boolean clashLock = false;
 
     /**
      * The context of data useful for working with a QuestClient.
@@ -100,5 +111,59 @@ public class QuesterData {
      */
     public List<FX> getFX(QuestAction action) {
         return this.effects.get(action);
+    }
+
+    /**
+     * Do work to resolve any clashes where two actions try to play
+     * at the same time.
+     * @param action the quest action to check against
+     * @return whether the clash has been resolved
+     */
+    public boolean resolveClashes(QuestAction action) {
+        // if waiting to resolve a clash, don't continue
+        if (clashLock) {
+            return false;
+        }
+
+        QuestClient quester = this.getQuester();
+
+        // if there are more than one actions 
+        // left after this filtration, that means there is a clash
+        ArrayList<QuestAction> clashingActions = new ArrayList<>(quester.getTrackedActions().stream()
+            // filter out exact matches
+            .filter(trackedAction -> !trackedAction.equals(action))
+            // check against locations
+            .filter(trackedAction -> trackedAction.getLocation().equals(action.getLocation()))
+            // get final size
+            .toList());
+            
+        // exit if no clashing to resolve
+        if (clashingActions.size() == 0) {
+            return true;
+        }
+
+        // lock so quester is required to resolve this clash before any others
+        this.clashLock = true;
+
+        // resolve clashing
+        clashingActions.add(action); // add the reference action in as an option
+        Player player = quester.getPlayer(); // get the player
+        ComponentBuilder message = new ComponentBuilder("This NPC offers more than one action:\n\n"); // establish the message to send
+
+        clashingActions.forEach((clashingAction) -> { // add actions
+            // TODO: replace /pq command with a command that resolves the clash?
+            message
+                .append(String.format("Play %s\n", clashingAction.getID()))
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pq"));
+        });
+        player.spigot().sendMessage(message.build()); // send the message
+
+        // debounce the lock to trigger clash checks again
+        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
+            this.clashLock = false;
+        }, 100);
+
+        // don't continue if unresolved
+        return false;
     }
 }

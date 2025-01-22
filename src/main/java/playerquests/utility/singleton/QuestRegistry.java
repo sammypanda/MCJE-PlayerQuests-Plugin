@@ -7,15 +7,12 @@ import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player; // representing players
 
 import playerquests.Core;
-import playerquests.builder.quest.data.LocationData;
-import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
@@ -195,7 +192,7 @@ public class QuestRegistry {
      */
     public boolean toggle(Quest quest) {
         // check + error for if any NPCs can't be placed
-        if (!this.canPlaceNPC(quest)) {
+        if (!this.canPlaceNPCs(quest)) {
             return false;
         }
 
@@ -209,50 +206,14 @@ public class QuestRegistry {
         return true;
     }
 
-    private boolean canPlaceNPC(Quest quest) {
-        // get list of NPC locations from quest registry
-        List<LocationData> registryNPCLocations = this.registry.values().stream()
-            .filter(registryQuest -> !registryQuest.getID().equals(quest.getID()) && registryQuest.isToggled())
-            .flatMap(registryQuest -> registryQuest.getNPCs().values().stream().map(QuestNPC::getLocation))
-            .collect(Collectors.toList());
-
-        // cross reference this quest NPC locations with the above list
-        // existing = the registry NPCs
-        // submitted = this quest NPCs
-        Optional<QuestNPC> collidingNPC = quest.getNPCs().values().stream()
-            .filter(questNPC -> registryNPCLocations.stream()
-                .anyMatch(existingLocation -> {
-                    LocationData submittedLocation = questNPC.getLocation();
-
-                    return existingLocation.collidesWith(submittedLocation);
-                })
-            )
-            .findFirst();
-
-        // if no NPC collision match
-        if (collidingNPC.isEmpty()) {
-            return true;
-        }
-
-        // get the creator as a player and...
-        Player creator = quest.getCreatorPlayer();
-        
-        // create a message
-        MessageBuilder warningMessage = ChatUtils.message("Oops! The '" + collidingNPC.get().getName() + "' NPC, for your '" + quest.getTitle() + "' quest, can't be placed on another NPC's spot. Please try setting yours elsewhere.")
-            .type(MessageType.WARN)
-            .style(MessageStyle.PLAIN);
-
-        // if there is a creator, send it to them
-        if (creator != null) {
-            warningMessage
-                .player(creator)
-                .style(MessageStyle.PRETTY);
-        }
-
-        // send the message
-        warningMessage.send();
-
-        return false;
+    /**
+     * Determine whether quest NPCs can be placed at the location 
+     * they are specified
+     * @param quest the quest containing the NPCs
+     * @return false if any NPCs are not placeable
+     */
+    private boolean canPlaceNPCs(Quest quest) {
+        return true;
     }
 
     /**

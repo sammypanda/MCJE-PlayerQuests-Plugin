@@ -205,5 +205,24 @@ public class LocationData {
             this.pitch
         );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        // if the object is not an instance of LocationData
+        if (obj instanceof LocationData == false) {
+            return false;
+        }
+
+        // cast to location data
+        LocationData locationData = (LocationData) obj;
+
+        return
+            this.world.equals(locationData.world) &&
+            this.x == locationData.x &&
+            this.y == locationData.y &&
+            this.z == locationData.z &&
+            this.pitch == locationData.pitch &&
+            this.yaw == locationData.yaw;
+    }
 }
 

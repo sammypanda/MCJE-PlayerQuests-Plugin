@@ -174,6 +174,11 @@ public abstract class QuestAction {
             // TODO: probably needs a check-again-timer thing
         }
 
+        // stop if there are unresolved clashes
+        if (!questerData.resolveClashes(this)) {
+            return;
+        }
+
         // if not successful don't finish
         if (!this.isCompleted(questerData)) {
             return;
