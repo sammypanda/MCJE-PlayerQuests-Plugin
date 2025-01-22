@@ -148,7 +148,7 @@ public class QuesterData {
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
         Player player = quester.getPlayer(); // get the player
-        ComponentBuilder message = new ComponentBuilder("\nThis NPC offers more than one action:\n\n"); // establish the message to send
+        ComponentBuilder message = new ComponentBuilder("\nThis area offers more than one action:\n\n"); // establish the message to send
 
         clashingActions.forEach((clashingAction) -> { // add actions
             // TODO: replace /pq command with a command that resolves the clash?
