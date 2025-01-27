@@ -11,7 +11,6 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
-import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.Database;
 
