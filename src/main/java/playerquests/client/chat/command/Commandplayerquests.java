@@ -54,5 +54,10 @@ public class Commandplayerquests extends ChatCommand {
         guiClient.open(); // open the gui client (main GUI)
         return true; // mark as a valid command
     }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        return List.of();
+    }
     
 }

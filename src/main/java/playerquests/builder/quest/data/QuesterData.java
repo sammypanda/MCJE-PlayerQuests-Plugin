@@ -14,8 +14,10 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.FX;
+import playerquests.product.Quest;
 
 /**
  * The data about the quester playing the action.
@@ -153,11 +155,17 @@ public class QuesterData {
             .append("Click one of the following:\n\n").color(ChatColor.GRAY); // establish the message to send
 
         clashingActions.forEach((clashingAction) -> { // add actions
-            // TODO: replace /pq command with a command that resolves the clash?
+            final QuestStage questStage = clashingAction.getStage();
+            final Quest quest = questStage.getQuest();
+            final String path = new StagePath(questStage, List.of(clashingAction)).toString(); // the path to the action
+            final String command = String.format("/action start %s.%s", quest.getID(), path); // command that resolves the clash?
+
             message
-                .append(String.format("> %s.%s\n", clashingAction.getStage().getQuest().getTitle(), clashingAction.getID()))
+                .append(String.format("> %s.%s\n", 
+                    quest.getTitle(), // the quest title
+                    path)) // the path to the action
                 .reset() // clear inherited formatting
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pq"));
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
         });
         player.spigot().sendMessage(message.build()); // send the message
 
