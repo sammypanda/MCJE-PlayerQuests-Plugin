@@ -17,12 +17,12 @@ import playerquests.utility.ChatUtils.MessageType;
 /**
  * Shows the main GUI window upon the /playerquest command.
  */
-public class Commandplayerquest extends ChatCommand {
+public class Commandplayerquests extends ChatCommand {
 
     /**
      * Sets the command as '/playerquests'.
      */
-    public Commandplayerquest() {
+    public Commandplayerquests() {
         // define which command
         super("playerquests");
     }
