@@ -10,6 +10,9 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.Database;
 
 /**
@@ -92,10 +95,21 @@ public class QuestClient {
 
     /**
      * Start actions from a path pointing to stages/actions.
+     * By default this will start any action, even if it has already been completed.
      * @param paths the pointer
      * @param quest the quest to use the pointer on
      */
     public void start(List<StagePath> paths, Quest quest) {
+        this.start(paths, quest, true);
+    }
+
+    /**
+     * Start actions from a path pointing to stages/actions.
+     * @param paths the pointer
+     * @param quest the quest to use the pointer on
+     * @param force the action to start even if it has already been completed
+     */
+    public void start(List<StagePath> paths, Quest quest, boolean force) {
         paths.forEach(path -> {
             // if no actions, point to stage start points
             if (!path.hasActions()) {
@@ -108,6 +122,22 @@ public class QuestClient {
     
             // for each action, start
             actions.forEach(action -> {
+                // if not force, and has completed; exit
+                if (!force && this.getDiary().hasCompletedAction(quest, new StagePath(action.getStage(), List.of(action)))) {
+                    ChatUtils.message("Already completed this quest action! ^_^")
+                        .player(this.getPlayer())
+                        .type(MessageType.NOTIF)
+                        .send(); // send message saying it's already been completed
+                    return;
+                }
+
+                // if action already being tracked, check it, and exit
+                if (this.getTrackedActions().contains(action)) {
+                    // skip to check
+                    action.check(this.getData(), true);
+                    return; // don't continue
+                }
+
                 // run the action
                 action.run(this.getData());
 

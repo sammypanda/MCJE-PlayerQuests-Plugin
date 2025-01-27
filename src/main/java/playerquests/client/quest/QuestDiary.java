@@ -1,5 +1,6 @@
 package playerquests.client.quest;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
 import playerquests.product.fx.ParticleFX;
@@ -179,7 +181,24 @@ public class QuestDiary {
      * @param path the path to the action
      */
     public boolean hasCompletedAction(Quest quest, StagePath path) {
-        return true; // TODO: actually check if the action has been completed
+        // retrieve all entries from the database
+        Map<Quest, List<Map<StagePath, Boolean>>> rawEntries = Database.getInstance().getDiaryEntries(this);
+
+        // exit if no work to do
+        if (rawEntries == null || !rawEntries.containsKey(quest)) {
+            return false;
+        }
+
+        // get entries for the specific quest
+        List<Map<StagePath, Boolean>> questEntries = rawEntries.get(quest);
+
+        // check for incomplete actions
+        return questEntries.stream()
+            .flatMap(pathMap -> pathMap.entrySet().stream()) // change map to entry set to be able to work with it
+            .flatMap(pathEntry -> pathEntry.getKey().getActions(quest).stream() // for every action in the path:
+                .filter(action -> path.getActions(quest).contains(action)) // remove actions that aren't included in the passed in path
+                .map(action -> Map.entry(action, pathEntry.getValue()))) // get map of action and completion state
+            .noneMatch(entry -> !entry.getValue()); // if no action incomplete, all actions are complete
     }
 
     /**

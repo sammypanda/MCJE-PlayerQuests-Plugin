@@ -124,7 +124,10 @@ public class BlockListener implements Listener {
         Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
         BlockData emptyBlockData = Material.AIR.createBlockData();
 
-        player.sendBlockChange(npcLocation, emptyBlockData); // remove the NPC
+        // clear the block if no other NPCs here
+        if (this.getActiveNPCs(npcLocation.getBlock(), player).size() <= 1) {
+            player.sendBlockChange(npcLocation, emptyBlockData); // remove the NPC
+        }
     }
     
     /**

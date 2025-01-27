@@ -164,6 +164,18 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void check(QuesterData questerData) {
+        this.check(questerData, false);
+    }
+
+    /**
+     * Determines if the action should
+     * now finish.
+     * - Determines whether should call 
+     * {@link #success(questerData)} or {@link #failure(questerData)}
+     * @param questerData the data about the quester playing the action.
+     * @param bypassClash skip clash checks.
+     */
+    public void check(QuesterData questerData, boolean bypassClash) {
         // check if any conditions aren't met
         Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
             return !conditional.isMet(questerData);
@@ -175,7 +187,7 @@ public abstract class QuestAction {
         }
 
         // stop if there are unresolved clashes
-        if (!questerData.resolveClashes(this)) {
+        if (!bypassClash && !questerData.resolveClashes(this)) {
             return;
         }
 
