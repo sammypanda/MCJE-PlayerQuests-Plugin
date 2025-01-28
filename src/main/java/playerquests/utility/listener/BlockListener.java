@@ -176,7 +176,7 @@ public class BlockListener implements Listener {
      * @return list which may be empty.
      */
     private List<BlockNPC> getActiveNPCs(Block block, Player player) {
-        if (block == null) { return List.of(); } 
+        if (block == null || this.activeBlockNPCs.get(player) == null) { return List.of(); } 
 
         // get the block's location
         Location blockLocation = block.getLocation();
