@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,6 +21,7 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
+import playerquests.utility.event.ActionCompletionEvent;
 
 public class CompletionCondition extends ActionCondition {
     
@@ -130,5 +132,36 @@ public class CompletionCondition extends ActionCondition {
     @Override
     public List<String> getDescription() {
         return List.of("Set actions for before", "this action can be played");
+    }
+
+    @Override
+    public void startListener(QuesterData questerData) {
+        new CompletionConditionListener(this, questerData);
+    }
+
+    class CompletionConditionListener extends ActionConditionListener<CompletionCondition> {
+
+        public CompletionConditionListener(CompletionCondition actionCondition, QuesterData questerData) {
+            super(actionCondition, questerData);
+        }
+
+        /**
+         * Event for when an action has been completed.
+         * @param event the data about this event
+         */
+        @EventHandler
+        private void onActionCompletion(ActionCompletionEvent event) {
+            // if a different quester triggered the event, exit
+            if (!event.getQuesterData().getQuester().equals(questerData.getQuester())) {
+                return;
+            }
+
+            // if action still not finished, exit
+            if (!this.actionCondition.isMet(questerData)) {
+                return;
+            }
+
+            this.trigger();
+        }
     }
 }

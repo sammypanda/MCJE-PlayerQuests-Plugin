@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -28,6 +29,7 @@ import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
 import playerquests.client.quest.QuestDiary;
 import playerquests.product.fx.ParticleFX;
+import playerquests.utility.event.ActionCompletionEvent;
 import playerquests.utility.singleton.Database;
 
 /**
@@ -178,12 +180,21 @@ public abstract class QuestAction {
     public void check(QuesterData questerData, boolean bypassClash) {
         // check if any conditions aren't met
         Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
-            return !conditional.isMet(questerData);
+            if (conditional.isMet(questerData)) {
+                return false; // don't do work if this condition already met
+            }
+
+            // run the listener for unmet conditions 
+            // so they can ask for re-check
+            conditional.startListener(questerData);
+            this.stop(questerData, true); // stop and halt continuation
+
+            // return that this condition is an unmet one
+            return true;
         });
 
         if (conditionsUnmet) {
-            return; // don't listen yet if conditions unmet
-            // TODO: probably needs a check-again-timer thing
+            return; // don't continue yet if any conditions are unmet
         }
 
         // stop if there are unresolved clashes
@@ -242,6 +253,11 @@ public abstract class QuestAction {
         // go to next actions
         if (!halt) {
             this.proceed(questerData);
+
+            // call action completion event
+            Bukkit.getServer().getPluginManager().callEvent(
+                new ActionCompletionEvent(this, questerData)
+            );
         }
     }
 

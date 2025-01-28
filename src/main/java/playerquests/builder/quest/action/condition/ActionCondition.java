@@ -2,16 +2,23 @@ package playerquests.builder.quest.action.condition;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.GUIDynamic;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector;
 
 /**
@@ -94,4 +101,65 @@ public abstract class ActionCondition {
      */
     @JsonIgnore
     public abstract List<String> getDescription();
+
+    /**
+     * Get the action data for this condition.
+     * @return the action data for the action this condition is assigned to
+     */
+    @JsonIgnore
+    public ActionData getActionData() {
+        return this.actionData;
+    }
+
+    /**
+     * Starts the listener belonging to the action is finished.
+     * Listener is a type of ActionConditionListener.
+     */
+    @JsonIgnore
+    public abstract void startListener(QuesterData questerData);
+
+    /**
+     * Contains the listener for this action condition.
+     * Implementations must run trigger().
+     */
+    abstract class ActionConditionListener<C extends ActionCondition> implements Listener {
+        
+        protected final C actionCondition;
+
+        protected final QuesterData questerData;
+
+        public ActionConditionListener(C actionCondition, QuesterData questerData) {
+            this.actionCondition = actionCondition;
+            this.questerData = questerData;
+
+            // register the events
+            Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
+        }
+
+        /**
+         * Trigger a re-start of the action.
+         */
+        public void trigger() {
+            QuestAction action = this.actionCondition.getActionData().getAction();
+
+            // start the action
+            questerData.getQuester().start(
+                List.of(new StagePath(action.getStage(), List.of(action))), 
+                action.getStage().getQuest()
+            );
+
+            // close the listener
+            this.close();
+        }
+
+        /**
+         * Unregister the listener.
+         * Used to stop listening when the action was 
+         * a success.
+         */
+        public void close() {
+            // unregister the events
+            HandlerList.unregisterAll(this);
+        }
+    }
 }

@@ -2,10 +2,12 @@ package playerquests.builder.quest.action.condition;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.GUIDynamic;
@@ -139,5 +141,30 @@ public class TimeCondition extends ActionCondition {
     @Override
     public List<String> getDescription() {
         return List.of("Set the time of day", "this action can be played");
+    }
+
+    @Override
+    public void startListener(QuesterData questerData) {
+        new TimeConditionListener(this, questerData);
+    }
+
+    public class TimeConditionListener extends ActionConditionListener<TimeCondition> {
+
+        public TimeConditionListener(TimeCondition actionCondition, QuesterData questerData) {
+            super(actionCondition, questerData);
+
+            // start time check loop
+            this.timeCheck();
+        }
+
+        public void timeCheck() {
+            if (actionCondition.isMet(questerData)) {
+                this.trigger();
+                return;
+            }
+
+            // otherwise loop the time check
+            Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> this.timeCheck(), 100);
+        }
     }
 }
