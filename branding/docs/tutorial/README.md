@@ -85,7 +85,6 @@ This tutorial is structured to start at the most easy and common, to the most ni
 7. Go **'Back'** and press **'Save'**
     - Your NPC won't show in the world until it is told to be
     - You can't interact with NPC blocks like normal blocks, if your NPC is a door you won't be able to open and close it
-    - If you destroy te NPC the quest will toggle off
 
 <br>
 
@@ -109,16 +108,69 @@ This tutorial is structured to start at the most easy and common, to the most ni
 6. Press the new **'action_0'** button, it will show an action editor menu
     - The hopper is for setting the actions that come after this one (will be talked about later)
     - The firework is for changing the action type
+    - The button is for configuring the action
     - The clock is for setting conditions for the action to continue (will be talked about later)
     - The red dye is to delete the action
 
-<img alt="A new screen appears showing a back button, a button to set next actions, a button to change the action type, a space, a button to edit the conditions and a delete button" src="../../assets/docs/action-editor-menu.png" width="450"/>
+<img alt="A new screen appears showing a back button, a button to set next actions, a button to change the action type, a button to change action settings, a button to edit the conditions and a delete button" src="../../assets/docs/action-editor-menu.png" width="450"/>
+
+7. Press the **'Edit action options'** button
+
+<img alt="The 'Edit action options' button is the stone button in the 4th slot" src="../../assets/docs/edit-actions-button.png" width="450"/>
+
+8. Here, you can set the NPC that will idle when the action starts.
+    - The action is called 'None' because it very much does nothing, you can look in the 'Change action type' to see the other options. This action also halts continuation as there is no way to 'complete' nothing.
+9. Press the **'Set the NPC'** configuration option. 
+
+<img alt="The 'Edit action options' button is the stone button in the 4th slot" src="../../assets/docs/set-the-npc-option.png" width="450"/>
+
+10. It will show you your list of NPCs, there you just pick the NPC you want to have show up in the world.
+
+<img alt="The 'NPC Selector' menu" src="../../assets/docs/npc-selector-npc.png" width="450"/>
+
+11. <u>**Now we just need to set this action to start when the quest starts!**</u>
+12. Press **'Back'** a few times to get back to the main **'Edit Quest'** screen
+13. Press **'Set start points'**
+
+<img alt="The 'Set start points' button is the piston in the 6th slot" src="../../assets/docs/set-start-points-button.png" width="450"/>
+
+14. Select the action we just created
+15. Go **'Back'**, and press **'Save'** to save the changes you've made to the quest 
+16. The NPC you created and selected should show up where you set it!
+    - The NPC will have no interaction/functionality. This is because the action it's assigned to is just **'None'**, which is an action type that has no behaviour 😸. See the next part if you're ready to add behaviour!
+
+<br>
 
 ## 6. Making the NPC say something 🌟
 > Bring your NPC to life, here's how:
 
-## 7. Go from one action to the next action!
-> Two dialogues in a row!? here's how:
+###### 🔔 A stage is just a big list of actions. Like a step in your quest. For example: a stage could be a conversation with the NPC with multiple 'Speak' actions.
 
-## 8. Conditions for the action to continue, like a certain time of day!
-> Specify requirements your action needs to continue, here's how:
+1. Open the quest editor
+2. Navigate to the ``stage_0.action_0`` we made
+3. In the action editor, press the **'Change action type'** button
+    - The firework inside this menu shows the currently selected action type
+
+<img alt="The 'Available Action Types' menu shows a back button, a firework button for the currently selected item (the 'None' action type), and a oak sign button for the 'Speak' action type" src="../../assets/docs/available-action-types-menu.png" width="450"/>
+
+4. Press the **'Speak'** action type button, to change the action type from **'None'** to **'Speak'**
+5. Go **'Back'**
+6. Now when we go into **'Edit action options'** we will see suitable options to configure!
+7. Make sure you set both the **'Set the NPC'** and **'Set the Dialogue'**
+    - ⚠️ It won't let you exit or save if these aren't completed as they are required to avoid your quest breaking!
+8. Go **'Back'**
+    - If it doesn't let you, the chatbox should show a message of what you need to do. Don't exit the menu though, unless you're okay with losing your progress.
+
+    <img alt="Example showing an error showing up behind the menu in the chat box, it says 'NPC is missing, try choosing an NPC in the action options.'" src="../../assets/docs/action-config-error.png" width="450"/>
+
+9. **'Save'** the quest
+    - If it's not working, remember to set it as the starting point action. *If you're still having troubles feel free to ask for help in the [Discord server](https://discord.gg/EvWVSn9URf)!*
+10. Yay! Now the NPC should sparkle and right click should show your dialogue!
+    - When I interact with it, it disappears?! Don't stress ^_^ this is intended, every action continues on when it's finished. If you'd like to avoid that forever, you can set one of the actions **'Next Actions'** as itself for a infinite loop! (if you're unsure how, read the next part for help!)
+
+<br>
+
+## 💙 Let's make more quests together!
+You have the basics now! You should be able to do just about anything this plugin offers now.
+
+If you have any questions, feel free to ask in the [Discord server](https://discord.gg/EvWVSn9URf)!
