@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -12,14 +13,21 @@ import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.action.option.ActionOption;
+import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 
 /**
  * An action that does nothing. :D      
  */
 public class NoneAction extends QuestAction {
+
+    /**
+     * the NPC added into the world.
+     */
+    QuestNPC npc;
 
     /**
      * Constructor for jackson.
@@ -40,7 +48,9 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void prepare(QuesterData questerData) {}
+    protected void prepare(QuesterData questerData) {
+        this.npc = this.placeNPC(questerData);
+    }
 
     @Override
     protected Boolean isCompleted(QuesterData questerData) {
@@ -48,7 +58,12 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void success(QuesterData questerData) {}
+    protected void success(QuesterData questerData) {
+        Player player = questerData.getQuester().getPlayer();
+
+        // remove the NPC
+        this.npc.remove(player);
+    }
 
     @Override
     protected void failure(QuesterData questerData) {}
@@ -68,7 +83,9 @@ public class NoneAction extends QuestAction {
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
-        return List.of();
+        return List.of(
+            NPCOption.class
+        );
     }
 
     @Override
@@ -90,6 +107,6 @@ public class NoneAction extends QuestAction {
 
     @Override
     public LocationData getLocation() {
-        return null;
+        return new LocationData(this.npc.getLocation());
     }
 }

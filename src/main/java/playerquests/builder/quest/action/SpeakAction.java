@@ -19,7 +19,6 @@ import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.QuestNPC;
-import playerquests.product.Quest;
 
 /**
  * Action for an NPC speaking.
@@ -43,7 +42,7 @@ public class SpeakAction extends QuestAction {
 
     @Override
     protected void prepare(QuesterData questerData) {
-        this.placeNPC(questerData);
+        this.npc = this.placeNPC(questerData);
     }
 
     @Override
@@ -89,22 +88,6 @@ public class SpeakAction extends QuestAction {
             NPCOption.class,
             DialogueOption.class
         );
-    }
-
-    /**
-     * Method to place the NPC into the world.
-     * This adds it to the class instance state.
-     * @param questerData
-     */
-    private void placeNPC(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer(); // find the player
-        Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
-        Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
-            
-        if (npcOption.isPresent()) { // if the NPC option exists
-            this.npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
-            this.npc.place(player); // spawn the NPC for this quester
-        }
     }
 
     @Override

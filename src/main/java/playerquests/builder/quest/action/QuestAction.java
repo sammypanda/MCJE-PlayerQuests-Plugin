@@ -21,13 +21,16 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
+import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
 import playerquests.client.quest.QuestDiary;
+import playerquests.product.Quest;
 import playerquests.product.fx.ParticleFX;
 import playerquests.utility.event.ActionCompletionEvent;
 import playerquests.utility.singleton.Database;
@@ -397,4 +400,23 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract LocationData getLocation();
+
+    /**
+     * Method to place the NPC into the world.
+     * This adds it to the class instance state.
+     * @param questerData
+     */
+    protected QuestNPC placeNPC(QuesterData questerData) {
+        Player player = questerData.getQuester().getPlayer(); // find the player
+        Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
+        Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
+            
+        if (npcOption.isPresent()) { // if the NPC option exists
+            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
+            npc.place(player); // spawn the NPC for this quester
+            return npc;
+        }
+
+        throw new IllegalStateException("Tried to place an NPC for an action with no NPCOption added");
+    }
 }
