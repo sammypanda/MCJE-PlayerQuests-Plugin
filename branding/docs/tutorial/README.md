@@ -168,15 +168,39 @@ This tutorial is structured to start at the most easy and common, to the most ni
 10. Yay! Now the NPC should sparkle and right click should show your dialogue!
     - When I interact with it, it disappears?! Don't stress ^_^ this is intended, every action continues on when it's finished. If you'd like to avoid that forever, you can set one of the actions **'Next Actions'** as itself for a infinite loop! (if you're unsure how, read the next part for help!)
 
+<img alt="Example showing an NPC block in the world that is indicating it can be interacted with, with a yellow sparkle above it" src="../../assets/docs/sparkly-block-npc.png" width="450"/>
+
 <br>
 
 ## 7. Go from one action to the next action!
 > Two dialogues in a row!? here's how:
 
+1. Go back to your quest editor
+2. Navigate to the ``stage_0`` quest stage we made
+3. Add a new action
+4. Change the action to a 'Speak' type action
+    - For me it'll be ``stage_0.action_1`` (the action_1 action, in the stage_0 stage)
+5. Remember to set the options for the new action
+6. Now let's set up our quest to continue on to this new action! Navigate to the ``stage_0.action_0`` we made before (in the previous parts)
+7. In the action editor, press the **'Next Actions'** button
+
+<img alt="THe 'Next Actions' button is the hopper in the 2nd slot" src="../../assets/docs/next-actions-button.png" width="450"/>
+
+8. Select at least the action you just created
+    - For me i'll add action_1 from in stage_0
+    - Selecting **'Select this stage'** means it will look for the **Stage start points** for the next actions (which is separate to the **Quest start points**)
+    - A plain rail is unselected, a detector rail is selected by being a start point, and a powered rail is selected manually! 
+9. You should now be able to play your quest, with action_0 followed by action_1!
+    - As you can probably tell, next actions can be from any other stages. You could have ``stage_0.action_0`` continue to ``stage_1.action_0``
+10. Simple! Now you know how to do multiple step quests
+    - Remember to have the action_0 set as your quest start point in the main menu of this quest editor! Otherwise nothing will happen ^_^
+
+###### 🔔 You can use this new knowledge to make multiple branches/endings and all sorts of other complex quest structures now!
+
 <br>
 
 ## 8. Conditions for the action to continue, like a certain time of day!
-> Specify requirements your action needs to continue, here's how:
+> For extra complexity, specify requirements your actions need to continue! here's how:
 
 <br>
 
