@@ -202,9 +202,28 @@ This tutorial is structured to start at the most easy and common, to the most ni
 ## 8. Conditions for the action to continue, like a certain time of day!
 > For extra complexity, specify requirements your actions need to continue! here's how:
 
+1. Go back to your quest editor
+2. Navigate to editing an action
+3. Press **'Edit conditions'**
+
+<img alt="The 'Edit conditions' button is a clock item in the 5th slot" src="../../assets/docs/action-edit-conditions-button.png" width="450"/>
+
+4. In this menu, you can:
+    1. View and edit your existing conditions
+    2. Create new conditions
+
+<img alt="Menu with a back button, a chest for viewing added conditions, and a blue dye for adding new conditions" src="../../assets/docs/action-conditions-menu.png" width="450"/>
+
+5. Press **'Create New'**, to create a new condition
+6. Press **'Time'**, to create a new time condition (only continue the action if within the time boundary)
+7. Set the start time and the end time
+    - Feel free to add multiple **Time** conditions if you need more complex time.
+8. Done! That easy ^_^
+    - Conditions are only checked and work, if the action has tried to be started. So make sure to remember to add the action as a **'Next action'** or a quest **'Start point'**
+
 <br>
 
 ## 💙 Let's make more quests together!
 You have the basics now! You should be able to do just about anything this plugin offers now.
 
-If you have any questions, feel free to ask in the [Discord server](https://discord.gg/EvWVSn9URf)!
+If you have any questions or anything went wrong, please let me and the community know in the [Discord server](https://discord.gg/EvWVSn9URf)!
