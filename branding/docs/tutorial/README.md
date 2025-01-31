@@ -170,6 +170,16 @@ This tutorial is structured to start at the most easy and common, to the most ni
 
 <br>
 
+## 7. Go from one action to the next action!
+> Two dialogues in a row!? here's how:
+
+<br>
+
+## 8. Conditions for the action to continue, like a certain time of day!
+> Specify requirements your action needs to continue, here's how:
+
+<br>
+
 ## 💙 Let's make more quests together!
 You have the basics now! You should be able to do just about anything this plugin offers now.
 
