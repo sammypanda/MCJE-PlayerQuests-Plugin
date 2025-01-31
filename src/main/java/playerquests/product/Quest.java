@@ -276,6 +276,16 @@ public class Quest {
                 questName, // name pattern
                 this.toJSONString().getBytes() // put the content in the file
             );
+
+            // notify about no starting points
+            if (this.getStartPoints().isEmpty() && player != null) {
+                ChatUtils.message("No start points set, so no actions or NPCs will show :)")
+                    .type(MessageType.NOTIF)
+                    .style(MessageStyle.PRETTY)
+                    .player(player)
+                    .send();
+            }
+
             return "'" + this.title + "' was saved.";
         } catch (IOException e) {
             MessageBuilder errorMessage = ChatUtils.message(e.getMessage())
