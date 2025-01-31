@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -117,11 +118,27 @@ public class BlockListener implements Listener {
      * @param player the player to remove for
      */
     private void unsetBlockNPC(BlockNPC blockNPC, Player player) {
+        QuestNPC npc = blockNPC.getNPC();
+        String npcID = npc.getID();
+        String questID = npc.getQuest().getID();
         Map<BlockNPC, LocationData> npcMap = this.activeBlockNPCs.get(player);
 
-        if (npcMap == null || npcMap.isEmpty() || npcMap.get(blockNPC) == null) { return; } // don't continue if empty map
+        if (npcMap == null || npcMap.isEmpty()) { return; } // don't continue if empty map
 
-        Location npcLocation = npcMap.get(blockNPC).toBukkitLocation();
+        // find matching blockNPC to the one passed in
+        // by checking against:
+        // - the npc ID
+        // - the quest ID
+        Optional<BlockNPC> foundBlockNPC = npcMap.entrySet().stream()
+            .map(entry -> entry.getKey())
+            .filter(listedNPC -> listedNPC.getNPC().getID().equals(npcID))
+            .filter(listedBlockNPC -> listedBlockNPC.getNPC().getQuest().getID().equals(questID))
+            .findFirst();
+        
+        if (foundBlockNPC.isEmpty()) { return; } // don't continue if no BlockNPC to unset
+
+        // get location and block to replace it with (air)
+        Location npcLocation = npcMap.get(foundBlockNPC.get()).toBukkitLocation();
         BlockData emptyBlockData = Material.AIR.createBlockData();
 
         // clear the block if no other NPCs here
