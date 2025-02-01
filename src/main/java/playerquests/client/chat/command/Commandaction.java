@@ -1,5 +1,6 @@
 package playerquests.client.chat.command;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -42,10 +43,20 @@ public class Commandaction extends ChatCommand {
             return false;
         }
 
-        // get parts of the argument pointing to the action
-        String[] idParts = args[1].split("\\.");
-        String questID = idParts[0];
-        String pathCode = String.format("%s.%s", idParts[1], idParts[2]);
+        /*
+         * tolerate spaces to find the *real* args[1] (the quest ID + paths)
+         * - reference example we'll use: "name of quest_205295.stage_0.action_0" 
+        */
+        // split closest to the separate parts as we can get
+        String partialQuestID = String.join(" ", Arrays.copyOfRange(args, 1, args.length - 1)); // for example: gets 'name of' (but not) ..quest_205295.stage_0.action_0
+        String partialStagePath = args[args.length - 1]; // for example: gets quest_205295.stage_0.action_0
+
+        // split up on .
+        String[] resolvePartial = partialStagePath.split("\\."); // for example: gets ['quest_205295', 'stage_0', 'action_0']
+
+        // resolve the separate parts :D and enjoy the fruits of the complexity
+        String questID = String.format("%s %s", partialQuestID, resolvePartial[0]); // for example: joins 'name of' with 'quest_205295.stage_0.action_0' with a whitespace
+        String pathCode = String.format("%s.%s", resolvePartial[1], resolvePartial[2]); // for example: joins 'stage_0' and 'action_0' with a '.'
 
         // get quest and get stage path
         Quest quest = QuestRegistry.getInstance().getQuest(questID);
