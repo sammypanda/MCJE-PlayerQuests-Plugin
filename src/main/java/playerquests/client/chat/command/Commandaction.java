@@ -55,8 +55,8 @@ public class Commandaction extends ChatCommand {
         String[] resolvePartial = partialStagePath.split("\\."); // for example: gets ['quest_205295', 'stage_0', 'action_0']
 
         // resolve the separate parts :D and enjoy the fruits of the complexity
-        String questID = String.format("%s %s", partialQuestID, resolvePartial[0]); // for example: joins 'name of' with 'quest_205295' with a whitespace
-        String pathCode = String.format("%s.%s", resolvePartial[1], resolvePartial[2]); // for example: joins 'stage_0' and 'action_0' with a '.'
+        String questID = String.format("%s %s", partialQuestID, resolvePartial[0]).trim(); // for example: joins 'name of' with 'quest_205295' with a whitespace
+        String pathCode = String.format("%s.%s", resolvePartial[1], resolvePartial[2]).trim(); // for example: joins 'stage_0' and 'action_0' with a '.'
 
         // get quest and get stage path
         Quest quest = QuestRegistry.getInstance().getQuest(questID);
