@@ -63,7 +63,7 @@ public class SpeakAction extends QuestAction {
         );
 
         // remove the NPC
-        this.npc.remove(player);
+        this.unplaceNPC(questerData);
     }
 
     @Override

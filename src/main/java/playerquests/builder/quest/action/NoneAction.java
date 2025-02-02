@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -59,10 +58,8 @@ public class NoneAction extends QuestAction {
 
     @Override
     protected void success(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer();
-
         // remove the NPC
-        this.npc.remove(player);
+        this.unplaceNPC(questerData);
     }
 
     @Override

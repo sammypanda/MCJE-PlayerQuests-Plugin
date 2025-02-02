@@ -3,6 +3,7 @@ package playerquests.builder.quest.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,6 +15,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.FX;
@@ -45,6 +47,11 @@ public class QuesterData {
      * Useful for stopping FXs from cycling.
      */
     private HashMap<QuestAction, List<FX>> effects = new HashMap<>();
+
+    /**
+     * Useful for tracking NPCs in the world.
+     */
+    private HashMap<QuestAction, QuestNPC> npcs = new HashMap<>();
 
     /**
      * Lock to wait for an ongoing action clash to be resolved.
@@ -176,5 +183,29 @@ public class QuesterData {
 
         // don't continue if unresolved
         return false;
+    }
+
+    /**
+     * Track the NPC in the QuesterData.
+     * @param npc the NPC to track
+     */
+    public void addNPC(QuestAction questAction, QuestNPC npc) {
+        this.npcs.put(questAction, npc);
+    }
+
+    /**
+     * Untrack the NPC in the QuesterData.
+     * @param npc the NPC to untrack
+     */
+    public void removeNPC(QuestAction questAction, QuestNPC npc) {
+        this.npcs.remove(questAction, npc);
+    }
+
+    /**
+     * Get the NPCs tracked in this QuesterData.
+     * @return the list of tracked npcs;
+     */
+    public Map<QuestAction, QuestNPC> getNPCs() {
+        return this.npcs;
     }
 }

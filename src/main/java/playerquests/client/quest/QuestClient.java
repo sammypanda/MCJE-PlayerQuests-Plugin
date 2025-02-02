@@ -221,7 +221,7 @@ public class QuestClient {
      * Get the quester data.
      * @return a QuesterData object.
      */
-    private QuesterData getData() {
+    public QuesterData getData() {
         return this.data;
     }
 }

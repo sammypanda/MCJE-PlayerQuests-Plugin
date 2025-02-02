@@ -202,6 +202,7 @@ public abstract class QuestAction {
 
         // stop if there are unresolved clashes
         if (!bypassClash && !questerData.resolveClashes(this)) {
+            this.stop(questerData, true); // TODO: fix this line, it makes it so you can never resume an action if you don't choose an option (option may get lost in the chat and player would be stuck)
             return;
         }
 
@@ -403,7 +404,7 @@ public abstract class QuestAction {
 
     /**
      * Method to place the NPC into the world.
-     * This adds it to the class instance state.
+     * This adds it to the QuesterData.
      * @param questerData
      */
     protected QuestNPC placeNPC(QuesterData questerData) {
@@ -413,10 +414,31 @@ public abstract class QuestAction {
             
         if (npcOption.isPresent()) { // if the NPC option exists
             QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
+            questerData.addNPC(this, npc); // track the NPC
             npc.place(player); // spawn the NPC for this quester
             return npc;
         }
 
         throw new IllegalStateException("Tried to place an NPC for an action with no NPCOption added");
+    }
+
+    /**
+     * Method to unplace the NPC from the world.
+     * This removes it from the QuesterData.
+     * @param questerData
+     */
+    protected QuestNPC unplaceNPC(QuesterData questerData) {
+        Player player = questerData.getQuester().getPlayer(); // find the player
+        Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
+        Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
+            
+        if (npcOption.isPresent()) { // if the NPC option exists
+            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
+            questerData.removeNPC(this, npc); // track the NPC
+            npc.remove(player); // spawn the NPC for this quester
+            return npc;
+        }
+
+        throw new IllegalStateException("Tried to unplace an NPC for an action with no NPCOption added");
     }
 }

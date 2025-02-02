@@ -120,12 +120,6 @@ public class PlayerQuests {
      * @param quest The {@link Quest} object whose traces are to be removed.
      */
     public static void remove(Quest quest) {
-        // remove all NPCs
-        quest.getNPCs().values().forEach(npc -> {
-            npc.remove();
-            npc.getAssigned().remove();
-        });
-
         // remove from each quester
         Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
             quester.getDiary().remove(quest);
