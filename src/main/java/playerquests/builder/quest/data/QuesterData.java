@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.npc.QuestNPC;
@@ -176,10 +174,7 @@ public class QuesterData {
         });
         player.spigot().sendMessage(message.build()); // send the message
 
-        // debounce the lock to trigger clash checks again
-        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
-            this.clashLock = false;
-        }, 100);
+        this.clashLock = false;
 
         // don't continue if unresolved
         return false;

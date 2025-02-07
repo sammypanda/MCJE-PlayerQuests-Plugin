@@ -121,33 +121,37 @@ public class QuestClient {
     
             // for each action, start
             actions.forEach(action -> {
-                // if not force, and has completed; exit
-                if (!force && this.getDiary().hasCompletedAction(quest, new StagePath(action.getStage(), List.of(action)))) {
-                    ChatUtils.message("Already completed this quest action! ^_^")
-                        .player(this.getPlayer())
-                        .type(MessageType.NOTIF)
-                        .send(); // send message saying it's already been completed
-                    return;
-                }
-
-                // if action already being tracked, check it, and exit
-                if (this.getTrackedActions().contains(action)) {
-                    // skip to check
-                    action.check(this.getData(), true);
-                    return; // don't continue
-                }
-
-                // run the action
-                action.run(this.getData());
-
-                // track the action
-                this.trackAction(action);
-
-                // update the Database
-                StagePath actionPath = new StagePath(action.getStage(), List.of(action));
-                Database.getInstance().setDiaryEntryCompletion(this.diary.getID(), quest.getID(), actionPath, false);
+                this.start(action, force);
             });
         });
+    }
+
+    /**
+     * Start the action by an action object.
+     * @param action the action to start
+     * @param force the action to start even if it has already been completed
+     */
+    public void start(QuestAction action, boolean force) {
+        Quest quest = action.getStage().getQuest(); // get the quest the action belongs to
+
+        // if not force, and has completed; exit
+        if (!force && this.getDiary().hasCompletedAction(quest, new StagePath(action.getStage(), List.of(action)))) {
+            ChatUtils.message("Already completed this quest action! ^_^")
+                .player(this.getPlayer())
+                .type(MessageType.NOTIF)
+                .send(); // send message saying it's already been completed
+            return;
+        }
+
+        // run the action
+        action.run(this.getData());
+
+        // track the action
+        this.trackAction(action);
+
+        // update the Database
+        StagePath actionPath = new StagePath(action.getStage(), List.of(action));
+        Database.getInstance().setDiaryEntryCompletion(this.diary.getID(), quest.getID(), actionPath, false);
     }
 
     /**
@@ -165,9 +169,10 @@ public class QuestClient {
      * WARNING: does not stop or do anything 
      * else, it's just removing the indication.
      * @param action the quest action to untrack
+     * @return if the action was untracked
      */
-    public void untrackAction(QuestAction action) {
-        this.trackedActions.removeIf(theAction -> theAction.equals(action));
+    public boolean untrackAction(QuestAction action) {
+        return this.trackedActions.removeIf(theAction -> theAction.equals(action));
     }
 
     /**
