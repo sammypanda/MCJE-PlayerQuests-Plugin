@@ -72,7 +72,7 @@ public class Dynamicqueststage extends GUIDynamic {
         this.actionKeys = new ArrayList<QuestAction>(this.questStage.getActions().values());
 
         // set frame title/style
-        this.gui.getFrame().setTitle("{QuestStage} Editor");
+        this.gui.getFrame().setTitle(String.format("%s Editor", questStage.getTitle()));
         this.gui.getFrame().setSize(18);
 
         // the back button
