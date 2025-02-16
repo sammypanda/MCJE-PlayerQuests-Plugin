@@ -2,7 +2,9 @@ package playerquests.builder.quest.stage;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -138,6 +140,24 @@ public class QuestStage {
      */
     public Map<String, QuestAction> getActions() {
         return this.actions;    
+    }
+
+    /**
+     * Gets a sorted list of actions
+     * @return linked list of actions
+     */
+    @JsonIgnore
+    public List<QuestAction> getOrderedActions() {
+        // create an ordered list of stages, ordered by action_[this number]
+        LinkedList<QuestAction> orderedList = this.actions.values().stream()
+            .sorted(Comparator.comparingInt(action -> {
+                String[] parts = action.getID().split("_");
+
+                return Integer.parseInt(parts[parts.length - 1]);
+            }))
+            .collect(Collectors.toCollection(LinkedList::new));
+
+        return orderedList;
     }
 
     /**

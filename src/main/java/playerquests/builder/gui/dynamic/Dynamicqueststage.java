@@ -69,7 +69,7 @@ public class Dynamicqueststage extends GUIDynamic {
     @Override
     protected void execute_custom() {
         // set actionKeys
-        this.actionKeys = new ArrayList<QuestAction>(this.questStage.getActions().values());
+        this.actionKeys = new ArrayList<QuestAction>(this.questStage.getOrderedActions());
 
         // set frame title/style
         this.gui.getFrame().setTitle(String.format("%s Editor", questStage.getTitle()));
