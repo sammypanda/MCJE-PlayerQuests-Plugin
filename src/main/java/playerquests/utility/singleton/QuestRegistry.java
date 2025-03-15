@@ -93,7 +93,7 @@ public class QuestRegistry {
         
         // remove if already exists
         if (this.registry.values().removeIf(registryQuest -> registryQuest.getID().equals(questID))) {
-            this.delete(quest, false);
+            this.delete(quest, false, false, false);
         }
 
         // add to database/lists
@@ -118,7 +118,7 @@ public class QuestRegistry {
      * @return if the quest was successfully deleted
      */
     public boolean delete(Quest quest) {
-        return this.delete(quest, true);
+        return this.delete(quest, true, true, true);
     }
 
     /**
@@ -130,7 +130,7 @@ public class QuestRegistry {
      * @param permanently if should also delete from database/filesystem
      * @return if the quest was successfully deleted
      */
-    public boolean delete(Quest quest, Boolean permanently) {
+    public boolean delete(Quest quest, Boolean fromFS, Boolean withRefund, Boolean fromDB) {
         String questID = quest.getID();
         UUID creator = quest.getCreator(); // get the creator if this quest has one
 
@@ -142,12 +142,16 @@ public class QuestRegistry {
             // remove from world
             PlayerQuests.remove(quest);
 
-            if (permanently) {
+            if (fromFS) {
                 FileUtils.delete(Core.getQuestsPath() + quest.getID() + ".json");
+            }
 
+            if (withRefund) {
                 // refund resources
                 quest.refund();
+            }
 
+            if (fromDB) {
                 // remove from database
                 Database.getInstance().removeQuest(quest.getID());
             }

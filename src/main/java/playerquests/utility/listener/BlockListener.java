@@ -15,7 +15,6 @@ import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts w
 import org.bukkit.inventory.EquipmentSlot;
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC;

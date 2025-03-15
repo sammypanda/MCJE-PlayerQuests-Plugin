@@ -302,10 +302,7 @@ public class ServerListener implements Listener {
                                     }
 
                                     // delete it systematically (but non-permanent)
-                                    questRegistry.delete(
-                                        questToDelete,
-                                        false
-                                    ); 
+                                    questRegistry.delete(questToDelete, false, false, false);
                                     break;
                                 default:
                                     break;

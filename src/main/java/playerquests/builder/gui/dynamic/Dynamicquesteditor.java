@@ -71,10 +71,17 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Set Title")
             .onClick(() -> {
                 new ChatPrompt(
-                    Arrays.asList("Enter quest title", "quest.title"), 
+                    Arrays.asList("Enter quest title", "none"), 
                     director
-                ).onFinish(_ -> {
-                    QuestRegistry.getInstance().submit(questBuilder.build());
+                ).onFinish(guiFunction -> {
+                    ChatPrompt function = (ChatPrompt) guiFunction;
+
+                    // delete previous
+                    QuestRegistry.getInstance().delete(questBuilder.build(), true, false, true);
+                    
+                    // save newly named
+                    questBuilder.setTitle(function.getResponse());
+                    questBuilder.build().save();
                     this.execute(); // refresh UI to reflect title change
                 })
                 .execute();
