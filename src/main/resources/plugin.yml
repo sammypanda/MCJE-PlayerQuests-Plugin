@@ -13,3 +13,8 @@ commands:
     description: Opens the PlayerQuests menu.
     usage: /<command>
     aliases: [quest, pq]
+  
+  action:
+    description: Working with quest actions.
+    usage: /<command> <start|stop>
+    aliases: [a]

@@ -39,7 +39,7 @@ public class GUISlot {
     /**
      * The description or subtitle displayed when hovering over the slot. Defaults to an empty string.
      */
-    private String description = "";
+    private List<String> description = new ArrayList<String>();
 
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
@@ -217,9 +217,11 @@ public class GUISlot {
     /**
      * Sets the function to be executed when the slot is clicked.
      * @param onClick The {@code Runnable} to be executed on click.
+     * @return the state of the GUI slot.
      */
-    public void onClick(Runnable onClick) {
+    public GUISlot onClick(Runnable onClick) {
         this.onClick = onClick;
+        return this;
     }
 
     /**
@@ -233,21 +235,30 @@ public class GUISlot {
 
     /**
      * Sets the hover description or subtitle for this slot.
-     * @param description The description text to be displayed when hovering over the slot.
+     * @param descriptionLines The description text to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setDescription(String description) {
+    public GUISlot setDescription(List<String> descriptionLines) {
         String errorDescription = "";
+        List<String> descriptionLinesProcessed = new ArrayList<>();
 
-        // Evaluate label for error prefix and avoid malformatting labels
-        description = String.format("%s%s%s%s", 
-            description.isBlank() ? "" : ChatColor.RESET, // remove the italics set when changing from default item display name
-            this.hasError() ? errorDescription : "", // add an error notice if applicable
-            this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
-            this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
-        );
+        descriptionLines.forEach(description -> {
+            if (description.isEmpty()) {
+                return;
+            }
+
+            // Evaluate label for error prefix and avoid malformatting labels
+            description = String.format("%s%s%s%s", 
+                description.isBlank() ? "" : ChatColor.RESET, // remove the italics set when changing from default item display name
+                this.hasError() ? errorDescription : "", // add an error notice if applicable
+                this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
+                this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
+            );
+
+            descriptionLinesProcessed.add(description);
+        });
         
-        this.description = description;
+        this.description = descriptionLinesProcessed;
         return this;
     }
 
@@ -255,7 +266,7 @@ public class GUISlot {
      * Gets the hover description for this slot.
      * @return The description text displayed when hovering over the slot.
      */
-    public String getDescription() {
+    public List<String> getDescription() {
         return this.description;
     }
 

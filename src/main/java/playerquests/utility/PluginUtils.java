@@ -63,7 +63,7 @@ public class PluginUtils {
 
         // put required items (as missing)
         if (requiredInventory != null) { 
-            requiredInventory.forEach((material, count) -> predictiveInventory.put(material, -1)); 
+            requiredInventory.forEach((material, _) -> predictiveInventory.put(material, -1)); 
         }
         
         // put stocked items (and replace/compensate for missing)

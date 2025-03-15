@@ -1,11 +1,13 @@
 package playerquests;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.bstats.bukkit.Metrics; // plugin usage metrics
 import org.bukkit.NamespacedKey; // custom object data/metadata
+import org.bukkit.command.PluginCommandYamlParser;
 import org.bukkit.plugin.Plugin; // export the plugin for use elsewhere
 import org.bukkit.plugin.java.JavaPlugin; // essential for initialising the plugin
 
-import playerquests.client.chat.command.Commandplayerquest; // command to enter the main GUI
 import playerquests.utility.singleton.KeyHandler; // special class for using keys to reference any method
 import playerquests.utility.singleton.PlayerQuests; // for cross-communication of game/plugin components
 import playerquests.utility.singleton.QuestRegistry; // the registry of quest products
@@ -48,8 +50,16 @@ public class Core extends JavaPlugin {
         // call the playerquests game class
         PlayerQuests.getInstance();
 
-        // initiate /playerquests command
-        new Commandplayerquest();
+        // initiate all commands
+        PluginCommandYamlParser.parse(plugin).forEach(command -> {
+            try {
+                Class.forName("playerquests.client.chat.command.Command" + command.getName())
+                    .getDeclaredConstructor()
+                    .newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                e.printStackTrace();
+            }
+        });
 
         // mount bStats for some minimal usage info
         new Metrics(this, 22692);
@@ -82,6 +92,16 @@ public class Core extends JavaPlugin {
      */
     public static QuestRegistry getQuestRegistry() {
         return questRegistry;
+    }
+
+    /**
+     * Gets the ?/ path for quest resources.
+     * - No preceding slash
+     * - Includes proceeding slash
+     * @return resource path for where quest JSON files are
+     */
+    public static String getQuestsPath() {
+        return "quests/";
     }
 
     /**

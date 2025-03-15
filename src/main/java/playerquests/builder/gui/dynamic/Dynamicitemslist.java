@@ -139,9 +139,9 @@ public class Dynamicitemslist extends GUIDynamic {
                 .setItem(item.getType())
                 .setLabel(itemName)
                 .setDescription(
-                    String.format("%s", 
+                    List.of(String.format("%s", 
                         itemCount.equals(1) ? "Press me to set quantity" : "Amount: " + itemCount.toString()
-                    )
+                    ))
                 )
                 .onClick(() -> {
                     this.director.setCurrentInstance(item); // set the item for consumption by the itemeditor
@@ -163,7 +163,7 @@ public class Dynamicitemslist extends GUIDynamic {
                             this.goBack(function);
                         });
 
-                        editor.onFinish((v) -> {
+                        editor.onFinish((_) -> {
                             // go back
                             this.goBack(function);
                         });
