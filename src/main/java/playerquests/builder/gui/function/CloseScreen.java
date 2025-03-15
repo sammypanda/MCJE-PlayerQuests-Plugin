@@ -1,6 +1,6 @@
 package playerquests.builder.gui.function;
 
-import java.util.List; // used to store the params for this meta action
+import java.util.List; // used to store the params for this gui function
 
 import playerquests.client.ClientDirector; // powers functionality for functions
 

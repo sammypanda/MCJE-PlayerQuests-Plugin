@@ -1,55 +1,52 @@
 package playerquests.builder.quest.action.listener;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.client.quest.QuestClient;
+import playerquests.builder.quest.data.QuesterData;
 
 /**
- * An abstract class representing a listener for specific actions related to quests.
- * 
- * @param <A> the type of action that this listener can handle, which must extend {@link QuestAction}
+ * Triggers checking if the related action 
+ * was successful.
+ * @param <A> the type of action this listener is handling, must be a subclass of {@link QuestAction}
+ * @see playerquests.builder.quest.action.QuestAction
  */
 public abstract class ActionListener<A extends QuestAction> implements Listener {
 
     /**
-     * The class that owns this listener.
+     * The action that owns this listener.
      */
     protected final A action;
 
     /**
-     * The player to listen to item gathering on.
+     * The quester that the action listener is for.
      */
-    protected final Player player;
-
-    /**
-     * The quest client for the player.
-     */
-    protected final QuestClient quester;
+    protected final QuesterData questerData;
 
     /**
      * Constructs a new abstract action listener.
-     *
      * @param action the quest action this listener is for.
-     * @param quester the quest client for the player.
+     * @param questerData the quester the listener is for.
      */
-    public ActionListener(A action, QuestClient quester) {
+    public ActionListener(A action, QuesterData questerData) {
         this.action = action;
-        this.player = quester.getPlayer();
-        this.quester = quester;
+        this.questerData = questerData;
+        questerData.addListener(action, this);
 
-        // register this listener
+        // register the events
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
     }
 
     /**
      * Unregister the listener.
+     * Used to stop listening when the action was 
+     * a success.
      */
     public void close() {
+        // unregister the events
         HandlerList.unregisterAll(this);
     }
 }

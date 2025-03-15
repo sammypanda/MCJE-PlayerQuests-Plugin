@@ -1,15 +1,9 @@
 package playerquests.utility.singleton;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Location; // the minecraft location object
-import org.bukkit.World; // the minecraft world
-import org.bukkit.block.Block; // the minecraft block
-
-import playerquests.builder.quest.npc.BlockNPC; // a block representing an NPC
-import playerquests.builder.quest.npc.QuestNPC; // core NPC object/data
+import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
 import playerquests.utility.listener.BlockListener; // for block-related events
@@ -120,74 +114,32 @@ public class PlayerQuests {
     private List<Director> directors = new ArrayList<>();
 
     /**
-     * Registers a block in the world and associates it with an NPC.
-     * <p>
-     * This method places a block at the NPC's location in the world and registers it with the block listener.
-     * If the NPC does not have a valid location, the block will not be registered.
-     * </p>
-     * 
-     * @param blockNPC The {@link BlockNPC} object containing the block details and associated NPC.
-     */
-    public void putBlockNPC(BlockNPC blockNPC) {
-        if (blockNPC.getNPC() == null || blockNPC.getNPC().getLocation() == null) {
-            blockListener.unregisterBlockNPC(blockNPC);
-            return; // if no location has been set, don't try to put
-        }
-
-        QuestNPC npc = blockNPC.getNPC();
-        Location npcBukkitLocation = npc.getLocation().toBukkitLocation();
-        World npcWorld = npcBukkitLocation.getWorld();
-
-        // set the block in the world for this NPC to register to
-        npcWorld.setBlockData(
-            npcBukkitLocation,
-            blockNPC.getBlock()
-        );
-
-        // get the block to use it to efficiently find match in BlockListener
-        Block block = npcWorld.getBlockAt(
-            npcBukkitLocation
-        );
-
-        // register the block
-        blockListener.registerBlockNPC(block, blockNPC);
-    }
-
-    /**
      * Removes all traces of a quest from the world.
-     * <p>
-     * This method removes all NPCs and associated data related to the specified quest.
-     * </p>
+     * Not from data.
      * 
      * @param quest The {@link Quest} object whose traces are to be removed.
      */
     public static void remove(Quest quest) {
-        // uninstall player interactivity
-        QuestRegistry.getInstance().getQuesters().values().forEach(quester -> {
-            quester.removeQuest(quest);
-        });
-
-        // remove all NPCs
-        quest.getNPCs().values().forEach(npc -> {
-            npc.remove();
+        // remove from each quester
+        Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
+            quester.getDiary().remove(quest);
         });
     }
 
     /**
-     * Adds quest objects into the world.
+     * Install a quest.
      * 
      * @param quest The {@link Quest} object that will be installed.
      */
     public static void install(Quest quest) {
-        // add all NPCs
+        // set quest NPCs should belong to
         quest.getNPCs().values().forEach(npc -> {
             npc.setQuest(quest);
-            npc.place();
         });
 
-        // install player interactivity
-        QuestRegistry.getInstance().getQuesters().values().forEach(quester -> {
-            quester.addQuests(Arrays.asList(quest));
+        // put quest into each quester
+        Core.getQuestRegistry().getAllQuesters().forEach(quester -> {
+            quester.getDiary().add(quest);
         });
     }
 
@@ -216,5 +168,6 @@ public class PlayerQuests {
             director.close();  // Close the director
             return true;       // Remove the entry
         });
+        PlayerQuests.blockListener.clear();
     }
 }

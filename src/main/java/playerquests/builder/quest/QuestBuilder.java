@@ -1,8 +1,10 @@
 package playerquests.builder.quest;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap; // hash table map type
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map; // generic map type
 import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
@@ -27,9 +29,9 @@ import playerquests.utility.annotation.Key; // to associate a key name with a me
 /**
  * For creating and managing a Quest.
  * 
- * The {@link QuestBuilder} class provides methods to build and configure quests, including
- * defining stages, adding NPCs, and setting entry points. It also supports loading from existing
- * quest templates and validating the quest setup.
+ * The {@link QuestBuilder} class provides methods to build and configure quests.
+ * It also supports loading from existing
+ * quest files and validating the quest setup.
  */
 public class QuestBuilder {
 
@@ -55,11 +57,6 @@ public class QuestBuilder {
     private String title = ""; // default quest title
 
     /**
-     * Entry point for the quest.
-     */
-    private StagePath entryPoint;
-
-    /**
      * Map of the NPC characters.
      */
     @JsonIgnore
@@ -75,6 +72,12 @@ public class QuestBuilder {
      * The original creator of this quest.
      */
     private UUID originalCreator;
+
+    /**
+     * Start points for this quest
+     */
+    @JsonProperty("startpoints")
+    private List<StagePath> startPoints = new ArrayList<StagePath>();
 
     /**
      * Operations to run whenever the class is instantiated.
@@ -93,19 +96,6 @@ public class QuestBuilder {
     public QuestBuilder(ClientDirector director) {
         this.director = director;
 
-        // default entry point as first stage (stage_0)
-        QuestStage stage = new QuestStage(this.build(), 0);
-        this.entryPoint = new StagePath(
-            stage,
-            null
-        );
-        
-        // make it modifiable
-        director.setCurrentInstance(stage);
-
-        // add default entry point stage to questPlan map
-        this.questPlan.put(stage.getID(), stage);
-
         // set as the current quest in the director
         director.setCurrentInstance(this);
         this.build(); // build default product
@@ -115,7 +105,7 @@ public class QuestBuilder {
      * Returns a new quest builder from an existing quest product object.
      * 
      * @param director The {@link ClientDirector} used to control the plugin.
-     * @param product The {@link Quest} template to create a new builder from.
+     * @param product The {@link Quest} file to create a new builder from.
      */
     public QuestBuilder(ClientDirector director, Quest product) {
         try {
@@ -123,11 +113,6 @@ public class QuestBuilder {
 
             // set the new quest title the same as the product quest title
             this.title = product.getTitle();
-
-            // add the entry point stage from the product
-            QuestStage entryStage = product.getStages().get(product.getEntry().getStage());
-            this.entryPoint = new StagePath(entryStage, null);
-            director.setCurrentInstance(entryStage); // make it modifiable
 
             // add the stages from the product
             this.questPlan = product.getStages();
@@ -156,6 +141,9 @@ public class QuestBuilder {
                 // set as the current quest in the director
                 director.setCurrentInstance(this);
             }
+
+            // add the start points
+            this.startPoints = product.getStartPoints();
 
             // create quest product from this builder
             this.build();
@@ -225,29 +213,6 @@ public class QuestBuilder {
     @Key("Quest")
     public String getTitle() {
         return this.title;
-    }
-
-    /**
-     * Get the entry point ID.
-     * <p>
-     * Should be a stage.
-     * 
-     * @return The string representation of the entry point.
-     */
-    @JsonProperty("entry")
-    public String getEntryPointString() {
-        return this.entryPoint.toString();
-    }
-
-    /**
-     * Set the entry point for this quest.
-     * <p>
-     * Should be a stage.
-     * 
-     * @param path The {@link StagePath} representing the entry point stage.
-     */
-    public void setEntryPoint(StagePath path) {
-        this.entryPoint = path;
     }
 
     /**
@@ -397,11 +362,11 @@ public class QuestBuilder {
         // compose the quest product from the builder state
         Quest product = new Quest(
             this.title,
-            this.entryPoint,
             this.questNPCs,
             this.questPlan,
             this.universal ? null : this.director.getPlayer().getUniqueId(),
-            this.getID()
+            this.getID(),
+            this.startPoints
         );
 
         // set this quest as in-focus to the creator
@@ -436,15 +401,6 @@ public class QuestBuilder {
      */
     public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
         Boolean canRemove = true; // whether the stage is safe to remove
-
-        // tests for if any is dependent on this stage
-        Boolean connectionsDependency = !this.questPlan.get(questStage.getID()).getConnections().isEmpty(); // if the stage is connected to anything else
-        Boolean entryDependency = this.entryPoint.getStage() == questStage.getID(); // if the stage is part of the quest entry point
-
-        // check if unable to remove (if are dependencies)
-        if (connectionsDependency || entryDependency) {
-            canRemove = false;
-        }
         
         if (dryRun) { // if just to test if removable
             return canRemove; // don't continue
@@ -494,5 +450,18 @@ public class QuestBuilder {
             title, 
             creator != null ? "_"+creator : ""
         );
+    }
+
+    /**
+     * Set the list of starting points for this quest.
+     * @param startPoints a list of stage paths.
+     */
+    public void setStartPoints(List<StagePath> startPoints) {
+        if (startPoints == null) {
+            this.startPoints = List.of();
+            return;
+        }
+
+        this.startPoints = startPoints;
     }
 }

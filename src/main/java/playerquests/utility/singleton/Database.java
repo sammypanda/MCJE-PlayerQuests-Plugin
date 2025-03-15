@@ -22,21 +22,19 @@ import java.util.List; // generic list type
 import java.util.Map;
 import java.util.UUID; // how users are identified
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.maven.api.model.Model;
+import org.apache.maven.model.v4.MavenStaxReader;
 import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import playerquests.Core;
-import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.StagePath;
-import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
@@ -123,13 +121,13 @@ public class Database {
         
         try (InputStream inputStream = getClass().getResourceAsStream("/META-INF/maven/moe.sammypanda/playerquests/pom.xml")) {
             if (inputStream != null) {
-                MavenXpp3Reader reader = new MavenXpp3Reader();
+                MavenStaxReader reader = new MavenStaxReader();
                 Model model = reader.read(new InputStreamReader(inputStream));
                 version = model.getVersion();
             } else {
                 System.err.println("Error: Resource not found.");
             }
-        } catch (IOException | XmlPullParserException e) {
+        } catch (IOException | XMLStreamException e) {
             System.err.println("Error reading pom.xml: " + e.getMessage());
         }
         
@@ -157,22 +155,25 @@ public class Database {
             + "player TEXT UNIQUE,"
             + "FOREIGN KEY (player) REFERENCES players(uuid));";
             statement.execute(diariesTableSQL);
-            
-            String diary_questsTableSQL = "CREATE TABLE IF NOT EXISTS diary_quests ("
-            + "id TEXT PRIMARY KEY,"
-            + "stage TEXT NOT NULL,"
-            + "action TEXT,"
-            + "quest TEXT,"
-            + "diary TEXT,"
-            + "FOREIGN KEY (quest) REFERENCES quests(id)"
-            + "FOREIGN KEY (diary) REFERENCES diaries(id));";
-            statement.execute(diary_questsTableSQL);
+
+            String diary_entriesTableSQL = "CREATE TABLE IF NOT EXISTS diary_entries ("
+            + "diary TEXT NOT NULL,"
+            + "quest TEXT NOT NULL,"
+            + "action TEXT NOT NULL,"
+            + "completion BOOLEAN NOT NULL,"
+            + "FOREIGN KEY (quest) REFERENCES quests(id),"
+            + "FOREIGN KEY (diary) REFERENCES diaries(id),"
+            + "UNIQUE(diary, quest, action));";
+            statement.execute(diary_entriesTableSQL);
             
             migrate(version, dbVersion);
 
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
         }
+
+        // recover the quest inventories as stored in the db
+        Core.getQuestRegistry().loadQuestInventories();
 
         return this;
     }
@@ -233,6 +234,8 @@ public class Database {
             StringBuilder query = new StringBuilder();
             
             switch (version) {
+                case "0.8":
+                    query.append(MigrationUtils.dbV0_8());
                 case "0.7":
                     query.append(MigrationUtils.dbV0_7());
                 case "0.6":
@@ -328,7 +331,7 @@ public class Database {
      */
     public synchronized void addPlayer(UUID uuid) {
         try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (uuid) VALUES (?) RETURNING *;")) {
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO players (uuid) VALUES (?) RETURNING *;")) {
             
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.executeQuery();
@@ -391,65 +394,6 @@ public class Database {
         } catch (SQLException e) {
             System.err.println("Could not find quest in the diary: " + questID + ": " + e.getMessage());
             return null;
-        }
-    }
-
-    /**
-     * Updates or inserts quest progress for a specified diary and quest.
-     * 
-     * This method updates or inserts a record into the `diary_quests` table with information about the quest
-     * progress for the specified diary and quest. If a `ConnectionsData` object is provided, it updates
-     * the quest progress with the current stage and action from the connections data.
-     * 
-     * @param diary The {@link QuestDiary} instance containing the diary information.
-     * @param quest The {@link Quest} instance containing the quest information.
-     */
-    public synchronized void setDiaryQuest(QuestDiary diary, Quest quest) {
-        setDiaryQuest(diary, quest, quest.getConnections());
-    }
-
-    /**
-     * Updates or inserts quest progress for a specified diary and quest with given connections data.
-     * 
-     * This method updates or inserts a record into the `diary_quests` table with information about the quest
-     * progress for the specified diary and quest. It uses the provided {@link ConnectionsData} to set the
-     * current stage and action of the quest if available.
-     * 
-     * @param diary The {@link QuestDiary} instance containing the diary information.
-     * @param quest The {@link Quest} instance containing the quest information.
-     * @param connections The {@link ConnectionsData} instance containing the current stage and action.
-     */
-    public synchronized void setDiaryQuest(QuestDiary diary, Quest quest, ConnectionsData connections) {
-        String questID = quest.getID(); // get the quest ID
-        Player player = diary.getPlayer(); // get the player this diary represents
-
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR REPLACE INTO diary_quests (id, stage, action, quest, diary) VALUES (?, ?, ?, ?, ?)")) {
-            
-            preparedStatement.setString(1, player.getUniqueId().toString() + "_" + questID);
-            
-            // default to initial values
-            preparedStatement.setString(2, quest.getEntry().getStage());
-            preparedStatement.setString(3, quest.getEntry().getAction());
-            
-            // get the current quest stage or action
-            StagePath currentConnection = connections.getCurr();
-            
-            // replace with current values (if possible)
-            if (currentConnection != null) {
-                preparedStatement.setString(2, currentConnection.getStage());
-                preparedStatement.setString(3, currentConnection.getAction());
-            }
-            
-            // set remaining values
-            preparedStatement.setString(4, questID);
-            preparedStatement.setString(5, diary.getDiaryID());
-            
-            preparedStatement.execute();
-            
-        } catch (SQLException e) {
-            System.err.println("Could not set or update quest progress for the " + questID + " quest: " + e.getMessage());
-            return;
         }
     }
 
@@ -627,12 +571,12 @@ public class Database {
             PreparedStatement preparedStatement;
             
             String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
-            preparedStatement = getConnection().prepareStatement(removeQuestSQL);
+            preparedStatement = connection.prepareStatement(removeQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
-            String removeDiaryQuestSQL = "DELETE FROM diary_quests WHERE quest = ?;";
-            preparedStatement = getConnection().prepareStatement(removeDiaryQuestSQL);
+            String removeDiaryQuestSQL = "DELETE FROM diary_entries WHERE quest = ?;";
+            preparedStatement = connection.prepareStatement(removeDiaryQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
             
@@ -640,86 +584,6 @@ public class Database {
             System.err.println("Could not remove the quest " + id + ". " + e.getMessage());
         }
     }
-
-    /**
-     * Inserts or updates a {@link QuestDiary} record in the database.
-     * 
-     * This method takes a {@link QuestDiary} object and inserts or updates the corresponding record in the
-     * `diaries` table of the database. The operation is performed within a try-with-resources block to ensure
-     * proper resource management. If an {@link SQLException} occurs, an error message is logged to the standard
-     * error stream.
-     * 
-     * <p>Note: The method assumes that the `diaries` table has columns `id` and `player` where the diary ID and
-     * player ID are stored, respectively. The SQL `INSERT OR REPLACE` statement is used to handle both insertion
-     * of new records and updating of existing records.</p>
-     * 
-     * @param questDiary The {@link QuestDiary} instance containing the diary information to be inserted or updated.
-     */
-    public synchronized void addDiary(QuestDiary questDiary) {
-        try (Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR REPLACE INTO diaries (id, player) VALUES (?, ?)")) {
-            
-            preparedStatement.setString(1, questDiary.getDiaryID());
-            preparedStatement.setString(2, questDiary.getPlayerID());
-            
-            preparedStatement.execute();
-            
-        } catch (SQLException e) {
-            System.err.println("Could not create a diary for: " + questDiary.getPlayerID() + ": " + e.getMessage());
-        }
-    }
-
-    /**
-     * Retrieves the quest progress for a given {@link QuestDiary}.
-     * 
-     * This method queries the `diary_quests` table to retrieve the quest progress information for the specified
-     * diary. It returns a map where the keys are {@link Quest} objects and the values are {@link ConnectionsData}
-     * representing the progress for each quest. If an error occurs during the retrieval, an error message is logged
-     * and null is returned.
-     * 
-     * <p>Note: The method assumes that the `diary_quests` table contains columns for `quest`, `stage`, and `action`.
-     * It also requires the presence of a valid quest registry to retrieve the quest details.</p>
-     * 
-     * @param questDiary The {@link QuestDiary} instance for which quest progress is to be retrieved.
-     * @return A map containing quests and their corresponding progress data, or null if an error occurs.
-     */
-	public synchronized Map<Quest,ConnectionsData> getQuestProgress(QuestDiary questDiary) {
-        Map<Quest,ConnectionsData> progress = new HashMap<Quest,ConnectionsData>();
-        
-		try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE diary = ?")) {
-            
-            preparedStatement.setString(1, questDiary.getDiaryID());
-            
-            ResultSet results = preparedStatement.executeQuery();
-
-            while (results.next()) {
-                Quest quest = Core.getQuestRegistry().getQuest(results.getString("quest"));
-
-                if (quest == null) {
-                    continue; // skip to next
-                }
-
-                QuestStage stage = quest.getStages().get(results.getString("stage"));
-                QuestAction action = stage.getActions().get(results.getString("action"));
-
-                progress.put(
-                    quest, // put the quest if found
-                    new ConnectionsData(
-                        null, 
-                        new StagePath(stage, action), 
-                        null
-                    )
-                );
-            }
-
-            return progress;
-            
-        } catch (SQLException e) {
-            System.err.println("Could not find quest progress in db for " + questDiary.getPlayer() + ": " + e.getMessage());
-            return null;
-        }
-	}
 
     /**
      * Updates the inventory for a specific quest in the database.
@@ -788,5 +652,86 @@ public class Database {
         }
 
         return inventories;
+    }
+
+    /**
+     * Add a quest diary to the diaries table.
+     * @param diary the QuestDiary to add
+     */
+    public synchronized void setQuestDiary(QuestDiary diary) {
+        Player player = diary.getQuestClient().getPlayer();
+        String playerUUIDString = player.getUniqueId().toString();
+        String diaryID = diary.getID();
+
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO diaries (id, player) VALUES (?, ?)")) {
+
+            // preparedStatement
+            preparedStatement.setString(1, diaryID);
+            preparedStatement.setString(2, playerUUIDString);
+            preparedStatement.execute();
+            
+        } catch (SQLException e) {
+            System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get all diary entries associated with a diary, 
+     * and their completion state.
+     * @param diary the QuestDiary to get entries of
+     * @return quests with each action and whether they are finished or ongoing.
+     */
+    public synchronized Map<Quest, List<Map<StagePath, Boolean>>> getDiaryEntries(QuestDiary diary) {
+        Map<Quest, List<Map<StagePath, Boolean>>> diaryEntries = new HashMap<>();
+        String diaryID = diary.getID();
+
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT diary, quest, action, completion FROM diary_entries WHERE diary = ?;")) {
+
+            preparedStatement.setString(1, diaryID);
+            ResultSet result = preparedStatement.executeQuery();
+            
+            while (result.next()) {
+                // get quest
+                Quest quest = Core.getQuestRegistry().getQuest(result.getString("quest"));
+
+                // create StagePath
+                StagePath path = new StagePath(result.getString("action"));
+
+                // create inner map
+                Map<StagePath, Boolean> completionMap = Map.of(path, result.getBoolean("completion"));
+
+                // get parent
+                List<Map<StagePath, Boolean>> entriesList = diaryEntries.getOrDefault(quest, new ArrayList<>());
+
+                // add our result to the entries list
+                entriesList.add(completionMap);
+
+                // replace in parent diaryEntries
+                diaryEntries.put(quest, entriesList);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Could not retrieve diary entries from database for " + diaryID + ". " + e.getMessage());
+        }
+
+        return diaryEntries;
+    }
+
+    public synchronized void setDiaryEntryCompletion(String diaryID, String questID, StagePath actionPath, boolean completionState) {
+        try (Connection connection = getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("REPLACE INTO diary_entries (diary, quest, action, completion) VALUES (?, ?, ?, ?)")) {
+
+            // preparedStatement
+            preparedStatement.setString(1, diaryID);
+            preparedStatement.setString(2, questID);
+            preparedStatement.setString(3, actionPath.toString());
+            preparedStatement.setBoolean(4, completionState);
+            preparedStatement.execute();
+            
+        } catch (SQLException e) {
+            System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
+        }
     }
 }

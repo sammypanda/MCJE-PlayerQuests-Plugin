@@ -1,7 +1,7 @@
 package playerquests.utility;
 
 /**
- * Provides SQL migration queries for updating the database schema between versions.
+ * Provides SQL migration queries for updating the database schema to X from the last real version.
  * <p>
  * Each method in this class returns a SQL query or script that applies the necessary changes for
  * a specific version of the database schema. These migrations ensure that the database structure
@@ -146,7 +146,7 @@ public class MigrationUtils {
      * 
      * @return The SQL script string for migrating to version 0.7.
      */
-    public static Object dbV0_7() {
+    public static String dbV0_7() {
         return """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
@@ -156,5 +156,25 @@ public class MigrationUtils {
             -- Commit the transaction if everything is successful
             COMMIT;
         """;    
+    }
+
+    /**
+     * Gets the migration query for version 0.8.
+     * 
+     * This query removes db relics of the old way quest actions 
+     * were implemented.
+     * 
+     * @return The SQL script string for migrating to version 0.8.
+     */
+    public static String dbV0_8() {
+        return """
+            -- Begin a transaction to ensure all operations are atomic
+            BEGIN TRANSACTION;
+
+            DROP TABLE diary_quests;
+
+            -- Commit the transaction if everything is successful
+            COMMIT;
+        """;   
     }
 }

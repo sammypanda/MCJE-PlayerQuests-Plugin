@@ -1,21 +1,15 @@
 package playerquests.utility.listener;
 
 import org.bukkit.Bukkit; // bukkit API
-import org.bukkit.event.EventHandler; // indicate that a method is wanting to handle an event
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
-import org.bukkit.event.player.PlayerJoinEvent; // called when players have loaded into the game
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.client.quest.QuestClient; // represents a quest player/quest tracking
-import playerquests.utility.singleton.QuestRegistry; // where available quests are stored
 
 /**
  * Listens for player-related events to manage quest tracking and interactions.
- * <p>
- * This class listens for player-related events, specifically when a player joins the game.
- * Upon player join, it creates a {@link QuestClient} for the player and registers it with the
- * {@link QuestRegistry}. This allows the player to interact with and track quests.
- * </p>
  */
 public class PlayerListener implements Listener {
 
@@ -31,22 +25,23 @@ public class PlayerListener implements Listener {
     }
 
     /**
-     * Handles the {@link PlayerJoinEvent} when a player joins the game.
-     * 
-     * When a player joins the game, this method is invoked to:
-     * <ul>
-     *     <li>Create a new {@link QuestClient} instance for the player.</li>
-     *     <li>Add the {@code QuestClient} to the {@link QuestRegistry}.</li>
-     * </ul>
-     * This ensures that the player can interact with quests and track their progress.
-     * 
-     * @param event The {@code PlayerJoinEvent} that contains details about the player joining the game.
+     * Ran when a player joins the server.
+     * @param event player join event data
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        // create a quest client and add it to registry.
-        // this enables a player to interact with and track quests.
-        QuestClient quester = new QuestClient(event.getPlayer());
-        QuestRegistry.getInstance().addQuester(quester);
+        // wait 30 ticks for join to finish, and create quester
+        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
+            Core.getQuestRegistry().createQuester(event.getPlayer());
+        }, 60);
+    }
+
+    /**
+     * Ran when a player leaves the server.
+     * @param event player quit event data
+     */
+    @EventHandler
+    public void onLeave(PlayerQuitEvent event) {
+        Core.getQuestRegistry().removeQuester(event.getPlayer());
     }
 }

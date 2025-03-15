@@ -8,13 +8,14 @@ import playerquests.builder.gui.function.UpdateScreen; // GUI function to change
 import playerquests.builder.quest.QuestBuilder; // instantiating a builder for the quest (for editing an existing quest)
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
 import playerquests.product.Quest; // complete quest objects
+import playerquests.utility.ChatUtils;
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
 /**
  * A dynamic GUI screen for displaying and managing a specific quest.
  * <p>
  * This screen allows users to view the details of a quest, edit the quest, delete the quest with confirmation,
- * and toggle the quest's active status. The layout includes buttons for each of these actions.
+ * and toggle the quest's active status.
  * </p>
  */
 public class Dynamicmyquest extends GUIDynamic {
@@ -54,12 +55,11 @@ public class Dynamicmyquest extends GUIDynamic {
 
         // set the GUI window title
         String questTitle = this.quest.getTitle();
-        Integer questTitleLimit = 12;
         guiFrame.setTitle(
             String.format(
                 "Quest: %s", 
                 // obscure quest title in GUI frame title with '...' if character limit reached:
-                questTitle.length() > questTitleLimit - 1 ? questTitle.substring(0, questTitleLimit) + "..." : questTitle
+                ChatUtils.shortenString(questTitle, 20)
             )
         );
 
@@ -113,7 +113,7 @@ public class Dynamicmyquest extends GUIDynamic {
                 .setLabel("Delete (Confirm)")
                 .onClick(() -> {
                     // delete the quest
-                    Boolean deleted = QuestRegistry.getInstance().delete(quest, true);
+                    Boolean deleted = QuestRegistry.getInstance().delete(quest, true, true, true);
 
                     // don't continue if not deleted
                     if (!deleted) {

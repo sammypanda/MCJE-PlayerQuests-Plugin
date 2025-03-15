@@ -9,6 +9,7 @@ import playerquests.builder.gui.function.UpdateScreen; // another GUI function t
 import playerquests.builder.quest.QuestBuilder; // for managing the quest
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.utility.ChatUtils;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -41,7 +42,7 @@ public class Dynamicqueststages extends GUIDynamic {
     public void setUp_custom() {
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
-        this.guiTitle = this.guiTitle + " (" + this.questBuilder.getTitle() + ")";
+        this.guiTitle = this.guiTitle + " (" + ChatUtils.shortenString(this.questBuilder.getTitle(), 18) + ")";
     }
 
     /**

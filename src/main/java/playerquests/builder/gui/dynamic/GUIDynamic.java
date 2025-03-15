@@ -73,7 +73,7 @@ public abstract class GUIDynamic {
     }
 
     /**
-     * Method to be overridden by each meta action class.
+     * Method to be overridden by each gui function class.
      */
     public void execute() {
         // run setup on first time
@@ -124,5 +124,13 @@ public abstract class GUIDynamic {
     public GUIDynamic onFinish(Consumer<GUIDynamic> onFinish) {
         this.onFinish = onFinish;
         return this;
+    }
+
+    /**
+     * Refreshes the GUI screen.
+     */
+    public void refresh() {
+        this.gui.clearSlots();
+        this.execute();
     }
 }

@@ -1,320 +1,232 @@
 package playerquests.client.quest;
 
-import java.util.ArrayList; // array list type
-import java.util.HashMap; // hash implementation of map data type
-import java.util.List; // generic list type
-import java.util.Map; // map data type, offers a key-value pair
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit; // the minecraft server API
-import org.bukkit.Particle;
-import org.bukkit.entity.Player; // represents just players
-import org.bukkit.scheduler.BukkitScheduler; // for doing actions later and etc
-import org.bukkit.scheduler.BukkitTask; // for particle effects (FX)
+import org.bukkit.entity.Player;
 
-import playerquests.Core;
-import playerquests.builder.quest.action.None;
-import playerquests.builder.quest.action.QuestAction; // quest action
-import playerquests.builder.quest.data.ConnectionsData;
-import playerquests.builder.quest.data.LocationData;
+import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
-import playerquests.builder.quest.npc.QuestNPC; // represents quest npcs
-import playerquests.product.Quest; // represents a player quest
-import playerquests.utility.singleton.Database; // the preservation/backup store
-import playerquests.utility.singleton.QuestRegistry;
+import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.singleton.Database;
 
 /**
- * Quest tracking and interactions for each player.
+ * Functionality for questers (quest players).
  */
 public class QuestClient {
 
     /**
-     * The player who is using this quest client.
+     * The player for this quest client.
      */
-    private Player player;
+    private final Player player;
 
     /**
-     * Quest diary API for this player.
+     * The players quest diary.
      */
     private QuestDiary diary;
 
     /**
-     * The action associated with an NPC.
-     * Helps show an action when interacting with an NPC.
+     * The data associated with this client.
      */
-    private Map<QuestNPC, QuestAction> actionNPC = new HashMap<QuestNPC, QuestAction>();
+    private QuesterData data;
 
     /**
-     * Quests which won't progress.
-     * Useful for if the main action is being waited to be finished.
+     * Tracked actions.
      */
-    private List<Quest> lockedQuests = new ArrayList<>();
+    private List<QuestAction> trackedActions = new ArrayList<>();
 
     /**
-     * List of the running FX.
-     */
-    private List<BukkitTask> activeFX = new ArrayList<>();
-
-    /**
-     * Used for particle FX loops.
-     */
-    BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-
-    /**
-     * Creates a new quest client to act on behalf of a player.
-     * <p>
-     * A quest client enables interactions. It keeps track of 
-     * player quest progress and other quest-related information.
-     * @param player user of the quest client
+     * Constructs a new client on behalf of a quester (quest player).
+     * @param player the quester as a Bukkit player object
      */
     public QuestClient(Player player) {
         this.player = player;
 
-        this.diary = new QuestDiary(this);
+        // create data
+        this.data = new QuesterData(this, this.player.getLocation());
+        
+        // create diary
+        new QuestDiary(this);
     }
 
     /**
-     * Gets the player who is using the quest client.
-     * @return human entity object representing the player
+     * Gets the player.
+     * @return the quest client player
      */
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     /**
-     * Add a list of quests for this quest client.
-     * @param questList a list of quest products.
-     */
-    public void addQuests(List<Quest> questList) {
-        questList.stream().forEach((quest) -> {
-            this.diary.addQuest(quest);
-        });
-
-        this.update(); // update what the player sees
-    }
-
-    /**
-     * Adds the quest effects in the world for this quester.
-     */
-    public synchronized void showFX() {
-        this.hideFX(); // ensure old are removed before showing
-
-        this.actionNPC.keySet().stream().forEach((npc) -> {
-            // create particle effect
-            LocationData location = npc.getLocation();
-            BukkitTask task = scheduler.runTaskTimer(Core.getPlugin(), () -> { // synchronous
-                player.spawnParticle(
-                    Particle.WAX_ON,
-                    (double) location.getX() + 0.5,
-                    (double) location.getY() + 1.5,
-                    (double) location.getZ() + 0.5,
-                    5
-                );
-            }, 0, 20);
-
-            // store a reference to this effect for cancelling
-            activeFX.add(task);
-        });
-    }
-
-    /**
-     * Removes the quest effects from the world for this quester.
-     */
-    public synchronized void hideFX() {
-        // get all active effects and cancel
-        this.activeFX.forEach((task) -> {
-            // cancel FX loops
-            scheduler.cancelTask(task.getTaskId());
-        });
-    }
-
-    /**
-     * Update what the player sees.
-     * @param run whether it's the first time updating.
-     */
-    public synchronized void update(Boolean run) {
-        // clear action-npc-associations for the refresh! (good for if a quest is deleted)
-        this.actionNPC.clear();
-
-        // NPC magic! (assigning an action to an npc based on progress in quest)
-        // get each quest progress
-        Map<QuestNPC, QuestAction> actionNPCsLocal = new HashMap<>(); 
-        this.diary.getQuestProgress().forEach((quest, connections) -> {
-
-            // get the action we are up to in this quest to..
-            QuestAction action = this.diary.getAction(quest);
-
-            // ..get the npc
-            QuestNPC npc = action.getNPC();
-
-            // don't continue if no npc matched to this action
-            if (npc == null) {
-                // if first time running
-                if (run) {
-                    // auto-start actions that aren't interfacable with an NPC
-                    Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-                        action.Run(this);
-                    });
-                }
-
-                return;
-            }
-            
-            // ..and submit the 'action <-> NPC' association
-            actionNPCsLocal.put(
-                npc,
-                action
-            );
-        });
-
-        // submit the NPCs we found progress for
-        this.actionNPC.putAll(actionNPCsLocal);
-
-        this.showFX();
-    }
-
-    /**
-     * Update what the player sees.
-     */
-    public synchronized void update() {
-        this.update(false);
-    }
-
-    /**
-     * Remove a quest for this quest client.
-     * @param quest the quest to remove
-     */
-    public void removeQuest(Quest quest) {
-        this.diary.removeQuest(quest);
-        this.update(); // reflect changes
-    }
-
-    /**
-     * Process when an NPC is interacted with.
-     * @param npc the npc to interact with the quest through
-     */
-    public synchronized void interact(QuestNPC npc) {
-        // Find the action associated with this npc in a helper map
-        QuestAction action = this.actionNPC.get(npc);
-
-        // Don't continue if no action associated with this npc
-        if (action == null) {
-            return;
-        }
-
-        // Do the action
-        action.Run(this);
-    }
-
-    /**
-     * Get the quest diary for this quest client.
-     * @return a quest diary
+     * Gets the quest diary.
+     * @return the diary belonging to this quester
      */
     public QuestDiary getDiary() {
         return this.diary;
     }
 
     /**
-     * Start an action.
-     * @param action the action to continue to or past.
-     * @param next whether to go to 'current' or 'next' action      .
+     * Start the quest client by initialising everything.
+     * When diary is done loading, it calls this.
+     * @param diary the diary of this player
      */
-    public void start(QuestAction action, Boolean next) {
-        Quest quest = QuestRegistry.getInstance().getQuest(action.getStage().getQuest().getID());
-        QuestNPC npc = action.getNPC();
-        ConnectionsData currentConnections = action.getConnections();
-
-        // Don't continue if there is no quest or action for this interaction
-        if (action == null || quest == null) {
-            return;
+	public void start(QuestDiary diary) {
+        if (this.diary != null) {
+            throw new RuntimeException("A diary was started twice!");
         }
 
-        // don't continue if untoggled
-        if (!quest.isToggled()) {
-            return;
-        }
+        this.diary = diary;
 
-        // Prepare interaction/next step vars
-        StagePath next_step;
-        if (next) {
-            next_step = currentConnections.getNext();
-        } else {    
-            next_step = currentConnections.getCurr();
-        }
-        
-        // read current position in quest
-        ConnectionsData diaryConnections = this.diary.getQuestProgress(quest);
-        if (diaryConnections == null) { // if no progress for this quest found
-            diaryConnections = quest.getStages().get(quest.getEntry().getStage()).getConnections(); // get quest entry point position
-        }
+        // get all current quest progress
+        diary.getQuestProgress().entrySet().stream()
+            // and initialise on the first action for each quest
+            .forEach(entry -> {
+                Quest quest = entry.getKey();
 
-        // don't continue if no next step
-        if (next && next_step == null) { 
-            this.diary.removeQuest(quest);
-            this.update();
-            return;
-        }
+                // start the actions
+                this.start(entry.getValue(), quest);
+            });
+	}
 
-        ConnectionsData updatedConnections = new ConnectionsData();
-        updatedConnections.setPrev(diaryConnections.getCurr());
-        updatedConnections.setCurr(next_step);
+    /**
+     * Start actions from a path pointing to stages/actions.
+     * By default this will start any action, even if it has already been completed.
+     * @param paths the pointer
+     * @param quest the quest to use the pointer on
+     */
+    public void start(List<StagePath> paths, Quest quest) {
+        this.start(paths, quest, true);
+    }
 
-        // run in sequence
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            // update the diary
-            this.diary.setQuestProgress(quest, updatedConnections);
-
-            // update the db for preservation sake
-            if (!this.isLocked(quest)) {
-                Database.getInstance().setDiaryQuest(this.diary, quest, updatedConnections);
+    /**
+     * Start actions from a path pointing to stages/actions.
+     * @param paths the pointer
+     * @param quest the quest to use the pointer on
+     * @param force the action to start even if it has already been completed
+     */
+    public void start(List<StagePath> paths, Quest quest, boolean force) {
+        paths.forEach(path -> {
+            // if no actions, point to stage start points
+            if (!path.hasActions()) {
+                this.start(path.getStage(quest).getStartPoints(), quest);
+                return;
             }
-
-            if (npc != null) {
-                // remove NPCs pending interaction marker/sparkle
-                this.actionNPC.remove(npc);
-            }
-
-            // auto-execute next auto if no npc to wait for
-            QuestAction nextAction = next_step.getAction(quest);
-            if (nextAction.getNPC() == null && !nextAction.getClass().equals(None.class)) {
-                nextAction.Run(this);
-            }
-
-            // update quest state
-            this.update();
+    
+            // get actions
+            List<QuestAction> actions = path.getActions(quest);
+    
+            // for each action, start
+            actions.forEach(action -> {
+                this.start(action, force);
+            });
         });
     }
 
     /**
-     * Check if a quest is in the lock list.
-     * @param quest the quest to check.
-     * @return whether it is locked or not.
+     * Start the action by an action object.
+     * @param action the action to start
+     * @param force the action to start even if it has already been completed
      */
-    public boolean isLocked(Quest quest) {
-        return this.lockedQuests.contains(quest);
-    }
+    public void start(QuestAction action, boolean force) {
+        Quest quest = action.getStage().getQuest(); // get the quest the action belongs to
 
-    /**
-     * Set a quest as locked or unlocked.
-     * @param quest the quest to set.
-     * @param lock state of the lock.
-     */
-    public void setLocked(Quest quest, Boolean lock) {
-        if (lock) {
-            this.lockedQuests.add(quest);
+        // if not force, and has completed; exit
+        if (!force && this.getDiary().hasCompletedAction(quest, new StagePath(action.getStage(), List.of(action)))) {
+            ChatUtils.message("Already completed this quest action! ^_^")
+                .player(this.getPlayer())
+                .type(MessageType.NOTIF)
+                .send(); // send message saying it's already been completed
             return;
         }
 
-        this.lockedQuests.remove(quest);
+        // run the action
+        action.run(this.getData());
+
+        // track the action
+        this.trackAction(action);
+
+        // update the Database
+        StagePath actionPath = new StagePath(action.getStage(), List.of(action));
+        Database.getInstance().setDiaryEntryCompletion(this.diary.getID(), quest.getID(), actionPath, false);
     }
 
     /**
-     * Put a quest in waiting for a main action to complete.
-     * @param action the action that we are waiting on.
+     * Start tracking an action.
+     * WARNING: does not run or do anything 
+     * else, it's just an indication.
+     * @param action the quest action to track
      */
-    public void wait(QuestAction action) {
-        Quest quest = action.getStage().getQuest();
+    private void trackAction(QuestAction action) {
+        this.trackedActions.add(action);
+    }
 
-        this.setLocked(quest, true);
-        this.start(action, false); // start the 'current' action sequence.
+    /**
+     * Stop tracking an action.
+     * WARNING: does not stop or do anything 
+     * else, it's just removing the indication.
+     * @param action the quest action to untrack
+     * @return if the action was untracked
+     */
+    public boolean untrackAction(QuestAction action) {
+        return this.trackedActions.removeIf(theAction -> theAction.equals(action));
+    }
+
+    /**
+     * Stop an aciton based on a quest.
+     * @param quest quest to use the pointer on
+     * @param path the pointer
+     */
+    public void stop(Quest quest, StagePath path) {
+        // get the actions attached to this path
+        path.getActions(quest).forEach(action -> {
+            // stop the action
+            action.stop(this.getData());
+        });
+    }
+
+    /**
+     * Get the actions currently ongoing.
+     * @return list of ongoing quest actions
+     */
+    public List<QuestAction> getTrackedActions() {
+        return this.trackedActions;
+    }
+
+    /**
+     * Stop ongoing actions based on the quest 
+     * they're from. This does not let them continue to next.
+     * @param quest quest to halt.
+     */
+    public void stop(Quest quest) {
+        // avoid concurrent modification issues by creating a clone of state
+        List<QuestAction> trackedActions_clone = new ArrayList<>(this.trackedActions);
+
+        // filter through all the tracked actions
+        this.trackedActions = trackedActions_clone.stream().filter((action) -> {
+            // find the actions that match the quest
+            Boolean match = action.getStage().getQuest().getID().equals(quest.getID());
+
+            // if they do match the passed in quest
+            if (match) {
+                // ask for them to stop
+                action.stop(this.getData(), true);
+            }
+
+            // only return predicates that don't match 
+            // (aka: clear out trackedActions of this quest)
+            return !match;
+        }).collect(Collectors.toList()); // get the filtered elements as a list
+    }
+
+    /**
+     * Get the quester data.
+     * @return a QuesterData object.
+     */
+    public QuesterData getData() {
+        return this.data;
     }
 }

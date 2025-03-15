@@ -1,15 +1,19 @@
 package playerquests.builder.gui.dynamic;
 
-import java.util.ArrayList; // array type of list
+import java.util.ArrayList;
 import java.util.Arrays; // generic array handling
-import java.util.List; // generic list type
-import java.util.stream.IntStream; // used to iterate over a series
+import java.util.List;
+import java.util.stream.IntStream;
+
+import org.bukkit.Material;
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
-import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
+import playerquests.builder.gui.data.GUIMode;
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder;
-import playerquests.builder.quest.action.None;
+import playerquests.builder.quest.action.NoneAction;
+import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // controlling the plugin
 import playerquests.utility.singleton.QuestRegistry;
@@ -22,27 +26,27 @@ public class Dynamicqueststage extends GUIDynamic {
     /**
      * The current quest stage
      */
-    QuestStage questStage;
+    private QuestStage questStage;
 
     /**
-     * Listing current actions
+     * The action IDs
      */
-    List<String> actionKeys;
+    private List<QuestAction> actionKeys;
 
     /**
      * Staging to delete the stage
      */
-    Boolean confirm_delete = false;
-
-    /**
-     * The builder object for this quest
-     */
-    QuestBuilder questBuilder;
+    private boolean confirm_delete = false;
 
     /**
      * Specify if actionKeys has already been looped through
      */
     private boolean confirm_actionKeys = false;
+
+    /**
+     * The builder object for this quest
+     */
+    private QuestBuilder questBuilder;
 
     /**
      * Creates a dynamic GUI to edit a quest stage.
@@ -65,9 +69,10 @@ public class Dynamicqueststage extends GUIDynamic {
     @Override
     protected void execute_custom() {
         // set actionKeys
-        this.actionKeys = new ArrayList<String>(this.questStage.getActions().keySet());
+        this.actionKeys = new ArrayList<QuestAction>(this.questStage.getOrderedActions());
 
-        this.gui.getFrame().setTitle("{QuestStage} Editor");
+        // set frame title/style
+        this.gui.getFrame().setTitle(String.format("%s Editor", questStage.getTitle()));
         this.gui.getFrame().setSize(18);
 
         // the back button
@@ -79,6 +84,26 @@ public class Dynamicqueststage extends GUIDynamic {
             director // set the client director
         ));
 
+        // setting startpoint actions
+        List<StagePath> startPoints = this.questStage.getStartPoints();
+        new GUISlot(gui, 1)
+            .setItem(Material.PISTON)
+            .setLabel(String.format("%s start point actions", 
+                startPoints.isEmpty() ? "Set" : "Change"
+            ))
+            .onClick(() -> {
+                this.director.setCurrentInstance(this.questStage.getQuest());
+
+                new UpdateScreen(List.of("actionselector"), director)
+                    .onFinish((f) -> {
+                        UpdateScreen updateScreen = (UpdateScreen) f;
+                        Dynamicactionselector actionSelector = (Dynamicactionselector) updateScreen.getDynamicGUI();
+
+                        this.questStage.setStartPoints(actionSelector.getSelectedActions());
+                    })    
+                    .execute();
+            });
+
         // left side dividers
         new GUISlot(this.gui, 2)
             .setItem("BLACK_STAINED_GLASS_PANE");
@@ -86,35 +111,27 @@ public class Dynamicqueststage extends GUIDynamic {
         new GUISlot(this.gui, 11)
             .setItem("BLACK_STAINED_GLASS_PANE");
 
-        // sequence editor button
-        new GUISlot(this.gui, 1)
-            .setItem("STICKY_PISTON")
-            .setLabel("Change Sequence")
-            .onClick(() -> {
-                this.director.setCurrentInstance(this.questStage.getConnections());
-
-                new UpdateScreen(
-                    Arrays.asList("connectioneditor"), 
-                    director
-                ).execute();
-            });
-
         // produce slots listing current actions
         if (!confirm_actionKeys) {
             IntStream.range(0, actionKeys.size()).anyMatch(index -> {
 
-                String action = actionKeys.get(index);
+                QuestAction action = actionKeys.get(index);
                 Integer nextEmptySlot = this.gui.getEmptySlot();
                 GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
 
-                // identify which action is the stage entry point
-                if (this.questStage.getEntryPoint().getAction().equals(action)) { // if this action is the entry point
-                    actionSlot.setLabel(action.toString() + " (Entry Point)");
-                    actionSlot.setItem("POWERED_RAIL");
-                } else { // if it's not the entry point
-                    actionSlot.setLabel(action.toString());
-                    actionSlot.setItem("DETECTOR_RAIL");
-                }
+                boolean isPresent = this.questStage.getStartPoints().stream()
+                    .filter(p -> p.getStage().equals(this.questStage.getID()))
+                    .filter(p -> p.getActions().contains(action.getID()))
+                    .findFirst()
+                    .isPresent();
+                actionSlot
+                    .setLabel(String.format(
+                        "%s", action.toString()))
+                    .setDescription(List.of(
+                        String.format("Type: %s", action.getName()),
+                        isPresent ? "Is an entry point" : ""))
+                    .setItem(
+                        isPresent ? Material.DETECTOR_RAIL : Material.RAIL);
 
                 actionSlot.onClick(() -> {
                     if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
@@ -122,14 +139,13 @@ public class Dynamicqueststage extends GUIDynamic {
                     }
 
                     // set the action as the current action to modify
-                    this.questStage.setActionToEdit(actionKeys.get(index));
-                    // prep the screen to be updated
+                    this.director.setCurrentInstance(action, QuestAction.class);
+
+                    // go to action editor screen
                     actionSlot.addFunction(new UpdateScreen(
                         Arrays.asList("actioneditor"), 
                         director
-                    ));
-                    // manually start the slot functions (updating of the screen)
-                    actionSlot.execute(this.director.getPlayer());
+                    )).execute(this.director.getPlayer());
                 });
 
                 return false; // continue the loop
@@ -172,20 +188,17 @@ public class Dynamicqueststage extends GUIDynamic {
             new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
                 .setItem("GRAY_DYE")
                 .setLabel("Cannot Delete")
-                .setDescription("This stage is connected to other stages and actions.");
+                .setDescription(List.of("This stage is connected to other stages and actions."));
         }
 
         // add 'new action' button
         GUISlot newActionButton = new GUISlot(this.gui, this.gui.getFrame().getSize());
-        
         if (this.questStage.getActions().size() < 12) {
             newActionButton.setLabel("Add Action");
             newActionButton.setItem("LIME_DYE");
             newActionButton.onClick(() -> {
-                new None(this.questStage).submit(); // create the new action
-
-                // update the quest
-                QuestRegistry.getInstance().submit(this.questBuilder.build());
+                // create the new action
+                questStage.addAction(new NoneAction(questStage));
 
                 // refresh UI
                 this.confirm_actionKeys = false; // set actionKeys to be looped through again

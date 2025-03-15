@@ -1,291 +1,218 @@
 package playerquests.client.quest;
 
-import java.util.HashMap; // hash map type
-import java.util.Map; // generic map type
-import java.util.UUID; // unique identifiers for (usually) players
-import java.util.concurrent.CompletableFuture; // async + callbacks
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit; // the in-game API
-import org.bukkit.entity.Player; // the in-game player object
-
-import playerquests.builder.quest.action.QuestAction; // quest product: actions
-import playerquests.builder.quest.data.ConnectionsData; // quest product: what action/stage connects to what
 import playerquests.builder.quest.data.StagePath;
-import playerquests.builder.quest.stage.QuestStage; // quest product: stages
-import playerquests.product.Quest; // quest product
-import playerquests.utility.ChatUtils; // sending messages systematically
-import playerquests.utility.ChatUtils.MessageStyle; // how the message looks
-import playerquests.utility.ChatUtils.MessageTarget; // who the message sends to
-import playerquests.utility.ChatUtils.MessageType; // what the message is
-import playerquests.utility.singleton.Database; // everything preservation store
+import playerquests.product.Quest;
+import playerquests.product.fx.ParticleFX;
+import playerquests.utility.singleton.Database;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
- * Represents a diary that tracks a player's quest progress.
- * 
- * The {@link QuestDiary} class manages and stores the progress of quests for a specific player.
- * It provides methods to retrieve and update quest progress, as well as interact with the player's
- * quests and stages.
+ * Quest tracking for a quest client (questers).
+ * Also serves as a cache between game and database.
+ * @see playerquests.client.quest.QuestClient
  */
 public class QuestDiary {
 
     /**
-     * The identifier for the player this diary represents.
+     * The client that owns this diary.
      */
-    private String playerID; // just the Bukkit player uuid
+    private final QuestClient client;
 
     /**
-     * The identifier for this diary.
+     * The ID for this quest diary.
+     * Useful for persistent data storage.
      */
-    private String diaryID; // diary_[Bukkit player uuid]
+    private final String id;
 
     /**
-     * The state (progress) of a quest.
+     * Map of quest progress to inform the diary and client.
      */
-    private Map<Quest, ConnectionsData> questProgress = new HashMap<Quest, ConnectionsData>();
-
+    private Map<Quest, List<StagePath>> questProgress = new HashMap<>();
+    
     /**
-     * Constructs a new {@link QuestDiary} instance for the specified player.
-     * <p>
-     * Initializes a {@link QuestDiary} with the given player ID and sets up the diary for storage
-     * in the database. The diary is preserved in the database using {@link Database#getInstance()}.{@code addDiary(QuestDiary)}.
-     * </p>
-     * 
-     * @param client The {@link QuestClient} representing the player for whom this diary is created.
+     * Constructs a new quest diary.
+     * If can be found in the database, it will
+     * also pull the stored quest progress.
+     * @param client who the diary belongs to
+     * @param currentProgress the quest progress, used instead of the default quest start points
      */
     public QuestDiary(QuestClient client) {
-        // initialise values
-        this.playerID = client.getPlayer().getUniqueId().toString(); // Initialize playerID
-        this.diaryID = "diary_" + this.playerID; // Initialize diaryID
+        // set the client
+        this.client = client;
 
-        // set-up for preserving the diary in the db
-        Database.getInstance().addDiary(this);
+        // create the ID: [some_id]_diary
+        this.id = String.format("%s_diary", 
+            client.getPlayer().getUniqueId().toString()
+        );
 
-        // recover the real quest progress as stored in the db
-        // instantiate quest progress from the db
-        // and update the client when we have results!
-        loadQuestProgress().thenRun(() -> {
-            // remove untoggled from pre-filled (from db)
-            this.questProgress.keySet().removeIf(quest -> !quest.isToggled());
+        // search database for unfinished quest actions
+        Map<Quest, List<Map<StagePath, Boolean>>> diaryEntries = Database.getInstance().getDiaryEntries(this);
+        Map<String, List<StagePath>> currentProgress = diaryEntries.entrySet().stream()
+            .collect(Collectors.toMap(
+                entry -> entry.getKey().getID(), // use the Quest ID as the key
+                entry -> entry.getValue().stream() // stream over the List<Map<StagePath, Boolean>> for each Quest
+                    .flatMap(map -> map.entrySet().stream()) // flatten the List of Maps into a stream of Map.Entry<StagePath, Boolean>
+                    .filter(stageEntry -> !stageEntry.getValue()) // keep only entries with a true value
+                    .map(Map.Entry::getKey) // extract the StagePath (the key)
+                    .collect(Collectors.toList()) // collect the filtered StagePaths into a List
+            ));
 
-            // fill in un-completed/un-started quests
-            QuestRegistry.getInstance().getAllQuests().values().stream().forEach((quest) -> {
-                // don't fill in untoggled
-                if (!quest.isToggled()) {
+        // if no current progress, quest diary might never have been added
+        if (currentProgress.isEmpty()) {
+            Database.getInstance().setQuestDiary(this);
+        }
+
+        // load in quest progress (w/ prioritising current progress as stored in database)
+        QuestRegistry.getInstance()
+            .getAllQuests()
+            .values()
+            .stream()
+            .filter(quest -> quest.isToggled())
+            .forEach(quest -> {
+                // default progress is the default start points
+                List<StagePath> progress = quest.getStartPoints();
+
+                // if there is current recorded progress, replace progress with that
+                if (currentProgress != null && !currentProgress.isEmpty()) {
+                    progress = currentProgress.get(quest.getID());
+                }
+
+                // if no paths, don't continue
+                if (progress == null) {
                     return;
                 }
 
-                // put the quest from the start 
-                // (we know it's unstarted because we are using the quest's default ConnectionsData, 
-                // ConnectionsData is the thing that tracks quest progress. It does it by identifying the
-                // previous, current and next action/stage).
-                this.questProgress.putIfAbsent(quest, quest.getConnections());
+                // put it in our diary progress list
+                questProgress.put(
+                    quest, 
+                    progress
+                );
             });
 
-            client.update(true);
-        });
+        // callback to client once finished loading diary
+        this.client.start(this);
     }
 
     /**
-     * Loads the quest progress from the database asynchronously.
-     * <p>
-     * This method should only be called during the first instantiation of the diary.
-     * </p>
-     * 
-     * @return A {@link CompletableFuture} that completes once the quest progress has been loaded.
+     * Get the identifier for this diary.
+     * @return a string unique id for the diary
      */
-    private CompletableFuture<Void> loadQuestProgress() {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                // Retrieve the stored quest progress
-                this.questProgress = Database.getInstance().getQuestProgress(this);
-            } catch (Exception e) {
-                // Report something critical went wrong
-                ChatUtils.message("Failed to load quest progress for: " + this.getPlayer() + ", " + e)
-                    .target(MessageTarget.CONSOLE)
-                    .type(MessageType.ERROR)
-                    .style(MessageStyle.PLAIN)
-                    .send();
-            }
-
-            // Returning no data, only the completion handler
-            return null;
-        });
+    public String getID() {
+        return this.id;
     }
 
     /**
-     * Retrieves the {@link Player} object from the Bukkit server using the player's ID.
-     * <p>
-     * This method uses the player's ID to fetch the corresponding {@link Player} instance. If the player
-     * is not online or if the ID is invalid, the method may return {@code null}.
-     * </p>
-     * 
-     * @return The {@link Player} object associated with the specified ID, or {@code null} if the player
-     *         is not online or the ID is invalid.
+     * Gets the progress of all quests.
+     * @return the quest(s) and it's associated progress
      */
-    public Player getPlayer() {
-        return Bukkit.getPlayer(
-            UUID.fromString(this.playerID)
-        );
+    public Map<Quest, List<StagePath>> getQuestProgress() {
+        return this.getQuestProgress(null);
     }
 
     /**
-     * Retrieves the progress of a specified quest.
-     * 
-     * This method looks up the {@link ConnectionsData} associated with the given quest from the
-     * internal map of quest progress. If the quest is not found in the map, it adds it with the
-     * default connections data.
-     * 
-     * @param quest The {@link Quest} for which to retrieve the progress.
-     * 
-     * @return The {@link ConnectionsData} object associated with the specified quest, or
-     *         the default connections data if the quest is not found in the map.
+     * Gets the progress of a quest.
+     * @param quest the quest to get progress for, if null it gives all progress
+     * @return the quest(s) and it's associated progress
      */
-    public ConnectionsData getQuestProgress(Quest quest) {
-        ConnectionsData progress = this.questProgress.get(quest);
-
-        // if no progress found, it must mean the quest isn't in the diary yet
-        if (progress == null) {
-            this.addQuest(quest);
-            progress = quest.getConnections(); // provide
+    public Map<Quest, List<StagePath>> getQuestProgress(Quest quest) {
+        if (quest == null) {
+            return this.questProgress;
         }
 
-        return progress;
+        return Map.of(quest, this.questProgress.get(quest));
     }
 
     /**
-     * Retrieves the progress of all quests.
-     * 
-     * @return A {@link Map} where the keys are {@link Quest} objects and the values are the corresponding
-     *         {@link ConnectionsData} objects.
+     * Set or replace quest progress with new paths.
+     * @param quest the quest to replace
+     * @param paths current actions/stages ongoing
      */
-    public Map<Quest,ConnectionsData> getQuestProgress() {
-        return this.questProgress;
+    public void setQuestProgress(Quest quest, List<StagePath> paths) {
+        this.questProgress.put(quest, paths);
     }
 
     /**
-     * Gets the current stage of a specific quest.
-     * 
-     * @param quest The {@link Quest} for which to retrieve the current stage.
-     * 
-     * @return The current {@link QuestStage} object for the specified quest.
+     * Adds a quest to the diary and client.
+     * @param quest the quest to add.
      */
-    public QuestStage getStage(Quest quest) {
-        return this.getStage(quest, false); // just get the current
+    public void add(Quest quest) {
+        List<StagePath> startPoints = quest.getStartPoints();
+
+        // start for quester
+        client.start(startPoints, quest);
+
+        // put or replace in diary
+        this.setQuestProgress(quest, startPoints);
     }
 
     /**
-     * Gets the stage of a specific quest.
-     * 
-     * @param quest The {@link Quest} for which to retrieve the stage.
-     * @param next Whether to get the next stage.
-     * 
-     * @return The {@link QuestStage} object for the specified quest, either the current stage or the next stage
-     *         depending on the {@code next} parameter.
+     * Removes a quest from the diary and client.
+     * @param quest the quest to remove.
      */
-    public QuestStage getStage(Quest quest, Boolean next) {
-        ConnectionsData progress = this.getQuestProgress(quest);
+    public void remove(Quest quest) {
+        // find by quest ID
+        Optional<Entry<Quest, List<StagePath>>> entry = this.questProgress
+            .entrySet()
+            .stream()
+            .filter(theQuest -> theQuest.getKey().getID().equals(quest.getID()))
+            .findFirst();
 
-        if (next) {
-            return progress.getNext().getStage(quest);
-        }
-
-        return progress.getCurr().getStage(quest);
-    }
-
-    /**
-     * Gets the current action of a specific quest.
-     * 
-     * @param quest The {@link Quest} for which to retrieve the current action.
-     * 
-     * @return The current {@link QuestAction} object for the specified quest.
-     */
-    public QuestAction getAction(Quest quest) {
-        return this.getAction(quest, false); // just get the current
-    }
-
-    /**
-     * Gets the action of a specific quest.
-     * 
-     * @param quest The {@link Quest} for which to retrieve the action.
-     * @param next Whether to get the next action.
-     * 
-     * @return The {@link QuestAction} object for the specified quest, either the current action or the next action
-     *         depending on the {@code next} parameter.
-     */
-    public QuestAction getAction(Quest quest, Boolean next) {
-        ConnectionsData progress = this.getQuestProgress(quest);
-        StagePath point = next ? progress.getNext() : progress.getCurr();
-
-        // if no action found
-        if (point.getAction(quest) == null) {
-            return point.getStage(quest).getEntryPoint().getAction(quest);
-        }
-
-        // otherwise just return action
-        return point.getAction(quest);
-    }
-
-    /**
-     * Sets the progress for a specific quest.
-     * 
-     * If the quest is already listed in the diary, this method updates its progress. Otherwise, it adds
-     * the quest with the provided connections data.
-     * 
-     * @param quest The {@link Quest} for which to set the progress.
-     * @param connections The {@link ConnectionsData} representing the quest's progress.
-     */
-    public void setQuestProgress(Quest quest, ConnectionsData connections) {
-        // figure out if is already listed
-        if (this.questProgress.containsKey(quest)) {
-            // replace the existing with new
-            this.questProgress.replace(quest, connections);
+        // exit if quest progress not found
+        if (entry.isEmpty()) {
             return;
         }
 
-        // add to the list
-        this.questProgress.put(quest, connections);
+        // stop each ongoing action in the client
+        client.stop(quest);
     }
 
     /**
-     * Retrieves the diary ID.
-     * 
-     * @return The ID of the diary.
+     * Check if an action has been completed.
+     * @param quest the quest the action belongs to
+     * @param path the path to the action
      */
-    public String getDiaryID() {
-        return this.diaryID;
+    public boolean hasCompletedAction(Quest quest, StagePath path) {
+        // retrieve all entries from the database
+        Map<Quest, List<Map<StagePath, Boolean>>> rawEntries = Database.getInstance().getDiaryEntries(this);
+
+        // exit if no work to do
+        if (rawEntries == null || !rawEntries.containsKey(quest)) {
+            return false;
+        }
+
+        // get entries for the specific quest
+        List<Map<StagePath, Boolean>> questEntries = rawEntries.get(quest);
+
+        // check for incomplete actions
+        return questEntries.stream()
+            .flatMap(pathMap -> pathMap.entrySet().stream()) // change map to entry set to be able to work with it
+            .flatMap(pathEntry -> pathEntry.getKey().getActions(quest).stream() // for every action in the path:
+                .filter(action -> path.getActions(quest).contains(action)) // remove actions that aren't included in the passed in path
+                .map(action -> Map.entry(action, pathEntry.getValue()))) // get map of action and completion state
+            .noneMatch(entry -> !entry.getValue()); // if no action incomplete, all actions are complete
     }
 
     /**
-     * Retrieves the player ID.
-     * 
-     * @return The ID of the player associated with this diary.
+     * Get the quester this diary belongs to.
+     * @return the players QuestClient.
      */
-    public String getPlayerID() {
-        return this.playerID;
+    public QuestClient getQuestClient() {
+        return this.client;
     }
 
     /**
-     * Adds a new quest to the diary with its default progress.
-     * 
-     * @param quest The {@link Quest} to add.
+     * Get the particle that should show up as 
+     * an indicator an action can be interacted with.
+     * @return the type of particle FX
      */
-    public void addQuest(Quest quest) {
-        // submit to diary
-        this.setQuestProgress(
-            quest, 
-            quest.getConnections()
-        );
+    public ParticleFX getActionParticle() {
+        return ParticleFX.SPARKLE;
     }
-
-    /**
-     * Removes a quest from the diary.
-     * 
-     * @param quest The {@link Quest} to remove.
-     */
-    public void removeQuest(Quest quest) {
-        // destroy quest and progress :(
-        this.questProgress.keySet().removeIf(localQuest -> quest.getID().equals(localQuest.getID()));
-    }
-    
 }

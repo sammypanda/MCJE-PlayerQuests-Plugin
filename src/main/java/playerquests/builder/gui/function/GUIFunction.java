@@ -1,12 +1,12 @@
 package playerquests.builder.gui.function;
 
-import java.util.List; // used to store the params for this meta action
+import java.util.List; // used to store the params for this gui function
 import java.util.function.Consumer; // used for onFinish
 
 import playerquests.client.ClientDirector; // powers functionality for functions
 
 /**
- * Represents a GUI function (also known as a meta action) that is triggered by a graphical user interface (GUI).
+ * Represents a GUI function (also known as a gui function) that is triggered by a graphical user interface (GUI).
  * <p>
  * GUI functions are pre-defined operations that simplify complex tasks within a GUI-based application or plugin.
  * These functions are designed to be flexible and extendable, allowing various actions to be executed based on GUI interactions.

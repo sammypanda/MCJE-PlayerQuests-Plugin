@@ -1,7 +1,6 @@
 package playerquests.product;
 
 import java.io.IOException; // thrown if Quest cannot be saved
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map; // generic map type
@@ -23,9 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/seria
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
 import playerquests.Core; // the main class of this plugin
-import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.action.RewardItem;
-import playerquests.builder.quest.data.ConnectionsData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
@@ -52,11 +48,6 @@ public class Quest {
     private String title = null;
 
     /**
-     * The starting/entry point stage ID for this quest.
-     */
-    private StagePath entry = null;
-
-    /**
      * The map of NPCs used in this quest, by their ID.
      */
     @JsonManagedReference
@@ -76,68 +67,86 @@ public class Quest {
     /**
      * If the quest is toggled.
      */
-    private Boolean toggled = true;
+    private Boolean toggled;
 
     /**
      * The ID of this quest.
      */
     private String id;
+
+    /**
+     * Start points for this quest
+     */
+    private List<StagePath> startPoints = List.of();
     
     /**
      * Constructs a new Quest with the specified parameters.
      * 
      * @param title The title of the quest.
-     * @param entry The starting/entry point stage for the quest.
      * @param npcs A map of NPCs used in the quest.
      * @param stages A map of stages used in the quest.
      * @param creator The UUID of the player who created the quest.
      * @param id the id of the quest.   
+     * @param startpoints the actions that start when the quest starts.
      */
     public Quest(
-        @JsonProperty("title") String title, 
-        @JsonProperty("entry") StagePath entry, 
+        @JsonProperty("title") String title,
         @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
         @JsonProperty("stages") Map<String, QuestStage> stages, 
         @JsonProperty("creator") UUID creator,
-        @JsonProperty("id") String id
+        @JsonProperty("id") String id,
+        @JsonProperty("startpoints") List<StagePath> startpoints
     ) {
         // adding to key-value pattern handler
         Core.getKeyHandler().registerInstance(this);
 
+        // remove null NPCs and stages
+        npcs.entrySet().removeIf(stage -> stage.getValue() == null);
+        stages.entrySet().removeIf(npc -> npc.getValue() == null);
+
         this.title = title;
-
         this.id = id;
-        
-        if (entry != null) {
-            this.entry = entry;
-        }
-
+        this.creator = creator;
         this.npcs = npcs;
         this.stages = stages;
-        this.creator = creator;
+
+        // only set startpoints if not null
+        if (this.startPoints != null) {
+            this.startPoints = startpoints;
+        }
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
-        if (stages != null) {
-            for (QuestStage stage : stages.values()) {
+        if (this.stages != null) {
+            stages.forEach((stage_id, stage) -> {
                 stage.setQuest(this);
-            }
+
+                // set stage ID if it's missing
+                if (stage_id != stage.getID()) {
+                    stage.setID(stage_id);
+                }
+            });
         }
 
         // Set Quest dependency for each QuestNPC instead of custom deserialize
-        if (npcs != null) {
-            for (QuestNPC npc : npcs.values()) {
+        if (this.npcs != null) { 
+            npcs.forEach((npc_id, npc) -> {
                 npc.setQuest(this);
-            }
+
+                // set npc ID if it's missing
+                if (npc_id != npc.getID()) {
+                    npc.setID(npc_id);
+                }
+            });
         }
     }
 
     /**
-     * Creates a quest from a JSON string template.
+     * Creates a quest from a JSON string.
      * 
-     * @param questTemplate The JSON string representing the quest template.
+     * @param questJSON The JSON string representing the quest file.
      * @return A {@link Quest} object created from the JSON string.
      */
-    public static Quest fromTemplateString(String questTemplate) {
+    public static Quest fromJSONString(String questJSON) {
         Quest quest = null;
         ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
         
@@ -148,11 +157,11 @@ public class Quest {
 
         // create the quest product
         try {
-            quest = jsonObjectMapper.readValue(questTemplate, Quest.class);
+            quest = jsonObjectMapper.readValue(questJSON, Quest.class);
         } catch (JsonMappingException e) {
-            System.err.println("Could not map a quest template string to a valid quest product. " + e);
+            System.err.println("Could not map a quest JSON string to a valid quest product. " + e);
         } catch (JsonProcessingException e) {
-            System.err.println("Malformed JSON attempted as a quest template string. " + e);
+            System.err.println("Malformed JSON attempted as a quest string. " + e);
         }
 
         return quest;
@@ -165,25 +174,6 @@ public class Quest {
      */
     public String getTitle() {
         return title;
-    }
-
-    /**
-     * Retrieves the connections for the quest, including the previous, current, and next stages.
-     * 
-     * @return A {@link ConnectionsData} object representing the connections of the quest.
-     */
-    @JsonIgnore
-    public ConnectionsData getConnections() {
-        return new ConnectionsData(null, this.entry, null);
-    }
-
-    /**
-     * Gets the starting/entry point stage for this quest.
-     * 
-     * @return The {@link StagePath} of the starting/entry point stage.
-     */
-    public StagePath getEntry() {
-        return entry;
     }
 
     /**
@@ -207,10 +197,26 @@ public class Quest {
     /**
      * Gets the UUID of the player who created this quest.
      * 
-     * @return The UUID of the creator.
+     * @return The UUID of the creator, null if none.
      */
     public UUID getCreator() {
         return creator;
+    }
+
+    /**
+     * Gets the Player object for this quest creator if can be found.
+     * 
+     * @return the Player object of the creator, null if none.
+     */
+    @JsonIgnore
+    public Player getCreatorPlayer() {
+        UUID creatorUUID = this.getCreator();
+
+        if (creatorUUID == null) {
+            return null;
+        }
+
+        return Bukkit.getPlayer(creatorUUID);
     }
 
     /**
@@ -226,12 +232,12 @@ public class Quest {
     }
 
     /**
-     * Converts this quest to a JSON string template.
+     * Converts this quest to a JSON string.
      * 
      * @return A JSON string representing this quest.
      * @throws JsonProcessingException If the JSON cannot be serialized.
      */
-    public String toTemplateString() throws JsonProcessingException {
+    public String toJSONString() throws JsonProcessingException {
         // get the product of this builder
         Quest product = this;
 
@@ -241,7 +247,7 @@ public class Quest {
         // configure the mapper
         jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
 
-        // present this quest product as a template json string (prettied)
+        // present this quest product as a json string (prettied)
         return jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
     }
 
@@ -252,7 +258,13 @@ public class Quest {
      */
     @Key("quest")
     public String save() {
-        String questName = "quest/templates/" + this.getID() + ".json"; // name pattern
+        String questName = Core.getQuestsPath() + this.getID() + ".json"; // name pattern
+        Player player = null;
+
+        // set player if this quest has one
+        if (this.creator != null) {
+            player = Bukkit.getPlayer(this.creator);
+        };
 
         // create quest in fs, or update it
         try {
@@ -260,37 +272,37 @@ public class Quest {
                 Core.getQuestRegistry().submit(this);
             }
 
-            FileUtils.create( // create the template json file
+            FileUtils.create( // create the quest json file
                 questName, // name pattern
-                this.toTemplateString().getBytes() // put the content in the file
+                this.toJSONString().getBytes() // put the content in the file
             );
+
+            // notify about no starting points
+            if (this.getStartPoints().isEmpty() && player != null) {
+                ChatUtils.message("No start points set, so no actions or NPCs will show :)")
+                    .type(MessageType.NOTIF)
+                    .style(MessageStyle.PRETTY)
+                    .player(player)
+                    .send();
+            }
+
             return "'" + this.title + "' was saved.";
         } catch (IOException e) {
-            ChatUtils.message(e.getMessage())
-                .player(Bukkit.getPlayer(this.creator))
-                .type(MessageType.ERROR)
-                .send();
-            System.err.println(e);
+            MessageBuilder errorMessage = ChatUtils.message(e.getMessage())
+                                                   .type(MessageType.ERROR)
+                                                   .target(MessageTarget.CONSOLE)
+                                                   .style(MessageStyle.PLAIN);
+            
+            // send error to console regardless
+            errorMessage.send();
+
+            // also send to player if they are around
+            if (player != null) {
+                errorMessage.player(player).send();
+            }
+
             return "'" + this.title + "' could not save.";
         }
-    }
-
-    /**
-     * Gets all actions from the stages of this quest.
-     * 
-     * @return A map of actions, keyed by their ID.
-     */
-    @JsonIgnore
-    public Map<String, QuestAction> getActions() {
-        Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
-
-        this.getStages().forEach((stage_id, stage) -> {
-            stage.getActions().forEach((action_id, action) -> {
-                actions.put(action_id, action);
-            });
-        });
-        
-        return actions;   
     }
 
     /**
@@ -300,6 +312,12 @@ public class Quest {
      */
     @JsonIgnore
     public Boolean isToggled() {
+        // if value, uninitiated or unset
+        // find truth in database
+        if (this.toggled == null) {
+            this.toggled = Database.getInstance().getQuestToggled(this);
+        }
+
         return this.toggled;
     }
 
@@ -362,18 +380,6 @@ public class Quest {
         // Validate quest title
         if (this.title == null) {
             response.content("A quest has no title");
-            isValid = false;
-        }
-
-        // Validate quest entry
-        if (this.entry == null) {
-            response.content(String.format("The '%s' quest has no starting point", this.title));
-            isValid = false;
-        }
-
-        // Validate quest stages
-        if (this.stages == null || this.stages.isEmpty()) {
-            response.content(String.format("The '%s' quest has no stages", this.title));
             isValid = false;
         }
 
@@ -469,26 +475,19 @@ public class Quest {
     public Map<Material, Integer> getRequiredInventory() {
         Map<Material, Integer> requiredInventory = new HashMap<>();
 
-        // get items the quest requires, from actions
-        this.getActions().forEach((_, action) -> {
-            // don't continue if not an eligible action
-            List<Class<?>> eligibleActions = Arrays.asList(RewardItem.class);
-            if (!eligibleActions.contains(action.getType())) {
-                return;
-            }
-
-            action.getItems().forEach(item -> {
-                Material material = item.getType();
-                Integer inventoryAmount = requiredInventory.get(material);
-
-                if (inventoryAmount == null) {
-                    inventoryAmount = 0;
-                }
-
-                requiredInventory.put(material, inventoryAmount + item.getAmount());
-            });
-        });
-
         return requiredInventory;
+    }
+
+    /**
+     * Get the list of starting points for this quest.
+     * @return a list of stage paths (which can include actions).
+     */
+    @JsonProperty("startpoints")
+    public List<StagePath> getStartPoints() {
+        if (this.startPoints == null) {
+            return List.of();
+        }
+        
+        return this.startPoints;
     }
 }
