@@ -79,7 +79,7 @@ public class Dynamicnpceditor extends GUIDynamic {
             new ChatPrompt(
                 Arrays.asList("Set the name for this NPC", "npc.name"), 
                 director
-            ).onFinish((function) -> {
+            ).onFinish((_) -> {
                 this.execute();
             })
         );

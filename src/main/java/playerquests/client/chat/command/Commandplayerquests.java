@@ -17,12 +17,12 @@ import playerquests.utility.ChatUtils.MessageType;
 /**
  * Shows the main GUI window upon the /playerquest command.
  */
-public class Commandplayerquest extends ChatCommand {
+public class Commandplayerquests extends ChatCommand {
 
     /**
      * Sets the command as '/playerquests'.
      */
-    public Commandplayerquest() {
+    public Commandplayerquests() {
         // define which command
         super("playerquests");
     }
@@ -53,6 +53,11 @@ public class Commandplayerquest extends ChatCommand {
         GUIClient guiClient = new GUIClient(player); // create a new gui client
         guiClient.open(); // open the gui client (main GUI)
         return true; // mark as a valid command
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        return List.of();
     }
     
 }

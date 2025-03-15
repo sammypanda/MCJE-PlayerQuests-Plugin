@@ -92,10 +92,11 @@ public class NPCType {
 
     /**
      * Places the NPC in the world.
+     * @param player the player who can see the placement
      * 
      * @throws IllegalStateException if the method is not overridden in a subclass
      */
-    public void place() {
+    public void place(Player player) {
         throw new IllegalStateException("Tried to place an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 
@@ -106,6 +107,15 @@ public class NPCType {
      */
     public void remove() {
         throw new IllegalStateException("Tried to remove an NPC that has not been given a type. (or the type has not correctly overriden the place method)");
+    }
+
+    /**
+     * Removes the NPC for a player.
+     * 
+     * @param player the player to remove the NPC from
+     */
+    public void remove(Player player) {
+        throw new IllegalStateException("Tried to remove an NPC (from a player) that has not been given a type. (or the type has not correctly overriden the place method)");
     }
 
     /**

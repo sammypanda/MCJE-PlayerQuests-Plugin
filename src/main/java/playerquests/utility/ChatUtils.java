@@ -286,7 +286,7 @@ public class ChatUtils {
      * @return an array of newline elements
      */
     private static String[] newlineArray(Integer start, Integer end) {
-        return IntStream.range(start, end).mapToObj(i -> "\n").toArray(String[]::new);
+        return IntStream.range(start, end).mapToObj(_ -> "\n").toArray(String[]::new);
     }
 
     /**
@@ -387,5 +387,16 @@ public class ChatUtils {
      */
     public static Boolean isConfirmKeyword(String keyword) {
         return getConfirmKeywords().contains(keyword.toUpperCase());
+    }
+
+    /**
+     * Cut a string down and replace the end with an elipsis.
+     * Magical :D
+     * @param string the string to cut down
+     * @param targetLength what amount of the string to show
+     * @return
+     */
+    public static String shortenString(String string, Integer targetLength) {
+        return string.length() > targetLength - 1 ? string.substring(0, targetLength) + "..." : string;
     }
 }

@@ -39,8 +39,8 @@ public class QuestNPC {
      * Initialized with an out-of-bounds ID to ensure it is not visible until properly set.
      * </p>
      */
-    @JsonIgnore
-    private String id = "npc_-1";
+    @JsonProperty("id")
+    private String id;
 
     /**
      * The aesthetic name of the NPC.
@@ -82,7 +82,7 @@ public class QuestNPC {
     }
 
     /**
-     * Default constructor that creates a new empty QuestNPC.
+     * Constructs a new empty QuestNPC.
      */
     public QuestNPC() {}
 
@@ -91,7 +91,7 @@ public class QuestNPC {
      * 
      * @param id The unique identifier for the NPC.
      */
-    public QuestNPC(String id) {
+    public QuestNPC(@JsonProperty("id") String id) {
         this.id = id;
     }
 
@@ -114,12 +114,12 @@ public class QuestNPC {
      */
     @JsonIgnore
     public String getTitle() {
-        return this.toString();
+        return this.getName();
     }
 
     @Override
     public String toString() {
-        return this.getName();
+        return this.getID();
     }
 
     /**
@@ -288,10 +288,12 @@ public class QuestNPC {
 
     /**
      * Places the NPC in the world according to its assigned type.
+     * @param player the player who can see the placement
      */
     @JsonIgnore
-    public void place() {
-        this.assigned.place();
+    public void place(Player player) {
+        // place the NPC into the world
+        this.assigned.place(player);
     }
 
     /**
@@ -338,5 +340,13 @@ public class QuestNPC {
     @JsonIgnore
     public void remove() {
         this.getAssigned().remove();
+    }
+
+    /**
+     * Remove the NPC for a player.
+     */
+    @JsonIgnore
+    public void remove(Player player) {
+        this.getAssigned().remove(player);
     }
 }

@@ -1,13 +1,18 @@
 package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays; // generic array handling
+import java.util.List;
+
+import org.bukkit.Material;
 
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
 import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
 import playerquests.builder.gui.function.UpdateScreen; // changing the GUI screen to another
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // accessing the client state
+import playerquests.utility.ChatUtils;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -46,7 +51,7 @@ public class Dynamicquesteditor extends GUIDynamic {
         // set the GUI title as: Edit Quest ([quest title])
         guiFrame.setTitle(
             String.format("Edit Quest %s", 
-                questTitle != null ? "("+questTitle+")" : null
+                questTitle != null ? "("+ChatUtils.shortenString(questTitle, 18)+")" : null
             )
         );
 
@@ -66,10 +71,17 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Set Title")
             .onClick(() -> {
                 new ChatPrompt(
-                    Arrays.asList("Enter quest title", "quest.title"), 
+                    Arrays.asList("Enter quest title", "none"), 
                     director
-                ).onFinish(_ -> {
-                    QuestRegistry.getInstance().submit(questBuilder.build());
+                ).onFinish(guiFunction -> {
+                    ChatPrompt function = (ChatPrompt) guiFunction;
+
+                    // delete previous
+                    QuestRegistry.getInstance().delete(questBuilder.build(), true, false, true);
+                    
+                    // save newly named
+                    questBuilder.setTitle(function.getResponse());
+                    questBuilder.build().save();
                     this.execute(); // refresh UI to reflect title change
                 })
                 .execute();
@@ -78,12 +90,12 @@ public class Dynamicquesteditor extends GUIDynamic {
         GUISlot stagesSlot = new GUISlot(gui, 4) // view quest stages button (blocked)
             .setItem("GRAY_STAINED_GLASS_PANE")
             .setLabel("Quest Stages")
-            .setDescription("Add an NPC to add Stages");
+            .setDescription(List.of("Add an NPC to add Stages"));
         
         if (!questBuilder.getQuestNPCs().isEmpty()) { // view quest stages button (unblocked)
             stagesSlot.setItem("CHEST")
             .setLabel("Quest Stages")
-            .setDescription(" ") // clear the description
+            .setDescription(List.of("")) // clear the description
             .addFunction(
                 new UpdateScreen(
                     Arrays.asList("queststages"), 
@@ -101,6 +113,23 @@ public class Dynamicquesteditor extends GUIDynamic {
                     director
                 )
             );
+
+        new GUISlot(gui, 6) // quest start points button
+            .setItem(Material.PISTON)
+            .setLabel(
+                this.questBuilder.build().getStartPoints().isEmpty() ? "Set start points" : "Edit start points")
+            .onClick(() -> {
+                // go to action select screen
+                this.director.removeCurrentInstance(QuestStage.class); // do not default select stage
+                new UpdateScreen(List.of("actionselector"), director)
+                    .onFinish((f) -> {
+                        UpdateScreen updateScreen = (UpdateScreen) f;
+                        Dynamicactionselector actionSelector = (Dynamicactionselector) updateScreen.getDynamicGUI();
+
+                        this.questBuilder.setStartPoints(actionSelector.getSelectedActions());
+                    })
+                    .execute();
+            });
 
         new GUISlot(gui, 9) // save quest button
             .setItem("GREEN_DYE")

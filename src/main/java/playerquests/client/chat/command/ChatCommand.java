@@ -2,13 +2,13 @@ package playerquests.client.chat.command;
 
 import org.bukkit.Bukkit; // getting the defined plugin commands
 import org.bukkit.command.Command; // represents commands
-import org.bukkit.command.CommandExecutor; // how commands are executed
 import org.bukkit.command.CommandSender; // the entity who sends the command
+import org.bukkit.command.TabExecutor; // how commands are executed (w/ tab completion)
 
 /**
  * Organises the framework for all the commands.
  */
-public abstract class ChatCommand implements CommandExecutor {
+public abstract class ChatCommand implements TabExecutor {
 
     /**
      * To allow the command classes to construct themselves as the command executor.

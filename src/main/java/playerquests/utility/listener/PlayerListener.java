@@ -1,7 +1,10 @@
 package playerquests.utility.listener;
 
 import org.bukkit.Bukkit; // bukkit API
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener; // registering listening to Bukkit in-game events
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import playerquests.Core; // accessing plugin singeltons
 
@@ -19,5 +22,26 @@ public class PlayerListener implements Listener {
      */
     public PlayerListener() {
         Bukkit.getPluginManager().registerEvents(this, Core.getPlugin());
+    }
+
+    /**
+     * Ran when a player joins the server.
+     * @param event player join event data
+     */
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        // wait 30 ticks for join to finish, and create quester
+        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
+            Core.getQuestRegistry().createQuester(event.getPlayer());
+        }, 60);
+    }
+
+    /**
+     * Ran when a player leaves the server.
+     * @param event player quit event data
+     */
+    @EventHandler
+    public void onLeave(PlayerQuitEvent event) {
+        Core.getQuestRegistry().removeQuester(event.getPlayer());
     }
 }

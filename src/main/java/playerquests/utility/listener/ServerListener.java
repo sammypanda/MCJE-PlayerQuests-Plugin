@@ -48,22 +48,32 @@ public class ServerListener implements Listener {
     /**
      * Handles the ServerLoadEvent, which is triggered when the server is
      * started or reloaded. Initializes necessary directories, processes quest
-     * templates, and sets up quest clients for online players. Also starts
+     * files, and sets up quest clients for online players. Also starts
      * the file watcher service if it is not already running.
      * 
      * @param event the ServerLoadEvent that contains information about the server load
      */
     @EventHandler
     public void onLoad(ServerLoadEvent event) {
-        createDirectories(); // ensure dirs are created
-        initializeDatabase(); // init db
-
-        // Ensure quest processing runs on the main thread
+        // Ensure start runs in sequence
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            processQuests();
-        });
+            // ensure dirs are created
+            createDirectories();
+            
+            // init db
+            initializeDatabase();
 
-        startWatchService(); // start fs watching
+            // find and submit to quest registry
+            processQuests();
+
+            // create questers
+            Bukkit.getServer().getOnlinePlayers().stream().forEach(player -> {
+                QuestRegistry.getInstance().createQuester(player);
+            });
+
+            // start fs watching
+            startWatchService();
+        });
     }
     
     /**
@@ -81,13 +91,15 @@ public class ServerListener implements Listener {
         HandlerList.unregisterAll();
 
         // Close/clear the plugin
+        // - releases questers
+        // - clears registry
         PlayerQuests.getInstance().clear();
 
         // Stop the WatchService used for monitoring file changes.
         // This ensures that no further file watching occurs after 
         // the plugin is disabled, and resources related to file 
         // monitoring are properly released.
-        stopWatchService();        
+        stopWatchService();
     }
 
     /**
@@ -100,12 +112,12 @@ public class ServerListener implements Listener {
             sendWelcomeMessage();
         }
 
-        File templatesFolder = new File(Core.getPlugin().getDataFolder() + "/quest/templates");
-        if (!templatesFolder.exists()) {
-            templatesFolder.mkdirs();
+        File questsFolder = new File(Core.getPlugin().getDataFolder() + "/" + Core.getQuestsPath());
+        if (!questsFolder.exists()) {
+            questsFolder.mkdirs();
         }
 
-        Core.getPlugin().saveResource("quest/templates/beans-tester-bonus.json", true);
+        Core.getPlugin().saveResource(Core.getQuestsPath() + "beans-tester-bonus.json", true);
     }
 
     /**
@@ -129,7 +141,7 @@ public class ServerListener implements Listener {
      * Processes quests from both the database and file system, and submits them to the quest registry.
      */
     private void processQuests() {
-        File questsDir = new File(Core.getPlugin().getDataFolder(), "/quest/templates");
+        File questsDir = new File(Core.getPlugin().getDataFolder(), "/" + Core.getQuestsPath());
         Set<String> allQuests = new HashSet<>();
         
         // add from db
@@ -144,7 +156,7 @@ public class ServerListener implements Listener {
                     allQuests.add(questName);
                 });
         } catch (IOException e) {
-            ChatUtils.message("Could not process the quests template directory/path :(. " + e)
+            ChatUtils.message("Could not process the quest files directory/path :(. " + e)
                 .target(MessageTarget.CONSOLE)
                 .style(MessageStyle.PLAIN)
                 .type(MessageType.ERROR)
@@ -165,7 +177,7 @@ public class ServerListener implements Listener {
     private String getQuestName(Path path) {
         String[] questNameParts = path.toString()
             .replace(".json", "")
-            .split("/templates/");
+            .split("/quests/");
 
         if (questNameParts.length < 1) {
             return null;
@@ -184,7 +196,7 @@ public class ServerListener implements Listener {
             boolean errorOccurred = true; // Assume an error occurred initially
             
             try {
-                Quest newQuest = Quest.fromTemplateString(FileUtils.get("quest/templates/" + id + ".json"));
+                Quest newQuest = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + id + ".json"));
 
                 if (newQuest == null) {
                     return;
@@ -194,9 +206,9 @@ public class ServerListener implements Listener {
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {
-                System.err.println("Could not map template: " + id + " to the Quest object. " + e);
+                System.err.println("Could not map JSON string for: " + id + " to the Quest object. " + e);
             } catch (JsonProcessingException e) {
-                System.err.println("JSON in template: " + id + " is malformed. " + e);
+                System.err.println("JSON in quest: " + id + " is malformed. " + e);
             } catch (IOException e) {
                 System.err.println("Could not read file: " + id + ".json. " + e);
             }
@@ -209,14 +221,14 @@ public class ServerListener implements Listener {
     }
 
     /**
-     * Starts the WatchService to monitor the quest/templates directory for changes.
+     * Starts the WatchService to monitor the quest resources directory for changes.
      * This service watches for file creation, deletion, and modification events.
      */
     private void startWatchService() {
         try {
             watchService = FileSystems.getDefault().newWatchService();
-            Path questTemplatesPath = Paths.get(Core.getPlugin().getDataFolder() + "/quest/templates");
-            questTemplatesPath.register(watchService, 
+            Path questFilesPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + Core.getQuestsPath());
+            questFilesPath.register(watchService, 
                 StandardWatchEventKinds.ENTRY_CREATE, 
                 StandardWatchEventKinds.ENTRY_DELETE, 
                 StandardWatchEventKinds.ENTRY_MODIFY
@@ -266,7 +278,7 @@ public class ServerListener implements Listener {
                             System.out.println("figure out if an important file was deleted here");
                         }
                     
-                        // Handle changes to quest templates
+                        // Handle changes to quest files
                         if (filename.toString().endsWith(".json")) {
                             String questName = filename.toString().replace(".json", ""); // strip '.json' from the quest ID/filename
                             QuestRegistry questRegistry = Core.getQuestRegistry(); // get the tracking of instances of the quests in the plugin
@@ -290,10 +302,7 @@ public class ServerListener implements Listener {
                                     }
 
                                     // delete it systematically (but non-permanent)
-                                    questRegistry.delete(
-                                        questToDelete,
-                                        false
-                                    ); 
+                                    questRegistry.delete(questToDelete, false, false, false);
                                     break;
                                 default:
                                     break;

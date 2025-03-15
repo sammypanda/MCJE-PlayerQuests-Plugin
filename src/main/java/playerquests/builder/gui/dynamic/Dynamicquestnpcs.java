@@ -11,6 +11,7 @@ import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI
 import playerquests.builder.quest.QuestBuilder; // object for quest composition
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.utility.ChatUtils;
 
 /**
  * Shows a dynamic GUI list of the current quest NPCs.
@@ -64,7 +65,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         .collect(Collectors.toList());
         
         // set frame options
-        guiFrame.setTitle("Quest NPCs (" + this.questBuilder.getTitle() + ")");
+        guiFrame.setTitle("Quest NPCs (" + ChatUtils.shortenString(this.questBuilder.getTitle(), 18) + ")");
         guiFrame.setSize(54);
 
         // add the quest npcs

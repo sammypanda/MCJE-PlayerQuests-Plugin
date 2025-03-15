@@ -30,9 +30,9 @@ public class Dynamicmyquests extends GUIDynamic {
     private String guiTitle = "My Quests";
 
     /**
-     * The quest templates belonging to no-one or this player
+     * The quests belonging to no-one or this player
      */
-    private Set<String> myquestTemplates = new LinkedHashSet<>();
+    private Set<String> myQuests = new LinkedHashSet<>();
 
     /**
      * the position of the last slot put on a page
@@ -66,7 +66,7 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * Setting important values for myquests Dynamic GUI.
      * <ul>
-     * <li>Gets list of all the quest templates
+     * <li>Gets list of all the quests
      *   <ul>
      *   <li>owned by the current player (or no-one)
      *   </ul>
@@ -75,11 +75,11 @@ public class Dynamicmyquests extends GUIDynamic {
      * </ul>
      */
     public void setUp_custom() {
-        // get list of quest templates
+        // get list of quests
         if (!this.myquestLoaded) {
             CompletableFuture.runAsync(() -> {
                 // get quests from database
-                this.myquestTemplates.addAll(Core.getQuestRegistry().getAllQuests().keySet());
+                this.myQuests.addAll(Core.getQuestRegistry().getAllQuests().keySet());
 
             // do when quests have been gotten
             }).thenRun(() -> {
@@ -101,7 +101,7 @@ public class Dynamicmyquests extends GUIDynamic {
      * Operations to run on each page of the myquests Dynamic GUI.
      * <ul>
      * <li>Runs the setup once
-     * <li>Filters the templates to show on each page
+     * <li>Filters the quests to show on each page
      * <li>Generates and opens/redraws the screen pages
      * </ul>
      */
@@ -124,7 +124,7 @@ public class Dynamicmyquests extends GUIDynamic {
             .setLabel(String.format("Unreadable Quests: %s", 
                 this.invalidQuests >= 64 ? "(More than 64)" : this.invalidQuests
             ))
-            .setDescription("An unreadable quest, is a quest that is corrupt/malformed/incorrect.")
+            .setDescription(List.of("An unreadable quest, is a quest that is corrupt/malformed/incorrect."))
             .setCount(this.invalidQuests);
 
         // modify the new GUI to show the quests in
@@ -132,22 +132,22 @@ public class Dynamicmyquests extends GUIDynamic {
 
         // automatically create the page of slots/options (when ready)
         if (this.myquestLoaded) {
-            // filter out the templates (pagination)
-            ArrayList<String> remainingTemplates = (ArrayList<String>) this.myquestTemplates
+            // filter out the quests (pagination)
+            ArrayList<String> remainingQuests = (ArrayList<String>) this.myQuests
                 .stream()
-                .filter(i -> new ArrayList<String>(this.myquestTemplates).indexOf(i) > this.lastBuiltSlot - 1)
+                .filter(i -> new ArrayList<String>(this.myQuests).indexOf(i) > this.lastBuiltSlot - 1)
                 .collect(Collectors.toList());
 
             // generate the paginated slots
-            this.generatePage(remainingTemplates);
+            this.generatePage(remainingQuests);
         }
     }
 
     /**
      * Replaces existing screen with a page listing quests with back/forward/exit buttons.
-     * @param remainingTemplates the quest templates to insert
+     * @param remainingQuests the quests to insert
      */
-    private void generatePage(ArrayList<String> remainingTemplates) {
+    private void generatePage(ArrayList<String> remainingQuests) {
         UUID playerUUID = this.director.getPlayer().getUniqueId();
 
         // when the exit button is pressed
@@ -161,7 +161,7 @@ public class Dynamicmyquests extends GUIDynamic {
 
         // when the back button is pressed
         GUISlot backButton = new GUISlot(this.gui, 44);
-        if (this.myquestTemplates.size() != remainingTemplates.size()) { // if the remaining is the same as all 
+        if (this.myQuests.size() != remainingQuests.size()) { // if the remaining is the same as all 
             backButton.setLabel("Back");
             backButton.setItem("ORANGE_STAINED_GLASS_PANE");
             backButton.onClick(() -> {
@@ -173,7 +173,7 @@ public class Dynamicmyquests extends GUIDynamic {
 
         // when the next button is pressed
         GUISlot nextButton = new GUISlot(this.gui, 45);
-        if (this.slotsPerPage <= remainingTemplates.size()) { // if the remaining is bigger or the same as the default slots per page
+        if (this.slotsPerPage <= remainingQuests.size()) { // if the remaining is bigger or the same as the default slots per page
             nextButton.setLabel("Next");
             nextButton.setItem("GREEN_STAINED_GLASS_PANE");
             nextButton.onClick(() -> {
@@ -183,16 +183,16 @@ public class Dynamicmyquests extends GUIDynamic {
             });
         }
 
-        Integer slotCount = remainingTemplates.size() >= this.slotsPerPage // if there are more remaining templates than the default slot limit
+        Integer slotCount = remainingQuests.size() >= this.slotsPerPage // if there are more remaining quests than the default slot limit
         ? this.slotsPerPage // use the default slot limit
-        : remainingTemplates.size(); // otherwise use the number of remaining templates
+        : remainingQuests.size(); // otherwise use the number of remaining quests
 
         IntStream.range(0, slotCount).anyMatch(index -> { // only built 42 slots
-            if (remainingTemplates.isEmpty() || remainingTemplates.get(index) == null) {
+            if (remainingQuests.isEmpty() || remainingQuests.get(index) == null) {
                 return true; // exit the loop (marked as 'found match' to exit)
             }
 
-            String questID = remainingTemplates.get(index);
+            String questID = remainingQuests.get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             List<Object> screen;

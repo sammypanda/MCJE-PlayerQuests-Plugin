@@ -2,7 +2,7 @@ package playerquests.builder.quest.npc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material; // deprecated: material representing the block, representing this NPC
+import org.bukkit.Material;
 import org.bukkit.block.data.BlockData; // block representing this NPC
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising pro
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
 
 import playerquests.Core;
+import playerquests.utility.listener.BlockListener;
 import playerquests.utility.singleton.PlayerQuests;
 
 /**
@@ -93,13 +94,24 @@ public class BlockNPC extends NPCType {
     }
 
     /**
-     * Places the NPC block in the world by registering it with the PlayerQuests instance.
+     * Places the NPC block in the world.
+     * @param player the player who can see the placement
      */
     @Override
     @JsonIgnore
-    public void place() {
+    public void place(Player player) {
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            PlayerQuests.getInstance().putBlockNPC(this);
+            // get the listener that detects interactions with the block npc
+            BlockListener blockListener = PlayerQuests.getBlockListener();
+
+            // if no location has been set, don't try to register
+            if (this.getNPC() == null || this.getNPC().getLocation() == null) {
+                blockListener.unregisterBlockNPC(this, player);
+                return;
+            }
+
+            // register the block
+            blockListener.registerBlockNPC(this, player);
         });   
     }
 
@@ -109,7 +121,16 @@ public class BlockNPC extends NPCType {
     @Override
     @JsonIgnore
     public void remove() {
-        PlayerQuests.getBlockListener().remove(this.npc.getQuest());
+        PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this);
+    }
+
+    /**
+     * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
+     */
+    @Override
+    @JsonIgnore
+    public void remove(Player player) {
+        PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this, player);
     }
 
     /**
