@@ -3,27 +3,7 @@
     - Current build command: ``mvn -f [path/to/plugin/root/directory] clean install``
 - Java (JDK 23)
 
-# How To Get Functionality: 'Actions'
-###### How pre-defined but flexible functionality is actually associated with buttons and other behaviours.
-Realistically 'Quest Actions' won't ever have to be called by their function names. It would just be from a list in the quest builder UI/UX. Here is a list for devs or if you're a very brave user.
-
-###### gui functions (Functions)
-| Function (How to refer to) | Parameters (How to customise)                                                                                 | Purpose (What it does)                                                    |
-|----------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| UpdateScreen               | 1: the dynamic GUI name                                                                                       | Changes the current GUI screen to a different GUI                         |
-| ChatPrompt                 | 1: the prompt to show to the user<br>2: key of the value to set (options: "none", "gui.title", "quest.title") | Prompts the user to sets a text value (by typing in the chat box)         |
-| Save                       | 1. key of instance to save (options: "quest")                                                                 | Calls the defined save processes for instances                            |
-| SelectMaterial             | 1. the prompt to show the user<br>2. list of denied materials<br>3. list of denied methods<br>4. if has to be a block | Prompts the user to select a block (by hitting or selecting in inventory) |
-| SelectLocation             | 1. the prompt to show the user                                                                                | Prompts the user to place a block to set it as the location               |
-
-###### Quest Actions (Actions)
-TODO: Each <ins>quest</ins> is a <ins>container of stages</ins>. Each <ins>stage</ins> is a <ins>container of actions</ins> (actions can also be stacked). Stages are all the things which occur. See examples in the table (named from the quest/NPC perspective):
-
-| Type (How to refer to) | Parameters (How to customise) | Purpose (What it does)                          |
-|------------------------|-------------------------------|-------------------------------------------------|
-| None                   | N/A                           | Nothing; ignored                                |
-| Speak                  | 1: Text<br>2: NPC ID          | Makes an NPC say things                         |
-| GatherItem             | 1: Material ENUM<br>2: Count  | Generic item + amount the quest wants           |
+<br>
 
 # How To Store and Remotely Edit Quests: 'Quest Files'
 ###### We have Meta and Quest Actions, but how do we actually use them?
@@ -61,10 +41,12 @@ Usually you would never need this, but this is what makes it all tick. When you 
 }
 ```
 - *It's worth noting that just because the IDs are incremental, all starting from zero, doesn't mean they are expected to be kept/used in order or in sequence.*
-- *'Path:' means the string is represented something like: "stage_0.action_0", it can also be just like: "stage_0"*
+- *'Path:' means the string is represented something like: "stage_0.action_0". It can also look like: "stage_0"; actions cannot, they must be like stage_0.action_0. (Where 0 is any number)*
 
-# How It All Works: 'Specification'
-###### the way to visualise/think about, and implement the program.
+<br>
+
+# How To Contribute: 'Specification'
+## How to visualise/think about the program
 
 | Folder                           | Purpose                          |
 |----------------------------------|----------------------------------|
@@ -75,12 +57,46 @@ Usually you would never need this, but this is what makes it all tick. When you 
 | utility/                         | Tools for reducing repeated code |
 | utility/annotation               | Custom code annotations          |
 
-# How to add new quest actions
-Feel free to use 'Speak' as an example to help you, alongside this brief guide:
-1. Like 'None' and 'Speak' each quest action should extend the QuestAction class.
-  - Then add the unimplemented methods, as required, from QuestAction.
-  - Add an empty constructor for Jackson parsing, and one taking QuestStage.
-2. Then after the new one is created, in QuestAction it needs to be added to the JsonSubTypes annotations and the allActionTypes() list.
-3. Write the code to implement the action and add javadocs. 
-  - Such as: return list of options used for this action in InitOptions, at least return an empty optional in validate (as to mean 'no error message').
-  - If you need to add an ActionOption just add it to the ActionOption enum and then create a case for it in the Dynamicactioneditor.
+<br>
+
+## All about quest actions
+### What and where are quest actions?
+In ``builder/quest/action`` there is the ``QuestAction`` class (similar to ``QuestStage``).
+
+It is an extendable (inheritable) class.
+
+They all require logic (shown in runtime order):
+- ``Automated: The run method; to start the action``
+- A preparation method; before registering the listener.
+- A private``Listener`` class to trigger checks.
+- ``Automated: The check method; to trigger the validate or finish``
+- A validate method; logic to validate if was successful or not. 
+- ``Automated: The stop method; to complete the action``
+- onSuccess and onFailure methods; like giving rewards and other completion logic.
+
+They should all be set up with some data:
+- A list of action option objects (see below).
+- A list of eligible action conditional objects (see after action options).
+
+### What are quest action options?
+Similarly the ``builder/quest/action/option`` there is an ``ActionOption`` class that is extendable. It is responsible for it's own interfaces (like GUI/commands). 
+
+An option should not have it's own options, for example **do not** create ``Dialogue.TextMap`` and ``Dialogue.Text`` just do them as separate actions like ``TextMap`` and ``Text``. They should be reusable, like ``Text`` may be for a ``QuestAction`` of an NPC saying a statement but it also may be for a ``QuestAction``'s finish message ~ it's just about the form of the data, so for ``Text`` that would be anything that expects just a single string. 
+
+Also meaning most field titles and wording should be customisable by the action. Then with the action it just passes in it's own customised ``ActionOption`` object.
+
+This all means the ``QuestAction`` can just do ``QuestOption.getTextMap()`` to get the value.
+
+Q: Now we know, ``QuestAction`` and ``ActionOption`` exist, how do they relate to each other?<br>
+A: In ``QuestAction``, you  define a list of ``ActionOption``s it uses.
+
+### What are quest action conditionals?
+``QuestAction`` conditionals, can be placed as starting conditions ``startConditions`` or conditions to meet before an action can be considered finished ``finishConditions``.
+
+These are found in ``builder/quest/action/conditions``. ``ActionCondition`` is another inheritable class that is responsible for defining it's own (GUI/command) interfaces and functionality.
+
+An example would be ``TimeIs``: the time range it should be. Or ``HasCompleted``: a list of other actions/stages that need to have been completed beforehand.
+
+### How does one action continue on to the next?
+If no ``finishConditions`` exist or they are all satisfied, then ``QuestAction`` offers a list of ``StagePath`` objects. ``StagePath``s are just a pointer to a stage_?.action_? or stage_? ~ if no action defined it'll default to the entry point action of that stage.
+
