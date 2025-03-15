@@ -8,6 +8,7 @@ import playerquests.builder.gui.function.UpdateScreen; // GUI function to change
 import playerquests.builder.quest.QuestBuilder; // instantiating a builder for the quest (for editing an existing quest)
 import playerquests.client.ClientDirector; // how a player client interacts with the plugin
 import playerquests.product.Quest; // complete quest objects
+import playerquests.utility.ChatUtils;
 import playerquests.utility.singleton.QuestRegistry; // tracking quests/questers
 
 /**
@@ -54,12 +55,11 @@ public class Dynamicmyquest extends GUIDynamic {
 
         // set the GUI window title
         String questTitle = this.quest.getTitle();
-        Integer questTitleLimit = 12;
         guiFrame.setTitle(
             String.format(
                 "Quest: %s", 
                 // obscure quest title in GUI frame title with '...' if character limit reached:
-                questTitle.length() > questTitleLimit - 1 ? questTitle.substring(0, questTitleLimit) + "..." : questTitle
+                ChatUtils.shortenString(questTitle, 20)
             )
         );
 

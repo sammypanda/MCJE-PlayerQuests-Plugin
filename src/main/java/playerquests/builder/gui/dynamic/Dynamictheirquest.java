@@ -49,12 +49,11 @@ public class Dynamictheirquest extends GUIDynamic {
 
         // set the GUI window title
         String questTitle = this.questProduct.getTitle();
-        Integer questTitleLimit = 12;
         guiFrame.setTitle(
             String.format(
                 "Quest: %s (Shared)", 
                 // obscure quest title in GUI frame title with '...' if character limit reached:
-                questTitle.length() > questTitleLimit - 1 ? questTitle.substring(0, questTitleLimit) + "..." : questTitle
+                ChatUtils.shortenString(questTitle, 18)
             )
         );
 

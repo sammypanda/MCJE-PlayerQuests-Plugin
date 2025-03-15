@@ -12,6 +12,7 @@ import playerquests.builder.gui.function.UpdateScreen; // changing the GUI scree
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // accessing the client state
+import playerquests.utility.ChatUtils;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -50,7 +51,7 @@ public class Dynamicquesteditor extends GUIDynamic {
         // set the GUI title as: Edit Quest ([quest title])
         guiFrame.setTitle(
             String.format("Edit Quest %s", 
-                questTitle != null ? "("+questTitle+")" : null
+                questTitle != null ? "("+ChatUtils.shortenString(questTitle, 18)+")" : null
             )
         );
 

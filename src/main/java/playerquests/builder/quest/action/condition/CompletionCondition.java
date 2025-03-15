@@ -21,6 +21,7 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
 import playerquests.utility.event.ActionCompletionEvent;
 
 public class CompletionCondition extends ActionCondition {
@@ -115,15 +116,11 @@ public class CompletionCondition extends ActionCondition {
             .flatMap(paths -> paths.getActions().stream())
             .collect(Collectors.toList());
         String actionsString = String.join(", ", actions);
-        Integer actionsStringLimit = 22;
-        Integer actionsStringLength = actionsString.length();
 
         return List.of(
             "Requires",
             String.format("%s",
-                actionsStringLength > actionsStringLimit ? 
-                    actionsString.subSequence(0, actionsStringLimit).toString() + "..."
-                : actionsString
+                ChatUtils.shortenString(actionsString, 22)
             ),
             "to complete"
         );  
