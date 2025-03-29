@@ -49,7 +49,8 @@ import playerquests.utility.singleton.Database;
 @JsonSubTypes({
     // Add concrete actions here
     @JsonSubTypes.Type(value = NoneAction.class, name = "NoneAction"),
-    @JsonSubTypes.Type(value = SpeakAction.class, name = "SpeakAction")
+    @JsonSubTypes.Type(value = SpeakAction.class, name = "SpeakAction"),
+    @JsonSubTypes.Type(value = RequestItemAction.class, name = "RequestItemAction")
 })
 public abstract class QuestAction {
 
