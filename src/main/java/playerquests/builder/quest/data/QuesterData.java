@@ -118,7 +118,7 @@ public class QuesterData {
      * @return a list of effects that are currently in the world
      */
     public List<FX> getFX(QuestAction action) {
-        return this.effects.get(action);
+        return this.effects.getOrDefault(action, List.of());
     }
 
     /**

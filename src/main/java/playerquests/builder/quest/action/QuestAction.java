@@ -19,6 +19,7 @@ import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.data.ActionTweaks;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.NPCOption;
@@ -92,6 +93,13 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract List<Class<? extends ActionCondition>> getConditions();
+
+    /**
+     * Get the tweaks to apply to this action.
+     * @return a list of tweaks to apply.
+     */
+    @JsonIgnore
+    public abstract List<ActionTweaks> getTweaks();
     
     /**
      * Gets the stage that this action belongs to.
@@ -293,6 +301,11 @@ public abstract class QuestAction {
      * @return the FX for the action
      */
     protected void startParticleFX(QuesterData questerData) {
+        // don't continue if action specifies NO_FX
+        if (this.getTweaks().contains(ActionTweaks.NO_FX)) {
+            return;
+        }
+
         // get the questers settings/preferences
         QuestClient quester = questerData.getQuester();
         QuestDiary questerDiary = quester.getDiary();
