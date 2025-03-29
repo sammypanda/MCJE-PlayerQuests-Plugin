@@ -11,6 +11,7 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
+import playerquests.builder.quest.action.data.ActionTweaks;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.action.option.ActionOption;
@@ -119,5 +120,10 @@ public class SpeakAction extends QuestAction {
     @Override
     public LocationData getLocation() {
         return new LocationData(this.npc.getLocation());
+    }
+
+    @Override
+    public List<ActionTweaks> getTweaks() {
+        return List.of();
     }
 }
