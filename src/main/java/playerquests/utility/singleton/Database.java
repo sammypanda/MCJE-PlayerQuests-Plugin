@@ -196,7 +196,7 @@ public class Database {
             .target(MessageTarget.WORLD)
             .type(MessageType.WARN);
         try {
-            URL url = new URI("https://api.github.com/repos/sammypanda/mcje-playerquests-plugin/releases").toURL();
+            URL url = new URI("https://api.github.com/repos/sammypanda/mcje-playerquests-plugin/releases/latest").toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
 
