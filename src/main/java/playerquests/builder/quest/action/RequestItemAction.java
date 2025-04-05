@@ -51,12 +51,29 @@ public class RequestItemAction extends QuestAction {
 
     @Override
     protected void prepare(QuesterData questerData) {
-        // TODO: hmm
+        Player player = questerData.getQuester().getPlayer();
+        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+
+        player.sendMessage(
+            String.format("\n<%s>", "Items requested")
+        );
+
+        itemsOption.getItems().forEach((material, amount) -> {
+            player.sendMessage(
+                String.format("- %s (%d)", material, amount)
+            );
+        });
+
+        player.sendMessage("");
+
     }
 
     @Override
     protected Boolean isCompleted(QuesterData questerData) {
-        return true; // TODO: hmm
+        Player player = questerData.getQuester().getPlayer();
+        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+
+        return itemsOption.getItems().entrySet().stream().allMatch(entry -> player.getInventory().contains(entry.getKey(), entry.getValue()));
     }
 
     @Override
@@ -67,13 +84,19 @@ public class RequestItemAction extends QuestAction {
     @Override
     protected void success(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer();
+        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
-        // ItemsOption items = this.getData().getOption(ItemsOption.class).get();
-
-        // send message
         player.sendMessage(
-            String.format("<%s>", "things go here")
+            String.format("\n<%s>", "Items successfully collected")
         );
+
+        itemsOption.getItems().forEach((material, amount) -> {
+            player.sendMessage(
+                String.format("- %s (%d)", material, amount)
+            );
+        });
+
+        player.sendMessage("");
     }
 
     @Override
@@ -94,6 +117,10 @@ public class RequestItemAction extends QuestAction {
 
     @Override
     public Optional<String> isValid() {
+        if (this.getData().getOption(ItemsOption.class).get().getItems().isEmpty()) {
+            return Optional.of("No items are set, try choosing some items in the action options.");
+        }
+
         return Optional.empty();
     }
 

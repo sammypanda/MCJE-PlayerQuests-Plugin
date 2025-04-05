@@ -97,6 +97,9 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onBlockNPCInteract(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
+
+        if (block == null) { return; }
+
         Player player = event.getPlayer();
         QuesterData questerData = Core.getQuestRegistry().getQuester(player).getData();
         Location eventBlockLocation = block.getLocation();
