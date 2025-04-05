@@ -3,6 +3,7 @@ package playerquests.builder.gui.dynamic;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -215,7 +216,7 @@ public class Dynamicquestdiary extends GUIDynamic {
             quest.getTitle(),
             action.getID(),
             action.getName(),
-            action.getLocation()
+            (String) Objects.requireNonNullElse(action.getLocation(), "Unknown location")
         );
     }
 }

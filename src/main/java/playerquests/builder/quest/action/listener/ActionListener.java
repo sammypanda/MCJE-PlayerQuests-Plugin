@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action.listener;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
@@ -48,5 +49,14 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
     public void close() {
         // unregister the events
         HandlerList.unregisterAll(this);
+    }
+
+    /**
+     * If the passed in player passes listener player check
+     * @param player the player to check
+     * @return true if passed
+     */
+    protected boolean passedPlayerCheck(Player player) {
+        return player.equals(this.questerData.getQuester().getPlayer());
     }
 }
