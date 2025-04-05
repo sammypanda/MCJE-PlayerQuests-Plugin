@@ -1,7 +1,10 @@
 package playerquests.builder.quest.action.option;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +25,7 @@ public class ItemsOption extends ActionOption {
      * The list of items specified.
      */
     @JsonProperty("items")
-    private ArrayList<ItemStack> items = new ArrayList<>();
+    private Map<Material, Integer> items = new HashMap<>();
     // TODO: implement me
 
     /**
@@ -40,21 +43,24 @@ public class ItemsOption extends ActionOption {
 
     @Override
     public GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director) {
-        List<String> items = this.items.stream().map( item -> String.format("%s (%d)", item.getType().toString(), item.getAmount()) ).toList();
+        List<String> items = this.items.entrySet().stream().map(entry -> String.format("%s (%d)", entry.getKey().toString(), entry.getValue())).toList();
 
         return new GUISlot(gui, slot)
             .setLabel(this.getItems().isEmpty() ? "Set items" : String.format("Change the items"))
             .setDescription(items)
             .setItem(Material.CHEST)
             .onClick(() -> {
-                director.setCurrentInstance(this.getItems());
+                director.setCurrentInstance(new ArrayList<>(this.toList(this.getItems()))); // translate out of serialisable
+                // long story short (for the above line): 
+                // ItemStack has a field that doesn't serialise to JSON nicely as it requires a check to see if the field exists 
+                // before accessing, this would require having a custom serialiser for it. Nobody likes making or maintaining those.
 
                 new UpdateScreen(List.of("itemslist"), director).onFinish(f -> {
                     UpdateScreen updateScreen = (UpdateScreen) f;
                     Dynamicitemslist itemsList = (Dynamicitemslist) updateScreen.getDynamicGUI();
 
                     itemsList.onFinish(_ -> {
-                        this.setItems(new ArrayList<ItemStack>(itemsList.getItems()));
+                        this.setItems(this.toMap(itemsList.getItems())); // translate to serialisable
                         this.actionData.setOption(this); // set the option
                         director.removeCurrentInstance(ArrayList.class); // tidy up
                         screen.refresh();
@@ -67,7 +73,7 @@ public class ItemsOption extends ActionOption {
      * Set the items in totality.
      * @param items the items for this option
      */
-    public void setItems(ArrayList<ItemStack> items) {
+    public void setItems(Map<Material, Integer> items) {
         this.items = items;
     }
 
@@ -75,7 +81,7 @@ public class ItemsOption extends ActionOption {
      * Get all the item.
      * @return the items in the option
      */
-    public ArrayList<ItemStack> getItems() {
+    public Map<Material, Integer> getItems() {
         return this.items;
     }
 
@@ -84,8 +90,8 @@ public class ItemsOption extends ActionOption {
      * @param item the item to add to the option
      * @return the items in the option
      */
-    public ArrayList<ItemStack> addItems(ItemStack item) {
-        this.items.add(item);
+    public Map<Material, Integer> addItems(Material material, int amount) {
+        this.items.put(material, amount);
         return items;
     }
 
@@ -94,8 +100,26 @@ public class ItemsOption extends ActionOption {
      * @param item the item to remove from the option
      * @return the items in the option
      */
-    public ArrayList<ItemStack> deleteItems(ItemStack item) {
-        this.items.remove(item);
+    public Map<Material, Integer> deleteItems(Material material) {
+        this.items.remove(material);
         return items;
+    }
+
+    /**
+     * Translate to serialisable items map.
+     * @param items
+     * @return items in map form
+     */
+    private Map<Material, Integer> toMap(List<ItemStack> items) {
+        return items.stream().collect(Collectors.toMap(ItemStack::getType, ItemStack::getAmount));
+    }
+
+    /**
+     * Translate out of serialisable items map.
+     * @param items
+     * @return items in list form
+     */
+    private List<ItemStack> toList(Map<Material, Integer> items) {
+        return items.entrySet().stream().map(entry -> new ItemStack(entry.getKey(), entry.getValue())).toList();
     }
 }
