@@ -99,9 +99,6 @@ public class RequestItemAction extends QuestAction {
 
     @Override
     public LocationData getLocation() {
-        // TODO: if no location uhhh null?
-
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLocation'");
+        return null;
     }
 }
