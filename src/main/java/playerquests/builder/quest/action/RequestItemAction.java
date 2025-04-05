@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -14,6 +15,7 @@ import playerquests.builder.quest.action.data.ActionTweaks;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.RequestItemListener;
 import playerquests.builder.quest.action.option.ActionOption;
+import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 
@@ -24,7 +26,9 @@ public class RequestItemAction extends QuestAction {
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
-        return List.of(); // TODO: create an item condition
+        return List.of(
+            ItemsOption.class
+        );
     }
 
     @Override
@@ -61,7 +65,16 @@ public class RequestItemAction extends QuestAction {
     }
 
     @Override
-    protected void success(QuesterData questerData) {}
+    protected void success(QuesterData questerData) {
+        Player player = questerData.getQuester().getPlayer();
+
+        // ItemsOption items = this.getData().getOption(ItemsOption.class).get();
+
+        // send message
+        player.sendMessage(
+            String.format("<%s>", "things go here")
+        );
+    }
 
     @Override
     protected void failure(QuesterData questerData) {}
