@@ -109,7 +109,9 @@ public class Dynamicitemeditor extends GUIDynamic {
                     this.execute(); // refresh gui
 
                     // run consumable
-                    this.onUpdate.accept(this.item);;
+                    if (this.onUpdate != null) {
+                        this.onUpdate.accept(this.item);
+                    }
                 }).execute(); // run chat prompt function
             });
 
