@@ -141,7 +141,7 @@ public class QuesterData {
             // filter out exact matches
             .filter(trackedAction -> !trackedAction.equals(action))
             // check against locations
-            .filter(trackedAction -> trackedAction.getLocation().equals(action.getLocation()))
+            .filter(trackedAction -> trackedAction.getLocation() != null && trackedAction.getLocation().equals(action.getLocation()))
             // get final size
             .toList());
             
