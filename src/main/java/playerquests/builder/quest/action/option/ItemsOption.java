@@ -26,7 +26,6 @@ public class ItemsOption extends ActionOption {
      */
     @JsonProperty("items")
     private Map<Material, Integer> items = new HashMap<>();
-    // TODO: implement me
 
     /**
      * Default constructor for Jackson.
