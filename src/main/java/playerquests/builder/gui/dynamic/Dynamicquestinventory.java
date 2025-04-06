@@ -158,25 +158,20 @@ public class Dynamicquestinventory extends GUIDynamic {
             }
 
             Material material = entry.getKey();
-            Integer amount = entry.getValue();
-            Integer requiredAmount = this.requiredInventory.get(material);
-
-            // set as amount 0 if none required
-            if (requiredAmount == null) {
-                requiredAmount = 0;
-            }
+            Integer predictedAmount = entry.getValue();
+            Integer realAmount = QuestRegistry.getInstance().getInventory(quest).get(material);
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(material)
                 .setLabel(
-                    amount > 0 
-                    ? (amount < requiredAmount 
-                        ? ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET 
-                        : Integer.toString(amount)) 
-                    : ChatColor.RED + "Out of Stock" + ChatColor.RESET
+                    realAmount == 0
+                    ? ChatColor.RED + "Out of Stock" + ChatColor.RESET + " (" + realAmount + ")"
+                    : (predictedAmount >= 0
+                        ? Integer.toString(realAmount)
+                        : ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET + " (" + realAmount + ")")
                 )
                 .setGlinting(
-                    amount > 0 ? false : true
+                    predictedAmount >= 0 ? false : true
                 );
 
             return false; // continue

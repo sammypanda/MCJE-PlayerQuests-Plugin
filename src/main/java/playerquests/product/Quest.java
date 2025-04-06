@@ -418,7 +418,7 @@ public class Quest {
         isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
             Integer amount = entry.getValue();
 
-            if (amount <= 0) {
+            if (amount < 0) {
                 response.content(String.format("The '%s' quest is missing some stock", this.title));
                 return true; // exit
             }
