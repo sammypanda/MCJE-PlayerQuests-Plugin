@@ -143,6 +143,12 @@ public class QuestClient {
             return;
         }
 
+        // if quest not allowed; exit
+        if ( ! quest.isAllowed() ) {
+            quest.toggle(false);
+            return;
+        }
+
         // run the action
         action.run(this.getData());
 

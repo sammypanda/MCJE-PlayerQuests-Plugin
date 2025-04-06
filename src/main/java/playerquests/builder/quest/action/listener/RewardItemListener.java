@@ -14,7 +14,7 @@ public class RewardItemListener extends ActionListener<RewardItemAction> {
         // delay to ease if quest creator chooses to loop
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             action.check(questerData);
-        }, 100);
+        }, 20);
     }
     
 }

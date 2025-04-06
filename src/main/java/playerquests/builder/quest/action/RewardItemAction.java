@@ -1,12 +1,12 @@
 package playerquests.builder.quest.action;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import playerquests.builder.gui.GUIBuilder;
@@ -21,6 +21,8 @@ import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.product.Quest;
+import playerquests.utility.singleton.QuestRegistry;
 
 public class RewardItemAction extends QuestAction {
 
@@ -69,11 +71,7 @@ public class RewardItemAction extends QuestAction {
 
     @Override
     protected Boolean isCompleted(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer();
-        Inventory playerInventory = player.getInventory();
-        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-
-        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey(), entry.getValue()));
+        return true;
     }
 
     @Override
@@ -86,8 +84,14 @@ public class RewardItemAction extends QuestAction {
         Player player = questerData.getQuester().getPlayer();
         Location playerLocation = player.getLocation();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+        Quest quest = this.getStage().getQuest();
+        Map<Material, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
         
         itemsOption.getItems().forEach((material, amount) -> {
+            int inventoryAmount = questInventory.get(material);
+            int newAmount = inventoryAmount - amount;
+            questInventory.replace(material, inventoryAmount, newAmount);
+            QuestRegistry.getInstance().setInventory(quest, questInventory);
             playerLocation.getWorld().dropItem(playerLocation, new ItemStack(material, amount));
         });
     }
