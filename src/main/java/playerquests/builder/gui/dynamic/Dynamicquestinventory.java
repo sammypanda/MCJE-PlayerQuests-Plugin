@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.InventoryView;
@@ -159,7 +160,7 @@ public class Dynamicquestinventory extends GUIDynamic {
 
             Material material = entry.getKey();
             Integer predictedAmount = entry.getValue();
-            Integer realAmount = QuestRegistry.getInstance().getInventory(quest).get(material);
+            Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(material)).orElse(0);
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(material)

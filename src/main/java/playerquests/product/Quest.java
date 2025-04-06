@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/serialise this class
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
+import net.md_5.bungee.api.ChatColor;
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.RewardItemAction;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -419,7 +420,7 @@ public class Quest {
             Integer amount = entry.getValue();
 
             if (amount < 0) {
-                response.content(String.format("The '%s' quest is missing some stock", this.title));
+                response.content(String.format("The '%s' quest is missing some stock. %sThis might be because you have a reward greater than what's in the quest inventory.", this.title, ChatColor.GRAY));
                 return true; // exit
             }
 
