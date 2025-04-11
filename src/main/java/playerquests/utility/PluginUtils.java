@@ -61,14 +61,18 @@ public class PluginUtils {
         Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
         Map<Material, Integer> requiredInventory = quest.getRequiredInventory();
 
-        // put required items (as missing)
-        if (requiredInventory != null) { 
-            requiredInventory.forEach((material, _) -> predictiveInventory.put(material, -1)); 
+        // set start values of predictiveInventory to -amount of requiredInventory
+        if (requiredInventory != null) {
+            requiredInventory.forEach((material, amount) -> predictiveInventory.put(material, (0 - amount)));
         }
-        
-        // put stocked items (and replace/compensate for missing)
-        if (inventory != null) { 
-            predictiveInventory.putAll(inventory); 
+
+        // modify values of predictiveInventory in place to amount + inventoryAmount
+        if (inventory != null) {
+            inventory.forEach((material, amount) -> {
+                predictiveInventory.computeIfPresent(material, (_, predictiveAmount) -> {
+                    return predictiveAmount + amount;
+                });
+            });
         }
         
         return predictiveInventory;

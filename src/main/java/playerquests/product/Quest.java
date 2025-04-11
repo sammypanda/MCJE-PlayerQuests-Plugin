@@ -21,7 +21,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/serialise this class
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
+import net.md_5.bungee.api.ChatColor;
 import playerquests.Core; // the main class of this plugin
+import playerquests.builder.quest.action.RewardItemAction;
+import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
@@ -335,7 +338,7 @@ public class Quest {
      */
     public void toggle(boolean toEnable) {
         // check if able to be toggled
-        if (!isAllowed()) {
+        if (toEnable == true && !isAllowed()) {
             toEnable = false;
         }
 
@@ -416,8 +419,8 @@ public class Quest {
         isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
             Integer amount = entry.getValue();
 
-            if (amount <= 0) {
-                response.content(String.format("The '%s' quest is missing some stock", this.title));
+            if (amount < 0) {
+                response.content(String.format("The '%s' quest is missing some stock. %sThis might be because you have a reward greater than what's in the quest inventory.", this.title, ChatColor.GRAY));
                 return true; // exit
             }
 
@@ -474,6 +477,23 @@ public class Quest {
     @JsonIgnore
     public Map<Material, Integer> getRequiredInventory() {
         Map<Material, Integer> requiredInventory = new HashMap<>();
+
+        // from each stage
+        this.getStages().values().forEach(stage -> {
+            // from each action
+            stage.getActions().values().forEach(action -> {
+                // where the action is demanding of items
+                if ( ! List.of(
+                        RewardItemAction.class
+                    ).contains(action.getClass())
+                ) { return; }
+                
+                // add the items expected to the requiredInventory list
+                action.getData().getOption(ItemsOption.class).get().getItems().forEach((material, amount) -> {
+                    requiredInventory.put(material, amount);
+                });
+            });
+        });
 
         return requiredInventory;
     }
