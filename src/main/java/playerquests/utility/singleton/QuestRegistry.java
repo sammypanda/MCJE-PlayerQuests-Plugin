@@ -330,6 +330,25 @@ public class QuestRegistry {
     }
 
     /**
+     * Update a quests inventory's item.
+     * @param quest the inventory of this quest
+     * @param material material to update
+     * @param amount amount to set or modify
+     */
+    public void updateInventoryItem(Quest quest, Material material, Integer amount) {
+        Map<Material, Integer> inventory = this.getInventory(quest);
+        final Integer inventoryCount = inventory.get(material);
+
+        if (inventoryCount == null) {
+            inventory.put(material, amount);
+            return;
+        }
+        
+        inventory.put(material, amount + inventoryCount);
+        quest.isAllowed(); // check if is still allowed
+    }
+
+    /**
      * Creates a new quester instance and adds it to an index.
      * @param player the player the quest client is on behalf of
      */
