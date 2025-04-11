@@ -114,15 +114,9 @@ public class Dynamicquestinventory extends GUIDynamic {
 
                             Material itemMaterial = item.getType();
                             Integer itemCount = item.getAmount();
-                            final Integer inventoryCount = this.inventory.get(itemMaterial);
 
                             // update inventory item
-                            if (inventoryCount == null) {
-                                this.inventory.put(itemMaterial, itemCount);
-                                continue;
-                            }
-                            
-                            this.inventory.put(itemMaterial, itemCount + inventoryCount);
+                            QuestRegistry.getInstance().updateInventoryItem(quest, itemMaterial, itemCount);
                         };
 
                         // save the items!!
