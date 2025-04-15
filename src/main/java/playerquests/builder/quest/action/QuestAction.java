@@ -218,10 +218,9 @@ public abstract class QuestAction {
 
         // if not successful don't finish
         if (!this.isCompleted(questerData)) {
+            this.failure(questerData);
             return;
         }
-
-        // TODO: implement action failures
 
         // run success method
         this.success(questerData);
