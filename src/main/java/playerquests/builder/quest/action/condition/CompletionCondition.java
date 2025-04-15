@@ -51,10 +51,10 @@ public class CompletionCondition extends ActionCondition {
             // filter out any action that hasn't been completed (the key is quest, the value is the path **LIST**)
                 // checking every path in the lists belonging to each quest
             .filter(entry -> entry.getValue().stream()
-                .anyMatch(path -> !questerData.getQuester().getDiary().hasCompletedAction(
+                .anyMatch(path -> questerData.getQuester().getDiary().getActionCompletionState(
                     Core.getQuestRegistry().getQuest(entry.getKey()), // search quest registry for the quest
                     path
-                )))
+                ) != 1))
             // collect back to a set to check if is empty
             .collect(Collectors.toSet())
             // if it's empty that means we succeeded
