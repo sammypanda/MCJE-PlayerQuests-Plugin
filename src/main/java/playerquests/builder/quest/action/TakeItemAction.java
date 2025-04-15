@@ -94,7 +94,11 @@ public class TakeItemAction extends QuestAction {
     }
 
     @Override
-    protected void failure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {
+        // restart listener
+        questerData.getListener(this).close();
+        this.startListener(questerData);   
+    }
 
     @Override
     protected ActionListener<?> startListener(QuesterData questerData) {
