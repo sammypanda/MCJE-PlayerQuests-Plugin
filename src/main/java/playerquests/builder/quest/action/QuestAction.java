@@ -253,7 +253,7 @@ public abstract class QuestAction {
      */
     public void stop(QuesterData questerData, Boolean halt) {
         // close the listener
-        questerData.getListener(this).close();
+        questerData.stopListener(this);
 
         // stop all the FX effects
         questerData.getFX(this).forEach(effect -> {

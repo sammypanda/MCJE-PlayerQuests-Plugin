@@ -9,6 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
@@ -21,6 +24,8 @@ import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.product.Quest;
 import playerquests.utility.singleton.QuestRegistry;
 
@@ -52,12 +57,42 @@ public class TakeItemAction extends QuestAction {
     }
 
     @Override
+    /**
+     * - prompt for consenting
+     */
     protected void prepare(QuesterData questerData) {
-        // TODO: prompt for consent
+        // compose the command for consenting
+        final Player player = questerData.getQuester().getPlayer();
+        final QuestStage questStage = this.getStage();
+        final Quest quest = questStage.getQuest();
+        final String path = new StagePath(questStage, List.of(this)).toString(); // the path to the action
+        final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
+
+        ComponentBuilder message = new ComponentBuilder(String.format("\nThe '%s' quest is requesting to take items\n", quest.getTitle()));
+            
+        // list the items
+        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+        itemsOption.getItems().forEach((material, amount) -> {
+            message.append(String.format("- %s (%d)", material, amount)).color(ChatColor.GRAY);
+        });
+
+
+        // add the click functionality
+        message
+            // .append("Do you consent?\n\n").color(ChatColor.GRAY)
+            .append("\n> ").reset()
+            .append("Click to proceed").color(ChatColor.GREEN).underlined(true)
+            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+
+        player.spigot().sendMessage(message.build()); // send request for consent
     }
 
     @Override
     protected Boolean isCompleted(QuesterData questerData) {
+        if ( ! questerData.getConsent(this)) {
+            return false;
+        }
+
         Inventory playerInventory = questerData.getQuester().getPlayer().getInventory();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
@@ -92,13 +127,14 @@ public class TakeItemAction extends QuestAction {
         });
 
         player.sendMessage("");
+        questerData.setConsent(this, false); // revert to asking; could set consent to timeout instead
     }
 
     @Override
     protected void failure(QuesterData questerData) {
         // restart listener
-        questerData.getListener(this).close();
-        this.startListener(questerData);   
+        questerData.stopListener(this);
+        this.startListener(questerData);
     }
 
     @Override
@@ -127,5 +163,4 @@ public class TakeItemAction extends QuestAction {
     public LocationData getLocation() {
         return null;
     }
-    
 }
