@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.bukkit.Material;
@@ -77,7 +78,7 @@ public class TakeItemAction extends QuestAction {
 
         itemsOption.getItems().forEach((material, count) -> {
             playerInventory.removeItem(new ItemStack(material, count));
-            QuestRegistry.getInstance().updateInventoryItem(quest, material, count);
+            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(material, count));
         });
 
         player.sendMessage(

@@ -116,11 +116,8 @@ public class Dynamicquestinventory extends GUIDynamic {
                             Integer itemCount = item.getAmount();
 
                             // update inventory item
-                            QuestRegistry.getInstance().updateInventoryItem(quest, itemMaterial, itemCount);
+                            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemMaterial, itemCount));
                         };
-
-                        // save the items!!
-                        QuestRegistry.getInstance().setInventory(quest, this.inventory); // set inv and save
 
                         // go back
                         gui.clearSlots(); // blank the inner screen

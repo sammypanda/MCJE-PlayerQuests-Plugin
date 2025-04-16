@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -331,21 +332,67 @@ public class QuestRegistry {
 
     /**
      * Update a quests inventory's item.
+     * Takes a map instead of simply just the item and the material 
+     * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
-     * @param material material to update
-     * @param amount amount to set or modify
+     * @param items a map of the materials and their amounts
      */
-    public void updateInventoryItem(Quest quest, Material material, Integer amount) {
-        Map<Material, Integer> inventory = this.getInventory(quest);
-        final Integer inventoryCount = inventory.get(material);
+    public void updateInventoryItem(Quest quest, Map<Material, Integer> items) {
+        this.updateInventoryItem(quest, items, null, false);
+    }
 
-        if (inventoryCount == null) {
-            inventory.put(material, amount);
-            return;
-        }
-        
-        inventory.put(material, amount + inventoryCount);
+    /**
+     * Update a quests inventory's item.
+     * Takes a map instead of simply just the item and the material 
+     * to discourage putting in a loop; there's a database operation.
+     * @param quest the inventory of this quest
+     * @param items a map of the materials and their amounts
+     * @param invert whether to subtract item quantities instead of adding
+     */
+    public void updateInventoryItem(Quest quest, Map<Material, Integer> items, Boolean invert) {
+        this.updateInventoryItem(quest, items, null, invert);
+    }
+
+    /**
+     * Update a quests inventory's item.
+     * Takes a map instead of simply just the item and the material 
+     * to discourage putting in a loop; there's a database operation.
+     * @param quest the inventory of this quest
+     * @param items a map of the materials and their amounts
+     * @param callback optional thing to run on each item
+     * @param invert whether to subtract instead of add items
+     */
+    public void updateInventoryItem(Quest quest, Map<Material, Integer> items, BiConsumer<Material, Integer> callback, Boolean invert) {
+        Map<Material, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
+
+        items.forEach((material, amount) -> {
+            // run a callback operation if exists
+            if (callback != null) {
+                callback.accept(material, amount);
+            }
+
+            // if should be inverted for storage operations
+            // then it mutates the amount as such here
+            //
+            // - this is after the callback since negative
+            //   values in the callback don't make much sense 
+            if (invert) {
+                amount = -amount;
+            }
+
+            // add new to quest inventory
+            final Integer inventoryCount = stagingInventory.get(material);
+            if (inventoryCount == null) {
+                stagingInventory.put(material, amount);
+                return;
+            }
+            
+            // update existing in quest inventory
+            stagingInventory.put(material, amount + inventoryCount);
+        });
+
         quest.isAllowed(); // check if is still allowed
+        this.setInventory(quest, stagingInventory); // update database and registry
     }
 
     /**

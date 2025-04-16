@@ -1,7 +1,6 @@
 package playerquests.builder.quest.action;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.bukkit.Location;
@@ -85,15 +84,10 @@ public class RewardItemAction extends QuestAction {
         Location playerLocation = player.getLocation();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         Quest quest = this.getStage().getQuest();
-        Map<Material, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
-        
-        itemsOption.getItems().forEach((material, amount) -> {
-            int inventoryAmount = questInventory.get(material);
-            int newAmount = inventoryAmount - amount;
-            questInventory.replace(material, inventoryAmount, newAmount);
-            QuestRegistry.getInstance().setInventory(quest, questInventory);
+
+        QuestRegistry.getInstance().updateInventoryItem(quest, itemsOption.getItems(), (material, amount) -> {
             playerLocation.getWorld().dropItem(playerLocation, new ItemStack(material, amount));
-        });
+        }, true);
     }
 
     @Override
