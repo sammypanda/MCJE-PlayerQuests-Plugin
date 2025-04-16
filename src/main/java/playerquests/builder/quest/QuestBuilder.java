@@ -317,7 +317,10 @@ public class QuestBuilder {
      */
     public void removeNPC(QuestNPC npc) {
         // remove from quest list
-        this.questNPCs.remove(npc.getID());
+        if (this.questNPCs.remove(npc.getID()) == null) {
+            // don't refund/continue if questNPC didn't exist
+            return;
+        }
 
         // refund resources
         npc.refund(Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId()));
