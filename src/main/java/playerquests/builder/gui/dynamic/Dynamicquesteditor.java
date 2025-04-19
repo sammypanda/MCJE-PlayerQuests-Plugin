@@ -2,6 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays; // generic array handling
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Material;
 
@@ -12,6 +13,7 @@ import playerquests.builder.gui.function.UpdateScreen; // changing the GUI scree
 import playerquests.builder.quest.QuestBuilder; // controlling a quest
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // accessing the client state
+import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.singleton.QuestRegistry;
 
@@ -76,12 +78,30 @@ public class Dynamicquesteditor extends GUIDynamic {
                 ).onFinish(guiFunction -> {
                     ChatPrompt function = (ChatPrompt) guiFunction;
 
-                    // delete previous
-                    QuestRegistry.getInstance().delete(questBuilder.build(), true, false, true);
+                    // TODO: could modify in place rather than replacing
+
+                    // get current quest (before replacing)
+                    Quest quest = questBuilder.build();
+
+                    // get current inventory
+                    Map<Material, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
+
+                    // delete current quest
+                    QuestRegistry.getInstance().delete(quest, true, false, true);
                     
-                    // save newly named
+                    // change title
                     questBuilder.setTitle(function.getResponse());
-                    questBuilder.build().save();
+
+                    // create and save new
+                    Quest newQuest = questBuilder.build();
+                    newQuest.save();
+
+                    // restore inventory
+                    QuestRegistry.getInstance().setInventory(newQuest, questInventory);
+
+                    // update quest reference
+                    this.director.setCurrentInstance(newQuest, Quest.class);
+
                     this.execute(); // refresh UI to reflect title change
                 })
                 .execute();
