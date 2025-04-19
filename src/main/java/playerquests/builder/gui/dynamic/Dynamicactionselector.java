@@ -95,9 +95,9 @@ public class Dynamicactionselector extends GUIDynamic {
             this.createBackButton();
 
             // show actions
-            Map<String, QuestAction> actions = this.selectedStage.getActions();
-            actions.forEach((action_id, action) -> {
-                this.createActionButton(action_id, action);
+            List<QuestAction> actions = this.selectedStage.getOrderedActions();
+            actions.forEach((action) -> {
+                this.createActionButton(action);
             });
         }
     }
@@ -141,12 +141,12 @@ public class Dynamicactionselector extends GUIDynamic {
 
     /**
      * Create an action button.
-     * @param action_id the id of the action
      * @param action the quest action object
      * @return a GUI slot button
      */
-    private GUISlot createActionButton(String action_id, QuestAction action) {
+    private GUISlot createActionButton(QuestAction action) {
         // (p = stage path)
+        String action_id = action.getID();
 
         Boolean isPresent = this.selectedActions.stream()
             .filter(p -> p.getStage().equals(action.getStage().getID()))
