@@ -19,6 +19,7 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
@@ -87,6 +88,7 @@ public class CompletionCondition extends ActionCondition {
             .setDescription(List.of("Action can only be played after these actions."))
             .setItem(Material.CHEST)
             .onClick(() -> {
+                director.removeCurrentInstance(QuestStage.class); // do not default select stage
                 director.setCurrentInstance(this, CompletionCondition.class);
 
                 new UpdateScreen(List.of("actionselector"), director)
@@ -97,8 +99,12 @@ public class CompletionCondition extends ActionCondition {
                         actionSelector.onFinish((_) -> {
                             Quest quest = (Quest) director.getCurrentInstance(Quest.class);
 
-                            this.setRequiredActions(Map.of(quest.getID(), actionSelector.getSelectedActions())); // TODO: save selected actions to this CompletionCondition
-                            director.removeCurrentInstance(CompletionCondition.class); // cleanup
+                            // save selected actions to this CompletionCondition
+                            this.setRequiredActions(Map.of(quest.getID(), actionSelector.getSelectedActions()));
+                            
+                            // cleanup
+                            director.removeCurrentInstance(CompletionCondition.class);
+                            director.setCurrentInstance(this.getActionData().getAction().getStage(), QuestStage.class);
                         });
                     })
                     .execute();
@@ -113,8 +119,8 @@ public class CompletionCondition extends ActionCondition {
     public List<String> getDetails() {
         List<String> actions = this.requiredActions.values().stream()
             .flatMap(List::stream)           
-            .flatMap(paths -> paths.getActions().stream())
-            .collect(Collectors.toList());
+            .map(StagePath::toString)
+            .toList();
         String actionsString = String.join(", ", actions);
 
         return List.of(
