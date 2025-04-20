@@ -3,7 +3,7 @@
 This tutorial is structured to start at the most easy and common, to the most niche. You can stop at whatever point you are satisfied/come back another time.
 
 ###### ⚠️ If you close any of the menus without pressing Save, you’ll lose your progress!
-###### 🔃 Last Updated: 31/01/2025
+###### 🔃 Last Updated: 20/04/2025
 
 <br>
 
@@ -220,6 +220,30 @@ This tutorial is structured to start at the most easy and common, to the most ni
     - Feel free to add multiple **Time** conditions if you need more complex time.
 8. Done! That easy ^_^
     - Conditions are only checked and work, if the action has tried to be started. So make sure to remember to add the action as a **'Next action'** or a quest **'Start point'**
+
+<br>
+
+## 9. Rewarding a potato for completing the quest!
+> Use the same process as part 6, where a Speak action was created. Instead create a 'Reward Item' action with a potato as the item option.
+
+> You should notice it say there is missing stock and auto toggles off your quest! Here's how to restock and get your quest back into the world.
+
+1. Go back to your quest editor, but instead of clicking edit, click 'Quest Inventory'
+
+<img alt="Menu with a back button, a potato with 196 in the stack (suggesting the current stock of potatoes in the quest inventory), and at the bottom a chest next to two glass panes" src="../../assets/docs/quest-inventory-screen-amount.png" width="450"/>
+
+2. Near the bottom right corner, there is a 'Restock' button represented by a chest
+3. Clicking the restock button opens a place to put items into, to restock the quest
+    - ⚠️ To avoid this being used as a portable chest which many servers consider not survival/a cheat, you cannot freely take back out of the quest inventory. It can only be gotten back out through it being used in a quest.
+
+<img alt="Menu with a green dye suggesting a save button in the bottom right, the player moves 5 potatoes from their inventory into the restock window and presses save. It updates the amount of potatoes by 5 in the quest inventory." src="../../assets/docs/quest-inventory-restocking.webp" width="450"/>
+
+4. Simply exit back out of the restock window and you'll notice the amount increases.
+    - 🔔 No such thing as stacks here, you can store as much of an item as you want in one slot ^_^
+
+5. Now re-toggle your quest back on, and if you restocked everything you should see it in the world.
+
+###### 🔔 If the reward item action doesn't work, remember to add the action as a start point OR as the 'next' action of a previous one that already is set up to show!
 
 <br>
 
