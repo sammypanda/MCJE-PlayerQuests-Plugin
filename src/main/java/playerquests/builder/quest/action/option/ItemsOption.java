@@ -121,4 +121,9 @@ public class ItemsOption extends ActionOption {
     private List<ItemStack> toList(Map<Material, Integer> items) {
         return items.entrySet().stream().map(entry -> new ItemStack(entry.getKey(), entry.getValue())).toList();
     }
+
+    @Override
+    public boolean isValid() {
+        return !this.getItems().isEmpty();
+    }
 }

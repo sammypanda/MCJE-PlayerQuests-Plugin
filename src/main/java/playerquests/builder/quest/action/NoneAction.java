@@ -88,10 +88,6 @@ public class NoneAction extends QuestAction {
 
     @Override
     public Optional<String> isValid() {
-        if (this.getData().getOption(NPCOption.class).get().getNPC() == null) {
-            return Optional.of("NPC is missing, try choosing an NPC in the action options.");
-        }
-
         return Optional.empty();
     }
 
@@ -109,6 +105,10 @@ public class NoneAction extends QuestAction {
 
     @Override
     public LocationData getLocation() {
+        if (this.npc == null) {
+            return null;
+        }
+        
         return new LocationData(this.npc.getLocation());
     }
 

@@ -71,4 +71,10 @@ public abstract class ActionOption {
     public void setActionData(ActionData actionData) {
         this.actionData = actionData;
     }
+
+    /**
+     * Whether this option has enough information to be usable.
+     * @return state validity
+     */
+    public abstract boolean isValid();
 }

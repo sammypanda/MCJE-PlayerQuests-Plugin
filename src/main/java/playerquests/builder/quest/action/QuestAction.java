@@ -424,16 +424,16 @@ public abstract class QuestAction {
     public QuestNPC placeNPC(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer(); // find the player
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
-        Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
+        NPCOption npcOption = this.getData().getOption(NPCOption.class).orElseGet(null); // find NPC option if applies
             
-        if (npcOption.isPresent()) { // if the NPC option exists
-            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
-            questerData.addNPC(this, npc); // track the NPC
-            npc.place(player); // spawn the NPC for this quester
-            return npc;
+        if (npcOption == null || !npcOption.isValid()) { // if the NPC option doesn't exist
+            return null;
         }
 
-        throw new IllegalStateException("Tried to place an NPC for an action with no NPCOption added");
+        QuestNPC npc = npcOption.getNPC(quest); // get the NPC from the quest 
+        questerData.addNPC(this, npc); // track the NPC
+        npc.place(player); // spawn the NPC for this quester
+        return npc;
     }
 
     /**

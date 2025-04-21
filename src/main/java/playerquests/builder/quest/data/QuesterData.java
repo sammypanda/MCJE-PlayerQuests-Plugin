@@ -190,6 +190,10 @@ public class QuesterData {
      * @param npc the NPC to track
      */
     public void addNPC(QuestAction questAction, QuestNPC npc) {
+        if (npc == null) {
+            return;
+        }
+
         this.npcs.put(questAction, npc);
     }
 
