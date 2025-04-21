@@ -104,9 +104,9 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 });
 
             // show actions
-            Map<String, QuestAction> actions = this.selectedStage.getActions();
-            actions.forEach((action_id, action) -> {
-                this.createActionButton(action_id, action);
+            List<QuestAction> actions = this.selectedStage.getOrderedActions();
+            actions.forEach((action) -> {
+                this.createActionButton(action);
             });
         }
     }
@@ -132,11 +132,12 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     /**
      * Create an action button.
      * These buttons are selectable.
-     * @param action_id the id of the action
      * @param action the stage action object
      * @return a GUI slot button
      */
-    private GUISlot createActionButton(String action_id, QuestAction action) {
+    private GUISlot createActionButton(QuestAction action) {
+        String action_id = action.getID();
+
         boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
             .stream()
             .filter(path -> path.hasActions()) // isn't just a stage in the path

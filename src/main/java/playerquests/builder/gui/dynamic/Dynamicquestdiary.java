@@ -15,6 +15,7 @@ import playerquests.Core;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
@@ -209,13 +210,14 @@ public class Dynamicquestdiary extends GUIDynamic {
     private String formatBookEntry(QuestAction action) {
         // get the attached quest
         Quest quest = action.getStage().getQuest();
+        LocationData location = action.getLocation();
 
         // return formatted page content
         return String.format("Quest: %s\n\nAction: %s (%s)\n\n%s", 
             quest.getTitle(),
             action.getID(),
             action.getName(),
-            action.getLocation()
+            location != null ? location.toString() : "Unknown location"
         );
     }
 }

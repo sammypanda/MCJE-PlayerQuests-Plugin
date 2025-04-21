@@ -98,4 +98,9 @@ public class NPCOption extends ActionOption {
     public QuestNPC getNPC(Quest quest) {
         return quest.getNPCs().get(this.getNPC());
     }
+
+    @Override
+    public boolean isValid() {
+        return this.getNPC() != null;
+    }
 }

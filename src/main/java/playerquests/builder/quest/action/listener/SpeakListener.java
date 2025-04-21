@@ -36,9 +36,7 @@ public class SpeakListener extends ActionListener<SpeakAction> {
         }
 
         // exit if the is different from the player in the interact event
-        if (!event.getPlayer().equals(this.questerData.getQuester().getPlayer())) {
-            return;
-        }
+        if ( ! passedPlayerCheck(event.getPlayer()) ) { return; }
 
         // exit if the NPC is different from all in the interact event
         if (!event.getNPCs().contains(npc.get().getNPC(action.getStage().getQuest()))) {

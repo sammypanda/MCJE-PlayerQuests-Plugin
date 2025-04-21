@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest;
 import playerquests.product.fx.ParticleFX;
@@ -174,29 +175,46 @@ public class QuestDiary {
     }
 
     /**
-     * Check if an action has been completed.
-     * @param quest the quest the action belongs to
-     * @param path the path to the action
+     * Get the state of completion for the action.
+     * <ul>
+     *  <li>0 = Uncompleted</li>
+     *  <li>1 = Completed</li>
+     *  <li>2 = In progress</li>
+     * </ul>
+     * @param quest
+     * @param path
+     * @return
      */
-    public boolean hasCompletedAction(Quest quest, StagePath path) {
+    public Integer getActionCompletionState(Quest quest, StagePath path) {
         // retrieve all entries from the database
         Map<Quest, List<Map<StagePath, Boolean>>> rawEntries = Database.getInstance().getDiaryEntries(this);
 
         // exit if no work to do
         if (rawEntries == null || !rawEntries.containsKey(quest)) {
-            return false;
+            return 0;
         }
 
         // get entries for the specific quest
         List<Map<StagePath, Boolean>> questEntries = rawEntries.get(quest);
 
+        // check for ongoing actions
+        List<QuestAction> pathActions = path.getActions(quest);
+        if (this.getQuestClient().getTrackedActions().stream().anyMatch(action -> pathActions.contains(action))) {
+            return 2;
+        }
+
         // check for incomplete actions
-        return questEntries.stream()
+        if (questEntries.stream()
             .flatMap(pathMap -> pathMap.entrySet().stream()) // change map to entry set to be able to work with it
             .flatMap(pathEntry -> pathEntry.getKey().getActions(quest).stream() // for every action in the path:
-                .filter(action -> path.getActions(quest).contains(action)) // remove actions that aren't included in the passed in path
+                .filter(action -> pathActions.contains(action)) // remove actions that aren't included in the passed in path
                 .map(action -> Map.entry(action, pathEntry.getValue()))) // get map of action and completion state
-            .noneMatch(entry -> !entry.getValue()); // if no action incomplete, all actions are complete
+            .noneMatch(entry -> !entry.getValue())) 
+        { // if no action incomplete, all actions are complete
+            return 1;
+        }
+
+        return 0;
     }
 
     /**

@@ -134,12 +134,29 @@ public class QuestClient {
     public void start(QuestAction action, boolean force) {
         Quest quest = action.getStage().getQuest(); // get the quest the action belongs to
 
+        Integer completionState = this.getDiary().getActionCompletionState(quest, new StagePath(action.getStage(), List.of(action)));
+
         // if not force, and has completed; exit
-        if (!force && this.getDiary().hasCompletedAction(quest, new StagePath(action.getStage(), List.of(action)))) {
+        if (!force && completionState == 1) {
             ChatUtils.message("Already completed this quest action! ^_^")
                 .player(this.getPlayer())
                 .type(MessageType.NOTIF)
-                .send(); // send message saying it's already been completed
+                .send();
+            return;
+        }
+
+        // if already in progress, don't ever start/force
+        if (completionState == 2) {
+            ChatUtils.message(String.format("'%s' quest action already in progress! ^_^", action.getName()))
+                .player(this.getPlayer())
+                .type(MessageType.NOTIF)
+                .send();
+            return;
+        }
+
+        // if quest not allowed; exit
+        if ( ! quest.isAllowed() ) {
+            quest.toggle(false);
             return;
         }
 

@@ -196,7 +196,7 @@ public class Database {
             .target(MessageTarget.WORLD)
             .type(MessageType.WARN);
         try {
-            URL url = new URI("https://api.github.com/repos/sammypanda/mcje-playerquests-plugin/releases").toURL();
+            URL url = new URI("https://api.github.com/repos/sammypanda/mcje-playerquests-plugin/releases/latest").toURL();
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
 
@@ -234,6 +234,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
             
             switch (version) {
+                case "0.9":
                 case "0.8.1":
                 case "0.8":
                     query.append(MigrationUtils.dbV0_8());

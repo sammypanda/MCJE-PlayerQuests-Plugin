@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.InventoryView;
@@ -113,19 +114,10 @@ public class Dynamicquestinventory extends GUIDynamic {
 
                             Material itemMaterial = item.getType();
                             Integer itemCount = item.getAmount();
-                            final Integer inventoryCount = this.inventory.get(itemMaterial);
 
                             // update inventory item
-                            if (inventoryCount == null) {
-                                this.inventory.put(itemMaterial, itemCount);
-                                continue;
-                            }
-                            
-                            this.inventory.put(itemMaterial, itemCount + inventoryCount);
+                            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemMaterial, itemCount));
                         };
-
-                        // save the items!!
-                        QuestRegistry.getInstance().setInventory(quest, this.inventory); // set inv and save
 
                         // go back
                         gui.clearSlots(); // blank the inner screen
@@ -158,25 +150,20 @@ public class Dynamicquestinventory extends GUIDynamic {
             }
 
             Material material = entry.getKey();
-            Integer amount = entry.getValue();
-            Integer requiredAmount = this.requiredInventory.get(material);
-
-            // set as amount 0 if none required
-            if (requiredAmount == null) {
-                requiredAmount = 0;
-            }
+            Integer predictedAmount = entry.getValue();
+            Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(material)).orElse(0);
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(material)
                 .setLabel(
-                    amount > 0 
-                    ? (amount < requiredAmount 
-                        ? ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET 
-                        : Integer.toString(amount)) 
-                    : ChatColor.RED + "Out of Stock" + ChatColor.RESET
+                    realAmount == 0
+                    ? ChatColor.RED + "Out of Stock" + ChatColor.RESET + " (" + realAmount + ")"
+                    : (predictedAmount >= 0
+                        ? Integer.toString(realAmount)
+                        : ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET + " (" + realAmount + ")")
                 )
                 .setGlinting(
-                    amount > 0 ? false : true
+                    predictedAmount >= 0 ? false : true
                 );
 
             return false; // continue

@@ -57,6 +57,11 @@ public class QuesterData {
     private Boolean clashLock = false;
 
     /**
+     * Map if quester has consented to an action.
+     */
+    private Map<QuestAction, Boolean> actionConsent = new HashMap<>();
+
+    /**
      * The context of data useful for working with a QuestClient.
      * @param quester the QuestClient
      * @param location location of the quester
@@ -118,7 +123,7 @@ public class QuesterData {
      * @return a list of effects that are currently in the world
      */
     public List<FX> getFX(QuestAction action) {
-        return this.effects.get(action);
+        return this.effects.getOrDefault(action, List.of());
     }
 
     /**
@@ -141,7 +146,7 @@ public class QuesterData {
             // filter out exact matches
             .filter(trackedAction -> !trackedAction.equals(action))
             // check against locations
-            .filter(trackedAction -> trackedAction.getLocation().equals(action.getLocation()))
+            .filter(trackedAction -> trackedAction.getLocation() != null && trackedAction.getLocation().equals(action.getLocation()))
             // get final size
             .toList());
             
@@ -185,6 +190,10 @@ public class QuesterData {
      * @param npc the NPC to track
      */
     public void addNPC(QuestAction questAction, QuestNPC npc) {
+        if (npc == null) {
+            return;
+        }
+
         this.npcs.put(questAction, npc);
     }
 
@@ -202,5 +211,38 @@ public class QuesterData {
      */
     public Map<QuestAction, QuestNPC> getNPCs() {
         return this.npcs;
+    }
+
+    /**
+     * Stop an action listener and unset it.
+     * @param action the action the listener is paired with
+     */
+    public void stopListener(QuestAction action) {
+        ActionListener<?> listener = this.getListener(action);
+
+        if (listener == null) {
+            return;
+        }
+
+        listener.close();
+        this.listeners.remove(action);
+    }
+
+    /**
+     * Set consent for an action, like taking items from quester inventory.
+     * @param action quest action to set consent for
+     * @param consent state of consent to set
+     */
+    public void setConsent(QuestAction action, Boolean consent) {
+        this.actionConsent.put(action, consent);
+    }
+
+    /**
+     * Get the consent state for an action.
+     * @param action quest action to check consent of
+     * @return consent state; defaulting to false
+     */
+    public boolean getConsent(QuestAction action) {
+        return this.actionConsent.getOrDefault(action, false);
     }
 }

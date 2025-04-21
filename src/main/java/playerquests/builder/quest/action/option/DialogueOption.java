@@ -72,4 +72,9 @@ public class DialogueOption extends ActionOption {
     public List<String> getText() {
         return this.text;
     }
+
+    @Override
+    public boolean isValid() {
+        return !this.getText().isEmpty();
+    }
 }

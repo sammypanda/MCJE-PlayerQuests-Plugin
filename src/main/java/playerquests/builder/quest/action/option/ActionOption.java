@@ -21,7 +21,8 @@ import playerquests.client.ClientDirector;
     property = "option")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = NPCOption.class, name = "NPC"),
-    @JsonSubTypes.Type(value = DialogueOption.class, name = "Dialogue")
+    @JsonSubTypes.Type(value = DialogueOption.class, name = "Dialogue"),
+    @JsonSubTypes.Type(value = ItemsOption.class, name = "Items")
 })
 public abstract class ActionOption {
 
@@ -70,4 +71,10 @@ public abstract class ActionOption {
     public void setActionData(ActionData actionData) {
         this.actionData = actionData;
     }
+
+    /**
+     * Whether this option has enough information to be usable.
+     * @return state validity
+     */
+    public abstract boolean isValid();
 }

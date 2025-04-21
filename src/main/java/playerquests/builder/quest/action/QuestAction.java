@@ -19,6 +19,7 @@ import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.data.ActionTweaks;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.NPCOption;
@@ -48,7 +49,10 @@ import playerquests.utility.singleton.Database;
 @JsonSubTypes({
     // Add concrete actions here
     @JsonSubTypes.Type(value = NoneAction.class, name = "NoneAction"),
-    @JsonSubTypes.Type(value = SpeakAction.class, name = "SpeakAction")
+    @JsonSubTypes.Type(value = SpeakAction.class, name = "SpeakAction"),
+    @JsonSubTypes.Type(value = RequestItemAction.class, name = "RequestItemAction"),
+    @JsonSubTypes.Type(value = RewardItemAction.class, name = "RewardItemAction"),
+    @JsonSubTypes.Type(value = TakeItemAction.class, name = "TakeItemAction")
 })
 public abstract class QuestAction {
 
@@ -92,6 +96,13 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract List<Class<? extends ActionCondition>> getConditions();
+
+    /**
+     * Get the tweaks to apply to this action.
+     * @return a list of tweaks to apply.
+     */
+    @JsonIgnore
+    public abstract List<ActionTweaks> getTweaks();
     
     /**
      * Gets the stage that this action belongs to.
@@ -207,10 +218,9 @@ public abstract class QuestAction {
 
         // if not successful don't finish
         if (!this.isCompleted(questerData)) {
+            this.failure(questerData);
             return;
         }
-
-        // TODO: implement action failures
 
         // run success method
         this.success(questerData);
@@ -243,7 +253,7 @@ public abstract class QuestAction {
      */
     public void stop(QuesterData questerData, Boolean halt) {
         // close the listener
-        questerData.getListener(this).close();
+        questerData.stopListener(this);
 
         // stop all the FX effects
         questerData.getFX(this).forEach(effect -> {
@@ -293,6 +303,11 @@ public abstract class QuestAction {
      * @return the FX for the action
      */
     protected void startParticleFX(QuesterData questerData) {
+        // don't continue if action specifies NO_FX
+        if (this.getTweaks().contains(ActionTweaks.NO_FX)) {
+            return;
+        }
+
         // get the questers settings/preferences
         QuestClient quester = questerData.getQuester();
         QuestDiary questerDiary = quester.getDiary();
@@ -409,16 +424,16 @@ public abstract class QuestAction {
     public QuestNPC placeNPC(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer(); // find the player
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
-        Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
+        NPCOption npcOption = this.getData().getOption(NPCOption.class).orElseGet(null); // find NPC option if applies
             
-        if (npcOption.isPresent()) { // if the NPC option exists
-            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
-            questerData.addNPC(this, npc); // track the NPC
-            npc.place(player); // spawn the NPC for this quester
-            return npc;
+        if (npcOption == null || !npcOption.isValid()) { // if the NPC option doesn't exist
+            return null;
         }
 
-        throw new IllegalStateException("Tried to place an NPC for an action with no NPCOption added");
+        QuestNPC npc = npcOption.getNPC(quest); // get the NPC from the quest 
+        questerData.addNPC(this, npc); // track the NPC
+        npc.place(player); // spawn the NPC for this quester
+        return npc;
     }
 
     /**
