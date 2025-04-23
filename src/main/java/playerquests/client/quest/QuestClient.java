@@ -134,7 +134,7 @@ public class QuestClient {
     public void start(QuestAction action, boolean force) {
         Quest quest = action.getStage().getQuest(); // get the quest the action belongs to
 
-        Integer completionState = this.getDiary().getActionCompletionState(quest, new StagePath(action.getStage(), List.of(action)));
+        Integer completionState = this.getDiary().getActionCompletionState(quest, action);
 
         // if not force, and has completed; exit
         if (!force && completionState == 1) {
