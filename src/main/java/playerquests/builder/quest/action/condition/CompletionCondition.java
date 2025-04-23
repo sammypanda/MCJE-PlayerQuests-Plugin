@@ -3,7 +3,6 @@ package playerquests.builder.quest.action.condition;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -29,7 +28,7 @@ public class CompletionCondition extends ActionCondition {
     
     /**
      * The actions that have been added as requirements for this 
-     * condition to pass.
+     * condition to pass. Keyed by quest ID.
      */
     @JsonProperty("actions")
     Map<String, List<StagePath>> requiredActions = new HashMap<>();
@@ -46,21 +45,16 @@ public class CompletionCondition extends ActionCondition {
     @Override
     public Boolean isMet(QuesterData questerData) {
         // check if all the required actions are completed
-        // - this is done by getting the questers diary and asking it if it thinks
-        //   the action passed in has been completed.
-        return this.getRequiredActions().entrySet().stream()
-            // filter out any action that hasn't been completed (the key is quest, the value is the path **LIST**)
-                // checking every path in the lists belonging to each quest
-            .filter(entry -> entry.getValue().stream()
-                .anyMatch(path -> questerData.getQuester().getDiary().getActionCompletionState(
-                    Core.getQuestRegistry().getQuest(entry.getKey()), // search quest registry for the quest
-                    path
-                ) != 1))
-            // collect back to a set to check if is empty
-            .collect(Collectors.toSet())
-            // if it's empty that means we succeeded
-            // if not, that means there is one here that hasn't been completed
-            .isEmpty();
+        return this.getRequiredActions().entrySet().stream().allMatch(entry -> { // if all required actions report complete
+            Quest quest = Core.getQuestRegistry().getQuest(entry.getKey());
+            
+            // CHECKING IF ALL ARE COMPLETED:
+            return entry.getValue().stream() // unpack all paths
+                .flatMap(path -> path.getActions(quest).stream()) // for each action in the path
+                .allMatch(action -> // if any don't match, it will return false
+                    questerData.getQuester().getDiary().getActionCompletionState(quest, action) == 1
+                );
+        });
     }
 
     public Map<String, List<StagePath>> getRequiredActions() {

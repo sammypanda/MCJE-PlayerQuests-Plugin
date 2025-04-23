@@ -374,6 +374,7 @@ public abstract class QuestAction {
      * action is valid, or requires further editing.
      * @return empty if was successful
      */
+    @JsonIgnore
     public abstract Optional<String> isValid();
 
     /**
