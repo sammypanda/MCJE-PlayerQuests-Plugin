@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import playerquests.builder.quest.action.NoneAction;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.npc.QuestNPC;
@@ -145,6 +146,8 @@ public class QuesterData {
         ArrayList<QuestAction> clashingActions = new ArrayList<>(quester.getTrackedActions().stream()
             // filter out exact matches
             .filter(trackedAction -> !trackedAction.equals(action))
+            // filter out any 'None' action
+            .filter(trackedAction -> !(trackedAction instanceof NoneAction))
             // check against locations
             .filter(trackedAction -> trackedAction.getLocation() != null && trackedAction.getLocation().equals(action.getLocation()))
             // get final size
