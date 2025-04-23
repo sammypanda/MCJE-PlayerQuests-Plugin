@@ -208,13 +208,7 @@ public class QuestDiary {
 
         // get entries for the specific quest
         List<Map<StagePath, Boolean>> questEntries = rawEntries.get(quest);
-
-        // check for ongoing actions
-        List<QuestAction> pathActions = path.getActions(quest);
-        if (this.getQuestClient().getTrackedActions().stream().anyMatch(action -> pathActions.contains(action))) {
-            return 2;
-        }
-
+        
         // check for incomplete actions
         if (questEntries.stream()
             .flatMap(pathMap -> pathMap.entrySet().stream()) // change map to entry set to be able to work with it
