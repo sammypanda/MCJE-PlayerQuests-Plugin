@@ -1,6 +1,7 @@
 package playerquests.builder.quest.action.option;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -76,5 +77,6 @@ public abstract class ActionOption {
      * Whether this option has enough information to be usable.
      * @return state validity
      */
+    @JsonIgnore
     public abstract boolean isValid();
 }
