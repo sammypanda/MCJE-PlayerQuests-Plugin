@@ -17,6 +17,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
+import playerquests.builder.quest.npc.NPCType;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.product.Quest; // final quest products
 import playerquests.utility.event.NPCInteractEvent;
@@ -107,7 +108,12 @@ public class BlockListener implements Listener {
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             questerData.getNPCs().values().forEach(npc -> {
-                this.setBlockNPC((BlockNPC) npc.getAssigned(), player);
+                NPCType npcType = npc.getAssigned();
+                if ( ! (npcType instanceof BlockNPC)) {
+                    return;
+                }
+
+                this.setBlockNPC((BlockNPC) npcType, player);
             });
         });
 
