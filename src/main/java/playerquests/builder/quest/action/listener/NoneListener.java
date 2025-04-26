@@ -1,13 +1,7 @@
 package playerquests.builder.quest.action.listener;
 
-import java.util.Optional;
-
-import org.bukkit.event.EventHandler;
-
 import playerquests.builder.quest.action.NoneAction;
-import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.QuesterData;
-import playerquests.utility.event.NPCInteractEvent;
 
 /**
  * Listener for immediately moving on from an action.
