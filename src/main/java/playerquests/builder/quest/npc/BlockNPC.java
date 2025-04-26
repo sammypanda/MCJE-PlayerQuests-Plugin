@@ -1,5 +1,7 @@
 package playerquests.builder.quest.npc;
 
+import java.util.Arrays;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +14,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising pro
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
 
 import playerquests.Core;
+import playerquests.builder.gui.GUIBuilder;
+import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.dynamic.GUIDynamic;
+import playerquests.builder.gui.function.SelectMaterial;
+import playerquests.builder.gui.function.data.SelectMethod;
+import playerquests.client.ClientDirector;
 import playerquests.utility.listener.BlockListener;
 import playerquests.utility.singleton.PlayerQuests;
 
@@ -97,8 +105,6 @@ public class BlockNPC extends NPCType {
      * Places the NPC block in the world.
      * @param player the player who can see the placement
      */
-    @Override
-    @JsonIgnore
     public void place(Player player) {
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             // get the listener that detects interactions with the block npc
@@ -118,8 +124,6 @@ public class BlockNPC extends NPCType {
     /**
      * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
      */
-    @Override
-    @JsonIgnore
     public void remove() {
         PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this);
     }
@@ -127,8 +131,6 @@ public class BlockNPC extends NPCType {
     /**
      * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
      */
-    @Override
-    @JsonIgnore
     public void remove(Player player) {
         PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this, player);
     }
@@ -138,8 +140,6 @@ public class BlockNPC extends NPCType {
      * 
      * @param player the player to refund the item to
      */
-    @Override
-    @JsonIgnore
     public void refund(Player player) {
         ItemStack item = new ItemStack(this.getBlock().getMaterial());
         PlayerInventory playerInventory = player.getInventory();
@@ -165,13 +165,52 @@ public class BlockNPC extends NPCType {
      * 
      * @param player the player to penalize
      */
-    @Override
-    @JsonIgnore
     public void penalise(Player player) {
         ItemStack item = new ItemStack(this.getBlock().getMaterial(), 1);
         PlayerInventory playerInventory = player.getInventory();
 
         // subtract the block
         playerInventory.removeItem(item);
+    }
+
+    @Override
+    public GUISlot createTypeSlot(GUIDynamic screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
+        return new GUISlot(gui, slot)
+            .setLabel("A Block")
+            .setItem("GRASS_BLOCK")
+            .onClick(() -> {
+            new SelectMaterial(
+                Arrays.asList(
+                    "Select a block from your inventory", // the prompt message
+                    Arrays.asList( // denylisted blocks:
+                        "BARRIER",
+                        "DRAGON_EGG"
+                    ),
+                    Arrays.asList( // denied select methods:
+                        SelectMethod.HIT,
+                        SelectMethod.CHAT
+                    ),
+                    true // has to be a block
+                ), 
+                director
+            ).onFinish((f) -> {
+                // get the block that was selected
+                SelectMaterial function = (SelectMaterial) f;
+                Material block = function.getResult();
+
+                // assign this block as the quest NPC
+                if (block != null) {
+                    BlockNPC blockNPC = new BlockNPC(block.createBlockData(), npc); // create NPC type
+                    
+                    // set this npc type
+                    npc.assign(
+                        blockNPC
+                    );
+                }
+
+                gui.getResult().display();
+                screen.refresh();
+            }).execute();
+        });
     }
 }
