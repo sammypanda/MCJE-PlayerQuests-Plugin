@@ -99,8 +99,6 @@ public class EntityNPC extends NPCType {
 
                         gui.getResult().display();
                         screen.refresh();
-
-                        System.out.println(selectEntity.getResult());
                     }).execute();
             });
     }

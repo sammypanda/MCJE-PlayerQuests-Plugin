@@ -1,11 +1,14 @@
 package playerquests.builder.quest.action;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -15,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.Core;
 import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -28,6 +32,7 @@ import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.EntityNPC;
+import playerquests.builder.quest.npc.NPCType;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -36,6 +41,7 @@ import playerquests.product.Quest;
 import playerquests.product.fx.ParticleFX;
 import playerquests.utility.event.ActionCompletionEvent;
 import playerquests.utility.singleton.Database;
+import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * The class that lays out how functionality
@@ -328,12 +334,26 @@ public abstract class QuestAction {
             
             // offset the location to above where the action takes place
             location.setX(location.getX() + 0.5);
-            location.setY(location.getY() + 1.5);
             location.setZ(location.getZ() + 0.5);
 
             // increment particle height if an entity NPC
-            if (npcOption.getNPC(quest).getAssigned() instanceof EntityNPC) {
-                location.setY(location.getY() + 1);
+            QuestNPC npc = npcOption.getNPC(quest);
+            NPCType npcType = npc.getAssigned();
+            if (npcType instanceof EntityNPC) {
+                Location bukkitLocation = location.toBukkitLocation();
+                EntityNPC entityNPC = (EntityNPC) npcType;
+
+                Collection<Entity> entities = bukkitLocation.getWorld().getNearbyEntities(bukkitLocation, 0, 1, 0);
+
+                // find height of spawned NPC
+                entities.stream()
+                    .filter(entity -> (entity.getType() == entityNPC.getEntity()))
+                    .findFirst()
+                    .ifPresent(entity -> {
+                        location.setY(location.getY() + entity.getHeight() + 0.5);
+                    });
+            } else {
+                location.setY(location.getY() + 1.5);
             }
 
             // add particle to FX

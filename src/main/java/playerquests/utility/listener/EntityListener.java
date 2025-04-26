@@ -39,8 +39,6 @@ public class EntityListener implements Listener {
         // center on origin
         location.add(.5, 0, .5);
 
-        System.out.println(location);
-
         // spawn entity in world
         Entity entity = world.spawnEntity(location, entityNPC.getEntity());
         
