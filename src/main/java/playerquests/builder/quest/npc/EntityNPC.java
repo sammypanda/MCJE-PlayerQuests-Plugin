@@ -1,5 +1,6 @@
 package playerquests.builder.quest.npc;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -9,6 +10,8 @@ import net.md_5.bungee.api.ChatColor;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.GUIDynamic;
+import playerquests.builder.gui.function.GUIFunction;
+import playerquests.builder.gui.function.SelectEntity;
 import playerquests.client.ClientDirector;
 
 public class EntityNPC extends NPCType {
@@ -51,6 +54,20 @@ public class EntityNPC extends NPCType {
                 List.of(
                     String.format("%sComing soon", ChatColor.DARK_GRAY)
                 ))
-            .setItem(Material.EGG);
+            .setItem(Material.EGG)
+            .onClick(() -> {
+                new SelectEntity(
+                    Arrays.asList(
+                        "Select an entity", // the prompt message
+                        List.of(), // denied entities (none)
+                        List.of() // denied SelectMethods (none)
+                    ), 
+                    director).onFinish((f) -> {
+                        GUIFunction guiFunction = (GUIFunction) f;
+                        SelectEntity selectEntity = (SelectEntity) guiFunction;
+
+                        System.out.println(selectEntity.getResult());
+                    }).execute();
+            });
     }
 }

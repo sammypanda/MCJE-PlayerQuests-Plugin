@@ -68,7 +68,7 @@ public class SelectMaterial extends GUIFunction {
                 return; // do not capture other players events
             }
             
-            if (deniedMethods.contains(SelectMethod.HIT)) {
+            if (deniedMethods.contains(SelectMethod.HIT) && deniedMethods.contains(SelectMethod.PAT)) {
                 return; // do not continue
             }
 
