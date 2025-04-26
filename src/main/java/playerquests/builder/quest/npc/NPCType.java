@@ -91,6 +91,15 @@ public abstract class NPCType {
     }
 
     /**
+     * Gets the QuestNPC associated with this BlockNPC.
+     * 
+     * @return the QuestNPC object
+     */
+    public QuestNPC getNPC() {
+        return this.npc;
+    }
+
+    /**
      * Returns the value of this NPC type.
      * @return the value associated with this NPC type, such as the block name for a BlockNPC
      */

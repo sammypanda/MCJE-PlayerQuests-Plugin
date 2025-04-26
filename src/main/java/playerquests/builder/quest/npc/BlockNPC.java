@@ -93,15 +93,6 @@ public class BlockNPC extends NPCType {
     }
 
     /**
-     * Gets the QuestNPC associated with this BlockNPC.
-     * 
-     * @return the QuestNPC object
-     */
-    public QuestNPC getNPC() {
-        return this.npc;
-    }
-
-    /**
      * Places the NPC block in the world.
      * @param player the player who can see the placement
      */

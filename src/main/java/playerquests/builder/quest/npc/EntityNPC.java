@@ -16,6 +16,7 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.builder.gui.function.SelectEntity;
 import playerquests.client.ClientDirector;
+import playerquests.utility.singleton.PlayerQuests;
 
 public class EntityNPC extends NPCType {
 
@@ -45,7 +46,7 @@ public class EntityNPC extends NPCType {
 
     @Override
     public void place(Player player) {
-        player.getWorld().spawnEntity(player.getLocation(), this.getEntity(), false);
+        PlayerQuests.getEntityListener().registerEntityNPC(this, player);
     }
 
     @Override

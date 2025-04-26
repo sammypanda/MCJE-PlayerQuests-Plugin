@@ -7,6 +7,7 @@ import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
 import playerquests.utility.listener.BlockListener; // for block-related events
+import playerquests.utility.listener.EntityListener;
 import playerquests.utility.listener.PlayerListener; // for player-related events
 import playerquests.utility.listener.ServerListener; // for server-related events
 
@@ -41,6 +42,14 @@ public class PlayerQuests {
      * </p>
      */
     private static BlockListener blockListener = new BlockListener();
+
+    /**
+     * Singleton instance of the entity event listener.
+     * <p>
+     * This instance handles all entity-related events for the plugin.
+     * </p>
+     */
+    private static EntityListener entityListener = new EntityListener();
 
     /**
      * Singleton instance of the player event listener.
@@ -88,6 +97,15 @@ public class PlayerQuests {
      */
     public static BlockListener getBlockListener() {
         return blockListener;
+    }
+
+    /**
+     * Gets the singleton instance of the entity event listener.
+     * 
+     * @return The entity listener instance used for handling entity-related events.
+     */
+    public static EntityListener getEntityListener() {
+        return entityListener;
     }
 
     /**

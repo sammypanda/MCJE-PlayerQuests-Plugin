@@ -27,6 +27,7 @@ import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -322,11 +323,18 @@ public abstract class QuestAction {
         // get the location for the particle
         Optional.ofNullable(this.getLocation()).ifPresent(l -> {
             LocationData location = new LocationData(l);
+            Quest quest = this.getStage().getQuest();
+            NPCOption npcOption = actionData.getOption(NPCOption.class).get();
             
             // offset the location to above where the action takes place
             location.setX(location.getX() + 0.5);
             location.setY(location.getY() + 1.5);
             location.setZ(location.getZ() + 0.5);
+
+            // increment particle height if an entity NPC
+            if (npcOption.getNPC(quest).getAssigned() instanceof EntityNPC) {
+                location.setY(location.getY() + 1);
+            }
 
             // add particle to FX
             fxBuilder.addParticle(particleFX, location);
