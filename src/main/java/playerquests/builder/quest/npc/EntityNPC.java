@@ -4,22 +4,48 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.md_5.bungee.api.ChatColor;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.GUIDynamic;
-import playerquests.builder.gui.function.GUIFunction;
 import playerquests.builder.gui.function.SelectEntity;
 import playerquests.client.ClientDirector;
 
 public class EntityNPC extends NPCType {
 
+    /**
+     * Defaut constructor (for Jackson)
+    */
+    public EntityNPC() {}
+
+    /**
+     * Constructs an EntityNPC with specified entity data and associated quest NPC.
+     * @param value the block data string
+     * @param npc the associated QuestNPC
+     */
+    public EntityNPC(String value, QuestNPC npc) {
+        super(value, npc);
+        this.type = "Entity";
+    }
+
+    /**
+     * Constructs an EntityNPC using an entity object.
+     * @param entity the entity
+     * @param npc the associated QuestNPC
+     */
+    public EntityNPC(Entity entity, QuestNPC npc) {
+        this(entity.getType().toString(), npc);
+    }
+
     @Override
     public void place(Player player) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'place'");
+        player.getWorld().spawnEntity(player.getLocation(), this.getEntity(), false);
     }
 
     @Override
@@ -35,16 +61,10 @@ public class EntityNPC extends NPCType {
     }
 
     @Override
-    public void refund(Player player) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'refund'");
-    }
+    public void refund(Player player) {}
 
     @Override
-    public void penalise(Player player) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'penalise'");
-    }
+    public void penalise(Player player) {}
 
     @Override
     public GUISlot createTypeSlot(GUIDynamic screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
@@ -63,11 +83,42 @@ public class EntityNPC extends NPCType {
                         List.of() // denied SelectMethods (none)
                     ), 
                     director).onFinish((f) -> {
-                        GUIFunction guiFunction = (GUIFunction) f;
-                        SelectEntity selectEntity = (SelectEntity) guiFunction;
+                        SelectEntity selectEntity = (SelectEntity) f;
+                        Entity entity = selectEntity.getResult();
+
+                        // assign this block as the quest NPC
+                        if (entity != null) {
+                            EntityNPC entityNPC = new EntityNPC(entity, npc); // create NPC type
+                            
+                            // set this npc type
+                            npc.assign(
+                                entityNPC
+                            );
+                        }
+
+                        gui.getResult().display();
+                        screen.refresh();
 
                         System.out.println(selectEntity.getResult());
                     }).execute();
             });
+    }
+
+    /**
+     * Gets the entity representing this NPC.
+     * @return the block data of the NPC
+     */
+    @JsonIgnore
+    public EntityType getEntity() {
+        EntityType finalEntity = EntityType.VILLAGER;
+
+        try {
+            finalEntity = EntityType.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            System.err.println("malformed entity data in a quest.");
+            this.value = finalEntity.toString();
+        }
+
+        return finalEntity;
     }
 }
