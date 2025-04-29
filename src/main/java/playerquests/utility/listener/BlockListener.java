@@ -107,7 +107,7 @@ public class BlockListener implements Listener {
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            questerData.getNPCs().values().forEach(npc -> {
+            questerData.getNPCs().forEach(npc -> {
                 NPCType npcType = npc.getAssigned();
                 if ( ! (npcType instanceof BlockNPC)) {
                     return;
@@ -118,7 +118,7 @@ public class BlockListener implements Listener {
         });
 
         // get the NPCs matching the location of the interacted block
-        List<QuestNPC> npcs = questerData.getNPCs().values().stream()
+        List<QuestNPC> npcs = questerData.getNPCs().stream()
             .filter(questNPC -> questNPC.getLocation().toBukkitLocation().equals(eventBlockLocation))
             .toList();
 

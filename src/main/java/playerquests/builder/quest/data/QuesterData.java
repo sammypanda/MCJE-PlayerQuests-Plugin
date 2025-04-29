@@ -50,7 +50,7 @@ public class QuesterData {
     /**
      * Useful for tracking NPCs in the world.
      */
-    private HashMap<QuestAction, QuestNPC> npcs = new HashMap<>();
+    private HashMap<QuestAction, List<QuestNPC>> npcs = new HashMap<>();
 
     /**
      * Lock to wait for an ongoing action clash to be resolved.
@@ -197,7 +197,12 @@ public class QuesterData {
             return;
         }
 
-        this.npcs.put(questAction, npc);
+        if (this.getNPCMap().containsKey(questAction)) {
+            this.npcs.get(questAction).add(npc);
+            return;
+        }
+
+        this.npcs.put(questAction, new ArrayList<>(List.of(npc)));
     }
 
     /**
@@ -212,7 +217,16 @@ public class QuesterData {
      * Get the NPCs tracked in this QuesterData.
      * @return the list of tracked npcs;
      */
-    public Map<QuestAction, QuestNPC> getNPCs() {
+    public List<QuestNPC> getNPCs() {
+        return this.getNPCMap().values().stream()
+            .flatMap(list -> list.stream())
+            .toList();
+    }
+
+    /**
+     * Return the map of QuestAction and subsiding NPCs
+     */
+    public Map<QuestAction, List<QuestNPC>> getNPCMap() {
         return this.npcs;
     }
 
@@ -247,5 +261,14 @@ public class QuesterData {
      */
     public boolean getConsent(QuestAction action) {
         return this.actionConsent.getOrDefault(action, false);
+    }
+
+    /**
+     * Get the ongoing NPCs associated with a Quest Action.
+     * @param questAction the quest action the FX is for
+     * @return a list of effects that are currently in the world
+     */
+    public List<QuestNPC> getNPC(QuestAction questAction) {
+        return this.getNPCMap().get(questAction);
     }
 }

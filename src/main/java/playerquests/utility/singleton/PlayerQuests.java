@@ -187,5 +187,6 @@ public class PlayerQuests {
             return true;       // Remove the entry
         });
         PlayerQuests.blockListener.clear();
+        PlayerQuests.entityListener.clear();
     }
 }

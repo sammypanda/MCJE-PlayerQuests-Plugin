@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import playerquests.Core;
 import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -41,7 +40,6 @@ import playerquests.product.Quest;
 import playerquests.product.fx.ParticleFX;
 import playerquests.utility.event.ActionCompletionEvent;
 import playerquests.utility.singleton.Database;
-import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * The class that lays out how functionality
@@ -259,12 +257,19 @@ public abstract class QuestAction {
      * @param halt if to halt continuation
      */
     public void stop(QuesterData questerData, Boolean halt) {
+        Player player = questerData.getQuester().getPlayer();
+
         // close the listener
         questerData.stopListener(this);
 
         // stop all the FX effects
         questerData.getFX(this).forEach(effect -> {
             effect.stopEffect();
+        });
+
+        // remove all the NPCs
+        questerData.getNPC(this).forEach((npc) -> {
+            npc.remove(player);
         });
 
         // remove this action instance from the quest client (the player basically)

@@ -51,14 +51,12 @@ public class EntityNPC extends NPCType {
 
     @Override
     public void remove() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+        PlayerQuests.getEntityListener().unregisterEntityNPC(this);
     }
 
     @Override
     public void remove(Player player) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
+        PlayerQuests.getEntityListener().unregisterEntityNPC(this, player);
     }
 
     @Override
