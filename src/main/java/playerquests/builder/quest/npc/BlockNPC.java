@@ -1,6 +1,7 @@
 package playerquests.builder.quest.npc;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -212,6 +213,8 @@ public class BlockNPC extends NPCType {
 
     @Override
     public GUISlot createPlaceSlot(Dynamicnpctypes screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
+        LocationData locationData = npc.getLocation();
+
         return new GUISlot(gui, slot)
             .setLabel(
                 String.format("%s", 
@@ -219,6 +222,15 @@ public class BlockNPC extends NPCType {
                         "Place NPC (" + npc.getAssigned().getType() + ")" :
                         "Relocate NPC (" + npc.getAssigned().getType() + ")"
                 )
+            )
+            .setDescription(
+                locationData != null ?
+                    List.of( // %.0f = representing floats with 0 decimal point places
+                        String.format("X: %.0f", locationData.getX()),
+                        String.format("Y: %.0f", locationData.getY()),
+                        String.format("Z: %.0f", locationData.getZ())
+                    ) :
+                List.of()
             )
             .setItem(
                 String.format("%s",

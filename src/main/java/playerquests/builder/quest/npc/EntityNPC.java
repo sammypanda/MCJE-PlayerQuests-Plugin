@@ -22,7 +22,6 @@ import playerquests.builder.gui.function.SelectEntity;
 import playerquests.builder.gui.function.SelectLocation;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
-import playerquests.utility.MaterialUtils;
 import playerquests.utility.singleton.PlayerQuests;
 
 public class EntityNPC extends NPCType {
@@ -128,6 +127,8 @@ public class EntityNPC extends NPCType {
 
     @Override
     public GUISlot createPlaceSlot(Dynamicnpctypes screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
+        LocationData locationData = npc.getLocation();
+
         return new GUISlot(gui, slot)
             .setLabel(
                 String.format("%s", 
@@ -135,6 +136,15 @@ public class EntityNPC extends NPCType {
                         "Place NPC (" + npc.getAssigned().getType() + ")" :
                         "Relocate NPC (" + npc.getAssigned().getType() + ")"
                 )
+            )
+            .setDescription(
+                locationData != null ?
+                    List.of( // %.0f = representing floats with 0 decimal point places
+                        String.format("X: %.0f", locationData.getX()),
+                        String.format("Y: %.0f", locationData.getY()),
+                        String.format("Z: %.0f", locationData.getZ())
+                    ) :
+                List.of()
             )
             .setItem(Material.GREEN_STAINED_GLASS)
             .onClick(() -> {
@@ -147,7 +157,7 @@ public class EntityNPC extends NPCType {
 
                 // give the player the block to place
                 playerInventory.setItemInMainHand(
-                    MaterialUtils.toItemStack(npc.getBlock().getMaterial().toString())
+                    new ItemStack(Material.GREEN_STAINED_GLASS)
                 );
 
                 new SelectLocation(
