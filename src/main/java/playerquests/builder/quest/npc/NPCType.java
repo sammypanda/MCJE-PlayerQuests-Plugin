@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.dynamic.Dynamicnpctypes;
 import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.client.ClientDirector;
 
@@ -151,4 +152,14 @@ public abstract class NPCType {
      * @return
      */
     public abstract GUISlot createTypeSlot(GUIDynamic screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc);
+
+    /**
+     * The button to set the NPC location in the world.
+     * @param screen the screen the button shows on
+     * @param director the director to act on behalf of
+     * @param gui the gui which holds the slot where the button shows
+     * @param slot the slot position of the gui the button shows
+     * @param npc the npc being modified
+     */
+    public abstract GUISlot createPlaceSlot(Dynamicnpctypes screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc);
 }

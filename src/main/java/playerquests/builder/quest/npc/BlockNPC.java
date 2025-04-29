@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData; // block representing this NPC
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -16,10 +17,14 @@ import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property s
 import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.dynamic.Dynamicnpctypes;
 import playerquests.builder.gui.dynamic.GUIDynamic;
+import playerquests.builder.gui.function.SelectLocation;
 import playerquests.builder.gui.function.SelectMaterial;
 import playerquests.builder.gui.function.data.SelectMethod;
+import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
+import playerquests.utility.MaterialUtils;
 import playerquests.utility.listener.BlockListener;
 import playerquests.utility.singleton.PlayerQuests;
 
@@ -203,5 +208,60 @@ public class BlockNPC extends NPCType {
                 screen.refresh();
             }).execute();
         });
+    }
+
+    @Override
+    public GUISlot createPlaceSlot(Dynamicnpctypes screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
+        return new GUISlot(gui, slot)
+            .setLabel(
+                String.format("%s", 
+                    (npc.getLocation() == null) ? 
+                        "Place NPC (" + npc.getAssigned().getType() + ")" :
+                        "Relocate NPC (" + npc.getAssigned().getType() + ")"
+                )
+            )
+            .setItem(
+                String.format("%s",
+                    npc.isAssigned() ? npc.getBlock().getMaterial().toString() : "BARRIER"  
+                )
+            )
+            .onClick(() -> {
+                HumanEntity player = director.getPlayer();
+                PlayerInventory playerInventory = player.getInventory();
+                ItemStack[] playerInventoryContents = playerInventory.getContents();
+                
+                // temporarily empty the player inventory
+                playerInventory.clear();
+
+                // give the player the block to place
+                playerInventory.setItemInMainHand(
+                    MaterialUtils.toItemStack(npc.getBlock().getMaterial().toString())
+                );
+
+                new SelectLocation(
+                    Arrays.asList(
+                        "Place the NPC Block"
+                    ),
+                    director
+                ).onFinish((f) -> {
+                    // get the block that was selected
+                    SelectLocation function = (SelectLocation) f;
+                    LocationData location = function.getResult();
+                    BlockData block = function.getBlockData();
+
+                    if (location != null) {
+                        npc.setLocation(location);
+                    }
+
+                    if (block != null) {
+                        npc.assign(new BlockNPC(block, npc));
+                    }
+
+                    // return the players old inventory
+                    playerInventory.setContents(playerInventoryContents);
+
+                    screen.refresh(); // re-draw to see changes
+                }).execute();
+            });
     }
 }
