@@ -269,6 +269,6 @@ public class QuesterData {
      * @return a list of effects that are currently in the world
      */
     public List<QuestNPC> getNPC(QuestAction questAction) {
-        return this.getNPCMap().get(questAction);
+        return this.getNPCMap().getOrDefault(questAction, List.of());
     }
 }
