@@ -14,12 +14,16 @@ import org.bukkit.event.Listener; // listening to in-game events
 import org.bukkit.event.player.AsyncPlayerChatEvent; // handling request to exit
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.client.ClientDirector; // controls the plugin
+import playerquests.client.quest.QuestClient;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.singleton.QuestRegistry;
 import playerquests.utility.PluginUtils; // used to validate function params 
 
 /**
@@ -44,6 +48,11 @@ public class SelectEntity extends GUIFunction {
         private List<SelectMethod> deniedMethods;
 
         /**
+         * The quest client matching the passed in player.
+         */
+        private QuestClient questClient;
+
+        /**
          * Constructs a new {@code SelectEntityListener}.
          *
          * @param parent the parent {@code SelectEntity} instance
@@ -53,6 +62,12 @@ public class SelectEntity extends GUIFunction {
             this.parentClass = parent;
             this.player = player;
             this.deniedMethods = parent.getDeniedMethods();
+
+            // track down matching quest client
+            this.questClient = QuestRegistry.getInstance().getAllQuesters().stream()
+                .filter(client -> client.getPlayer().equals(player))
+                .findFirst()
+                .orElse(new QuestClient(player));
         }
         
         /**
@@ -61,6 +76,10 @@ public class SelectEntity extends GUIFunction {
          */
         @EventHandler
         private void onInteract(PlayerInteractEntityEvent event) {
+            if (event.getHand().equals(EquipmentSlot.OFF_HAND)) {
+                return; // no duplicating interaction
+            }
+
             if (this.player != event.getPlayer()) {
                 return; // do not capture other players events
             }
@@ -72,6 +91,18 @@ public class SelectEntity extends GUIFunction {
             event.setCancelled(true);
 
             Entity clickedEntity = event.getRightClicked();
+
+            // disallow selecting existing NPCs
+            if (questClient.getData().getNPCs().stream()
+                .filter(npc -> clickedEntity.getLocation().distance(npc.getLocation().toBukkitLocation()) <= 1)
+                .count() > 0) {
+                    ChatUtils.message("Cannot select an existing NPC")
+                        .type(MessageType.WARN)
+                        .style(MessageStyle.PRETTY)
+                        .player(player)
+                        .send();
+                return;
+            }
 
             if (clickedEntity != null) {
                 this.parentClass.setResponse(clickedEntity);
