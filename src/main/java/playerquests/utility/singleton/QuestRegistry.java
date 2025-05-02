@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player; // representing players
 
 import playerquests.Core;
+import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest; // describes quests
 import playerquests.utility.ChatUtils; // utility methods related to chat
@@ -416,9 +417,6 @@ public class QuestRegistry {
 
         // add player to Database
         Database.getInstance().addPlayer(player.getUniqueId());
-
-        // add to registry list
-        this.questers.add(quester);
     }
 
     /**
@@ -434,6 +432,14 @@ public class QuestRegistry {
      */
     public void removeQuester(Player player) {
         this.questers.removeIf(client -> client.getPlayer().equals(player));
+    }
+
+    /**
+     * Adds a quester to the list.
+     * @param quester the quester to add
+     */
+    public void addQuester(QuestClient quester) {
+        this.questers.add(quester);
     }
 
     /**
@@ -461,5 +467,14 @@ public class QuestRegistry {
 
         // return the quester
         return quester.get();
+    }
+
+    /**
+     * Get all the NPCs currently active.
+     */
+    public List<QuestNPC> getAllEntityNPCs() {
+        return this.getAllQuesters().stream()
+            .flatMap(client -> client.getData().getNPCs().stream())
+            .toList();
     }
 }

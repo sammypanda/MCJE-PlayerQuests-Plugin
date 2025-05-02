@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.ChatColor;
@@ -14,6 +15,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import playerquests.builder.quest.action.NoneAction;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
+import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -51,6 +53,11 @@ public class QuesterData {
      * Useful for tracking NPCs in the world.
      */
     private HashMap<QuestAction, List<QuestNPC>> npcs = new HashMap<>();
+
+    /**
+     * Tracks the entities that are designated as Quest NPCs.
+     */
+    private Map<QuestNPC, Entity> entityNPCs = new HashMap<>();
 
     /**
      * Lock to wait for an ongoing action clash to be resolved.
@@ -270,5 +277,40 @@ public class QuesterData {
      */
     public List<QuestNPC> getNPC(QuestAction questAction) {
         return this.getNPCMap().getOrDefault(questAction, List.of());
+    }
+
+    /**
+     * Get the entity associated with a Quest NPC.
+     * @param npc the quest NPC to get the entity of
+     * @return an entity in the world
+     */
+    public Entity getEntityNPC(QuestNPC npc) {
+        return this.getAllEntityNPCs().get(npc);
+    }
+
+    /**
+     * Associate a Quest NPC with an entity in the world.
+     * @param entityNPC the entity NPC to assign the entity to
+     * @param entity the entity in the world
+     * @return
+     */
+    public Entity addEntityNPC(EntityNPC entityNPC, Entity entity) {
+        return this.getAllEntityNPCs().put(entityNPC.getNPC(), entity);
+    }
+
+    /**
+     * Gets all the Quest NPCs for this quester that have an associated entity.
+     * @return a map of QuestNPC and associated Entity
+     */
+    public Map<QuestNPC, Entity> getAllEntityNPCs() {
+        return this.entityNPCs;
+    }
+
+    /**
+     * Remove an association between a Quest NPC and an entity in the world.
+     * @param npc the Quest NPC to disassociate
+     */
+    public void removeEntityNPC(QuestNPC npc) {
+        this.getAllEntityNPCs().remove(npc);
     }
 }

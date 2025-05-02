@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
+import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
@@ -13,6 +14,7 @@ import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.Database;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Functionality for questers (quest players).
@@ -45,6 +47,9 @@ public class QuestClient {
      */
     public QuestClient(Player player) {
         this.player = player;
+
+        // add to registry list
+        QuestRegistry.getInstance().addQuester(this);
 
         // create data
         this.data = new QuesterData(this, this.player.getLocation());
@@ -90,6 +95,12 @@ public class QuestClient {
                 // start the actions
                 this.start(entry.getValue(), quest);
             });
+
+        // hide other questers entity NPCs
+        QuestRegistry.getInstance().getAllQuesters().stream()
+            .filter(client -> ! client.equals(this))
+            .flatMap(client -> client.getData().getAllEntityNPCs().values().stream())
+            .forEach(entity -> player.hideEntity(Core.getPlugin(), entity));
 	}
 
     /**

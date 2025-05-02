@@ -20,7 +20,9 @@ import playerquests.Core;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC;
+import playerquests.client.quest.QuestClient;
 import playerquests.utility.event.NPCInteractEvent;
+import playerquests.utility.singleton.QuestRegistry;
 
 public class EntityListener implements Listener {
     
@@ -71,7 +73,8 @@ public class EntityListener implements Listener {
         this.setEntityNPC(entityNPC, player);
     }
 
-    private void setEntityNPC(EntityNPC entityNPC, Player player) {
+    private Entity setEntityNPC(EntityNPC entityNPC, Player player) {
+        QuestClient questClient = QuestRegistry.getInstance().getQuester(player);
         QuestNPC questNPC = entityNPC.getNPC();
         Location location = questNPC.getLocation().toBukkitLocation();
         World world = location.getWorld();
@@ -81,6 +84,13 @@ public class EntityListener implements Listener {
 
         // spawn entity in world
         Entity entity = world.spawnEntity(location, entityNPC.getEntity());
+
+        // hide for everyone
+        Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
+            onlinePlayer.hideEntity(Core.getPlugin(), entity);
+        });
+        // except ourself
+        player.showEntity(Core.getPlugin(), entity);
         
         // disable damage
         entity.setInvulnerable(true);
@@ -93,6 +103,11 @@ public class EntityListener implements Listener {
             livingEntity.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0);
             livingEntity.setCollidable(false);
         }
+
+        // add to quester data
+        questClient.getData().addEntityNPC(entityNPC, entity);
+
+        return entity;
     }
 
     /**
@@ -117,22 +132,32 @@ public class EntityListener implements Listener {
      * @param entityNPC the entityNPC to unset
      * @param player the player to unset for
      */
-    private void unsetEntityNPC(EntityNPC entityNPC, @Nullable Player player) {
-        Location location = entityNPC.getNPC().getLocation().toBukkitLocation();
+    private Entity unsetEntityNPC(EntityNPC entityNPC, @Nullable Player player) {
+        // find entity in quester
+        QuestNPC npc = entityNPC.getNPC();
+        QuesterData questerData = Core.getQuestRegistry().getQuester(player).getData();
+        Entity entity = questerData.getEntityNPC(npc);
 
-        // remove all location+type matching entities
-        location.getWorld().getNearbyEntities(location, 1, 1, 1).stream()
-            .filter(entity -> entity.getType().equals(entityNPC.getEntity()))
-            .forEach(entity -> entity.remove());
+        // remove from questerData
+        questerData.removeEntityNPC(npc);
+
+        if (entity == null) {
+            return null;
+        }
+
+        // remove from world
+        entity.remove();
+
+        return entity;
     }
 
     /**
      * Clear all entity NPCs.
      */
     public synchronized void clear() {
-        // for each quest in the registry, remove it
-        Core.getQuestRegistry().getAllQuests().values().forEach(quest -> {
-            quest.getNPCs().forEach((_, npc) -> npc.remove());
-        });
+        // remove each entity NPC as noted in each quester data
+        QuestRegistry.getInstance().getAllQuesters().stream()
+            .flatMap(quester -> quester.getData().getAllEntityNPCs().values().stream())
+            .forEach(entity -> entity.remove());
     }   
 }
