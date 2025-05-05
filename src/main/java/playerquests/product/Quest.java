@@ -271,18 +271,18 @@ public class Quest {
 
         // create quest in fs, or update it
         try {
-            if (FileUtils.check(questName)) { // if the quest is in the fs
-                Core.getQuestRegistry().submit(this);
-            }
+            Core.getQuestRegistry().submit(this);
 
-            FileUtils.create( // create the quest json file
-                questName, // name pattern
-                this.toJSONString().getBytes() // put the content in the file
-            );
+            if ( ! FileUtils.check(questName)) { // if the quest is NOT in the fs
+                FileUtils.create( // create the quest json file
+                    questName, // name pattern
+                    this.toJSONString().getBytes() // put the content in the file
+                );
+            }
 
             // notify about no starting points
             if (this.getStartPoints().isEmpty() && player != null) {
-                ChatUtils.message("No start points set, so no actions or NPCs will show :)")
+                ChatUtils.message(this.getTitle() + ": No start points set, so no actions or NPCs will show :)")
                     .type(MessageType.NOTIF)
                     .style(MessageStyle.PRETTY)
                     .player(player)

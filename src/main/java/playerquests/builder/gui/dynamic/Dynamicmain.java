@@ -64,10 +64,10 @@ public class Dynamicmain extends GUIDynamic {
                         if (response == null) {
                             return;
                         }
-                        QuestBuilder quest = new QuestBuilder(director).setTitle(response); // create a quest
+                        QuestBuilder questBuilder = new QuestBuilder(director).setTitle(response); // create a quest
 
                         // show quest editor
-                        if (quest.getTitle() == "") {
+                        if (questBuilder.getTitle() == "") {
                             return;
                         }
                         new UpdateScreen(Arrays.asList("questeditor"), director) // change screen to the quest editor

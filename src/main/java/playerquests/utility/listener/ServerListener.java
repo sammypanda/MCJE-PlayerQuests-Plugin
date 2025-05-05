@@ -164,7 +164,7 @@ public class ServerListener implements Listener {
         }
 
         // submit/process collected quests
-        createQuests(allQuests);
+        loadQuests(allQuests, true);
 
         // notify the server about the newly processed quests
         ChatUtils.message("Finished submitting quests into server: " + allQuests)
@@ -187,22 +187,33 @@ public class ServerListener implements Listener {
     }
 
     /**
-     * Creates quests from a list of IDs by searching the filesystem.
+     * Loads quests from a list of IDs by searching the filesystem.
      * 
      * @param quests the set of quest IDs to process
+     * @param overwrite whether to save over an existing
      */
-    private void createQuests(Set<String> quests) {
+    private void loadQuests(Set<String> quests, Boolean overwrite) {
         quests.forEach(id -> {
             boolean errorOccurred = true; // Assume an error occurred initially
             
             try {
                 Quest newQuest = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + id + ".json"));
 
+                // if creates invalid object, exit
                 if (newQuest == null) {
                     return;
                 }
 
-                newQuest.save(); // submit to registry
+                // if already in registry, exit
+                if (QuestRegistry.getInstance().getQuest(id, false) != null) {
+                    return;
+                }
+
+                // if can overwrite the file
+                if (overwrite) {
+                    newQuest.save(); // submit to registry
+                }
+
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {
@@ -290,7 +301,7 @@ public class ServerListener implements Listener {
                             switch (kind.name()) {
                                 case "ENTRY_CREATE":
                                     // submit the quest systematically
-                                    createQuests(new HashSet<>(Set.of(questName)));
+                                    loadQuests(new HashSet<>(Set.of(questName)), false);
                                     break;
                                 case "ENTRY_DELETE":
                                     // find the quest object
