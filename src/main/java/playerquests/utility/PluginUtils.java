@@ -69,7 +69,7 @@ public class PluginUtils {
         // modify values of predictiveInventory in place to amount + inventoryAmount
         if (inventory != null) {
             inventory.forEach((material, amount) -> {
-                predictiveInventory.computeIfPresent(material, (_, predictiveAmount) -> {
+                predictiveInventory.computeIfPresent(material, (_material, predictiveAmount) -> {
                     return predictiveAmount + amount;
                 });
             });
