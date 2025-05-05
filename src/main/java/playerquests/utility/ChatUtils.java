@@ -1,8 +1,8 @@
 package playerquests.utility;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream; // to dynamically create a sized array
 
 import javax.annotation.Nullable;
 
@@ -286,7 +286,7 @@ public class ChatUtils {
      * @return an array of newline elements
      */
     private static String[] newlineArray(Integer start, Integer end) {
-        return IntStream.range(start, end).mapToObj(_ -> "\n").toArray(String[]::new);
+        return Collections.nCopies(end - start, "\n").toArray(new String[0]);
     }
 
     /**
