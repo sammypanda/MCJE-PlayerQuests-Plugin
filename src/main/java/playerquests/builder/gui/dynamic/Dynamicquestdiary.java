@@ -58,7 +58,7 @@ public class Dynamicquestdiary extends GUIDynamic {
         // map tracked quest actions
         this.actionState.putAll(
             this.quester.getTrackedActions().stream() // tracked
-                .collect(Collectors.toMap(action -> action, _ -> true))
+            .collect(Collectors.toMap(action -> action, action -> true, (prev, curr) -> curr))
         );
         
         // map untracked quest actions, based on the difference from the tracked
@@ -68,7 +68,7 @@ public class Dynamicquestdiary extends GUIDynamic {
                 .flatMap(entry -> entry.getValue().stream()
                     .flatMap(path -> path.getActions(entry.getKey()).stream()))
                 .filter(action -> !this.actionState.containsKey((QuestAction) action))
-                .collect(Collectors.toMap(action -> (QuestAction) action, _ -> false))
+                .collect(Collectors.toMap(action -> (QuestAction) action, action -> false, (prev, curr) -> curr))
         );
     }
 

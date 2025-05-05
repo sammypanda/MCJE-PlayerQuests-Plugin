@@ -4,11 +4,11 @@ with pkgs;
 mkShell {
   buildInputs = [
     maven
-    jdk23
+    jdk21
     glibc
   ];
 
   shellHook = ''
-    export JAVA_HOME=${jdk23.outPath}
+    export JAVA_HOME=${jdk21.outPath}
   '';
 }

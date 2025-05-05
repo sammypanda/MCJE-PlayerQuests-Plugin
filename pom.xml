@@ -4,7 +4,7 @@
 
   <groupId>moe.sammypanda</groupId>
   <artifactId>playerquests</artifactId>
-  <version>0.9</version>
+  <version>0.9.2</version>
 
   <packaging>jar</packaging>
 
@@ -13,10 +13,12 @@
   <url>https://www.spigotmc.org</url>
 
   <properties>
-    <maven.compiler.source>23</maven.compiler.source>
-    <maven.compiler.target>23</maven.compiler.target>
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <jackson.version>2.18.2</jackson.version>
+    <jackson.version>2.19.0</jackson.version>
   </properties>
 
   <repositories>
@@ -56,7 +58,7 @@
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>
-        <version>5.11.4</version>
+        <version>5.13.0-M3</version>
         <scope>test</scope>
     </dependency>
 
@@ -64,14 +66,14 @@
     <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
-      <version>3.47.2.0</version>
+      <version>3.49.1.0</version>
     </dependency>
 
     <!-- Maven library -->
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-model</artifactId>
-      <version>4.0.0-rc-2</version>
+      <version>4.0.0-rc-3</version>
     </dependency>
 
     <!-- Plugin usage stats -->
@@ -91,7 +93,6 @@
         <filtering>true</filtering>
       </resource>
     </resources>
-
     <plugins>
       <!-- overwriting default maven-surefire-plugin -->
       <plugin>
