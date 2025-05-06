@@ -2,11 +2,8 @@ package playerquests.utility.listener;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -77,13 +74,12 @@ public class EntityListener implements Listener {
         QuestClient questClient = QuestRegistry.getInstance().getQuester(player);
         QuestNPC questNPC = entityNPC.getNPC();
         Location location = questNPC.getLocation().toBukkitLocation();
-        World world = location.getWorld();
 
         // center on origin
         location.add(.5, 0, .5);
 
         // spawn entity in world
-        Entity entity = world.spawnEntity(location, entityNPC.getEntity());
+        Entity entity = entityNPC.getEntity().spawn(location);
 
         // hide for everyone
         Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
@@ -124,7 +120,9 @@ public class EntityListener implements Listener {
      * @param entityNPC the entity NPC to unregister
      */
     public synchronized void unregisterEntityNPC(EntityNPC entityNPC) {
-        this.unsetEntityNPC(entityNPC, null);
+        Bukkit.getServer().getOnlinePlayers().forEach(player -> {
+            this.unsetEntityNPC(entityNPC, player);
+        });
     }
 
     /**
@@ -132,7 +130,7 @@ public class EntityListener implements Listener {
      * @param entityNPC the entityNPC to unset
      * @param player the player to unset for
      */
-    private Entity unsetEntityNPC(EntityNPC entityNPC, @Nullable Player player) {
+    private Entity unsetEntityNPC(EntityNPC entityNPC, Player player) {
         // find entity in quester
         QuestNPC npc = entityNPC.getNPC();
         QuesterData questerData = Core.getQuestRegistry().getQuester(player).getData();

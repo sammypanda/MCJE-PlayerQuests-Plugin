@@ -6,6 +6,7 @@ import java.util.stream.Collectors; // transforming stream to data type
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler; // registering methods as event handlers
@@ -23,6 +24,7 @@ import playerquests.client.quest.QuestClient;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.serialisable.EntitySerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 import playerquests.utility.PluginUtils; // used to validate function params 
 
@@ -88,9 +90,17 @@ public class SelectEntity extends GUIFunction {
                 return; // do not continue
             }
 
+            // get the entity
+            Entity clickedEntity = event.getRightClicked();
+            if (clickedEntity == null) {
+                return;
+            }
+
+            // cancel the interaction
             event.setCancelled(true);
 
-            Entity clickedEntity = event.getRightClicked();
+            // get as serialiable entity
+            EntitySerialisable entitySerialisable = new EntitySerialisable(clickedEntity);
 
             // disallow selecting existing NPCs
             if (questClient.getData().getNPCs().stream()
@@ -104,8 +114,9 @@ public class SelectEntity extends GUIFunction {
                 return;
             }
 
-            if (clickedEntity != null) {
-                this.parentClass.setResponse(clickedEntity);
+            // set response
+            if (entitySerialisable != null) {
+                this.parentClass.setResponse(entitySerialisable);
             }
         }
 
@@ -160,7 +171,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * The resulting entity selected.
      */
-    private Entity result;
+    private EntitySerialisable result;
 
     /**
      * The player selecting the entity.
@@ -180,7 +191,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * The entities to deny.
      */
-    private List<Entity> deniedEntities;
+    private List<EntityType> deniedEntities;
 
     /**
      * The methods of selecting entities to deny.
@@ -248,12 +259,12 @@ public class SelectEntity extends GUIFunction {
      * @param object object of entites to deny
      * @return list of entities to deny
      */
-    private List<Entity> castDeniedEntities(Object object) {
+    private List<EntityType> castDeniedEntities(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<Entity>) castedList.stream()
-            .filter(entity -> entity instanceof Entity) // filter out items that aren't entity
-            .map(entity -> (Entity) entity) // cast
+        return (List<EntityType>) castedList.stream()
+            .filter(entityType -> entityType instanceof EntityType) // filter out items that aren't entity
+            .map(entityType -> (EntityType) entityType) // cast
             .collect(Collectors.toList()); // collect into final denylist
     }
 
@@ -261,7 +272,7 @@ public class SelectEntity extends GUIFunction {
      * Gets the entities that cannot be set as an NPC.
      * @return a list of entities
      */
-    public List<Entity> getDeniedEntities() {
+    public List<EntityType> getDeniedEntities() {
         return this.deniedEntities;
     }
 
@@ -326,10 +337,10 @@ public class SelectEntity extends GUIFunction {
     /**
      * Sets the selected entity.
      * This method validates the entity and ensures it is not in the denied entities list.
-     * @param entity the {@code Entity} to set as the selected entity
+     * @param entitySerialisable the {@code EntitySerialisable} to set as the selected entity
      */
-    public void setResponse(Entity entity) {
-        if (this.deniedEntities.contains(entity)) {
+    public void setResponse(EntitySerialisable entitySerialisable) {
+        if (this.deniedEntities.contains(entitySerialisable.getEntityType())) {
             ChatUtils.message("This entity is denied from being set as an NPC.")
                 .player(this.player)
                 .type(MessageType.WARN)
@@ -338,7 +349,7 @@ public class SelectEntity extends GUIFunction {
             return;
         }
 
-        this.result = entity; // set the entity the user selected
+        this.result = entitySerialisable; // set the entity the user selected
         this.execute();
     }
 
@@ -346,7 +357,7 @@ public class SelectEntity extends GUIFunction {
      * Returns the entity selected by the user.
      * @return the selected entity
      */
-    public Entity getResult() {
+    public EntitySerialisable getResult() {
         return this.result;
     }
 

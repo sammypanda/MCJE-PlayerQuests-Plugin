@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +20,7 @@ import playerquests.builder.gui.function.SelectEntity;
 import playerquests.builder.gui.function.SelectLocation;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
+import playerquests.utility.serialisable.EntitySerialisable;
 import playerquests.utility.singleton.PlayerQuests;
 
 public class EntityNPC extends NPCType {
@@ -33,7 +32,7 @@ public class EntityNPC extends NPCType {
 
     /**
      * Constructs an EntityNPC with specified entity data and associated quest NPC.
-     * @param value the block data string
+     * @param value the data string
      * @param npc the associated QuestNPC
      */
     public EntityNPC(String value, QuestNPC npc) {
@@ -43,11 +42,11 @@ public class EntityNPC extends NPCType {
 
     /**
      * Constructs an EntityNPC using an entity object.
-     * @param entity the entity
+     * @param entitySerialisable the entity data
      * @param npc the associated QuestNPC
      */
-    public EntityNPC(Entity entity, QuestNPC npc) {
-        this(entity.getType().toString(), npc);
+    public EntityNPC(EntitySerialisable entitySerialisable, QuestNPC npc) {
+        this(entitySerialisable.toString(), npc);
     }
 
     @Override
@@ -89,11 +88,11 @@ public class EntityNPC extends NPCType {
                     ), 
                     director).onFinish((f) -> {
                         SelectEntity selectEntity = (SelectEntity) f;
-                        Entity entity = selectEntity.getResult();
+                        EntitySerialisable entitySerialisable = selectEntity.getResult();
 
-                        // assign this block as the quest NPC
-                        if (entity != null) {
-                            EntityNPC entityNPC = new EntityNPC(entity, npc); // create NPC type
+                        // assign this as the quest NPC
+                        if (entitySerialisable != null) {
+                            EntityNPC entityNPC = new EntityNPC(entitySerialisable, npc); // create NPC type
                             
                             // set this npc type
                             npc.assign(
@@ -109,20 +108,21 @@ public class EntityNPC extends NPCType {
 
     /**
      * Gets the entity representing this NPC.
-     * @return the block data of the NPC
+     * @return the data of the NPC
      */
     @JsonIgnore
-    public EntityType getEntity() {
-        EntityType finalEntity = EntityType.VILLAGER;
+    public EntitySerialisable getEntity() {
+        EntitySerialisable entityData;
 
         try {
-            finalEntity = EntityType.valueOf(value);
+            entityData = new EntitySerialisable(this.value);
         } catch (IllegalArgumentException e) {
             System.err.println("malformed entity data in a quest.");
-            this.value = finalEntity.toString();
+            entityData = new EntitySerialisable("type:VILLAGER");
+            this.value = entityData.toString(); // replace invalid data
         }
 
-        return finalEntity;
+        return entityData;
     }
 
     @Override

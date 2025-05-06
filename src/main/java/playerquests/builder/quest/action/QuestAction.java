@@ -352,7 +352,7 @@ public abstract class QuestAction {
 
                 // find height of spawned NPC
                 entities.stream()
-                    .filter(entity -> (entity.getType() == entityNPC.getEntity()))
+                    .filter(entity -> (entity.getType() == entityNPC.getEntity().getEntityType()))
                     .findFirst()
                     .ifPresent(entity -> {
                         location.setY(location.getY() + entity.getHeight() + 0.5);
