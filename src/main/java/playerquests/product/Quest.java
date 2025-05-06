@@ -271,14 +271,12 @@ public class Quest {
 
         // create quest in fs, or update it
         try {
-            Core.getQuestRegistry().submit(this);
+            Core.getQuestRegistry().submit(this); // submit to quest registry
 
-            if ( ! FileUtils.check(questName)) { // if the quest is NOT in the fs
-                FileUtils.create( // create the quest json file
-                    questName, // name pattern
-                    this.toJSONString().getBytes() // put the content in the file
-                );
-            }
+            FileUtils.create( // create the quest json file
+                questName, // name pattern
+                this.toJSONString().getBytes() // put the content in the file
+            );
 
             // notify about no starting points
             if (this.getStartPoints().isEmpty() && player != null) {
