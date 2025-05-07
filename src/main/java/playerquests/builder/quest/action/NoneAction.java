@@ -49,7 +49,7 @@ public class NoneAction extends QuestAction {
 
     @Override
     protected void prepare(QuesterData questerData) {
-        this.npc = this.placeNPC(questerData);
+        this.npc = this.spawnNPC(questerData);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class NoneAction extends QuestAction {
     @Override
     protected void success(QuesterData questerData) {
         // remove the NPC
-        this.unplaceNPC(questerData);
+        this.despawnNPC(questerData);
     }
 
     @Override

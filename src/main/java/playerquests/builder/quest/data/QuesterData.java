@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Location;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -15,7 +17,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import playerquests.builder.quest.action.NoneAction;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
-import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -50,16 +51,6 @@ public class QuesterData {
     private HashMap<QuestAction, List<FX>> effects = new HashMap<>();
 
     /**
-     * Useful for tracking NPCs in the world.
-     */
-    private HashMap<QuestAction, List<QuestNPC>> npcs = new HashMap<>();
-
-    /**
-     * Tracks the entities that are designated as Quest NPCs.
-     */
-    private Map<QuestNPC, Entity> entityNPCs = new HashMap<>();
-
-    /**
      * Lock to wait for an ongoing action clash to be resolved.
      */
     private Boolean clashLock = false;
@@ -68,6 +59,16 @@ public class QuesterData {
      * Map if quester has consented to an action.
      */
     private Map<QuestAction, Boolean> actionConsent = new HashMap<>();
+
+    /**
+     * Map of registered QuestNPCs that are BlockNPC.
+     */
+    private Map<Entry<QuestAction, QuestNPC>, BlockData> blockNPCs = new HashMap<>();
+
+    /**
+     * Map of registered QuestNPCs that are EntityNPC.
+     */
+    private Map<Entry<QuestAction, QuestNPC>, Entity> entityNPCs = new HashMap<>();
 
     /**
      * The context of data useful for working with a QuestClient.
@@ -196,48 +197,6 @@ public class QuesterData {
     }
 
     /**
-     * Track the NPC in the QuesterData.
-     * @param npc the NPC to track
-     */
-    public void addNPC(QuestAction questAction, QuestNPC npc) {
-        if (npc == null) {
-            return;
-        }
-
-        if (this.getNPCMap().containsKey(questAction)) {
-            this.npcs.get(questAction).add(npc);
-            return;
-        }
-
-        this.npcs.put(questAction, new ArrayList<>(List.of(npc)));
-    }
-
-    /**
-     * Untrack the NPC in the QuesterData.
-     * @param npc the NPC to untrack
-     */
-    public void removeNPC(QuestAction questAction, QuestNPC npc) {
-        this.npcs.remove(questAction, npc);
-    }
-
-    /**
-     * Get the NPCs tracked in this QuesterData.
-     * @return the list of tracked npcs;
-     */
-    public List<QuestNPC> getNPCs() {
-        return this.getNPCMap().values().stream()
-            .flatMap(list -> list.stream())
-            .toList();
-    }
-
-    /**
-     * Return the map of QuestAction and subsiding NPCs
-     */
-    public Map<QuestAction, List<QuestNPC>> getNPCMap() {
-        return this.npcs;
-    }
-
-    /**
      * Stop an action listener and unset it.
      * @param action the action the listener is paired with
      */
@@ -270,47 +229,36 @@ public class QuesterData {
         return this.actionConsent.getOrDefault(action, false);
     }
 
-    /**
-     * Get the ongoing NPCs associated with a Quest Action.
-     * @param questAction the quest action the FX is for
-     * @return a list of effects that are currently in the world
-     */
-    public List<QuestNPC> getNPC(QuestAction questAction) {
-        return this.getNPCMap().getOrDefault(questAction, List.of());
+    public BlockData getBlockNPC(QuestAction action, QuestNPC npc) {
+        return this.blockNPCs.get(Map.entry(action, npc));
     }
 
-    /**
-     * Get the entity associated with a Quest NPC.
-     * @param npc the quest NPC to get the entity of
-     * @return an entity in the world
-     */
-    public Entity getEntityNPC(QuestNPC npc) {
-        return this.getAllEntityNPCs().get(npc);
+    public void addBlockNPC(QuestAction action, QuestNPC npc, BlockData value) {
+        this.blockNPCs.put(Map.entry(action, npc), value);
     }
 
-    /**
-     * Associate a Quest NPC with an entity in the world.
-     * @param entityNPC the entity NPC to assign the entity to
-     * @param entity the entity in the world
-     * @return
-     */
-    public Entity addEntityNPC(EntityNPC entityNPC, Entity entity) {
-        return this.getAllEntityNPCs().put(entityNPC.getNPC(), entity);
+    public void removeBlockNPC(QuestAction action, QuestNPC npc) {
+        this.blockNPCs.remove(Map.entry(action, npc));
     }
 
-    /**
-     * Gets all the Quest NPCs for this quester that have an associated entity.
-     * @return a map of QuestNPC and associated Entity
-     */
-    public Map<QuestNPC, Entity> getAllEntityNPCs() {
-        return this.entityNPCs;
+    public Entity getEntityNPC(QuestAction action, QuestNPC npc) {
+        return this.entityNPCs.get(Map.entry(action, npc));
     }
 
-    /**
-     * Remove an association between a Quest NPC and an entity in the world.
-     * @param npc the Quest NPC to disassociate
-     */
-    public void removeEntityNPC(QuestNPC npc) {
-        this.getAllEntityNPCs().remove(npc);
+    public void addEntityNPC(QuestAction action, QuestNPC npc, Entity value) {
+        this.entityNPCs.put(Map.entry(action, npc), value);
+    }
+
+    public void removeEntityNPC(QuestAction action, QuestNPC npc) {
+        this.entityNPCs.remove(Map.entry(action, npc));
+    }
+
+    public List<Entry<QuestAction, QuestNPC>> getNPCs() {
+        ArrayList<Entry<QuestAction, QuestNPC>> npcs = new ArrayList<>();
+
+        npcs.addAll(this.blockNPCs.keySet());
+        npcs.addAll(this.entityNPCs.keySet());
+
+        return npcs;
     }
 }

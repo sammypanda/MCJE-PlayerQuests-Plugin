@@ -181,12 +181,18 @@ public class PlayerQuests {
      * </p>
      */
     public void clear() {
-        PlayerQuests.entityListener.clear();
+        // clear all questers
+        QuestRegistry.getInstance().getAllQuesters().forEach(quester -> {
+            quester.clear();
+        });
+
+        // clear the quest registry
         QuestRegistry.getInstance().clear();
+
+        // clear the directors
         directors.removeIf(director -> {
             director.close();  // Close the director
             return true;       // Remove the entry
         });
-        PlayerQuests.blockListener.clear();
     }
 }

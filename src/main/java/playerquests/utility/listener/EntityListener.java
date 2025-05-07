@@ -1,25 +1,22 @@
 package playerquests.utility.listener;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import playerquests.Core;
-import playerquests.builder.quest.data.QuesterData;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient;
 import playerquests.utility.event.NPCInteractEvent;
-import playerquests.utility.singleton.QuestRegistry;
 
 public class EntityListener implements Listener {
     
@@ -40,13 +37,11 @@ public class EntityListener implements Listener {
 
         if (entity == null) { return; }
 
-        Player player = event.getPlayer();
-        QuesterData questerData = Core.getQuestRegistry().getQuester(player).getData();
-        Location eventLocation = entity.getLocation();
-
-        // get the NPCs matching the location of the interacted entity
-        List<QuestNPC> npcs = questerData.getNPCs().stream()
-            .filter(questNPC -> eventLocation.distance(questNPC.getLocation().toBukkitLocation()) <= 1)
+        Location eventEntityLocation = entity.getLocation();
+        QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
+        List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+            .filter(npc -> npc.getValue().getAssigned() instanceof EntityNPC)
+            .filter(npc -> npc.getValue().getLocation().toBukkitLocation().distance(eventEntityLocation) < 1)
             .toList();
 
         // conditions to not continue the event:
@@ -60,102 +55,4 @@ public class EntityListener implements Listener {
             new NPCInteractEvent(npcs, event.getPlayer())
         );
     }
-
-    /**
-     * Registers an EntityNPC as active.
-     * @param entityNPC the entity NPC to register
-     * @param player the player to register the NPC for
-     */
-    public void registerEntityNPC(EntityNPC entityNPC, Player player) {
-        this.setEntityNPC(entityNPC, player);
-    }
-
-    private Entity setEntityNPC(EntityNPC entityNPC, Player player) {
-        QuestClient questClient = QuestRegistry.getInstance().getQuester(player);
-        QuestNPC questNPC = entityNPC.getNPC();
-        Location location = questNPC.getLocation().toBukkitLocation();
-
-        // center on origin
-        location.add(.5, 0, .5);
-
-        // spawn entity in world
-        Entity entity = entityNPC.getEntity().spawn(location);
-
-        // hide for everyone
-        Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
-            onlinePlayer.hideEntity(Core.getPlugin(), entity);
-        });
-        // except ourself
-        player.showEntity(Core.getPlugin(), entity);
-        
-        // disable damage
-        entity.setInvulnerable(true);
-        
-        // disable movement
-        entity.setGravity(false);
-        if (entity instanceof LivingEntity) {
-            LivingEntity livingEntity = (LivingEntity) entity;
-            livingEntity.setAI(false);
-            livingEntity.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0);
-            livingEntity.setCollidable(false);
-        }
-
-        // add to quester data
-        questClient.getData().addEntityNPC(entityNPC, entity);
-
-        return entity;
-    }
-
-    /**
-     * Unregisters an EntityNPC.
-     * @param entityNPC the entity NPC to unregister
-     * @param player the player to unregister the NPC for
-     */
-    public synchronized void unregisterEntityNPC(EntityNPC entityNPC, Player player) {
-        this.unsetEntityNPC(entityNPC, player);
-    }
-
-    /**
-     * Unregisters all isntances of an EntityNPC.
-     * @param entityNPC the entity NPC to unregister
-     */
-    public synchronized void unregisterEntityNPC(EntityNPC entityNPC) {
-        Bukkit.getServer().getOnlinePlayers().forEach(player -> {
-            this.unsetEntityNPC(entityNPC, player);
-        });
-    }
-
-    /**
-     * Hides or removes entity NPC from the world.
-     * @param entityNPC the entityNPC to unset
-     * @param player the player to unset for
-     */
-    private Entity unsetEntityNPC(EntityNPC entityNPC, Player player) {
-        // find entity in quester
-        QuestNPC npc = entityNPC.getNPC();
-        QuesterData questerData = Core.getQuestRegistry().getQuester(player).getData();
-        Entity entity = questerData.getEntityNPC(npc);
-
-        // remove from questerData
-        questerData.removeEntityNPC(npc);
-
-        if (entity == null) {
-            return null;
-        }
-
-        // remove from world
-        entity.remove();
-
-        return entity;
-    }
-
-    /**
-     * Clear all entity NPCs.
-     */
-    public synchronized void clear() {
-        // remove each entity NPC as noted in each quester data
-        QuestRegistry.getInstance().getAllQuesters().stream()
-            .flatMap(quester -> quester.getData().getAllEntityNPCs().values().stream())
-            .forEach(entity -> entity.remove());
-    }   
 }

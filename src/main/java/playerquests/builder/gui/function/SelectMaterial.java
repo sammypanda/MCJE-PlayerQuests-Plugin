@@ -7,7 +7,6 @@ import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.ChatColor;
 import org.bukkit.Material; // the resulting material (block)
 import org.bukkit.block.Block; // spigot block type
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler; // registering methods as event handlers
 import org.bukkit.event.HandlerList; // unregistering event handlers
@@ -176,7 +175,7 @@ public class SelectMaterial extends GUIFunction {
     /**
      * The player selecting the block.
      */
-    private HumanEntity player;
+    private Player player;
 
     /**
      * The starting prompt to give the user.

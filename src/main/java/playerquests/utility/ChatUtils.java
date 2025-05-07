@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.bukkit.Bukkit; // used to get server logger
 import org.bukkit.ChatColor; // used to colour and format the chat messages!
 import org.bukkit.entity.HumanEntity; // identifies a player to send messages to  
+import org.bukkit.entity.Player;
 
 import playerquests.Core; // used to access the plugin and get all online players
 
@@ -172,7 +173,7 @@ public class ChatUtils {
         private MessageType type = MessageType.NOTIF; // Default
         private MessageTarget target = MessageTarget.WORLD; // Default
         private MessageStyle style = MessageStyle.PRETTY; // Default
-        private HumanEntity player = null; // Default
+        private Player player = null; // Default
 
         /**
          * Constructs a MessageBuilder with the specified content.
@@ -231,10 +232,10 @@ public class ChatUtils {
          * Sets the player to send the message to.
          * Assumes MessageTarget is PLAYER.
          * 
-         * @param player the HumanEntity which represents a player
+         * @param player which represents a player
          * @return this MessageBuilder
          */
-        public MessageBuilder player(HumanEntity player) {
+        public MessageBuilder player(Player player) {
             this.target = MessageTarget.PLAYER;
             this.player = player;
             return this;

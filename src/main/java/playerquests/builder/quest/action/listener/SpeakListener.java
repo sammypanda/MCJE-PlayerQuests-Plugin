@@ -1,5 +1,6 @@
 package playerquests.builder.quest.action.listener;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.bukkit.event.EventHandler;
@@ -39,7 +40,7 @@ public class SpeakListener extends ActionListener<SpeakAction> {
         if ( ! passedPlayerCheck(event.getPlayer()) ) { return; }
 
         // exit if the NPC is different from all in the interact event
-        if (!event.getNPCs().contains(npc.get().getNPC(action.getStage().getQuest()))) {
+        if (!event.getNPCs().contains(Map.entry(this.action, npc.get().getNPC(action.getStage().getQuest())))) {
             return;
         }
         

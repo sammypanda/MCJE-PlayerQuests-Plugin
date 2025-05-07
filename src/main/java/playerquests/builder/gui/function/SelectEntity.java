@@ -7,7 +7,6 @@ import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler; // registering methods as event handlers
 import org.bukkit.event.HandlerList; // unregistering event handlers
@@ -20,12 +19,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.client.ClientDirector; // controls the plugin
-import playerquests.client.quest.QuestClient;
 import playerquests.utility.ChatUtils;
-import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.serialisable.EntitySerialisable;
-import playerquests.utility.singleton.QuestRegistry;
 import playerquests.utility.PluginUtils; // used to validate function params 
 
 /**
@@ -50,11 +46,6 @@ public class SelectEntity extends GUIFunction {
         private List<SelectMethod> deniedMethods;
 
         /**
-         * The quest client matching the passed in player.
-         */
-        private QuestClient questClient;
-
-        /**
          * Constructs a new {@code SelectEntityListener}.
          *
          * @param parent the parent {@code SelectEntity} instance
@@ -64,12 +55,6 @@ public class SelectEntity extends GUIFunction {
             this.parentClass = parent;
             this.player = player;
             this.deniedMethods = parent.getDeniedMethods();
-
-            // track down matching quest client
-            this.questClient = QuestRegistry.getInstance().getAllQuesters().stream()
-                .filter(client -> client.getPlayer().equals(player))
-                .findFirst()
-                .orElse(new QuestClient(player));
         }
         
         /**
@@ -102,17 +87,7 @@ public class SelectEntity extends GUIFunction {
             // get as serialiable entity
             EntitySerialisable entitySerialisable = new EntitySerialisable(clickedEntity);
 
-            // disallow selecting existing NPCs
-            if (questClient.getData().getNPCs().stream()
-                .filter(npc -> clickedEntity.getLocation().distance(npc.getLocation().toBukkitLocation()) <= 1)
-                .count() > 0) {
-                    ChatUtils.message("Cannot select an existing NPC")
-                        .type(MessageType.WARN)
-                        .style(MessageStyle.PRETTY)
-                        .player(player)
-                        .send();
-                return;
-            }
+            // TODO: disallow selecting existing NPCs
 
             // set response
             if (entitySerialisable != null) {
@@ -176,7 +151,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * The player selecting the entity.
      */
-    private HumanEntity player;
+    private Player player;
 
     /**
      * The starting prompt to give the user.

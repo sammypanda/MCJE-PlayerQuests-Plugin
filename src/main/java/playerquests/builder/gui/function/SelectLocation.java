@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block; // data object representing a placed block
 import org.bukkit.block.data.BlockData; // data object representing the metadata of a block
-import org.bukkit.entity.HumanEntity; // usually the player
 import org.bukkit.entity.Player; // refers to the player
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -92,7 +91,7 @@ public class SelectLocation extends GUIFunction {
     /**
      * The user selecting the world location
      */
-    private HumanEntity player;
+    private Player player;
 
     /**
      * If this function has been set up

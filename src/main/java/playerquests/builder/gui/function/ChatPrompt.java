@@ -9,7 +9,6 @@ import org.bukkit.event.Listener; // to register event listener (ChatPromptListe
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.ChatColor; // used to format the chat messages to guide user input/UX
-import org.bukkit.entity.HumanEntity; // usually the player
 import org.bukkit.entity.Player; // refers to the player
 
 import playerquests.Core; // used to access the Plugin and KeyHandler instances
@@ -109,7 +108,7 @@ public class ChatPrompt extends GUIFunction {
     /**
      * Player which function should execute on.
      */
-    private HumanEntity player;
+    private Player player;
 
     /**
      * Requests player user input using a chat box prompt.

@@ -257,8 +257,6 @@ public abstract class QuestAction {
      * @param halt if to halt continuation
      */
     public void stop(QuesterData questerData, Boolean halt) {
-        Player player = questerData.getQuester().getPlayer();
-
         // close the listener
         questerData.stopListener(this);
 
@@ -268,8 +266,8 @@ public abstract class QuestAction {
         });
 
         // remove all the NPCs
-        questerData.getNPC(this).forEach((npc) -> {
-            npc.remove(player);
+        questerData.getNPCs().forEach(npc -> {
+            npc.getValue().despawn(this, questerData.getQuester());
         });
 
         // remove this action instance from the quest client (the player basically)
@@ -451,12 +449,11 @@ public abstract class QuestAction {
     public abstract LocationData getLocation();
 
     /**
-     * Method to place the NPC into the world.
-     * This adds it to the QuesterData.
+     * Method to spawn the NPC into the world.
      * @param questerData
      */
-    public QuestNPC placeNPC(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer(); // find the player
+    public QuestNPC spawnNPC(QuesterData questerData) {
+        QuestClient quester = questerData.getQuester(); // get the quester
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         NPCOption npcOption = this.getData().getOption(NPCOption.class).orElseGet(null); // find NPC option if applies
             
@@ -464,26 +461,23 @@ public abstract class QuestAction {
             return null;
         }
 
-        QuestNPC npc = npcOption.getNPC(quest); // get the NPC from the quest 
-        questerData.addNPC(this, npc); // track the NPC
-        npc.place(player); // spawn the NPC for this quester
+        QuestNPC npc = npcOption.getNPC(quest); // get the NPC from the quest
+        npc.spawn(this, quester); // spawn the NPC for this quester
         return npc;
     }
 
     /**
      * Method to unplace the NPC from the world.
-     * This removes it from the QuesterData.
      * @param questerData
      */
-    protected QuestNPC unplaceNPC(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer(); // find the player
+    protected QuestNPC despawnNPC(QuesterData questerData) {
+        QuestClient quester = questerData.getQuester(); // get the quester
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
             
         if (npcOption.isPresent()) { // if the NPC option exists
-            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
-            questerData.removeNPC(this, npc); // track the NPC
-            npc.remove(player); // unspawn the NPC for this quester
+            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest
+            npc.despawn(this, quester);
             return npc;
         }
 

@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.List; // generic list type
 import java.util.stream.Collectors;
 
-import org.bukkit.entity.Player;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -15,7 +13,9 @@ import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.Dynamicnpctypes;
 import playerquests.builder.gui.dynamic.GUIDynamic;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.client.ClientDirector;
+import playerquests.client.quest.QuestClient;
 
 /**
  * Handles the different types of NPCs in quests.
@@ -109,38 +109,18 @@ public abstract class NPCType {
     }
 
     /**
-     * Places the NPC in the world.
-     * @param player the player who can see the placement
-     */
-    @JsonIgnore
-    abstract public void place(Player player);
-
-    /**
-     * Removes the NPC from the world.
-     */
-    @JsonIgnore
-    public abstract void remove();
-
-    /**
-     * Removes the NPC for a player.
-     * @param player the player to remove the NPC from
-     */
-    @JsonIgnore
-    public abstract void remove(Player player);
-
-    /**
      * Refunds the resources used for the NPC.
-     * @param player the player to refund the resources to
+     * @param quester the player to refund the resources to
      */
     @JsonIgnore
-    public abstract void refund(Player player);
+    public abstract void refund(QuestClient quester);
 
     /**
      * Penalizes the resources used for the NPC.
-     * @param player the player to penalize
+     * @param quester the player to penalize
      */
     @JsonIgnore
-    public abstract void penalise(Player player);
+    public abstract void penalise(QuestClient quester);
 
     /**
      * The button to change the NPC to this type.
@@ -162,4 +142,38 @@ public abstract class NPCType {
      * @param npc the npc being modified
      */
     public abstract GUISlot createPlaceSlot(Dynamicnpctypes screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc);
+
+    /**
+     * Unregisters an NPC without despawning.
+     * Use {@link QuestNPC#despawn(QuestClient)} instead
+     * @param action the action the NPC is a part of
+     * @param quester the quest client to unregister the NPC from the {@link playerquests.builder.quest.data.QuesterData}
+     */
+    protected abstract void unregister(QuestAction action, QuestClient quester);
+
+    /**
+     * Despawns an NPC without unregistering.
+     * Use {@link QuestNPC#despawn(QuestClient)} instead
+     * @param action the action the NPC is a part of
+     * @param quester the quest client to despawn the NPC from the {@link playerquests.builder.quest.data.QuesterData} of
+     */
+    protected abstract void despawn(QuestAction action, QuestClient quester);
+
+    /**
+     * Registers an NPC unspawned.
+     * Use {@link QuestNPC#spawn(QuestClient)} instead
+     * @param action the action the NPC is a part of
+     * @param quester the quest client to register the NPC into the {@link playerquests.builder.quest.data.QuesterData} of
+     * @param value the special value that identifies the NPC in the world
+     */
+    protected abstract void register(QuestAction action, QuestClient quester, Object value);
+
+    /**
+     * Spawns an NPC untracked/unregistered.
+     * Use {@link QuestNPC#spawn(QuestClient)} instead
+     * @param action the action the NPC is a part of
+     * @param quester the quest client to 'show' the NPC to
+     * @return the value that identifies the NPC in the world
+     */
+    protected abstract Object spawn(QuestAction action, QuestClient quester);
 }

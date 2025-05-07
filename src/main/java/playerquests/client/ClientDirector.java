@@ -2,7 +2,7 @@ package playerquests.client;
 
 import java.util.HashMap; // holds the current instances
 
-import org.bukkit.entity.HumanEntity; // the player who controls the client
+import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.GUIBuilder; // class to control and get GUI product
 import playerquests.utility.singleton.PlayerQuests; // the main plugin class
@@ -21,15 +21,15 @@ public class ClientDirector extends Director {
     /**
      * The player controlling the client to act on behalf of
      */
-    HumanEntity player;
+    Player player;
 
     /**
      * Constructs a new ClientDirector instance.
      * @param humanEntity the player controlling the client.
      */
-    public ClientDirector(HumanEntity humanEntity) {
+    public ClientDirector(Player player) {
         // set the player to enact on behalf of
-        this.player = humanEntity;
+        this.player = player;
 
         // validate the current instances map is correct/has everything
         this.validateCurrentInstances();
@@ -127,7 +127,7 @@ public class ClientDirector extends Director {
      * Gets the player who has control over the client.
      * @return the player behind the client
      */
-    public HumanEntity getPlayer() {
+    public Player getPlayer() {
         // get the player set on this instance
         return this.player;
     }

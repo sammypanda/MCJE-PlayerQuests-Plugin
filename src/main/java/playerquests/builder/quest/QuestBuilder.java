@@ -10,9 +10,6 @@ import java.util.UUID;
 import java.util.stream.Collectors; // accumulating elements from a stream into a type
 import java.util.stream.IntStream; // used to iterate over a range
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
@@ -21,10 +18,12 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.ClientDirector; // abstractions for plugin functionality
+import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.annotation.Key; // to associate a key name with a method
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * For creating and managing a Quest.
@@ -287,12 +286,12 @@ public class QuestBuilder {
      */
     @JsonIgnore
     public Boolean addNPC(QuestNPC npc) {
-        Player player = Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId());
+        QuestClient quester = QuestRegistry.getInstance().getQuester(this.getDirector().getPlayer());
 
         // remove to replace if already exists
         if (this.questNPCs.containsKey(npc.getID())) {
             this.questNPCs.remove(npc.getID());
-            npc.refund(player);
+            npc.refund(quester);
         }
 
         // set this quest as the npc parent
@@ -310,7 +309,7 @@ public class QuestBuilder {
         this.questNPCs.put(npc.getID(), npc); // put valid NPC in the quest npc list
 
         // remove one of the block the npc is being set as
-        npc.penalise(player);
+        npc.penalise(quester);
 
         return true;
     }
@@ -327,11 +326,10 @@ public class QuestBuilder {
             return;
         }
 
-        // refund resources
-        npc.refund(Bukkit.getPlayer(this.getDirector().getPlayer().getUniqueId()));
-
-        // remove from world
-        npc.remove();
+        // despawn removed NPC for all quest clients
+        QuestRegistry.getInstance().getAllQuesters().forEach(quester -> {
+            npc.despawn(quester);
+        });
     }
 
     /**

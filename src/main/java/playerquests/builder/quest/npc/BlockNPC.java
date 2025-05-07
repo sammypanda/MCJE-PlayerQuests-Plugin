@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData; // block representing this NPC
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -15,7 +14,6 @@ import org.bukkit.inventory.PlayerInventory;
 import com.fasterxml.jackson.annotation.JsonIgnore; // to ignore serialising properties
 import com.fasterxml.jackson.annotation.JsonProperty; // to set how a property serialises
 
-import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.dynamic.Dynamicnpctypes;
@@ -23,11 +21,11 @@ import playerquests.builder.gui.dynamic.GUIDynamic;
 import playerquests.builder.gui.function.SelectLocation;
 import playerquests.builder.gui.function.SelectMaterial;
 import playerquests.builder.gui.function.data.SelectMethod;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
+import playerquests.client.quest.QuestClient;
 import playerquests.utility.MaterialUtils;
-import playerquests.utility.listener.BlockListener;
-import playerquests.utility.singleton.PlayerQuests;
 
 /**
  * Represents an NPC that is associated with a specific block in the world.
@@ -98,78 +96,6 @@ public class BlockNPC extends NPCType {
         return this.value;
     }
 
-    /**
-     * Places the NPC block in the world.
-     * @param player the player who can see the placement
-     */
-    public void place(Player player) {
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            // get the listener that detects interactions with the block npc
-            BlockListener blockListener = PlayerQuests.getBlockListener();
-
-            // if no location has been set, don't try to register
-            if (this.getNPC() == null || this.getNPC().getLocation() == null) {
-                blockListener.unregisterBlockNPC(this, player);
-                return;
-            }
-
-            // register the block
-            blockListener.registerBlockNPC(this, player);
-        });   
-    }
-
-    /**
-     * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
-     */
-    public void remove() {
-        PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this);
-    }
-
-    /**
-     * Removes the NPC block from the world and unregisters it from the PlayerQuests instance.
-     */
-    public void remove(Player player) {
-        PlayerQuests.getBlockListener().remove(this.npc.getQuest(), this, player);
-    }
-
-    /**
-     * Refunds the block item to the player's inventory. If the inventory is full, drops the item at the player's location.
-     * 
-     * @param player the player to refund the item to
-     */
-    public void refund(Player player) {
-        ItemStack item = new ItemStack(this.getBlock().getMaterial());
-        PlayerInventory playerInventory = player.getInventory();
-
-        // if player inventory is not full
-        if (playerInventory.firstEmpty() != -1) {
-
-            // return the NPC block to the player
-            playerInventory.addItem(
-                item
-            );
-
-            return; // don't continue
-        }
-
-        // if player inventory is full
-        Location playerLocation = player.getLocation();
-        playerLocation.getWorld().dropItem(playerLocation, item);
-    }
-
-    /**
-     * Penalizes the player by removing the block item from their inventory.
-     * 
-     * @param player the player to penalize
-     */
-    public void penalise(Player player) {
-        ItemStack item = new ItemStack(this.getBlock().getMaterial(), 1);
-        PlayerInventory playerInventory = player.getInventory();
-
-        // subtract the block
-        playerInventory.removeItem(item);
-    }
-
     @Override
     public GUISlot createTypeSlot(GUIDynamic screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
         return new GUISlot(gui, slot)
@@ -238,7 +164,7 @@ public class BlockNPC extends NPCType {
                 )
             )
             .onClick(() -> {
-                HumanEntity player = director.getPlayer();
+                Player player = director.getPlayer();
                 PlayerInventory playerInventory = player.getInventory();
                 ItemStack[] playerInventoryContents = playerInventory.getContents();
                 
@@ -275,5 +201,71 @@ public class BlockNPC extends NPCType {
                     screen.refresh(); // re-draw to see changes
                 }).execute();
             });
+    }
+
+    @Override
+    public void refund(QuestClient quester) {
+        Player player = quester.getPlayer();
+        ItemStack item = new ItemStack(this.getBlock().getMaterial());
+        PlayerInventory playerInventory = player.getInventory();
+
+        // if player inventory is not full
+        if (playerInventory.firstEmpty() != -1) {
+
+            // return the NPC block to the player
+            playerInventory.addItem(
+                item
+            );
+
+            return; // don't continue
+        }
+
+        // if player inventory is full, drop at feet
+        Location playerLocation = player.getLocation();
+        playerLocation.getWorld().dropItem(playerLocation, item);
+    }
+
+    @Override
+    public void penalise(QuestClient quester) {
+        Player player = quester.getPlayer();
+        ItemStack item = new ItemStack(this.getBlock().getMaterial(), 1);
+        PlayerInventory playerInventory = player.getInventory();
+
+        // subtract the block
+        playerInventory.removeItem(item);
+    }
+
+    @Override
+    public void unregister(QuestAction action, QuestClient quester) {
+        quester.getData().removeBlockNPC(action, this.getNPC());
+    }
+
+    @Override
+    public void despawn(QuestAction action, QuestClient quester) {
+        Player player = quester.getPlayer();
+
+        // send block update to nothing
+        player.sendBlockChange(
+            this.getNPC().getLocation().toBukkitLocation(), 
+            Material.AIR.createBlockData()
+        );
+    }
+
+    @Override
+    public void register(QuestAction action, QuestClient quester, Object value) {
+        quester.getData().addBlockNPC(action, this.getNPC(), (BlockData) value);
+    }
+
+    @Override
+    public Object spawn(QuestAction action, QuestClient quester) {
+        Player player = quester.getPlayer();
+
+        // set ghost block
+        player.sendBlockChange(
+            this.getNPC().getLocation().toBukkitLocation(), 
+            this.getBlock()
+        );
+
+        return this.getBlock();
     }
 }

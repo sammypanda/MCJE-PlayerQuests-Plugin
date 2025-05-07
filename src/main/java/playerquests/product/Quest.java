@@ -28,6 +28,7 @@ import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
+import playerquests.client.quest.QuestClient;
 import playerquests.utility.ChatUtils; // helpers for in-game chat
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
@@ -448,17 +449,24 @@ public class Quest {
      * Refunds the resources used in this quest to the creator.
      * <p>
      * If the creator is null (indicating a shared quest), no refund is performed.
+     * @return if successful
      */
-    public void refund() {
+    public boolean refund() {
         if (this.creator == null) {
-            return; // no need to refund, a shared quest has infinite resources
+            return true; // no need to refund, a shared quest has infinite resources
         }
 
         Player player = Bukkit.getPlayer(creator);
 
+        if (player == null) {
+            throw new IllegalStateException("No player to refund quest to.");
+        }
+
+        QuestClient quester = QuestRegistry.getInstance().getQuester(player);
+
         // return NPC resources
         this.getNPCs().values().stream().forEach(npc -> {
-            npc.refund(player);
+            npc.refund(quester);
         });
 
         // let the player know
@@ -466,6 +474,8 @@ public class Quest {
             .player(player)
             .style(MessageStyle.PRETTY)
             .send();
+
+        return true;
     }
 
     /**

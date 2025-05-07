@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
-import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
@@ -95,12 +94,6 @@ public class QuestClient {
                 // start the actions
                 this.start(entry.getValue(), quest);
             });
-
-        // hide other questers entity NPCs
-        QuestRegistry.getInstance().getAllQuesters().stream()
-            .filter(client -> ! client.equals(this))
-            .flatMap(client -> client.getData().getAllEntityNPCs().values().stream())
-            .forEach(entity -> player.hideEntity(Core.getPlugin(), entity));
 	}
 
     /**
@@ -256,5 +249,15 @@ public class QuestClient {
      */
     public QuesterData getData() {
         return this.data;
+    }
+
+    /**
+     * Clear what would otherwise be leftover from a QuestClient
+     */
+    public void clear() {
+        // unregister all NPCs
+        this.getData().getNPCs().forEach(npc -> {
+            npc.getValue().despawn(this);
+        });
     }
 }
