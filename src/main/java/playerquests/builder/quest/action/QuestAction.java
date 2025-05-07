@@ -267,6 +267,11 @@ public abstract class QuestAction {
 
         // remove all the NPCs
         questerData.getNPCs().forEach(npc -> {
+            // exit if doesn't match the action we are stopping
+            if ( ! npc.getKey().equals(this) ) {
+                return;
+            }
+
             npc.getValue().despawn(this, questerData.getQuester());
         });
 
