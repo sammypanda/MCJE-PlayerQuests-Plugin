@@ -70,7 +70,7 @@ public class EntityNPC extends NPCType {
                         "Select an entity", // the prompt message
                         List.of(), // denied entities (none)
                         List.of() // denied SelectMethods (none)
-                    ), 
+                    ),
                     director).onFinish((f) -> {
                         SelectEntity selectEntity = (SelectEntity) f;
                         EntitySerialisable entitySerialisable = selectEntity.getResult();
@@ -78,7 +78,7 @@ public class EntityNPC extends NPCType {
                         // assign this as the quest NPC
                         if (entitySerialisable != null) {
                             EntityNPC entityNPC = new EntityNPC(entitySerialisable, npc); // create NPC type
-                            
+
                             // set this npc type
                             npc.assign(
                                 entityNPC
@@ -102,7 +102,7 @@ public class EntityNPC extends NPCType {
         try {
             entityData = new EntitySerialisable(this.value);
         } catch (IllegalArgumentException e) {
-            System.err.println("malformed entity data in a quest.");
+            System.err.println("malformed entity data in a quest. " + e.getMessage());
             entityData = new EntitySerialisable("type:VILLAGER");
             this.value = entityData.toString(); // replace invalid data
         }
@@ -116,8 +116,8 @@ public class EntityNPC extends NPCType {
 
         return new GUISlot(gui, slot)
             .setLabel(
-                String.format("%s", 
-                    (npc.getLocation() == null) ? 
+                String.format("%s",
+                    (npc.getLocation() == null) ?
                         "Place NPC (" + npc.getAssigned().getType() + ")" :
                         "Relocate NPC (" + npc.getAssigned().getType() + ")"
                 )
@@ -136,7 +136,7 @@ public class EntityNPC extends NPCType {
                 Player player = director.getPlayer();
                 PlayerInventory playerInventory = player.getInventory();
                 ItemStack[] playerInventoryContents = playerInventory.getContents();
-                
+
                 // temporarily empty the player inventory
                 playerInventory.clear();
 
@@ -189,7 +189,7 @@ public class EntityNPC extends NPCType {
         QuestNPC questNPC = this.getNPC();
         Location location = questNPC.getLocation().toBukkitLocation();
         Player player = quester.getPlayer();
-        
+
         // don't do anything if no player
         if (player == null) {
             return null;
@@ -207,10 +207,10 @@ public class EntityNPC extends NPCType {
         });
         // except ourself
         player.showEntity(Core.getPlugin(), entity);
-        
+
         // disable damage
         entity.setInvulnerable(true);
-        
+
         // disable movement
         entity.setGravity(false);
         if (entity instanceof LivingEntity) {

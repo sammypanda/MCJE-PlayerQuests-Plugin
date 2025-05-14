@@ -11,14 +11,18 @@ import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pose;
+import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Rabbit.Type;
 
 public class EntitySerialisable implements Serialisable {
 
-    EntityType entityType = EntityType.VILLAGER;
+    private EntityType entityType;
 
-    Pose entityPose = Pose.STANDING;
+    private Pose entityPose;
 
-    Cat.Type catVariant;
+    private Cat.Type catVariant;
+
+    private Type rabbitVariant;
 
     public EntitySerialisable(String entityTypeString) {
         this.fromString(entityTypeString);
@@ -28,11 +32,15 @@ public class EntitySerialisable implements Serialisable {
         this.entityType = entity.getType();
         this.entityPose = entity.getPose();
 
-        // custom entries for each entity
+        // NOTE: custom entries for each entity here
         switch (this.entityType) {
             case CAT:
                 Cat cat = (Cat) entity;
                 this.catVariant = cat.getCatType();
+                break;
+            case RABBIT:
+                Rabbit rabbit = (Rabbit) entity;
+                this.rabbitVariant = rabbit.getRabbitType();
                 break;
             default:
                 break;
@@ -61,7 +69,7 @@ public class EntitySerialisable implements Serialisable {
 
         // resolve entity type from string
         try {
-            this.entityType = EntityType.valueOf(entityTypeString);
+            this.entityType = EntityType.valueOf(entityTypeString.toLowerCase());
         } catch (IllegalArgumentException _e) {
             this.entityType = EntityType.VILLAGER;
         }
@@ -72,38 +80,17 @@ public class EntitySerialisable implements Serialisable {
         switch (this.entityType) {
             case CAT:
                 String catVariantString = data.get("cat_variant");
-
-                if (catVariantString != null) {
-                    NamespacedKey catVariantKey = NamespacedKey.fromString(catVariantString.toLowerCase());
-                    this.catVariant = Registry.CAT_VARIANT.get(catVariantKey);
-                }
+                NamespacedKey catVariantKey = NamespacedKey.fromString(catVariantString.toLowerCase());
+                this.catVariant = Registry.CAT_VARIANT.get(catVariantKey);
                 break;
+            case RABBIT:
+                String rabbitVariantString = data.get("rabbit_variant");
+                this.rabbitVariant = Rabbit.Type.valueOf(rabbitVariantString.toUpperCase());
             default:
                 break;
         }
 
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("type:%s,pose:%s,cat_variant:%s",
-            this.getEntityType(),
-            this.getPose(),
-            this.getCatVariant()
-        );
-    }
-
-    public EntityType getEntityType() {
-        return this.entityType;
-    }
-
-    public Pose getPose() {
-        return this.entityPose;
-    }
-
-    public Cat.Type getCatVariant() {
-        return this.catVariant;
     }
 
     public Entity spawn(Location location) {
@@ -115,21 +102,68 @@ public class EntitySerialisable implements Serialisable {
 
         Entity entity = location.getWorld().spawnEntity(location, entityType);
 
+        // NOTE: applying unique attributes to spawned entity here
         switch (entityType) {
             case CAT:
                 Cat cat = (Cat) entity;
                 Cat.Type catVariant = this.getCatVariant();
 
-                if (catVariant != null) {
-                    cat.setCatType(catVariant);
-                }
-
+                cat.setCatType(catVariant);
                 cat.setSitting(this.entityPose == Pose.SITTING);
+                break;
+            case RABBIT:
+                Rabbit rabbit = (Rabbit) entity;
+                Rabbit.Type rabbitVariant = this.getRabbitVariant();
+
+                rabbit.setRabbitType(rabbitVariant);
                 break;
             default:
                 break;
         }
 
         return entity;
+    }
+
+    @Override
+    public String toString() {
+        // NOTE: add new unique attributes here:
+        return String.format("type:%s,pose:%s,cat_variant:%s,rabbit_variant:%s",
+            this.getEntityType(),
+            this.getPose(),
+            this.getCatVariant(),
+            this.getRabbitVariant()
+        );
+    }
+
+    public EntityType getEntityType() {
+        if (this.entityType == null) {
+            return EntityType.VILLAGER;
+        }
+
+        return this.entityType;
+    }
+
+    public Pose getPose() {
+        if (this.entityPose == null) {
+            return Pose.STANDING;
+        }
+
+        return this.entityPose;
+    }
+
+    public Cat.Type getCatVariant() {
+        if (this.catVariant == null) {
+            return Cat.Type.ALL_BLACK;
+        }
+
+        return this.catVariant;
+    }
+
+    public Rabbit.Type getRabbitVariant() {
+        if (this.rabbitVariant == null) {
+            return Rabbit.Type.BLACK;
+        }
+
+        return this.rabbitVariant;
     }
 }
