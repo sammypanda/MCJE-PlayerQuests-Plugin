@@ -86,15 +86,15 @@ public class EntitySerialisable implements Serialisable {
 
         switch (this.entityType) {
             case CAT:
-                String catVariantString = data.get("cat_variant");
+                String catVariantString = data.getOrDefault("cat_variant", this.getCatVariant().toString());
                 NamespacedKey catVariantKey = NamespacedKey.fromString(catVariantString.toLowerCase());
                 this.catVariant = Registry.CAT_VARIANT.get(catVariantKey);
                 break;
             case RABBIT:
-                String rabbitVariantString = data.get("rabbit_variant");
+                String rabbitVariantString = data.getOrDefault("rabbit_variant", this.getRabbitVariant().toString());
                 this.rabbitVariant = Rabbit.Type.valueOf(rabbitVariantString.toUpperCase());
             case SHEEP:
-                String sheepColorString = data.get("sheep_color");
+                String sheepColorString = data.getOrDefault("sheep_color", this.getSheepColor().toString());
                 this.sheepColor = DyeColor.valueOf(sheepColorString.toUpperCase());
             default:
                 break;
