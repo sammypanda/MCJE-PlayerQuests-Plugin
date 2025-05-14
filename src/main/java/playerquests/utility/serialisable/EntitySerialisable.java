@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Rabbit.Type;
 
 public class EntitySerialisable implements Serialisable {
@@ -23,6 +25,8 @@ public class EntitySerialisable implements Serialisable {
     private Cat.Type catVariant;
 
     private Type rabbitVariant;
+
+    private DyeColor sheepColor;
 
     public EntitySerialisable(String entityTypeString) {
         this.fromString(entityTypeString);
@@ -42,6 +46,9 @@ public class EntitySerialisable implements Serialisable {
                 Rabbit rabbit = (Rabbit) entity;
                 this.rabbitVariant = rabbit.getRabbitType();
                 break;
+            case SHEEP:
+                Sheep sheep = (Sheep) entity;
+                this.sheepColor = sheep.getColor();
             default:
                 break;
         }
@@ -86,6 +93,9 @@ public class EntitySerialisable implements Serialisable {
             case RABBIT:
                 String rabbitVariantString = data.get("rabbit_variant");
                 this.rabbitVariant = Rabbit.Type.valueOf(rabbitVariantString.toUpperCase());
+            case SHEEP:
+                String sheepColorString = data.get("sheep_color");
+                this.sheepColor = DyeColor.valueOf(sheepColorString.toUpperCase());
             default:
                 break;
         }
@@ -117,6 +127,11 @@ public class EntitySerialisable implements Serialisable {
 
                 rabbit.setRabbitType(rabbitVariant);
                 break;
+            case SHEEP:
+                Sheep sheep = (Sheep) entity;
+                DyeColor sheepColor = this.getSheepColor();
+
+                sheep.setColor(sheepColor);
             default:
                 break;
         }
@@ -127,11 +142,12 @@ public class EntitySerialisable implements Serialisable {
     @Override
     public String toString() {
         // NOTE: add new unique attributes here:
-        return String.format("type:%s,pose:%s,cat_variant:%s,rabbit_variant:%s",
+        return String.format("type:%s,pose:%s,cat_variant:%s,rabbit_variant:%s,sheep_color:%s",
             this.getEntityType(),
             this.getPose(),
             this.getCatVariant(),
-            this.getRabbitVariant()
+            this.getRabbitVariant(),
+            this.getSheepColor()
         );
     }
 
@@ -165,5 +181,13 @@ public class EntitySerialisable implements Serialisable {
         }
 
         return this.rabbitVariant;
+    }
+
+    public DyeColor getSheepColor() {
+        if (this.sheepColor == null) {
+            return DyeColor.BLACK;
+        }
+
+        return this.sheepColor;
     }
 }
