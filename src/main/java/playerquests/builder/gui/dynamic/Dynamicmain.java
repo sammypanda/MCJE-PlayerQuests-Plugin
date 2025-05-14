@@ -73,7 +73,7 @@ public class Dynamicmain extends GUIDynamic {
                         new UpdateScreen(Arrays.asList("questeditor"), director) // change screen to the quest editor
                             .execute();
                     })
-                    .execute();;
+                    .execute();
             });
 
         new GUISlot(gui, 4)
