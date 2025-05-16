@@ -1,7 +1,5 @@
 package playerquests.utility.listener;
 
-import java.sql.DatabaseMetaData;
-
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
