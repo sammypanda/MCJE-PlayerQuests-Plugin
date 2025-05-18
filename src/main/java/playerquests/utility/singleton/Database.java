@@ -282,6 +282,19 @@ public class Database {
     private void setCitizens2Support() {
         final boolean isSupported = PlayerQuests.getCitizens2() != null;
 
+        if (isSupported == false) {
+            ChatUtils.message("""
+            Soft Dependency Reminder! ✨
+            To unlock all the NPC types, consider installing Citizens! Without it, some NPC types will be unavailable. <3
+
+            🔗 https://ci.citizensnpcs.co/job/Citizens2/
+            """.strip())
+                .target(MessageTarget.WORLD)
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.NOTIF)
+                .send();
+        }
+
         try (Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("""
                 UPDATE plugin
