@@ -142,6 +142,7 @@ public class Database {
             String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
             + "plugin TEXT PRIMARY KEY,"
             + "version TEXT NOT NULL,"
+            + "citizens2 BOOLEAN NOT NULL DEFAULT FALSE,"
             + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
             statement.execute(pluginTableSQL);
 
@@ -242,6 +243,7 @@ public class Database {
 
             switch (version) {
                 case "0.10":
+                    query.append(MigrationUtils.dbV0_10());
                 case "0.9.2":
                 case "0.9.1":
                 case "0.9":
