@@ -26,6 +26,7 @@ import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.RewardItemAction;
 import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
 import playerquests.client.quest.QuestClient;
@@ -38,6 +39,7 @@ import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.PluginUtils;
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.singleton.Database; // the preservation everything store
+import playerquests.utility.singleton.PlayerQuests;
 import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
 
 /**
@@ -82,21 +84,21 @@ public class Quest {
      * Start points for this quest
      */
     private List<StagePath> startPoints = List.of();
-    
+
     /**
      * Constructs a new Quest with the specified parameters.
-     * 
+     *
      * @param title The title of the quest.
      * @param npcs A map of NPCs used in the quest.
      * @param stages A map of stages used in the quest.
      * @param creator The UUID of the player who created the quest.
-     * @param id the id of the quest.   
+     * @param id the id of the quest.
      * @param startpoints the actions that start when the quest starts.
      */
     public Quest(
         @JsonProperty("title") String title,
-        @JsonProperty("npcs") Map<String, QuestNPC> npcs, 
-        @JsonProperty("stages") Map<String, QuestStage> stages, 
+        @JsonProperty("npcs") Map<String, QuestNPC> npcs,
+        @JsonProperty("stages") Map<String, QuestStage> stages,
         @JsonProperty("creator") UUID creator,
         @JsonProperty("id") String id,
         @JsonProperty("startpoints") List<StagePath> startpoints
@@ -132,7 +134,7 @@ public class Quest {
         }
 
         // Set Quest dependency for each QuestNPC instead of custom deserialize
-        if (this.npcs != null) { 
+        if (this.npcs != null) {
             npcs.forEach((npc_id, npc) -> {
                 npc.setQuest(this);
 
@@ -146,14 +148,14 @@ public class Quest {
 
     /**
      * Creates a quest from a JSON string.
-     * 
+     *
      * @param questJSON The JSON string representing the quest file.
      * @return A {@link Quest} object created from the JSON string.
      */
     public static Quest fromJSONString(String questJSON) {
         Quest quest = null;
         ObjectMapper jsonObjectMapper = new ObjectMapper(); // used to deserialise json to object
-        
+
         // configure the mapper
         jsonObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         jsonObjectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // allow json object to be empty
@@ -168,12 +170,19 @@ public class Quest {
             System.err.println("Malformed JSON attempted as a quest string. " + e);
         }
 
+        // if trying to start quest with dependencies missing, fail
+        if ( ! PlayerQuests.getInstance().hasCitizens2() && quest.getNPCs().values().stream().anyMatch(npc -> npc.getAssigned() instanceof EntityNPC)) { // if citizens2 missing
+            System.err.println("Cannot load " + quest.getID() + " as it has EntityNPCs, but your server does not have the Citizens2 plugin");
+            return null;
+        }
+
+        // return successful quest
         return quest;
     }
 
     /**
      * Gets the title of this quest.
-     * 
+     *
      * @return The title of this quest.
      */
     public String getTitle() {
@@ -182,7 +191,7 @@ public class Quest {
 
     /**
      * Gets the map of NPCs used in this quest.
-     * 
+     *
      * @return The map of NPCs, keyed by their ID.
      */
     public Map<String, QuestNPC> getNPCs() {
@@ -191,7 +200,7 @@ public class Quest {
 
     /**
      * Gets the map of stages used in this quest.
-     * 
+     *
      * @return The map of stages, keyed by their ID.
      */
     public Map<String, QuestStage> getStages() {
@@ -200,7 +209,7 @@ public class Quest {
 
     /**
      * Gets the UUID of the player who created this quest.
-     * 
+     *
      * @return The UUID of the creator, null if none.
      */
     public UUID getCreator() {
@@ -209,7 +218,7 @@ public class Quest {
 
     /**
      * Gets the Player object for this quest creator if can be found.
-     * 
+     *
      * @return the Player object of the creator, null if none.
      */
     @JsonIgnore
@@ -227,17 +236,17 @@ public class Quest {
      * Gets a unique identifier for this quest.
      * <p>
      * The ID is composed of the quest title and creator UUID. This allows for easy differentiation of different versions of the same quest.
-     * 
+     *
      * @return The unique ID of this quest.
      */
-    @JsonProperty("id") 
+    @JsonProperty("id")
     public String getID() {
         return this.id;
     }
 
     /**
      * Converts this quest to a JSON string.
-     * 
+     *
      * @return A JSON string representing this quest.
      * @throws JsonProcessingException If the JSON cannot be serialized.
      */
@@ -257,7 +266,7 @@ public class Quest {
 
     /**
      * Saves this quest to a file.
-     * 
+     *
      * @return A message indicating the result of the save operation.
      */
     @Key("quest")
@@ -294,7 +303,7 @@ public class Quest {
                                                    .type(MessageType.ERROR)
                                                    .target(MessageTarget.CONSOLE)
                                                    .style(MessageStyle.PLAIN);
-            
+
             // send error to console regardless
             errorMessage.send();
 
@@ -309,7 +318,7 @@ public class Quest {
 
     /**
      * Checks if this quest is toggled (enabled).
-     * 
+     *
      * @return Whether the quest is enabled.
      */
     @JsonIgnore
@@ -332,7 +341,7 @@ public class Quest {
 
     /**
      * Toggles the quest's enabled/disabled state with a specified value.
-     * 
+     *
      * @param toEnable Whether to enable (true) or disable (false) the quest.
      */
     public void toggle(boolean toEnable) {
@@ -360,7 +369,7 @@ public class Quest {
 
     /**
      * Validates this quest's data.
-     * 
+     *
      * @return Whether the quest is valid.
      */
     @JsonIgnore
@@ -395,7 +404,7 @@ public class Quest {
 
     /**
      * Checks if this quest should be allowed to be enabled.
-     * 
+     *
      * @return Whether the quest is allowed to be enabled.
      */
     @JsonIgnore
@@ -436,7 +445,7 @@ public class Quest {
 
     /**
      * Provides a string representation of this quest.
-     * 
+     *
      * @return A string representing this quest.
      */
     @JsonIgnore
@@ -495,7 +504,7 @@ public class Quest {
                         RewardItemAction.class
                     ).contains(action.getClass())
                 ) { return; }
-                
+
                 // add the items expected to the requiredInventory list
                 action.getData().getOption(ItemsOption.class).get().getItems().forEach((material, amount) -> {
                     requiredInventory.put(material, amount);
@@ -515,7 +524,7 @@ public class Quest {
         if (this.startPoints == null) {
             return List.of();
         }
-        
+
         return this.startPoints;
     }
 }

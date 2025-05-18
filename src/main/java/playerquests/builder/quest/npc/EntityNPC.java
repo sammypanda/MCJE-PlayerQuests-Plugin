@@ -28,6 +28,7 @@ import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
 import playerquests.utility.serialisable.EntitySerialisable;
+import playerquests.utility.singleton.PlayerQuests;
 
 public class EntityNPC extends NPCType {
 
@@ -57,14 +58,27 @@ public class EntityNPC extends NPCType {
 
     @Override
     public GUISlot createTypeSlot(GUIDynamic screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
+        final boolean hasCitizens2 = PlayerQuests.getInstance().hasCitizens2();
+
         return new GUISlot(gui, slot)
             .setLabel("An Entity")
             .setDescription(
-                List.of(
-                    String.format("%sComing soon", ChatColor.DARK_GRAY)
-                ))
-            .setItem(Material.EGG)
+                hasCitizens2 ?
+                    List.of(
+                        String.format("%sComing soon", ChatColor.DARK_GRAY)
+                    )
+                :
+                    List.of(
+                        "Entity NPCs require",
+                        "the Citizens2 plugin"
+                    )
+            )
+            .setItem(hasCitizens2 ? Material.EGG : Material.BARRIER)
             .onClick(() -> {
+                if ( ! hasCitizens2) {
+                    return;
+                }
+
                 new SelectEntity(
                     Arrays.asList(
                         "Select an entity", // the prompt message

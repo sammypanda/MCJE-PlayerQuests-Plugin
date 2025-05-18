@@ -281,7 +281,6 @@ public class Database {
 
     private void setCitizens2Support() {
         final boolean isSupported = PlayerQuests.getCitizens2() != null;
-        System.out.println(isSupported);
 
         try (Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("""
