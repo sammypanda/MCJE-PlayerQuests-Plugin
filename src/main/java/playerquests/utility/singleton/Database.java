@@ -172,8 +172,13 @@ public class Database {
             + "UNIQUE(diary, quest, action));";
             statement.execute(diary_entriesTableSQL);
 
+            // Migrate to new versions if applicable
             migrate(version, dbVersion);
 
+            // Update dependency status in db
+            setCitizens2Support();
+
+            // Report to rest of plugin if a fresh install
             isFresh();
 
         } catch (SQLException e) {
@@ -267,13 +272,48 @@ public class Database {
 
         // Update plugin version in db
         setPluginVersion(version);
+
         ChatUtils.message("You're on v" + version + "! https://sammypanda.moe/docs/playerquests/v" + version)
             .target(MessageTarget.WORLD)
             .type(MessageType.NOTIF)
             .send();
     }
 
-    /**
+    private void setCitizens2Support() {
+        final boolean isSupported = PlayerQuests.getCitizens2() != null;
+        System.out.println(isSupported);
+
+        try (Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                UPDATE plugin
+                SET citizens2 = ?
+                WHERE plugin.plugin = 'PlayerQuests'
+            """)) {
+
+            preparedStatement.setBoolean(1, isSupported);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            System.err.println("Could not insert or set citizens2 support boolean in the db " + e.getMessage());
+        }
+	}
+
+	public boolean getCitizens2Support() {
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT citizens2 FROM plugin WHERE plugin = 'PlayerQuests';")) {
+
+            ResultSet results = statement.executeQuery();
+            boolean isSupported = results.getBoolean("citizens2");
+
+            return isSupported;
+        } catch (SQLException e) {
+            System.err.println("Could not get citizens2 status from database " + e.getMessage());
+            return false;
+        }
+	}
+
+	/**
      * Retrieves the current version of the plugin from the database.
      * <p>
      * This method queries the `plugin` table to get the version of the plugin stored
