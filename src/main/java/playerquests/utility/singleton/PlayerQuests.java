@@ -8,7 +8,6 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import net.citizensnpcs.Citizens;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.MemoryNPCDataStore;

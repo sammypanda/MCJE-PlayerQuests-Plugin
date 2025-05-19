@@ -16,7 +16,6 @@ import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Rabbit.Type;
 
-import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import playerquests.utility.singleton.PlayerQuests;
 

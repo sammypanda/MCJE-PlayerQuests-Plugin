@@ -15,7 +15,6 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.md_5.bungee.api.ChatColor;
 import playerquests.Core;
