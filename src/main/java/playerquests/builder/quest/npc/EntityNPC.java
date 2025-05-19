@@ -12,10 +12,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.util.Vector;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.LookClose;
 import net.md_5.bungee.api.ChatColor;
 import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
@@ -213,9 +215,22 @@ public class EntityNPC extends NPCType {
         // center on origin
         location.add(.5, 0, .5);
 
+        // set to spawn facing player
+        Vector calculatedVector = player.getLocation().toVector().subtract(location.toVector());
+        location.setDirection(calculatedVector);
+
         // spawn entity in world
         NPC citizen = this.getEntity().spawn(location);
         Entity entity = citizen.getEntity();
+
+        // hide nametag
+        citizen.data().setPersistent(NPC.Metadata.NAMEPLATE_VISIBLE, false);
+
+        // set to look at closest player
+        LookClose lookClose = citizen.getOrAddTrait(LookClose.class);
+        lookClose.setRange(15); // default is 8 blocks
+        lookClose.setRealisticLooking(true); // smoother movements (default: false)
+        lookClose.toggle(); // enable
 
         // hide for everyone
         Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
@@ -231,7 +246,6 @@ public class EntityNPC extends NPCType {
         entity.setGravity(false);
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
-            livingEntity.setAI(false);
             livingEntity.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0);
             livingEntity.setCollidable(false);
         }

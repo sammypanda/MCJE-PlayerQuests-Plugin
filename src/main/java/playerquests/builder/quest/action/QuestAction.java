@@ -108,7 +108,7 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract List<ActionTweaks> getTweaks();
-    
+
     /**
      * Gets the stage that this action belongs to.
      * @return The quest stage instance.
@@ -127,7 +127,7 @@ public abstract class QuestAction {
         if (stage == null) {
             return;
         }
-        
+
         this.stage = stage;
     }
 
@@ -152,7 +152,7 @@ public abstract class QuestAction {
     public String toString() {
         return this.getID();
     }
-    
+
     /**
      * Gets the name of the action.
      * @return the readable name.
@@ -171,7 +171,7 @@ public abstract class QuestAction {
     }
 
     /**
-     * Setting up the action before any 
+     * Setting up the action before any
      * checking.
      * @param questerData the data about the quester playing the action.
      */
@@ -180,7 +180,7 @@ public abstract class QuestAction {
     /**
      * Determines if the action should
      * now finish.
-     * - Determines whether should call 
+     * - Determines whether should call
      * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      */
@@ -191,7 +191,7 @@ public abstract class QuestAction {
     /**
      * Determines if the action should
      * now finish.
-     * - Determines whether should call 
+     * - Determines whether should call
      * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      * @param bypassClash skip clash checks.
@@ -203,7 +203,7 @@ public abstract class QuestAction {
                 return false; // don't do work if this condition already met
             }
 
-            // run the listener for unmet conditions 
+            // run the listener for unmet conditions
             // so they can ask for re-check
             conditional.startListener(questerData);
             this.stop(questerData, true); // stop and halt continuation
@@ -339,7 +339,7 @@ public abstract class QuestAction {
             LocationData location = new LocationData(l);
             Quest quest = this.getStage().getQuest();
             NPCOption npcOption = actionData.getOption(NPCOption.class).get();
-            
+
             // offset the location to above where the action takes place
             location.setX(location.getX() + 0.5);
             location.setZ(location.getZ() + 0.5);
@@ -406,7 +406,7 @@ public abstract class QuestAction {
     public abstract GUISlot createSlot(GUIBuilder gui, Integer slot);
 
     /**
-     * Logic to indicate that the quest 
+     * Logic to indicate that the quest
      * action is valid, or requires further editing.
      * @return empty if was successful
      */
@@ -445,7 +445,7 @@ public abstract class QuestAction {
     public Optional<String> delete() {
         return this.getStage().removeAction(this);
     }
-    
+
     /**
      * The location in which this action takes place.
      * @return a location data object
@@ -461,7 +461,7 @@ public abstract class QuestAction {
         QuestClient quester = questerData.getQuester(); // get the quester
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         NPCOption npcOption = this.getData().getOption(NPCOption.class).orElseGet(null); // find NPC option if applies
-            
+
         if (npcOption == null || !npcOption.isValid()) { // if the NPC option doesn't exist
             return null;
         }
@@ -479,7 +479,7 @@ public abstract class QuestAction {
         QuestClient quester = questerData.getQuester(); // get the quester
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
-            
+
         if (npcOption.isPresent()) { // if the NPC option exists
             QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest
             npc.despawn(this, quester);
