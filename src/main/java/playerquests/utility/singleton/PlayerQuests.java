@@ -8,6 +8,11 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
+import net.citizensnpcs.Citizens;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.event.DespawnReason;
+import net.citizensnpcs.api.npc.MemoryNPCDataStore;
+import net.citizensnpcs.api.npc.NPCRegistry;
 import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
@@ -78,6 +83,11 @@ public class PlayerQuests {
     private Map<String, Boolean> dependencies = new HashMap<>();
 
     /**
+     * Non-persistent citizens NPC registry, required for citizens plugin API.
+     */
+    private NPCRegistry citizensRegistry = CitizensAPI.createNamedNPCRegistry("playerquests", new MemoryNPCDataStore());
+
+    /**
      * Should be accessed statically.
      */
     private PlayerQuests() {}
@@ -99,6 +109,14 @@ public class PlayerQuests {
     public static Plugin getCitizens2() {
         // NOTE: the actual plugin name is Citizens, it's just referred commonly referred to as Citizens2 because it's in v2
         return Bukkit.getServer().getPluginManager().getPlugin("Citizens");
+    }
+
+    /**
+     * Gets the PlayerQuests Citizens plugin registry.
+     * @return a non-persistent citizens registry named 'playerquests'
+     */
+    public NPCRegistry getCitizensRegistry() {
+        return this.citizensRegistry;
     }
 
     /**
@@ -229,6 +247,10 @@ public class PlayerQuests {
         QuestRegistry.getInstance().getAllQuesters().forEach(quester -> {
             quester.clear();
         });
+
+        // despawn the citizens and remove citizens registry
+        this.getCitizensRegistry().despawnNPCs(DespawnReason.REMOVAL);
+        CitizensAPI.removeNamedNPCRegistry("playerquests");
 
         // clear the quest registry
         QuestRegistry.getInstance().clear();

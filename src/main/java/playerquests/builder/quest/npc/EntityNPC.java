@@ -15,6 +15,8 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.NPC;
 import net.md_5.bungee.api.ChatColor;
 import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
@@ -188,14 +190,14 @@ public class EntityNPC extends NPCType {
 
     @Override
     protected void despawn(QuestAction action, QuestClient quester) {
-        Entity entity = quester.getData().getEntityNPC(action, this.getNPC());
+        NPC citizen = quester.getData().getCitizenNPC(action, this.getNPC());
 
-        entity.remove();
+        citizen.destroy();
     }
 
     @Override
     protected void register(QuestAction action, QuestClient quester, Object value) {
-        quester.getData().addEntityNPC(action, this.getNPC(), (Entity) value);
+        quester.getData().addCitizenNPC(action, this.getNPC(), (NPC) value);
     }
 
     @Override
@@ -213,7 +215,8 @@ public class EntityNPC extends NPCType {
         location.add(.5, 0, .5);
 
         // spawn entity in world
-        Entity entity = this.getEntity().spawn(location);
+        NPC citizen = this.getEntity().spawn(location);
+        Entity entity = citizen.getEntity();
 
         // hide for everyone
         Bukkit.getServer().getOnlinePlayers().forEach(onlinePlayer -> {
@@ -234,7 +237,7 @@ public class EntityNPC extends NPCType {
             livingEntity.setCollidable(false);
         }
 
-        return entity;
+        return citizen;
     }
 
     @Override

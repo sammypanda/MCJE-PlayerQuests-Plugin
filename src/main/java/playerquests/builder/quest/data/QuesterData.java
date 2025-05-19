@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import net.citizensnpcs.api.npc.NPC;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -68,7 +68,7 @@ public class QuesterData {
     /**
      * Map of registered QuestNPCs that are EntityNPC.
      */
-    private Map<Entry<QuestAction, QuestNPC>, Entity> entityNPCs = new HashMap<>();
+    private Map<Entry<QuestAction, QuestNPC>, NPC> entityNPCs = new HashMap<>();
 
     /**
      * The context of data useful for working with a QuestClient.
@@ -149,7 +149,7 @@ public class QuesterData {
 
         QuestClient quester = this.getQuester();
 
-        // if there are more than one actions 
+        // if there are more than one actions
         // left after this filtration, that means there is a clash
         ArrayList<QuestAction> clashingActions = new ArrayList<>(quester.getTrackedActions().stream()
             // filter out exact matches
@@ -160,7 +160,7 @@ public class QuesterData {
             .filter(trackedAction -> trackedAction.getLocation() != null && trackedAction.getLocation().equals(action.getLocation()))
             // get final size
             .toList());
-            
+
         // exit if no clashing to resolve
         if (clashingActions.size() == 0) {
             return true;
@@ -182,7 +182,7 @@ public class QuesterData {
             final String command = String.format("/action start %s.%s", quest.getID(), path); // command that resolves the clash?
 
             message
-                .append(String.format("> %s.%s\n", 
+                .append(String.format("> %s.%s\n",
                     quest.getTitle(), // the quest title
                     path)) // the path to the action
                 .reset() // clear inherited formatting
@@ -241,11 +241,11 @@ public class QuesterData {
         this.blockNPCs.remove(Map.entry(action, npc));
     }
 
-    public Entity getEntityNPC(QuestAction action, QuestNPC npc) {
+    public NPC getCitizenNPC(QuestAction action, QuestNPC npc) {
         return this.entityNPCs.get(Map.entry(action, npc));
     }
 
-    public void addEntityNPC(QuestAction action, QuestNPC npc, Entity value) {
+    public void addCitizenNPC(QuestAction action, QuestNPC npc, NPC value) {
         this.entityNPCs.put(Map.entry(action, npc), value);
     }
 

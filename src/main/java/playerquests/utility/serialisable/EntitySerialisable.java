@@ -16,6 +16,10 @@ import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Rabbit.Type;
 
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.NPC;
+import playerquests.utility.singleton.PlayerQuests;
+
 public class EntitySerialisable implements Serialisable {
 
     private EntityType entityType;
@@ -103,14 +107,15 @@ public class EntitySerialisable implements Serialisable {
         return this;
     }
 
-    public Entity spawn(Location location) {
+    public NPC spawn(Location location) {
         EntityType entityType = this.getEntityType();
 
         if ( entityType == null ) {
             throw new IllegalStateException("Entity type missing from entity serialisable data");
         }
 
-        Entity entity = location.getWorld().spawnEntity(location, entityType);
+        NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(entityType, "", location);
+        Entity entity = citizen.getEntity();
 
         // NOTE: applying unique attributes to spawned entity here
         switch (entityType) {
@@ -136,7 +141,7 @@ public class EntitySerialisable implements Serialisable {
                 break;
         }
 
-        return entity;
+        return citizen;
     }
 
     @Override
