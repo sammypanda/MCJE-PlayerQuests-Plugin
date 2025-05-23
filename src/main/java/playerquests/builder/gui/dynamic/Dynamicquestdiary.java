@@ -215,7 +215,7 @@ public class Dynamicquestdiary extends GUIDynamic {
         // return formatted page content
         return String.format("Quest: %s\n\nAction: %s (%s)\n\n%s",
             quest.getTitle(),
-            action.getID(),
+            action.getLabel(),
             action.getName(),
             location != null ? location.toString() : "Unknown location"
         );
