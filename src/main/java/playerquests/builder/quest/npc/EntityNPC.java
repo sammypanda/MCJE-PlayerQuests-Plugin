@@ -68,7 +68,7 @@ public class EntityNPC extends NPCType {
             .setDescription(
                 hasCitizens2 ?
                     List.of(
-                        String.format("%sComing soon", ChatColor.DARK_GRAY)
+                        String.format("%sWork in Progress", ChatColor.DARK_GRAY)
                     )
                 :
                     List.of(

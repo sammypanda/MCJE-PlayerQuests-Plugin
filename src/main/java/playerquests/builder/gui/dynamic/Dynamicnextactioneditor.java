@@ -76,8 +76,8 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
             // show stages
             Map<String, QuestStage> stages = this.action.getStage().getQuest().getStages();
-            stages.forEach((stage_id, stage) -> {
-                this.createStageButton(stage_id, stage);
+            stages.forEach((_stage_id, stage) -> {
+                this.createStageButton(stage);
             });
         } else {
             // make back button go to stages
@@ -113,15 +113,15 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
     /**
      * Create a stage button.
-     * These buttons show a list of actions that 
+     * These buttons show a list of actions that
      * belong to it.
      * @param stage_id the id of the stage
      * @param stage the quest stage object
      * @return a GUI slot button
      */
-    private GUISlot createStageButton(String stage_id, QuestStage stage) {
+    private GUISlot createStageButton(QuestStage stage) {
         return new GUISlot(gui, this.gui.getEmptySlot())
-            .setLabel(stage_id)
+            .setLabel(stage.getLabel())
             .setItem(Material.CHEST)
             .onClick(() -> {
                 this.selectedStage = stage; // set the stage at the actions of
@@ -156,7 +156,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
         return new GUISlot(gui, this.gui.getEmptySlot())
             // conditionals: if is selected, if is not selected, if is selected by being a start point
             .setLabel(String.format("%s (%s)",
-                action_id,
+                action.getLabel(),
                 isSelected ? "Selected" : (isStartPoint ? "Start Point" : "Select")
             ))
             .setDescription(List.of(
@@ -216,7 +216,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 }
             });
     }
-    
+
     private Boolean stageIsSelected() {
         String stageID = this.selectedStage.getID(); // find selected stage ID
 

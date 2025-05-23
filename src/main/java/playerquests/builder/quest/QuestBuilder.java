@@ -27,7 +27,7 @@ import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * For creating and managing a Quest.
- * 
+ *
  * The {@link QuestBuilder} class provides methods to build and configure quests.
  * It also supports loading from existing
  * quest files and validating the quest setup.
@@ -89,7 +89,7 @@ public class QuestBuilder {
 
     /**
      * Creates and returns a new default Quest.
-     * 
+     *
      * @param director The {@link ClientDirector} used to control the plugin.
      */
     public QuestBuilder(ClientDirector director) {
@@ -102,7 +102,7 @@ public class QuestBuilder {
 
     /**
      * Returns a new quest builder from an existing quest product object.
-     * 
+     *
      * @param director The {@link ClientDirector} used to control the plugin.
      * @param product The {@link Quest} file to create a new builder from.
      */
@@ -136,7 +136,7 @@ public class QuestBuilder {
                 if (product.getCreator() != director.getPlayer().getUniqueId()) {
                     this.originalCreator = product.getCreator();
                 }
-                
+
                 // set as the current quest in the director
                 director.setCurrentInstance(this);
             }
@@ -153,7 +153,7 @@ public class QuestBuilder {
 
     /**
      * Get the player who originally created this quest.
-     * 
+     *
      * @return The UUID of the original creator's player.
      */
     @JsonIgnore
@@ -163,14 +163,14 @@ public class QuestBuilder {
 
     /**
      * Add a creator to an otherwise universal quest.
-     * 
+     *
      * @param director The {@link ClientDirector} to refer to the creator via.
-     * 
+     *
      * @return The current {@link QuestBuilder} instance.
      */
     public QuestBuilder setDirector(ClientDirector director) {
         this.director = director;
-        
+
         if (director != null) {
             director.setCurrentInstance(this);
             this.universal = false;
@@ -184,9 +184,9 @@ public class QuestBuilder {
      * Set the title for the quest.
      * <p>
      * The title is also used as the ID: [Title]_[Owner Player ID].
-     * 
+     *
      * @param title The name for the quest.
-     * 
+     *
      * @return The current {@link QuestBuilder} instance.
      */
     @Key("quest.title")
@@ -211,7 +211,7 @@ public class QuestBuilder {
 
     /**
      * Get the quest title.
-     * 
+     *
      * @return The quest name.
      */
     @Key("Quest")
@@ -221,16 +221,17 @@ public class QuestBuilder {
 
     /**
      * Get all the stage IDs for this quest.
-     * 
+     *
      * @return A list of the stage IDs, ordered by stage number.
      */
     @JsonIgnore
-    public LinkedList<String> getStages() {
+    public LinkedList<QuestStage> getStages() {
         // create an ordered list of stages, ordered by stage_[this number]
-        LinkedList<String> orderedList = this.questPlan.keySet().stream()
-            .map(stage -> stage.split("_"))
-            .sorted(Comparator.comparingInt(parts -> Integer.parseInt(parts[1])))
-            .map(parts -> String.join("_", parts))
+        LinkedList<QuestStage> orderedList = this.questPlan.values().stream()
+            .sorted(Comparator.comparingInt(stage -> {
+                String[] parts = stage.getID().split("_");
+                return Integer.parseInt(parts[1]);
+            }))
             .collect(Collectors.toCollection(LinkedList::new));
 
         return orderedList;
@@ -238,7 +239,7 @@ public class QuestBuilder {
 
     /**
      * Get the entire quest plan map.
-     * 
+     *
      * @return A map of the quest stages with their IDs as keys.
      */
     @JsonProperty("stages")
@@ -248,7 +249,7 @@ public class QuestBuilder {
 
     /**
      * Get the filtered quest NPCs that have been created.
-     * 
+     *
      * @return A map of filtered quest NPCs.
      */
     @JsonProperty("npcs")
@@ -263,9 +264,9 @@ public class QuestBuilder {
 
     /**
      * Get the quest NPCs that have been created.
-     * 
+     *
      * @param all Whether to show all NPCs or not.
-     * 
+     *
      * @return A map of quest NPCs, either filtered or unfiltered.
      */
     @JsonProperty("npcs")
@@ -279,9 +280,9 @@ public class QuestBuilder {
 
     /**
      * Adds an NPC to this quest.
-     * 
+     *
      * @param npc The {@link QuestNPC} object to add to the map.
-     * 
+     *
      * @return Whether the addition was successful.
      */
     @JsonIgnore
@@ -316,7 +317,7 @@ public class QuestBuilder {
 
     /**
      * Removes an NPC from this quest.
-     * 
+     *
      * @param npc The {@link QuestNPC} object to remove from the map.
      */
     public void removeNPC(QuestNPC npc) {
@@ -334,7 +335,7 @@ public class QuestBuilder {
 
     /**
      * Provides the next valid NPC ID.
-     * 
+     *
      * @return The next valid 'npc_[number]' NPC ID.
      */
     @JsonIgnore
@@ -350,7 +351,7 @@ public class QuestBuilder {
 
     /**
      * Get the director instance which owns this builder.
-     * 
+     *
      * @return The {@link ClientDirector} instance.
      */
     @JsonIgnore
@@ -360,7 +361,7 @@ public class QuestBuilder {
 
     /**
      * Build the quest product from the state of this builder.
-     * 
+     *
      * @return The constructed {@link Quest} product.
      */
     @JsonIgnore
@@ -385,9 +386,9 @@ public class QuestBuilder {
 
     /**
      * Adds a stage to the quest.
-     * 
+     *
      * @param questStage The {@link QuestStage} to add.
-     * 
+     *
      * @return The added {@link QuestStage}.
      */
     public QuestStage addStage(QuestStage questStage) {
@@ -399,30 +400,30 @@ public class QuestBuilder {
 
     /**
      * Removes a stage from the quest.
-     * 
+     *
      * @param questStage The {@link QuestStage} to remove.
      * @param dryRun Whether to perform a dry run without actually removing the stage.
-     * 
+     *
      * @return Whether the stage can be removed.
      */
     public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
         Boolean canRemove = true; // whether the stage is safe to remove
-        
+
         if (dryRun) { // if just to test if removable
             return canRemove; // don't continue
         }
 
         // remove the stage
         this.questPlan.remove(questStage.getID());
-        
+
         return canRemove;
     }
 
     /**
      * Removes a stage from the quest.
-     * 
+     *
      * @param questStage The {@link QuestStage} to remove.
-     * 
+     *
      * @return Whether the stage was successfully removed.
      */
     public Boolean removeStage(QuestStage questStage) {
@@ -431,7 +432,7 @@ public class QuestBuilder {
 
     /**
      * Checks if everything is correctly set and formed.
-     * 
+     *
      * @return Whether the quest is valid.
      */
     @JsonIgnore
@@ -449,11 +450,11 @@ public class QuestBuilder {
      */
     public String getID() {
         // the player creating/editing/saving the quest
-        String creator = this.getDirector().getPlayer().getUniqueId().toString(); 
+        String creator = this.getDirector().getPlayer().getUniqueId().toString();
 
         // the format of the ID
-        return String.format("%s%s", 
-            title, 
+        return String.format("%s%s",
+            title,
             creator != null ? "_"+creator : ""
         );
     }

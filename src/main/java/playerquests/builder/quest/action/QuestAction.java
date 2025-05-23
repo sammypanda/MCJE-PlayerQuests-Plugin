@@ -75,6 +75,12 @@ public abstract class QuestAction {
     private ActionData actionData = new ActionData(this, null, null, null);
 
     /**
+     * The human readable label of the stage.
+     */
+    @JsonProperty("label")
+    private String label;
+
+    /**
      * Constructor for jackson.
      */
     public QuestAction() {}
@@ -487,5 +493,33 @@ public abstract class QuestAction {
         }
 
         throw new IllegalStateException("Tried to unplace an NPC for an action with no NPCOption added");
+    }
+
+    /**
+     * Gets the human editable label for the action.
+     * @return current human editable label.
+     */
+    @JsonIgnore
+    public String getLabel() {
+        if (this.label == null) {
+            return this.getID();
+        }
+
+        return this.label;
+    }
+
+    /**
+     * Sets the human editable label for the action.
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    /**
+     * Checks if this action has a label
+     * @return true if the action has a label
+     */
+    public boolean hasLabel() {
+        return this.label != null;
     }
 }

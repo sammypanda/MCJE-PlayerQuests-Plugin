@@ -15,8 +15,8 @@ import playerquests.client.ClientDirector;
 /**
  * A dynamic GUI screen for selecting NPCs within a quest builder.
  * <p>
- * This screen allows users to select from a list of quest NPCs. The NPCs are displayed as slots in the GUI, 
- * and users can select an NPC to perform actions related to that NPC. 
+ * This screen allows users to select from a list of quest NPCs. The NPCs are displayed as slots in the GUI,
+ * and users can select an NPC to perform actions related to that NPC.
  * Users can also navigate back to the previous screen.
  * </p>
  */
@@ -60,7 +60,14 @@ public class Dynamicselectnpc extends GUIDynamic {
 
     @Override
     protected void execute_custom() {
-        gui.getFrame().setSize(Math.max(9, Math.round(this.npcList.size() / 9) * 9));
+        // set GUI size according to amount of NPCs
+        gui.getFrame().setSize(
+            Math.clamp(
+                (((this.npcList.size() + 8) / 9) * 9),
+            9, 54)
+        );
+
+        // set GUI title
         gui.getFrame().setTitle("NPC Selector");
 
         // populate list of quest NPCs
@@ -68,7 +75,7 @@ public class Dynamicselectnpc extends GUIDynamic {
         IntStream.range(1, this.npcList.size() + 1).forEach(index -> {
             QuestNPC npc = this.npcList.get(index - 1);
             Integer slot = index + 1;
-            
+
             new GUISlot(gui, slot)
                 .setLabel(npc.getName())
                 .setItem("VILLAGER_SPAWN_EGG")
@@ -82,7 +89,7 @@ public class Dynamicselectnpc extends GUIDynamic {
             .setItem("OAK_DOOR")
             .addFunction(
                 new UpdateScreen(
-                    Arrays.asList(this.previousScreen), 
+                    Arrays.asList(this.previousScreen),
                     director
                 )
             );
@@ -110,13 +117,13 @@ public class Dynamicselectnpc extends GUIDynamic {
      */
     private void select(QuestNPC npc) {
         this.selectedNPC = npc;
-        
+
         if (this.onSelect != null) {
             onSelect.accept(npc);
         }
 
         new UpdateScreen(
-            Arrays.asList(this.previousScreen), 
+            Arrays.asList(this.previousScreen),
             director
         ).execute();
     }

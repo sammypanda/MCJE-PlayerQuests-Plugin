@@ -39,7 +39,7 @@ public class Dynamicactionselector extends GUIDynamic {
      * Get the selected actions.
      */
     List<StagePath> selectedActions = new ArrayList<StagePath>();
-    // TODO: make selectedActions quest-agnostic; select actions from any quest: Map<Quest, List<StagePath>> + add ``boolean questSelection`` field 
+    // TODO: make selectedActions quest-agnostic; select actions from any quest: Map<Quest, List<StagePath>> + add ``boolean questSelection`` field
 
     /**
      * Creates a dynamic GUI to select actions.
@@ -86,8 +86,8 @@ public class Dynamicactionselector extends GUIDynamic {
 
             // show stages
             Map<String, QuestStage> stages = this.quest.getStages();
-            stages.forEach((stage_id, stage) -> {
-                this.createStageButton(stage_id, stage);
+            stages.forEach((_stage_id, stage) -> {
+                this.createStageButton(stage);
             });
         } else {
             // make back button go to stages
@@ -122,15 +122,14 @@ public class Dynamicactionselector extends GUIDynamic {
 
     /**
      * Create a stage button.
-     * These buttons show a list of actions that 
+     * These buttons show a list of actions that
      * belong to it.
-     * @param stage_id the id of the stage
      * @param stage the quest stage object
      * @return a GUI slot button
      */
-    private GUISlot createStageButton(String stage_id, QuestStage stage) {
+    private GUISlot createStageButton(QuestStage stage) {
         return new GUISlot(gui, this.gui.getEmptySlot())
-            .setLabel(stage_id)
+            .setLabel(stage.getLabel())
             .setItem(Material.CHEST)
             .onClick(() -> {
                 this.selectedStage = stage;
@@ -154,8 +153,8 @@ public class Dynamicactionselector extends GUIDynamic {
             .isPresent();
 
         return new GUISlot(gui, this.gui.getEmptySlot())
-            .setLabel(String.format("%s%s", 
-                action_id,
+            .setLabel(String.format("%s%s",
+                action.getLabel(),
                 isPresent ? " (Selected)" : ""))
             .setItem(
                 isPresent ? Material.POWERED_RAIL : Material.RAIL)
@@ -175,7 +174,7 @@ public class Dynamicactionselector extends GUIDynamic {
                 this.refresh();
             });
     }
-    
+
     /**
      * Get the list of actions that have been selected.
      * @return list of paths to the selected actions.

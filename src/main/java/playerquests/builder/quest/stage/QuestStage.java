@@ -19,7 +19,6 @@ import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
-import playerquests.utility.annotation.Key; // to associate a key name with a method
 
 /**
  * Represents a stage in a quest.
@@ -49,6 +48,12 @@ public class QuestStage {
      */
     @JsonProperty("startpoints")
     private List<StagePath> startPoints = new ArrayList<StagePath>();
+
+    /**
+     * The human readable label of the stage.
+     */
+    @JsonProperty("label")
+    private String label;
 
     /**
      * Constructs a new {@code QuestStage} with the specified stage ID.
@@ -111,16 +116,6 @@ public class QuestStage {
         return this.id;
     }
 
-    /**
-     * Returns the title of the stage. Currently represented as the stage ID.
-     * @return the title of the stage
-     */
-    @JsonIgnore
-    @Key("QuestStage")
-    public String getTitle() {
-        return this.id;
-    }                           
-
     @Override
     public String toString() {
         return this.id;
@@ -139,7 +134,7 @@ public class QuestStage {
      * @return the actions
      */
     public Map<String, QuestAction> getActions() {
-        return this.actions;    
+        return this.actions;
     }
 
     /**
@@ -207,7 +202,7 @@ public class QuestStage {
      */
     public QuestAction replaceAction(QuestAction oldAction, QuestAction newAction) {
         String id = oldAction.getID();
-        
+
         // set inner action meta
         newAction.setStage(this);
         newAction.setID(id);
@@ -240,14 +235,42 @@ public class QuestStage {
                 .anyMatch(actionMatch -> actionMatch.equals(action)))
             .map(actions -> actions.getID())
             .collect(Collectors.toList());
-    
+
 
         // if it's depended, then return error message early
         if (!dependencies.isEmpty()) {
             return Optional.of("This action is pointed to by another. Please remove it as a 'next' action. (on " + String.join(", ", dependencies) + ")");
         }
-        
+
         this.actions.remove(action.getID());
         return Optional.empty(); // success
+    }
+
+    /**
+     * Gets the human editable label for the stage.
+     * @return current human editable label.
+     */
+    @JsonIgnore
+    public String getLabel() {
+        if (this.label == null) {
+            return this.getID();
+        }
+
+        return this.label;
+    }
+
+    /**
+     * Sets the human editable label for the stage.
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    /**
+     * Checks if this stage has a label
+     * @return true if the stage has a label
+     */
+    public boolean hasLabel() {
+        return this.label != null;
     }
 }

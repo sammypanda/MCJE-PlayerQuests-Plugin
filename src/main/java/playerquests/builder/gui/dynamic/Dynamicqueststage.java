@@ -9,6 +9,7 @@ import org.bukkit.Material;
 
 import playerquests.builder.gui.component.GUISlot; // modifying gui slots
 import playerquests.builder.gui.data.GUIMode;
+import playerquests.builder.gui.function.ChatPrompt;
 import playerquests.builder.gui.function.UpdateScreen; // going to previous screen
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.NoneAction;
@@ -72,23 +73,41 @@ public class Dynamicqueststage extends GUIDynamic {
         this.actionKeys = new ArrayList<QuestAction>(this.questStage.getOrderedActions());
 
         // set frame title/style
-        this.gui.getFrame().setTitle(String.format("%s Editor", questStage.getTitle()));
-        this.gui.getFrame().setSize(18);
+        this.gui.getFrame().setTitle(String.format("%s Editor", questStage.getLabel()));
+        this.gui.getFrame().setSize(27);
 
         // the back button
-        GUISlot exitButton = new GUISlot(this.gui, 10);
+        GUISlot exitButton = new GUISlot(this.gui, 19);
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            Arrays.asList("queststages"), // set the previous screen 
+            Arrays.asList("queststages"), // set the previous screen
             director // set the client director
         ));
 
+        // setting stage label
+        new GUISlot(gui, 1)
+            .setItem(Material.OAK_SIGN)
+            .setLabel(String.format("%s stage label",
+                this.questStage.hasLabel() ? "Change" : "Set"
+            ))
+            .onClick(() -> {
+                new ChatPrompt(
+                    Arrays.asList("Type a label to help you remember the stage", "none"),
+                    director
+                ).onFinish((func) -> {
+                    ChatPrompt function = (ChatPrompt) func;
+                    String response = function.getResponse();
+                    this.questStage.setLabel(response);
+                    this.refresh();
+                }).execute();
+            });
+
         // setting startpoint actions
         List<StagePath> startPoints = this.questStage.getStartPoints();
-        new GUISlot(gui, 1)
+        new GUISlot(gui, 10)
             .setItem(Material.PISTON)
-            .setLabel(String.format("%s start point actions", 
+            .setLabel(String.format("%s start point actions",
                 startPoints.isEmpty() ? "Set" : "Change"
             ))
             .onClick(() -> {
@@ -100,15 +119,16 @@ public class Dynamicqueststage extends GUIDynamic {
                         Dynamicactionselector actionSelector = (Dynamicactionselector) updateScreen.getDynamicGUI();
 
                         this.questStage.setStartPoints(actionSelector.getSelectedActions());
-                    })    
+                    })
                     .execute();
             });
 
         // left side dividers
         new GUISlot(this.gui, 2)
             .setItem("BLACK_STAINED_GLASS_PANE");
-
         new GUISlot(this.gui, 11)
+            .setItem("BLACK_STAINED_GLASS_PANE");
+        new GUISlot(this.gui, 20)
             .setItem("BLACK_STAINED_GLASS_PANE");
 
         // produce slots listing current actions
@@ -126,7 +146,7 @@ public class Dynamicqueststage extends GUIDynamic {
                     .isPresent();
                 actionSlot
                     .setLabel(String.format(
-                        "%s", action.toString()))
+                        "%s", action.getLabel()))
                     .setDescription(List.of(
                         String.format("Type: %s", action.getName()),
                         isPresent ? "Is an entry point" : ""))
@@ -143,7 +163,7 @@ public class Dynamicqueststage extends GUIDynamic {
 
                     // go to action editor screen
                     actionSlot.addFunction(new UpdateScreen(
-                        Arrays.asList("actioneditor"), 
+                        Arrays.asList("actioneditor"),
                         director
                     )).execute(this.director.getPlayer());
                 });
@@ -171,7 +191,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 .onClick(() -> {
                     if (this.questBuilder.removeStage(this.questStage)) { // if quest was removed
                         new UpdateScreen(
-                            Arrays.asList(previousScreen), 
+                            Arrays.asList(previousScreen),
                             this.director
                         ).execute();
 
