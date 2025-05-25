@@ -5,7 +5,7 @@ import java.util.List; // generic list type
 
 import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
 import org.bukkit.Material;
-import org.bukkit.entity.HumanEntity; // refers to the player
+import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
@@ -189,7 +189,7 @@ public class GUISlot {
      * Executes the functions associated with this slot.
      * @param player The player for whom the functions are executed.
      */
-    public void execute(HumanEntity player) {
+    public void execute(Player player) {
         if (this.functionList.isEmpty()) { return; }
 
         // get first function (the function will request the next when it is ready)
@@ -203,7 +203,7 @@ public class GUISlot {
      * Executes the next function in the list of functions associated with this slot.
      * @param player The player for whom the next function is executed.
      */
-    public void executeNext(HumanEntity player) {
+    public void executeNext(Player player) {
         // if no more functions, don't continue
         if (this.functionList.size() <= 1) { return; }
 

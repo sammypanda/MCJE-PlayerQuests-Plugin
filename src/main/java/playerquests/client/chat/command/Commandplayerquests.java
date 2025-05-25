@@ -7,7 +7,7 @@ import org.bukkit.Bukkit; // getting the server singleton
 import org.bukkit.GameMode;
 import org.bukkit.command.Command; // represents commands
 import org.bukkit.command.CommandSender; // entity who sends the command
-import org.bukkit.entity.HumanEntity; // player the playerquests main gui should open for
+import org.bukkit.entity.Player;
 
 import playerquests.client.gui.GUIClient; // for controlling the plugin over a GUI
 import playerquests.utility.ChatUtils;
@@ -32,7 +32,7 @@ public class Commandplayerquests extends ChatCommand {
      */
     @Override
     public boolean execute(CommandSender sender, Command command, String label, String[] args) {
-        HumanEntity player = Bukkit.getServer().getPlayer(sender.getName()); // get the player who sent the command
+        Player player = Bukkit.getServer().getPlayer(sender.getName()); // get the player who sent the command
         List<GameMode> allowedGameModes = Arrays.asList(GameMode.ADVENTURE, GameMode.SURVIVAL); // the gamemodes that don't cause breakages
 
         // if not an allowed GameMode

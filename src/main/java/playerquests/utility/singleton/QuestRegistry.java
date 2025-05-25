@@ -416,9 +416,6 @@ public class QuestRegistry {
 
         // add player to Database
         Database.getInstance().addPlayer(player.getUniqueId());
-
-        // add to registry list
-        this.questers.add(quester);
     }
 
     /**
@@ -434,6 +431,14 @@ public class QuestRegistry {
      */
     public void removeQuester(Player player) {
         this.questers.removeIf(client -> client.getPlayer().equals(player));
+    }
+
+    /**
+     * Adds a quester to the list.
+     * @param quester the quester to add
+     */
+    public void addQuester(QuestClient quester) {
+        this.questers.add(quester);
     }
 
     /**

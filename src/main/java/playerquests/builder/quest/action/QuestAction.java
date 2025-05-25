@@ -1,11 +1,14 @@
 package playerquests.builder.quest.action;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -15,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.Core;
 import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -27,6 +31,8 @@ import playerquests.builder.quest.data.ActionData;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
+import playerquests.builder.quest.npc.EntityNPC;
+import playerquests.builder.quest.npc.NPCType;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
@@ -70,6 +76,12 @@ public abstract class QuestAction {
     private ActionData actionData = new ActionData(this, null, null, null);
 
     /**
+     * The human readable label of the stage.
+     */
+    @JsonProperty("label")
+    private String label;
+
+    /**
      * Constructor for jackson.
      */
     public QuestAction() {}
@@ -103,7 +115,7 @@ public abstract class QuestAction {
      */
     @JsonIgnore
     public abstract List<ActionTweaks> getTweaks();
-    
+
     /**
      * Gets the stage that this action belongs to.
      * @return The quest stage instance.
@@ -122,7 +134,7 @@ public abstract class QuestAction {
         if (stage == null) {
             return;
         }
-        
+
         this.stage = stage;
     }
 
@@ -147,7 +159,7 @@ public abstract class QuestAction {
     public String toString() {
         return this.getID();
     }
-    
+
     /**
      * Gets the name of the action.
      * @return the readable name.
@@ -160,13 +172,16 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void run(QuesterData questerData) {
-        this.prepare(questerData); // prepare the action to be checked
-        this.startParticleFX(questerData); // start the FX
-        this.startListener(questerData); // start the action listener that triggers checks
+        // run action; starting synchronous to server
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            this.prepare(questerData); // prepare the action to be checked
+            this.startParticleFX(questerData); // start the FX
+            this.startListener(questerData); // start the action listener that triggers checks
+        });
     }
 
     /**
-     * Setting up the action before any 
+     * Setting up the action before any
      * checking.
      * @param questerData the data about the quester playing the action.
      */
@@ -175,7 +190,7 @@ public abstract class QuestAction {
     /**
      * Determines if the action should
      * now finish.
-     * - Determines whether should call 
+     * - Determines whether should call
      * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      */
@@ -186,7 +201,7 @@ public abstract class QuestAction {
     /**
      * Determines if the action should
      * now finish.
-     * - Determines whether should call 
+     * - Determines whether should call
      * {@link #success(questerData)} or {@link #failure(questerData)}
      * @param questerData the data about the quester playing the action.
      * @param bypassClash skip clash checks.
@@ -198,7 +213,7 @@ public abstract class QuestAction {
                 return false; // don't do work if this condition already met
             }
 
-            // run the listener for unmet conditions 
+            // run the listener for unmet conditions
             // so they can ask for re-check
             conditional.startListener(questerData);
             this.stop(questerData, true); // stop and halt continuation
@@ -258,6 +273,16 @@ public abstract class QuestAction {
         // stop all the FX effects
         questerData.getFX(this).forEach(effect -> {
             effect.stopEffect();
+        });
+
+        // remove all the NPCs
+        questerData.getNPCs().forEach(npc -> {
+            // exit if doesn't match the action we are stopping
+            if ( ! npc.getKey().equals(this) ) {
+                return;
+            }
+
+            npc.getValue().despawn(this, questerData.getQuester());
         });
 
         // remove this action instance from the quest client (the player basically)
@@ -322,11 +347,32 @@ public abstract class QuestAction {
         // get the location for the particle
         Optional.ofNullable(this.getLocation()).ifPresent(l -> {
             LocationData location = new LocationData(l);
-            
+            Quest quest = this.getStage().getQuest();
+            NPCOption npcOption = actionData.getOption(NPCOption.class).get();
+
             // offset the location to above where the action takes place
             location.setX(location.getX() + 0.5);
-            location.setY(location.getY() + 1.5);
             location.setZ(location.getZ() + 0.5);
+
+            // increment particle height if an entity NPC
+            QuestNPC npc = npcOption.getNPC(quest);
+            NPCType npcType = npc.getAssigned();
+            if (npcType instanceof EntityNPC) {
+                Location bukkitLocation = location.toBukkitLocation();
+                EntityNPC entityNPC = (EntityNPC) npcType;
+
+                Collection<Entity> entities = bukkitLocation.getWorld().getNearbyEntities(bukkitLocation, 0, 1, 0);
+
+                // find height of spawned NPC
+                entities.stream()
+                    .filter(entity -> (entity.getType() == entityNPC.getEntity().getEntityType()))
+                    .findFirst()
+                    .ifPresent(entity -> {
+                        location.setY(location.getY() + entity.getHeight() + 0.5);
+                    });
+            } else {
+                location.setY(location.getY() + 1.5);
+            }
 
             // add particle to FX
             fxBuilder.addParticle(particleFX, location);
@@ -370,7 +416,7 @@ public abstract class QuestAction {
     public abstract GUISlot createSlot(GUIBuilder gui, Integer slot);
 
     /**
-     * Logic to indicate that the quest 
+     * Logic to indicate that the quest
      * action is valid, or requires further editing.
      * @return empty if was successful
      */
@@ -409,7 +455,7 @@ public abstract class QuestAction {
     public Optional<String> delete() {
         return this.getStage().removeAction(this);
     }
-    
+
     /**
      * The location in which this action takes place.
      * @return a location data object
@@ -418,42 +464,66 @@ public abstract class QuestAction {
     public abstract LocationData getLocation();
 
     /**
-     * Method to place the NPC into the world.
-     * This adds it to the QuesterData.
+     * Method to spawn the NPC into the world.
      * @param questerData
      */
-    public QuestNPC placeNPC(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer(); // find the player
+    public QuestNPC spawnNPC(QuesterData questerData) {
+        QuestClient quester = questerData.getQuester(); // get the quester
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         NPCOption npcOption = this.getData().getOption(NPCOption.class).orElseGet(null); // find NPC option if applies
-            
+
         if (npcOption == null || !npcOption.isValid()) { // if the NPC option doesn't exist
             return null;
         }
 
-        QuestNPC npc = npcOption.getNPC(quest); // get the NPC from the quest 
-        questerData.addNPC(this, npc); // track the NPC
-        npc.place(player); // spawn the NPC for this quester
+        QuestNPC npc = npcOption.getNPC(quest); // get the NPC from the quest
+        npc.spawn(this, quester); // spawn the NPC for this quester
         return npc;
     }
 
     /**
      * Method to unplace the NPC from the world.
-     * This removes it from the QuesterData.
      * @param questerData
      */
-    protected QuestNPC unplaceNPC(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer(); // find the player
+    protected QuestNPC despawnNPC(QuesterData questerData) {
+        QuestClient quester = questerData.getQuester(); // get the quester
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         Optional<NPCOption> npcOption = this.getData().getOption(NPCOption.class); // find NPC option if applies
-            
+
         if (npcOption.isPresent()) { // if the NPC option exists
-            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest 
-            questerData.removeNPC(this, npc); // track the NPC
-            npc.remove(player); // unspawn the NPC for this quester
+            QuestNPC npc = npcOption.get().getNPC(quest); // get the NPC from the quest
+            npc.despawn(this, quester);
             return npc;
         }
 
         throw new IllegalStateException("Tried to unplace an NPC for an action with no NPCOption added");
+    }
+
+    /**
+     * Gets the human editable label for the action.
+     * @return current human editable label.
+     */
+    @JsonIgnore
+    public String getLabel() {
+        if (this.label == null) {
+            return this.getID();
+        }
+
+        return this.label;
+    }
+
+    /**
+     * Sets the human editable label for the action.
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    /**
+     * Checks if this action has a label
+     * @return true if the action has a label
+     */
+    public boolean hasLabel() {
+        return this.label != null;
     }
 }

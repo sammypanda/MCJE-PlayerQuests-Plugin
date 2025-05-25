@@ -2,7 +2,7 @@ package playerquests.client.gui;
 
 import java.util.Arrays; // listing params in gui function 'ArrayList's
 
-import org.bukkit.entity.HumanEntity; // managing the player
+import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI to another screen
 import playerquests.client.ClientDirector; // abstracts common controls of the plugin
@@ -15,7 +15,7 @@ public class GUIClient {
     /**
      * The player which controls the plugin via the GUIs.
      */
-    HumanEntity player;
+    Player player;
 
     /**
      * For executing plugin actions/behaviours.
@@ -26,7 +26,7 @@ public class GUIClient {
      * Create a new instance of GUIClient to control the plugin over a GUI.
      * @param player the player to control the gui/plugin.
      */
-    public GUIClient(HumanEntity player) {
+    public GUIClient(Player player) {
         this.player = player; // set the player
         this.director = new ClientDirector(player); // set the director for this client session
     }

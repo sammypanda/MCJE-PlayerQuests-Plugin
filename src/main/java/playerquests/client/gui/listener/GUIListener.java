@@ -5,6 +5,7 @@ import java.util.Map; // generic map data type
 import java.util.Optional; // for handling when values may be null
 
 import org.bukkit.Bukkit; // class for interacting with Bukkit API
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player; // object representing a player
 import org.bukkit.event.EventHandler; // used to register methods as events for the listener
 import org.bukkit.event.Listener; // listener type to implement this class with
@@ -179,6 +180,11 @@ public class GUIListener implements Listener {
             return; // exit if the inventory is GUI
         }
 
+        HumanEntity humanEntity = event.getWhoClicked();
+        if ( ! (humanEntity instanceof Player)) {
+            return; // exit if the click came from a non-player
+        }
+
         Integer slotPosition = event.getSlot() + 1; // get the real position of the slot
         GUIBuilder builder = builders.get(player);
         GUISlot slot = builder.getSlot(slotPosition); // get the slot data
@@ -208,7 +214,7 @@ public class GUIListener implements Listener {
         }
 
         // running GUI functions
-        slot.execute(event.getWhoClicked()); // run the functions for this slot
+        slot.execute((Player) event.getWhoClicked()); // run the functions for this slot
         slot.clicked(); // register that this slot has been pressed
     }
 

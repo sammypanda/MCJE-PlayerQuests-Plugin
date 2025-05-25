@@ -1,11 +1,13 @@
 package playerquests.utility.event;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.QuestNPC;
 
 /**
@@ -21,7 +23,7 @@ public class NPCInteractEvent extends Event {
     /**
      * The NPCs interacted with.
      */
-    private final List<QuestNPC> npcs;
+    private final List<Entry<QuestAction, QuestNPC>> npcs;
 
     /**
      * The player who interacted with the NPC.
@@ -33,7 +35,7 @@ public class NPCInteractEvent extends Event {
      * @param activeNPCs the npc interacted with
      * @param player the player who interacted with the npc
      */
-    public NPCInteractEvent(List<QuestNPC> activeNPCs, Player player) {
+    public NPCInteractEvent(List<Entry<QuestAction, QuestNPC>> activeNPCs, Player player) {
         this.npcs = activeNPCs;
         this.player = player;
     }
@@ -47,7 +49,7 @@ public class NPCInteractEvent extends Event {
      * Gets the NPC interacted with.
      * @return a quest npc
      */
-    public List<QuestNPC> getNPCs() {
+    public List<Entry<QuestAction, QuestNPC>> getNPCs() {
         return this.npcs;
     }
 

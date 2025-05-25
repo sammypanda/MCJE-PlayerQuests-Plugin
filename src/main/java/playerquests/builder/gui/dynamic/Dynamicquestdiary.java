@@ -34,7 +34,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     /**
      * The player as a quester/questclient
      */
-    QuestClient quester; 
+    QuestClient quester;
 
     /**
      * The tracked and untracked quest actions
@@ -60,7 +60,7 @@ public class Dynamicquestdiary extends GUIDynamic {
             this.quester.getTrackedActions().stream() // tracked
             .collect(Collectors.toMap(action -> action, action -> true, (prev, curr) -> curr))
         );
-        
+
         // map untracked quest actions, based on the difference from the tracked
         this.actionState.putAll(
             this.quester.getDiary().getQuestProgress().entrySet()
@@ -86,7 +86,7 @@ public class Dynamicquestdiary extends GUIDynamic {
         IntStream.of(8, 17, 26, 35, 44, 53).forEach(position -> {
             this.createDivider(position);
         });
-        
+
         // add back button
         new GUISlot(gui, 1)
             .setItem(Material.OAK_DOOR)
@@ -115,7 +115,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     }
 
     /**
-     * Generate a slot for each action and discriminate 
+     * Generate a slot for each action and discriminate
      * whether it is currently being tracked or is untracked.
      */
     private void generateActionButtons() {
@@ -176,7 +176,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     private List<String> generateBookPages(Player player) {
         // get the QuestClient that represents the player
         QuestClient quester = QuestRegistry.getInstance().getQuester(player);
-        
+
         // get the first tracked quest from the QuestClient to use as a sample page
         List<String> bookEntries = quester.getTrackedActions().stream()
             .map(action -> this.formatBookEntry(action))
@@ -185,24 +185,24 @@ public class Dynamicquestdiary extends GUIDynamic {
         // clamp to 100 entries
         bookEntries
             .subList(0, Math.clamp(bookEntries.size(), 0, 99));
-        
+
         // return a series of generated pages
         return bookEntries;
     }
 
     /**
      * Format book entries (quest action entries).
-     * 
+     *
      * Example entry:
      * Quest: B
-     * 
+     *
      * Action: action_0 (Speak)
-     * 
-     * Location(world='world', 
-     * x=1213.0, y=69.0, 
+     *
+     * Location(world='world',
+     * x=1213.0, y=69.0,
      * z=808.0, pitch=0.0,
      * yaw=0.0)
-     * 
+     *
      * @param quest the quest the action belongs to
      * @param action the action to format the page for
      * @return a formatted page explaining a quest action
@@ -213,9 +213,9 @@ public class Dynamicquestdiary extends GUIDynamic {
         LocationData location = action.getLocation();
 
         // return formatted page content
-        return String.format("Quest: %s\n\nAction: %s (%s)\n\n%s", 
+        return String.format("Quest: %s\n\nAction: %s (%s)\n\n%s",
             quest.getTitle(),
-            action.getID(),
+            action.getLabel(),
             action.getName(),
             location != null ? location.toString() : "Unknown location"
         );

@@ -43,7 +43,7 @@ public class SpeakAction extends QuestAction {
 
     @Override
     protected void prepare(QuesterData questerData) {
-        this.npc = this.placeNPC(questerData);
+        this.npc = this.spawnNPC(questerData);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SpeakAction extends QuestAction {
         );
 
         // remove the NPC
-        this.unplaceNPC(questerData);
+        this.despawnNPC(questerData);
     }
 
     @Override

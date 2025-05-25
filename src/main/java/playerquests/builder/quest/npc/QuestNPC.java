@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit; // bukkit singleton
 import org.bukkit.Material; // for if NPC is a block
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.HumanEntity; // the player
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -15,8 +14,10 @@ import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for
 
 import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
+import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
@@ -183,7 +184,7 @@ public class QuestNPC {
     @JsonIgnore
     public boolean isValid() {
         UUID questCreator = quest.getCreator();
-        HumanEntity player = null;
+        Player player = null;
         MessageBuilder response = new MessageBuilder("Something is wrong with a quest NPC") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
@@ -287,13 +288,35 @@ public class QuestNPC {
     }
 
     /**
-     * Places the NPC in the world according to its assigned type.
-     * @param player the player who can see the placement
+     * Spawns and registers the NPC in the world according to its assigned type.
+     * @param quester the quest client who should see the NPC
      */
     @JsonIgnore
-    public void place(Player player) {
-        // place the NPC into the world
-        this.assigned.place(player);
+    public void spawn(QuestAction action, QuestClient quester) {
+        this.assigned.register(action, quester, // keep reference to the NPC 
+            this.assigned.spawn(action, quester) // spawn the NPC into the world
+        );
+    }
+
+    /**
+     * Despawns and unregisters the NPC in the world according to its assigned type and action.
+     * @param quester the quest client that should no longer see the NPC
+     */
+    @JsonIgnore
+    public void despawn(QuestAction action, QuestClient quester) {
+        this.assigned.despawn(action, quester); // remove the NPC from the world
+        this.assigned.unregister(action, quester); // remove reference to the NPC
+    }
+
+    /**
+     * Indiscrimantly despawns all of an NPC from a quester.
+     * @param quester the quest client that should no longer see the NPC
+     */
+    @JsonIgnore 
+    public void despawn(QuestClient quester) {
+        quester.getTrackedActions().forEach(action -> {
+            this.despawn(action, quester);
+        });
     }
 
     /**
@@ -317,36 +340,20 @@ public class QuestNPC {
     /**
      * Refunds a player through the assigned NPC type.
      * 
-     * @param player The player to refund.
+     * @param quester the quest client who should be refunded
      */
     @JsonIgnore
-    public void refund(Player player) {
-        this.getAssigned().refund(player);
+    public void refund(QuestClient quester) {
+        this.getAssigned().refund(quester);
     }
 
     /**
      * Penalizes a player through the assigned NPC type.
      * 
-     * @param player The player to penalize.
+     * @param quester the quest client who should be penalised
      */
     @JsonIgnore
-    public void penalise(Player player) {
-        this.getAssigned().penalise(player);
-    }
-
-    /**
-     * Remove the NPC from the world.
-     */
-    @JsonIgnore
-    public void remove() {
-        this.getAssigned().remove();
-    }
-
-    /**
-     * Remove the NPC for a player.
-     */
-    @JsonIgnore
-    public void remove(Player player) {
-        this.getAssigned().remove(player);
+    public void penalise(QuestClient quester) {
+        this.getAssigned().penalise(quester);
     }
 }

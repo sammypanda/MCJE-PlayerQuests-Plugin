@@ -1,12 +1,22 @@
 package playerquests.utility.singleton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.event.DespawnReason;
+import net.citizensnpcs.api.npc.MemoryNPCDataStore;
+import net.citizensnpcs.api.npc.NPCRegistry;
 import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
 import playerquests.utility.listener.BlockListener; // for block-related events
+import playerquests.utility.listener.EntityListener;
 import playerquests.utility.listener.PlayerListener; // for player-related events
 import playerquests.utility.listener.ServerListener; // for server-related events
 
@@ -43,6 +53,14 @@ public class PlayerQuests {
     private static BlockListener blockListener = new BlockListener();
 
     /**
+     * Singleton instance of the entity event listener.
+     * <p>
+     * This instance handles all entity-related events for the plugin.
+     * </p>
+     */
+    private static EntityListener entityListener = new EntityListener();
+
+    /**
      * Singleton instance of the player event listener.
      * <p>
      * This instance handles all player-related events for the plugin.
@@ -59,13 +77,23 @@ public class PlayerQuests {
     private static ServerListener serverListener = new ServerListener();
 
     /**
+     * Map of plugin dependencies.
+     */
+    private Map<String, Boolean> dependencies = new HashMap<>();
+
+    /**
+     * Non-persistent citizens NPC registry, required for citizens plugin API.
+     */
+    private NPCRegistry citizensRegistry = CitizensAPI.createNamedNPCRegistry("playerquests", new MemoryNPCDataStore());
+
+    /**
      * Should be accessed statically.
      */
     private PlayerQuests() {}
 
     /**
      * Gets the singleton instance of the PlayerQuests class.
-     * 
+     *
      * @return The single instance of {@code PlayerQuests}.
      */
     public static PlayerQuests getInstance() {
@@ -73,8 +101,50 @@ public class PlayerQuests {
     }
 
     /**
+     * Gets the Citizens2 plugin.
+     *
+     * @return the citizens2 plugin or null if doesn't exist.
+     */
+    public static Plugin getCitizens2() {
+        // NOTE: the actual plugin name is Citizens, it's just referred commonly referred to as Citizens2 because it's in v2
+        return Bukkit.getServer().getPluginManager().getPlugin("Citizens");
+    }
+
+    /**
+     * Gets the PlayerQuests Citizens plugin registry.
+     * @return a non-persistent citizens registry named 'playerquests'
+     */
+    public NPCRegistry getCitizensRegistry() {
+        return this.citizensRegistry;
+    }
+
+    /**
+     * Simple method that just checks state without any corrections to quickly determine if has citizens2
+     *
+     * @return if citizens2 plugin has been installed to the server environment.
+     */
+    public boolean hasCitizens2() {
+        final Boolean mappedSupport = this.dependencies.get("Citizens2");
+
+        // return instantiated support check
+        if (mappedSupport != null) {
+            return mappedSupport;
+        }
+
+        // ---
+        // if we go beyond this point it means that this is the first time checking
+        // the server we are running inside for Citizens2
+        // ---
+
+        // call on Database class to verify support
+        final boolean databasedSupport = Database.getInstance().getCitizens2Support();
+        this.dependencies.put("Citizens2", databasedSupport); // instantiate the 'quickdraw' support checking
+        return databasedSupport; // provide the check result
+    }
+
+    /**
      * Gets the singleton instance of the PlayerQuests database.
-     * 
+     *
      * @return The database instance used for persistent data storage.
      */
     public static Database getDatabase() {
@@ -83,7 +153,7 @@ public class PlayerQuests {
 
     /**
      * Gets the singleton instance of the block event listener.
-     * 
+     *
      * @return The block listener instance used for handling block-related events.
      */
     public static BlockListener getBlockListener() {
@@ -91,8 +161,17 @@ public class PlayerQuests {
     }
 
     /**
+     * Gets the singleton instance of the entity event listener.
+     *
+     * @return The entity listener instance used for handling entity-related events.
+     */
+    public static EntityListener getEntityListener() {
+        return entityListener;
+    }
+
+    /**
      * Gets the singleton instance of the player event listener.
-     * 
+     *
      * @return The player listener instance used for handling player-related events.
      */
     public static PlayerListener getPlayerListener() {
@@ -101,7 +180,7 @@ public class PlayerQuests {
 
     /**
      * Gets the singleton instance of the server event listener.
-     * 
+     *
      * @return The server listener instance used for handling server-related events.
      */
     public static ServerListener getServerListener() {
@@ -116,7 +195,7 @@ public class PlayerQuests {
     /**
      * Removes all traces of a quest from the world.
      * Not from data.
-     * 
+     *
      * @param quest The {@link Quest} object whose traces are to be removed.
      */
     public static void remove(Quest quest) {
@@ -128,7 +207,7 @@ public class PlayerQuests {
 
     /**
      * Install a quest.
-     * 
+     *
      * @param quest The {@link Quest} object that will be installed.
      */
     public static void install(Quest quest) {
@@ -148,7 +227,7 @@ public class PlayerQuests {
      * <p>
      * Directors are components responsible for various tasks in the plugin, and this method adds them to the internal list.
      * </p>
-     * 
+     *
      * @param director The {@link Director} instance to be added.
      */
     public void addDirector(Director director) {
@@ -163,11 +242,22 @@ public class PlayerQuests {
      * </p>
      */
     public void clear() {
+        // clear all questers
+        QuestRegistry.getInstance().getAllQuesters().forEach(quester -> {
+            quester.clear();
+        });
+
+        // despawn the citizens and remove citizens registry
+        this.getCitizensRegistry().despawnNPCs(DespawnReason.REMOVAL);
+        CitizensAPI.removeNamedNPCRegistry("playerquests");
+
+        // clear the quest registry
         QuestRegistry.getInstance().clear();
+
+        // clear the directors
         directors.removeIf(director -> {
             director.close();  // Close the director
             return true;       // Remove the entry
         });
-        PlayerQuests.blockListener.clear();
     }
 }

@@ -2,7 +2,6 @@ package playerquests.client.chat.command;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -10,7 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import playerquests.Core;
-import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
@@ -70,14 +68,7 @@ public class Commandaction extends ChatCommand {
 
         // start the relevant action
         path.getActions(quest).forEach(action -> {
-            // place NPC if it exists
-            Optional<NPCOption> npcOption = action.getData().getOption(NPCOption.class); // find NPC option if applies
-            if (npcOption.isPresent()) {
-                action.placeNPC(quester.getData());
-            }
-
-            // run the action
-            action.check(quester.getData(), true);
+            quester.start(action, false);
         });
 
         return true;

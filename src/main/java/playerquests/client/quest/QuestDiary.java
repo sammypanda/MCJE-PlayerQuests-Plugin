@@ -57,6 +57,7 @@ public class QuestDiary {
         // search database for unfinished quest actions
         Map<Quest, List<Map<StagePath, Boolean>>> diaryEntries = Database.getInstance().getDiaryEntries(this);
         Map<String, List<StagePath>> currentProgress = diaryEntries.entrySet().stream()
+            .filter(entry -> entry.getKey() != null)
             .collect(Collectors.toMap(
                 entry -> entry.getKey().getID(), // use the Quest ID as the key
                 entry -> entry.getValue().stream() // stream over the List<Map<StagePath, Boolean>> for each Quest

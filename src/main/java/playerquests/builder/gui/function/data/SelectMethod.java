@@ -1,29 +1,31 @@
 package playerquests.builder.gui.function.data;
 
 /**
- * Enumeration for specifying different methods of block selection.
+ * Enumeration for specifying different methods of physical selection.
  * <p>
- * The {@link SelectMethod} enum defines the various ways a player can select a block
- * in the game. This enum helps in distinguishing how the block selection is handled
+ * The {@link SelectMethod} enum defines the various ways a player can select a thing 
+ * in the game. This enum helps in distinguishing how the selection is handled
  * within the game's GUI functions or other relevant processes.
  * </p>
  */
 public enum SelectMethod {
     /**
-     * Blocks selected via clicking the 
-     * block item in inventory.
+     * Selected via clicking in inventory.
      */
     SELECT,
 
     /**
-     * Blocks selected by being their placed
-     * representation being hit.
+     * Selected by their in-world representation being hit.
      */
     HIT,
 
     /**
-     * Blocks selected by typing their Material
-     * in the chatbox.
+     * Selected by typing it in the chatbox.
      */
-    CHAT;
+    CHAT,
+
+    /**
+     * Selected by opening/right-clicking/patting; secondary click.
+     */
+    PAT;
 }

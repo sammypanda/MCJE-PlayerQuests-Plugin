@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.bukkit.Material;
 
 import playerquests.builder.gui.component.GUISlot;
+import playerquests.builder.gui.function.ChatPrompt;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ActionData;
@@ -44,9 +45,9 @@ public class Dynamicactioneditor extends GUIDynamic {
         ActionData actionData = this.action.getData();
 
         // set frame title/style
-        this.gui.getFrame().setTitle(String.format("%s Editor", this.action.getID()))
+        this.gui.getFrame().setTitle(String.format("%s Editor", this.action.getLabel()))
                            .setSize(9);
-        
+
         // the back button
         new GUISlot(this.gui, 1)
             .setLabel("Back")
@@ -65,13 +66,31 @@ public class Dynamicactioneditor extends GUIDynamic {
 
                 // go back to the previous screen
                 new UpdateScreen(
-                    List.of(this.previousScreen), 
+                    List.of(this.previousScreen),
                     director
                 ).execute();
             });
 
+        // set action label button
+        new GUISlot(gui, 2)
+            .setItem(Material.OAK_SIGN)
+            .setLabel(String.format("%s action label",
+                this.action.hasLabel() ? "Change" : "Set"
+            ))
+            .onClick(() -> {
+                new ChatPrompt(
+                    Arrays.asList("Type a label to help you remember the action", "none"),
+                    director
+                ).onFinish((func) -> {
+                    ChatPrompt function = (ChatPrompt) func;
+                    String response = function.getResponse();
+                    this.action.setLabel(response);
+                    this.refresh();
+                }).execute();
+            });
+
         // select next actions button
-        new GUISlot(this.gui, 2)
+        new GUISlot(this.gui, 3)
             .setItem("HOPPER")
             .setLabel("Next Actions")
             .setDescription(List.of("Select actions to come after this one."))
@@ -81,7 +100,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             });
 
         // change action type button
-        new GUISlot(this.gui, 3)
+        new GUISlot(this.gui, 4)
             .setItem(Material.FIREWORK_ROCKET)
             .setLabel("Change action type")
             .setDescription(List.of(
@@ -95,7 +114,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         // options editor button
         if (!action.getOptions().isEmpty()) {
             // only show if the action has more than one option
-            new GUISlot(this.gui, 4)
+            new GUISlot(this.gui, 5)
                 .setItem(Material.STONE_BUTTON)
                 .setLabel("Edit action options")
                 .onClick(() -> {
@@ -105,7 +124,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         }
 
         // conditions editor button
-        new GUISlot(this.gui, 5)
+        new GUISlot(this.gui, 6)
             .setItem(Material.CLOCK)
             .setLabel("Edit conditions")
             .setDescription(

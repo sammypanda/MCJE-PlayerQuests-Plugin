@@ -8,12 +8,14 @@ version: ${project.version}
 
 main: playerquests.Core
 
+softdepend: [Citizens]
+
 commands:
   playerquests:
     description: Opens the PlayerQuests menu.
     usage: /<command>
     aliases: [quest, pq]
-  
+
   action:
     description: Working with quest actions.
     usage: /<command> <start|stop>

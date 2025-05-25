@@ -53,39 +53,44 @@ import playerquests.utility.ChatUtils.MessageType;
  * </p>
  */
 public class Database {
-    
+
     /**
      * The singleton instance of this Database class.
      */
     private static Database instance = new Database();
-    
+
     /**
      * The connection to the database.
      */
     private static Connection connection;
-    
+
+    /**
+     * If this is a fresh install.
+     */
+    private Boolean isFresh = false;
+
     /**
      * Private constructor to prevent instantiation from outside the class.
      * Use {@link #getInstance()} to get the singleton instance.
      */
     private Database() {}
-   
+
     /**
      * Returns the singleton instance of the Database class.
-     * 
+     *
      * @return the singleton instance of the Database class
      */
     public static Database getInstance() {
         return instance;
     }
-    
+
     /**
      * Retrieves a connection to the database.
      * <p>
-     * This method checks if there is an existing open connection and returns it. 
+     * This method checks if there is an existing open connection and returns it.
      * If there is no open connection, it creates a new connection to the SQLite database.
      * </p>
-     * 
+     *
      * @return the database connection
      */
     private synchronized Connection getConnection() {
@@ -96,7 +101,7 @@ public class Database {
         } catch (SQLException e) {
             System.err.println("Could not check if existing connection was closed: " + e.getMessage());
         }
-        
+
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:plugins/PlayerQuests/playerquests.db");
             return connection;
@@ -112,13 +117,13 @@ public class Database {
      * This method creates the necessary tables if they do not exist and performs
      * any required migrations based on the current version of the plugin.
      * </p>
-     * 
+     *
      * @return the Database instance for method chaining
      */
     public synchronized Database init() {
         String dbVersion = getPluginVersion();
         String version = "0.0"; // default version
-        
+
         try (InputStream inputStream = getClass().getResourceAsStream("/META-INF/maven/moe.sammypanda/playerquests/pom.xml")) {
             if (inputStream != null) {
                 MavenStaxReader reader = new MavenStaxReader();
@@ -130,26 +135,27 @@ public class Database {
         } catch (IOException | XMLStreamException e) {
             System.err.println("Error reading pom.xml: " + e.getMessage());
         }
-        
+
         try (Connection connection = getConnection();
             Statement statement = connection.createStatement()) {
 
             String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
             + "plugin TEXT PRIMARY KEY,"
             + "version TEXT NOT NULL,"
+            + "citizens2 BOOLEAN NOT NULL DEFAULT FALSE,"
             + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
             statement.execute(pluginTableSQL);
-            
+
             String playersTableSQL = "CREATE TABLE IF NOT EXISTS players ("
             + "uuid TEXT PRIMARY KEY NOT NULL);";
             statement.execute(playersTableSQL);
-            
+
             String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
             + "id TEXT PRIMARY KEY,"
             + "toggled BOOLEAN NOT NULL DEFAULT TRUE,"
             + "inventory TEXT NOT NULL DEFAULT '{ }');";
             statement.execute(questsTableSQL);
-            
+
             String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
             + "id TEXT PRIMARY KEY NOT NULL,"
             + "player TEXT UNIQUE,"
@@ -165,8 +171,15 @@ public class Database {
             + "FOREIGN KEY (diary) REFERENCES diaries(id),"
             + "UNIQUE(diary, quest, action));";
             statement.execute(diary_entriesTableSQL);
-            
+
+            // Migrate to new versions if applicable
             migrate(version, dbVersion);
+
+            // Update dependency status in db
+            setCitizens2Support();
+
+            // Report to rest of plugin if a fresh install
+            isFresh();
 
         } catch (SQLException e) {
             System.err.println("Could not initialise the database: " + e.getMessage());
@@ -177,7 +190,7 @@ public class Database {
 
         return this;
     }
-   
+
     /**
      * Performs database migrations if the version has changed.
      * <p>
@@ -185,7 +198,7 @@ public class Database {
      * and applies necessary migrations. It also checks for new plugin releases and sends an alert
      * if a new version is available.
      * </p>
-     * 
+     *
      * @param version the current version of the plugin
      * @param version_db the version of the database schema
      */
@@ -222,18 +235,20 @@ public class Database {
             alert.send();
         }
 
-        // don't migrate if no version change 
+        // don't migrate if no version change
         // (pom version same as db version)
         if (version_db.equals(version)) {
             return;
         }
-        
+
         try (Connection connection = getConnection();
             Statement statement = connection.createStatement()) {
 
             StringBuilder query = new StringBuilder();
-            
+
             switch (version) {
+                case "0.10":
+                    query.append(MigrationUtils.dbV0_10());
                 case "0.9.2":
                 case "0.9.1":
                 case "0.9":
@@ -253,32 +268,78 @@ public class Database {
 
             statement.executeUpdate(query.toString());
 
-        } catch (SQLException e) {
-            System.err.println("Could not patch/migrate database " + e.getMessage());
-        }
-        
+        } catch (SQLException _e) {}
+
         // Update plugin version in db
         setPluginVersion(version);
+
         ChatUtils.message("You're on v" + version + "! https://sammypanda.moe/docs/playerquests/v" + version)
             .target(MessageTarget.WORLD)
             .type(MessageType.NOTIF)
             .send();
     }
-    
-    /**
+
+    private void setCitizens2Support() {
+        final boolean isSupported = PlayerQuests.getCitizens2() != null;
+
+        if (isSupported == false) {
+            ChatUtils.message("""
+            Soft Dependency Reminder! ✨
+            To unlock all the NPC types, consider installing Citizens! Without it, some NPC types will be unavailable. <3
+
+            🔗 https://ci.citizensnpcs.co/job/Citizens2/
+            """.strip())
+                .target(MessageTarget.WORLD)
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.NOTIF)
+                .send();
+        }
+
+        try (Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                UPDATE plugin
+                SET citizens2 = ?
+                WHERE plugin.plugin = 'PlayerQuests'
+            """)) {
+
+            preparedStatement.setBoolean(1, isSupported);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            System.err.println("Could not insert or set citizens2 support boolean in the db " + e.getMessage());
+        }
+	}
+
+	public boolean getCitizens2Support() {
+        try (Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement("SELECT citizens2 FROM plugin WHERE plugin = 'PlayerQuests';")) {
+
+            ResultSet results = statement.executeQuery();
+            boolean isSupported = results.getBoolean("citizens2");
+
+            return isSupported;
+        } catch (SQLException e) {
+            System.err.println("Could not get citizens2 status from database " + e.getMessage());
+            return false;
+        }
+	}
+
+	/**
      * Retrieves the current version of the plugin from the database.
      * <p>
      * This method queries the `plugin` table to get the version of the plugin stored
      * in the database. If the database file does not exist, it returns the default version "0.0".
      * </p>
-     * 
+     *
      * @return the current version of the plugin
      */
     public synchronized String getPluginVersion() {
         if (!Files.exists(Paths.get("plugins/PlayerQuests/playerquests.db"))) {
+            this.isFresh = true;
             return "0.0";
         }
-        
+
         try (Connection connection = getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT version FROM plugin WHERE plugin = 'PlayerQuests';")) {
 
@@ -288,16 +349,17 @@ public class Database {
             return version;
         } catch (SQLException e) {
             System.err.println("Could not find the quest version in the db " + e.getMessage());
+            this.isFresh = true;
             return "0.0";
         }
     }
-    
+
     /**
      * Sets the current version of the plugin in the database.
      * <p>
      * This method updates the version in the `plugin` table to the provided version.
      * </p>
-     * 
+     *
      * @param version the new version of the plugin
      */
     private synchronized void setPluginVersion(String version) {
@@ -320,39 +382,39 @@ public class Database {
 
     /**
      * Adds a new player to the database with the specified UUID.
-     * 
+     *
      * This method inserts a new record into the `players` table of the database using the provided
      * UUID. The UUID is converted to a string and stored in the `uuid` column. The SQL `INSERT` statement
-     * is used along with the `RETURNING *` clause to execute the query. If an {@link SQLException} occurs, 
-     * an error message is logged to the standard error stream, including the name of the player associated 
+     * is used along with the `RETURNING *` clause to execute the query. If an {@link SQLException} occurs,
+     * an error message is logged to the standard error stream, including the name of the player associated
      * with the given UUID.
-     * 
+     *
      * <p>Note: Ensure that the player with the provided UUID is online or exists to avoid {@link NullPointerException}
      * when accessing the player's name.</p>
-     * 
+     *
      * @param uuid The unique identifier for the player, represented as a {@link UUID}. This ID is
      *             used to insert a new record into the `players` table in the database.
      */
     public synchronized void addPlayer(UUID uuid) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO players (uuid) VALUES (?) RETURNING *;")) {
-            
+
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.executeQuery();
-        
+
         } catch (SQLException e) {
             System.err.println("Could not add the user " + Bukkit.getServer().getPlayer(uuid).getName() + ". " + e.getMessage());
         }
     }
-    
+
     /**
      * Retrieves the diary record associated with the specified player ID.
-     * 
+     *
      * This method queries the `diaries` table to retrieve the diary ID(s) for the player with the given
      * database player ID. If no diary is found, this method will return an empty result set.
-     * 
+     *
      * <p>Note: The caller is responsible for closing the {@link ResultSet} after use.</p>
-     * 
+     *
      * @param dbPlayerID The database player ID used to query the `diaries` table.
      * @return A {@link ResultSet} containing the diary records associated with the specified player ID,
      *         or null if an error occurs.
@@ -360,26 +422,26 @@ public class Database {
     public synchronized ResultSet getDiary(Integer dbPlayerID) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM diaries WHERE player = ?")) {
-            
+
             preparedStatement.setInt(1, dbPlayerID);
-            
+
             ResultSet results = preparedStatement.executeQuery();
-            
+
             return results;
         } catch (SQLException e) {
             System.err.println("Could not find a diary for db player ID: " + dbPlayerID + ": " + e.getMessage());
             return null;
         }
     }
-    
+
     /**
      * Retrieves the quest record from a diary for a specified quest ID and diary ID.
-     * 
+     *
      * This method queries the `diary_quests` table to retrieve the quest information associated with
      * the given quest ID and diary ID. If no matching record is found, this method will return an empty result set.
-     * 
+     *
      * <p>Note: The caller is responsible for closing the {@link ResultSet} after use.</p>
-     * 
+     *
      * @param questID The ID of the quest.
      * @param dbDiaryID The ID of the diary.
      * @return A {@link ResultSet} containing the quest records for the specified quest ID and diary ID,
@@ -388,12 +450,12 @@ public class Database {
     public synchronized ResultSet getDiaryQuest(String questID, Integer dbDiaryID) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE quest = ? AND diary = ?")) {
-            
+
             preparedStatement.setString(1, questID);
             preparedStatement.setInt(2, dbDiaryID);
-            
+
             ResultSet result = preparedStatement.executeQuery();
-            
+
             return result;
         } catch (SQLException e) {
             System.err.println("Could not find quest in the diary: " + questID + ": " + e.getMessage());
@@ -403,10 +465,10 @@ public class Database {
 
     /**
      * Adds multiple new players to the database.
-     * 
+     *
      * This method iterates over a list of UUIDs and adds each one to the `players` table by calling
      * {@link #addPlayer(UUID)} for each UUID in the list.
-     * 
+     *
      * @param uuids A list of {@link UUID} objects representing the players to be added.
      * @return The current {@link Database} instance for method chaining.
      */
@@ -414,74 +476,74 @@ public class Database {
         for (UUID uuid : uuids) {
             addPlayer(uuid);
         }
-        
+
         return this;
     }
-    
+
     /**
      * Retrieves all quest IDs from the database.
-     * 
+     *
      * This method queries the `quests` table to retrieve a list of all quest IDs. The IDs are collected
      * into a list and returned. If an error occurs during the query, an empty list is returned.
-     * 
+     *
      * @return A list of quest IDs retrieved from the database, or an empty list if an error occurs.
      */
     public synchronized List<String> getAllQuests() {
         List<String> ids = new ArrayList<>();
         try (Connection connection = getConnection();
         Statement statement = connection.createStatement()) {
-            
+
             String allQuestsSQL = "SELECT id FROM quests;";
             ResultSet result = statement.executeQuery(allQuestsSQL);
-            
+
             while (result.next()) {
                 ids.add(result.getString("id"));
             }
-            
+
         } catch (SQLException e) {
             System.err.println("Could not retrieve quests from database. " + e.getMessage());
         }
         return ids;
     }
-    
+
     /**
      * Adds a new quest to the database if it does not already exist.
-     * 
+     *
      * This method inserts a new quest record into the `quests` table if the quest with the specified ID
      * does not already exist. If the quest ID is null or if the quest already exists, no action is taken.
-     * 
+     *
      * @param id The ID of the quest to be added.
      */
     public synchronized void addQuest(String id) {
         if (id == null) {
             return;
         }
-        
+
         String existingId = getQuest(id);
-        
+
         if (existingId != null) {
             return;
         }
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id) VALUES (?);")) {
-            
+
             preparedStatement.setString(1, id);
             preparedStatement.execute();
-            
+
         } catch (SQLException e) {
             System.err.println("Could not add the quest " + id + ". " + e.getMessage());
         }
     }
-    
+
     /**
      * Retrieves the quest ID from the database.
-     * 
+     *
      * This method queries the `quests` table to find a quest with the specified ID. If the quest with the given
      * ID exists, the method returns the ID; otherwise, it returns null. If an error occurs during the query,
      * an error message is logged and null is returned.
-     * 
+     *
      * <p>Note: This method assumes that the `id` parameter is a valid quest ID format.</p>
-     * 
+     *
      * @param id The ID of the quest to retrieve.
      * @return The quest ID if found, or null if no quest with the given ID exists or if an error occurs.
      */
@@ -489,101 +551,101 @@ public class Database {
         if (id == null) {
             return null;
         }
-        
+
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM quests WHERE id = ?;")) {
-            
+
             preparedStatement.setString(1, id);
-            
+
             ResultSet results = preparedStatement.executeQuery();
             String quest = results.getString("id");
-            
+
             return quest;
         } catch (SQLException e) {
             System.err.println("Could not get the quest " + id + ". " + e.getMessage());
             return null;
         }
     }
-    
+
     /**
      * Retrieves the toggle status of a quest.
-     * 
+     *
      * This method queries the `quests` table to find the toggle status of the quest identified by the specified
      * quest ID. If the quest exists, it returns its toggle status as a {@link Boolean}. If no such quest is found
      * or if an error occurs during the query, an error message is logged and null is returned.
-     * 
+     *
      * @param quest The {@link Quest} object whose toggle status is to be retrieved.
      * @return The toggle status of the quest if found, or null if no such quest exists or if an error occurs.
      */
     public synchronized Boolean getQuestToggled(Quest quest) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT toggled FROM quests WHERE id = ?;")) {
-            
+
             preparedStatement.setString(1, quest.getID());
             ResultSet results = preparedStatement.executeQuery();
             Boolean result = false;
-            
+
             if (results.next()) {
                 result = results.getBoolean("toggled");
             }
-            
+
             return result; // no result found
         } catch (SQLException e) {
             System.err.println("Could not get the quest toggle status " + quest.toString() + ". " + e.getMessage());
             return null;
         }
     }
-    
+
     /**
      * Updates the toggle status of a quest.
-     * 
+     *
      * This method updates the toggle status of the quest identified by the specified quest ID in the `quests` table.
      * It sets the toggle status to the specified value. If an error occurs during the update, an error message is
      * logged to the standard error stream.
-     * 
+     *
      * @param quest The {@link Quest} object whose toggle status is to be updated.
      * @param state The new toggle status to set for the quest.
      */
     public synchronized void setQuestToggled(Quest quest, Boolean state) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("UPDATE quests SET toggled = ? WHERE id = ?;")) {
-            
+
             preparedStatement.setBoolean(1, state);
             preparedStatement.setString(2, quest.getID());
             preparedStatement.execute();
-            
+
         } catch (SQLException e) {
             System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
         }
     }
-    
+
     /**
      * Removes a quest from the database.
-     * 
+     *
      * This method deletes the quest with the specified ID from the `quests` table and also removes any related
      * entries from the `diary_quests` table. If the provided ID is null or an error occurs during the deletion,
      * an error message is logged to the standard error stream.
-     * 
+     *
      * @param id The ID of the quest to be removed.
      */
     public synchronized void removeQuest(String id) {
         if (id == null) {
             return;
         }
-        
+
         try (Connection connection = getConnection()) {
             PreparedStatement preparedStatement;
-            
+
             String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
             preparedStatement = connection.prepareStatement(removeQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
-            
+
             String removeDiaryQuestSQL = "DELETE FROM diary_entries WHERE quest = ?;";
             preparedStatement = connection.prepareStatement(removeDiaryQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
-            
+
         } catch (SQLException e) {
             System.err.println("Could not remove the quest " + id + ". " + e.getMessage());
         }
@@ -591,13 +653,13 @@ public class Database {
 
     /**
      * Updates the inventory for a specific quest in the database.
-     * 
+     *
      * This method inserts or updates the inventory associated with the given quest. If a record with the same
-     * quest ID already exists in the database, the inventory will be updated with the new values provided. 
+     * quest ID already exists in the database, the inventory will be updated with the new values provided.
      * The inventory is represented as a map of materials to quantities, which is converted to a string for storage.
      *
      * @param quest The {@link Quest} object representing the quest whose inventory is to be set.
-     * @param inventory A {@link Map} where keys are {@link Material} representing the items in the inventory, 
+     * @param inventory A {@link Map} where keys are {@link Material} representing the items in the inventory,
      *                  and values are {@link Integer} representing the quantities of those items.
      */
     public void setQuestInventory(Quest quest, Map<Material, Integer> inventory) {
@@ -608,7 +670,7 @@ public class Database {
             preparedStatement.setString(1, quest.getID());
             preparedStatement.setString(2, inventory.toString());
             preparedStatement.execute();
-            
+
         } catch (SQLException e) {
             System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
         }
@@ -616,7 +678,7 @@ public class Database {
 
     /**
      * Retrieves all quest inventories from the database.
-     * 
+     *
      * @return A map of quest inventory maps retrieved from the database, or an empty map if an error occurs.
      */
     public synchronized Map<String, Map<Material, Integer>> getAllQuestInventories() {
@@ -624,14 +686,14 @@ public class Database {
 
         try (Connection connection = getConnection();
         Statement statement = connection.createStatement()) {
-            
+
             String allQuestsSQL = "SELECT id, inventory FROM quests;";
             ResultSet result = statement.executeQuery(allQuestsSQL);
-            
+
             while (result.next()) {
                 Map<Material, Integer> inventoryMap = new HashMap<>();
                 String[] pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
-        
+
                 for (String pair : pairs) {
                     String[] keyValue = pair.split("=");
                     if (keyValue.length == 2) {
@@ -644,13 +706,13 @@ public class Database {
                             System.err.println("Invalid quantity format: " + keyValue[1]);
                             continue;
                         }
-                        inventoryMap.put(material, quantity);   
+                        inventoryMap.put(material, quantity);
                     }
                 }
 
                 inventories.put(result.getString("id"), inventoryMap);
             }
-            
+
         } catch (SQLException e) {
             System.err.println("Could not retrieve quests from database. " + e.getMessage());
         }
@@ -674,14 +736,14 @@ public class Database {
             preparedStatement.setString(1, diaryID);
             preparedStatement.setString(2, playerUUIDString);
             preparedStatement.execute();
-            
+
         } catch (SQLException e) {
             System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
         }
     }
 
     /**
-     * Get all diary entries associated with a diary, 
+     * Get all diary entries associated with a diary,
      * and their completion state.
      * @param diary the QuestDiary to get entries of
      * @return quests with each action and whether they are finished or ongoing.
@@ -695,7 +757,7 @@ public class Database {
 
             preparedStatement.setString(1, diaryID);
             ResultSet result = preparedStatement.executeQuery();
-            
+
             while (result.next()) {
                 // get quest
                 Quest quest = Core.getQuestRegistry().getQuest(result.getString("quest"));
@@ -715,7 +777,7 @@ public class Database {
                 // replace in parent diaryEntries
                 diaryEntries.put(quest, entriesList);
             }
-            
+
         } catch (SQLException e) {
             System.err.println("Could not retrieve diary entries from database for " + diaryID + ". " + e.getMessage());
         }
@@ -733,9 +795,17 @@ public class Database {
             preparedStatement.setString(3, actionPath.toString());
             preparedStatement.setBoolean(4, completionState);
             preparedStatement.execute();
-            
+
         } catch (SQLException e) {
             System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
         }
+    }
+
+    private void isFresh() {
+        if ( ! this.isFresh) {
+            return;
+        }
+
+        PlayerQuests.getPlayerListener().isFresh();
     }
 }

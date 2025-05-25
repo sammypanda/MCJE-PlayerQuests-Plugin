@@ -13,6 +13,7 @@ import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.singleton.Database;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Functionality for questers (quest players).
@@ -45,6 +46,9 @@ public class QuestClient {
      */
     public QuestClient(Player player) {
         this.player = player;
+
+        // add to registry list
+        QuestRegistry.getInstance().addQuester(this);
 
         // create data
         this.data = new QuesterData(this, this.player.getLocation());
@@ -245,5 +249,15 @@ public class QuestClient {
      */
     public QuesterData getData() {
         return this.data;
+    }
+
+    /**
+     * Clear what would otherwise be leftover from a QuestClient
+     */
+    public void clear() {
+        // unregister all NPCs
+        this.getData().getNPCs().forEach(npc -> {
+            npc.getValue().despawn(this);
+        });
     }
 }

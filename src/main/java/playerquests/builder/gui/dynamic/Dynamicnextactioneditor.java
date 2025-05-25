@@ -2,7 +2,6 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -64,7 +63,8 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     protected void execute_custom() {
         // set outer frame style
         this.gui.getFrame()
-                .setTitle("Select Next Actions");
+                .setTitle("Select Next Actions")
+                .setSize(27);
 
         // put back button
         this.createBackButton();
@@ -75,10 +75,14 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             this.createBackButton();
 
             // show stages
-            Map<String, QuestStage> stages = this.action.getStage().getQuest().getStages();
-            stages.forEach((stage_id, stage) -> {
-                this.createStageButton(stage_id, stage);
-            });
+            this.action.getStage().getQuest().getStages().entrySet().stream()
+                .sorted((entry1, entry2) -> {
+                    int intValue1 = Integer.parseInt(entry1.getKey().split("_")[1]);
+                    int intValue2 = Integer.parseInt(entry2.getKey().split("_")[1]);
+                    return Integer.compare(intValue1, intValue2); // compare in ascending order
+                }).forEach(entry -> {
+                    this.createStageButton(entry.getValue());
+                });
         } else {
             // make back button go to stages
             this.createBackButton();
@@ -113,15 +117,15 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
     /**
      * Create a stage button.
-     * These buttons show a list of actions that 
+     * These buttons show a list of actions that
      * belong to it.
      * @param stage_id the id of the stage
      * @param stage the quest stage object
      * @return a GUI slot button
      */
-    private GUISlot createStageButton(String stage_id, QuestStage stage) {
+    private GUISlot createStageButton(QuestStage stage) {
         return new GUISlot(gui, this.gui.getEmptySlot())
-            .setLabel(stage_id)
+            .setLabel(stage.getLabel())
             .setItem(Material.CHEST)
             .onClick(() -> {
                 this.selectedStage = stage; // set the stage at the actions of
@@ -156,7 +160,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
         return new GUISlot(gui, this.gui.getEmptySlot())
             // conditionals: if is selected, if is not selected, if is selected by being a start point
             .setLabel(String.format("%s (%s)",
-                action_id,
+                action.getLabel(),
                 isSelected ? "Selected" : (isStartPoint ? "Start Point" : "Select")
             ))
             .setDescription(List.of(
@@ -216,7 +220,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 }
             });
     }
-    
+
     private Boolean stageIsSelected() {
         String stageID = this.selectedStage.getID(); // find selected stage ID
 

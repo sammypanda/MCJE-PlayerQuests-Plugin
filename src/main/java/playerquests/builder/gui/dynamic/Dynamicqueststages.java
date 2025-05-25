@@ -52,7 +52,7 @@ public class Dynamicqueststages extends GUIDynamic {
     public void execute_custom() {
         this.generatePages();
     }
-    
+
     /**
      * Drawing repeated GUI elements
      */
@@ -83,7 +83,7 @@ public class Dynamicqueststages extends GUIDynamic {
         exitButton.setLabel("Back");
         exitButton.setItem("OAK_DOOR");
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            Arrays.asList(this.previousScreen), // set the previous screen 
+            Arrays.asList(this.previousScreen), // set the previous screen
             director // set the client director
         ));
 
@@ -95,8 +95,8 @@ public class Dynamicqueststages extends GUIDynamic {
                 .onClick(() -> {
                     questBuilder.addStage(
                         new QuestStage(
-                            this.questBuilder.build(), 
-                            this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().substring(6)) + 1
+                            this.questBuilder.build(),
+                            this.questBuilder.getStages().isEmpty() ? 0 : Integer.parseInt(this.questBuilder.getStages().getLast().getID().substring(6)) + 1
                         )
                     );
 
@@ -111,22 +111,22 @@ public class Dynamicqueststages extends GUIDynamic {
 
         IntStream.range(0, this.questBuilder.getStages().size()).anyMatch(index -> {
 
-            String stage = this.questBuilder.getStages().get(index);
+            QuestStage stage = this.questBuilder.getStages().get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
             questSlot.setItem("DIRT_PATH");
-            questSlot.setLabel(stage);
+            questSlot.setLabel(stage.getLabel());
             questSlot.onClick(() -> {
                 if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
                     return;
                 }
 
                 // set the stage as the current instance to modify
-                this.director.setCurrentInstance(this.questBuilder.getQuestPlan().get(stage));
+                this.director.setCurrentInstance(this.questBuilder.getQuestPlan().get(stage.getID()));
 
                 // change to the quest stage GUI screen
                 new UpdateScreen(
-                    Arrays.asList("queststage"), 
+                    Arrays.asList("queststage"),
                     director
                 ).execute();;
             });

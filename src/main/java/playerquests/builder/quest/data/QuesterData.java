@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Location;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
+import net.citizensnpcs.api.npc.NPC;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -48,11 +51,6 @@ public class QuesterData {
     private HashMap<QuestAction, List<FX>> effects = new HashMap<>();
 
     /**
-     * Useful for tracking NPCs in the world.
-     */
-    private HashMap<QuestAction, QuestNPC> npcs = new HashMap<>();
-
-    /**
      * Lock to wait for an ongoing action clash to be resolved.
      */
     private Boolean clashLock = false;
@@ -61,6 +59,16 @@ public class QuesterData {
      * Map if quester has consented to an action.
      */
     private Map<QuestAction, Boolean> actionConsent = new HashMap<>();
+
+    /**
+     * Map of registered QuestNPCs that are BlockNPC.
+     */
+    private Map<Entry<QuestAction, QuestNPC>, BlockData> blockNPCs = new HashMap<>();
+
+    /**
+     * Map of registered QuestNPCs that are EntityNPC.
+     */
+    private Map<Entry<QuestAction, QuestNPC>, NPC> entityNPCs = new HashMap<>();
 
     /**
      * The context of data useful for working with a QuestClient.
@@ -141,7 +149,7 @@ public class QuesterData {
 
         QuestClient quester = this.getQuester();
 
-        // if there are more than one actions 
+        // if there are more than one actions
         // left after this filtration, that means there is a clash
         ArrayList<QuestAction> clashingActions = new ArrayList<>(quester.getTrackedActions().stream()
             // filter out exact matches
@@ -152,7 +160,7 @@ public class QuesterData {
             .filter(trackedAction -> trackedAction.getLocation() != null && trackedAction.getLocation().equals(action.getLocation()))
             // get final size
             .toList());
-            
+
         // exit if no clashing to resolve
         if (clashingActions.size() == 0) {
             return true;
@@ -174,7 +182,7 @@ public class QuesterData {
             final String command = String.format("/action start %s.%s", quest.getID(), path); // command that resolves the clash?
 
             message
-                .append(String.format("> %s.%s\n", 
+                .append(String.format("> %s.%s\n",
                     quest.getTitle(), // the quest title
                     path)) // the path to the action
                 .reset() // clear inherited formatting
@@ -186,34 +194,6 @@ public class QuesterData {
 
         // don't continue if unresolved
         return false;
-    }
-
-    /**
-     * Track the NPC in the QuesterData.
-     * @param npc the NPC to track
-     */
-    public void addNPC(QuestAction questAction, QuestNPC npc) {
-        if (npc == null) {
-            return;
-        }
-
-        this.npcs.put(questAction, npc);
-    }
-
-    /**
-     * Untrack the NPC in the QuesterData.
-     * @param npc the NPC to untrack
-     */
-    public void removeNPC(QuestAction questAction, QuestNPC npc) {
-        this.npcs.remove(questAction, npc);
-    }
-
-    /**
-     * Get the NPCs tracked in this QuesterData.
-     * @return the list of tracked npcs;
-     */
-    public Map<QuestAction, QuestNPC> getNPCs() {
-        return this.npcs;
     }
 
     /**
@@ -247,5 +227,38 @@ public class QuesterData {
      */
     public boolean getConsent(QuestAction action) {
         return this.actionConsent.getOrDefault(action, false);
+    }
+
+    public BlockData getBlockNPC(QuestAction action, QuestNPC npc) {
+        return this.blockNPCs.get(Map.entry(action, npc));
+    }
+
+    public void addBlockNPC(QuestAction action, QuestNPC npc, BlockData value) {
+        this.blockNPCs.put(Map.entry(action, npc), value);
+    }
+
+    public void removeBlockNPC(QuestAction action, QuestNPC npc) {
+        this.blockNPCs.remove(Map.entry(action, npc));
+    }
+
+    public NPC getCitizenNPC(QuestAction action, QuestNPC npc) {
+        return this.entityNPCs.get(Map.entry(action, npc));
+    }
+
+    public void addCitizenNPC(QuestAction action, QuestNPC npc, NPC value) {
+        this.entityNPCs.put(Map.entry(action, npc), value);
+    }
+
+    public void removeEntityNPC(QuestAction action, QuestNPC npc) {
+        this.entityNPCs.remove(Map.entry(action, npc));
+    }
+
+    public List<Entry<QuestAction, QuestNPC>> getNPCs() {
+        ArrayList<Entry<QuestAction, QuestNPC>> npcs = new ArrayList<>();
+
+        npcs.addAll(this.blockNPCs.keySet());
+        npcs.addAll(this.entityNPCs.keySet());
+
+        return npcs;
     }
 }

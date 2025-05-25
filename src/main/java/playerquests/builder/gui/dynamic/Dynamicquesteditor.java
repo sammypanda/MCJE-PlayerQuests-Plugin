@@ -158,8 +158,8 @@ public class Dynamicquesteditor extends GUIDynamic {
                 // save the quest
                 this.questBuilder.build().save();
 
-                // hide the GUI
-                this.gui.getResult().minimise();
+                // close the GUI
+                this.gui.getResult().close();
             });
     }
 }

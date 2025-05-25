@@ -1,6 +1,7 @@
 package playerquests.utility.listener;
 
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,10 +16,10 @@ import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts w
 import org.bukkit.inventory.EquipmentSlot;
 
 import playerquests.Core; // accessing plugin singeltons
-import playerquests.builder.quest.data.QuesterData;
+import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC;
-import playerquests.product.Quest; // final quest products
+import playerquests.client.quest.QuestClient;
 import playerquests.utility.event.NPCInteractEvent;
 
 /**
@@ -43,46 +44,11 @@ public class BlockListener implements Listener {
     }
 
     /**
-     * Registers a BlockNPC as active, associating it with a specific block.
-     * @param blockNPC the BlockNPC to register
-     * @param player the player to register the NPC for
-     */
-    public void registerBlockNPC(BlockNPC blockNPC, Player player) {
-        // add the BlockNPC to the world
-        this.setBlockNPC(blockNPC, player);
-    }
-
-    /**
-     * Unregisters a BlockNPC, removing it from the list of active BlockNPCs and performing cleanup.
-     * @param blockNPC the BlockNPC to unregister
-     * @param player the player to register the NPC for
-     */
-    public synchronized void unregisterBlockNPC(BlockNPC blockNPC, Player player) {
-        // remove the BlockNPC from the world
-        this.unsetBlockNPC(blockNPC, player);
-    }
-
-    /**
-     * Puts a block NPC in the world for a specific player.
-     * @param blockNPCs list of npc block objects
-     * @param player the player who can see the npc
-     */
-    private void setBlockNPC(BlockNPC blockNPC, Player player) {
-        QuestNPC questNPC = blockNPC.getNPC();
-        
-        // create the NPC block in the world
-        player.sendBlockChange(
-            questNPC.getLocation().toBukkitLocation(), 
-            blockNPC.getBlock()
-        );
-    }
-
-    /**
      * Removes a block NPC from the world for a specific player.
      * @param blockNPC the npc block object to remove
      * @param player the player to remove for
      */
-    private void unsetBlockNPC(BlockNPC blockNPC, Player player) {
+    public void unsetBlockNPC(BlockNPC blockNPC, Player player) {
         Location npcLocation = blockNPC.getNPC().getLocation().toBukkitLocation(); // get the QuestNPC location
         BlockData emptyBlockData = Material.AIR.createBlockData(); // AIR block to replace the NPC block with
 
@@ -100,21 +66,20 @@ public class BlockListener implements Listener {
 
         if (block == null) { return; }
 
-        Player player = event.getPlayer();
-        QuesterData questerData = Core.getQuestRegistry().getQuester(player).getData();
         Location eventBlockLocation = block.getLocation();
+        QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
+        List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+            .filter(npc -> npc.getValue().getAssigned() instanceof BlockNPC)
+            .filter(npc -> npc.getValue().getLocation().toBukkitLocation().equals(eventBlockLocation))
+            .toList();
 
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            questerData.getNPCs().values().forEach(npc -> {
-                this.setBlockNPC((BlockNPC) npc.getAssigned(), player);
+            npcs.forEach(npc -> {
+                BlockNPC blockNPC = (BlockNPC) npc.getValue().getAssigned();
+                blockNPC.spawn(npc.getKey(), quester);
             });
         });
-
-        // get the NPCs matching the location of the interacted block
-        List<QuestNPC> npcs = questerData.getNPCs().values().stream()
-            .filter(questNPC -> questNPC.getLocation().toBukkitLocation().equals(eventBlockLocation))
-            .toList();
 
         // conditions to not continue the event:
         if (
@@ -129,47 +94,4 @@ public class BlockListener implements Listener {
             new NPCInteractEvent(npcs, event.getPlayer())
         );
     }
-
-    /**
-     * Removes all active BlockNPCs associated with a specific quest.
-     * @param quest the quest whose BlockNPCs should be removed
-     */
-    public void remove(Quest quest) {
-        // for each quest, get each BlockNPC, and remove it
-        quest.getNPCs().values().stream()
-            .filter(npc -> npc.getAssigned().getClass().isAssignableFrom(BlockNPC.class))
-            .map(QuestNPC::getAssigned)
-            .forEach(blockNPC -> {
-                this.remove(quest, (BlockNPC) blockNPC);
-            });
-    }
-
-    /**
-     * Removes an NPC from all players.
-     * @param quest the quest the NPC belongs to
-     * @param blockNPC the NPC block
-     */
-    public void remove(Quest quest, BlockNPC blockNPC) {
-        this.remove(quest, blockNPC, null);
-    }
-
-    /**
-     * Removes the BlockNPC associated with a specific player.
-     * @param quest the quest whose BlockNPCs should be removed
-     * @param blockNPC the npc to remove
-     * @param player the player to remove the NPC from
-     */
-    public void remove(Quest quest, BlockNPC blockNPC, Player player) {
-        this.unregisterBlockNPC(blockNPC, player);
-    }
-
-    /**
-     * Clear all block NPCs.
-     */
-    public synchronized void clear() {
-        // for each quest in the registry, remove it
-        Core.getQuestRegistry().getAllQuests().values().forEach(quest -> {
-            this.remove(quest);
-        });
-    }    
 }
