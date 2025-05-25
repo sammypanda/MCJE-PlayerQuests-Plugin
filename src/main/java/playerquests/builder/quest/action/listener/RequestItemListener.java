@@ -16,6 +16,7 @@ public class RequestItemListener extends ActionListener<RequestItemAction> {
 
     public RequestItemListener(RequestItemAction action, QuesterData questerData) {
         super(action, questerData);
+        action.check(questerData);
     }
 
     @EventHandler

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import playerquests.Core;
 import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -171,9 +172,12 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      */
     public void run(QuesterData questerData) {
-        this.prepare(questerData); // prepare the action to be checked
-        this.startParticleFX(questerData); // start the FX
-        this.startListener(questerData); // start the action listener that triggers checks
+        // run action; starting synchronous to server
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
+            this.prepare(questerData); // prepare the action to be checked
+            this.startParticleFX(questerData); // start the FX
+            this.startListener(questerData); // start the action listener that triggers checks
+        });
     }
 
     /**
