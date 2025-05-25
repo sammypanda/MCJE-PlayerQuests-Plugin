@@ -75,10 +75,14 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             this.createBackButton();
 
             // show stages
-            Map<String, QuestStage> stages = this.action.getStage().getQuest().getStages();
-            stages.forEach((_stage_id, stage) -> {
-                this.createStageButton(stage);
-            });
+            this.action.getStage().getQuest().getStages().entrySet().stream()
+                .sorted((entry1, entry2) -> {
+                    int intValue1 = Integer.parseInt(entry1.getKey().split("_")[1]);
+                    int intValue2 = Integer.parseInt(entry2.getKey().split("_")[1]);
+                    return Integer.compare(intValue1, intValue2); // compare in ascending order
+                }).forEach(entry -> {
+                    this.createStageButton(entry.getValue());
+                });
         } else {
             // make back button go to stages
             this.createBackButton();
