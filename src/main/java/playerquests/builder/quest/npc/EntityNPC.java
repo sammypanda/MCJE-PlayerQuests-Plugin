@@ -193,6 +193,10 @@ public class EntityNPC extends NPCType {
     protected void despawn(QuestAction action, QuestClient quester) {
         NPC citizen = quester.getData().getCitizenNPC(action, this.getNPC());
 
+        if (citizen == null) {
+            return;
+        }
+
         citizen.destroy();
     }
 
