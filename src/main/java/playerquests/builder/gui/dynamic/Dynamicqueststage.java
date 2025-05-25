@@ -213,7 +213,7 @@ public class Dynamicqueststage extends GUIDynamic {
 
         // add 'new action' button
         GUISlot newActionButton = new GUISlot(this.gui, this.gui.getFrame().getSize());
-        if (this.questStage.getActions().size() < 12) {
+        if (this.questStage.getActions().size() < 19) {
             newActionButton.setLabel("Add Action");
             newActionButton.setItem("LIME_DYE");
             newActionButton.onClick(() -> {

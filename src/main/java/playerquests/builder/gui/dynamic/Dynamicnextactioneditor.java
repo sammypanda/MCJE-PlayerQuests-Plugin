@@ -63,7 +63,8 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     protected void execute_custom() {
         // set outer frame style
         this.gui.getFrame()
-                .setTitle("Select Next Actions");
+                .setTitle("Select Next Actions")
+                .setSize(27);
 
         // put back button
         this.createBackButton();
