@@ -12,12 +12,29 @@
   <br><br>
   <img src=https://cdn.modrinth.com/data/cached_images/834e035f26f53096b122b053e38fc08a72445c9c.png alt=the create quest inventory GUI.>
   <br><br>
-  <img src="https://img.shields.io/github/downloads/sammypanda/MCJE-PlayerQuests-Plugin/latest/total">
-  <img src="https://img.shields.io/bstats/servers/22692">
-  <img src="https://img.shields.io/bstats/players/22692">
-  <img src="https://img.shields.io/discord/1189911593958506567">
+  <!-- SHIELDS BELOW: -->
+  <a href="https://sammypanda.moe/releases/playerquests/latest" target="_blank">
+    <img src="https://img.shields.io/github/downloads/sammypanda/MCJE-PlayerQuests-Plugin/latest/total">
+  </a>
+
+  <a href="https://bstats.org/plugin/bukkit/PlayerQuests/22692" target="_blank">
+    <img src="https://img.shields.io/bstats/servers/22692">
+  </a>
+
+  
+  <a href="https://bstats.org/plugin/bukkit/PlayerQuests/22692" target="_blank">
+    <img src="https://img.shields.io/bstats/players/22692">
+  </a>
+  
+  <a href="https://discord.gg/EvWVSn9URf" target="_blank">
+    <img src="https://img.shields.io/discord/1189911593958506567">
+  </a>
+  
   <br>
-  <img src="https://img.shields.io/modrinth/game-versions/playerquests">
+  <a href="https://modrinth.com/plugin/playerquests" target="_blank">
+    <img src="https://img.shields.io/modrinth/game-versions/playerquests">
+  </a>
+  <!-- :SHIELDS ABOVE -->
 </div>
 
 <br>
@@ -70,7 +87,20 @@
 <br>
 
 # Join the community ☾
-<img src="https://img.shields.io/modrinth/followers/playerquests"> <img src="https://img.shields.io/spiget/stars/114157"> <img src="https://img.shields.io/discord/1189911593958506567">
+<!-- SHIELDS BELOW: -->
+<a href="https://modrinth.com/plugin/playerquests" target="_blank">
+  <img src="https://img.shields.io/modrinth/followers/playerquests">
+</a>
+
+<a href="https://www.spigotmc.org/resources/under-development-playerquests.114157" target="_blank">
+  <img src="https://img.shields.io/spiget/stars/114157">
+</a>
+
+<a href="https://discord.gg/EvWVSn9URf" target="_blank">
+  <img src="https://img.shields.io/discord/1189911593958506567">
+</a>
+<!-- :SHIELDS ABOVE -->
+<br><br>
 
 - [Join our little Discord community](http://discord.gg/EvWVSn9URf)
 - [Let me help you on GitHub](http://github.com/sammypanda/MCJE-PlayerQuests-Plugin/issues/)
