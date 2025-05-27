@@ -35,22 +35,34 @@
     <img src="https://img.shields.io/modrinth/game-versions/playerquests">
   </a>
   <!-- :SHIELDS ABOVE -->
+
+  <br><br>
+  <h3>
+    View <a href="https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/blob/main/branding/docs/tutorial/README.md">the tutorial</a>! and ask in the discord to <br> try it in the available test server ^_^
+  </h3>
+</center>
+
 </div>
-
-<br>
-
-<h1 id="guide">How to use the plugin ⚛</h1>
-
-- You can find the pre-release guide [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/main/branding#readme). 
-    - Things are subject to change, but I'm happy to answer questions on Discord.
 
 <br>
 
 <h1 id="add">To add to your server, follow these steps ✿</h1>
 
-- Download the latest .jar file.
-- Drag and drop the .jar file into the server 'plugins' folder.
-  - Note: Create the plugins folder if it doesn't exist.
+<ul>
+  <li><ins>Make sure you're on Java 21 at least.</ins></li>
+  <li>Download the latest .jar file.</li>
+  <li>Drag and drop the .jar file into the server 'plugins' folder.
+    <ul>
+      <li>Note: Create the plugins folder if it doesn't exist.</li>
+    </ul>
+  </li>
+</ul>
+
+<br>
+
+<h1 id="configure">No configuration options ✎</h1>
+
+- Keeping it simple.
 
 <br>
 
@@ -62,12 +74,6 @@
     2. In it create a file called config.yml
         - Type in it ``enabled: false``
 - To enable, delete the bStats folder and reload/restart, it'll default to ``enabled: true``.
-
-<br>
-
-<h1 id="configure">No configuration options ✎</h1>
-
-- Keeping it simple.
 
 <br>
 
