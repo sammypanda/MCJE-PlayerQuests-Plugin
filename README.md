@@ -5,14 +5,20 @@
 - This plugin is still being improved, [see the plan](https://github.com/users/sammypanda/projects/2/views/1?layout=board)!
 - Help with the code [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)!
 
-<center>
+<div align="center">
   <a href="#add">How to add</a> |
   <a href="#configure">How to configure</a> |
   <a href="#community">About and community</a>
   <br><br>
   <img src=https://cdn.modrinth.com/data/cached_images/834e035f26f53096b122b053e38fc08a72445c9c.png alt=the create quest inventory GUI.>
+  <br><br>
+  <img src="https://img.shields.io/github/downloads/sammypanda/MCJE-PlayerQuests-Plugin/latest/total">
+  <img src="https://img.shields.io/bstats/servers/22692">
+  <img src="https://img.shields.io/bstats/players/22692">
+  <img src="https://img.shields.io/discord/1189911593958506567">
   <br>
-</center>
+  <img src="https://img.shields.io/modrinth/game-versions/playerquests">
+</div>
 
 <br>
 
@@ -64,6 +70,7 @@
 <br>
 
 # Join the community ☾
+<img src="https://img.shields.io/modrinth/followers/playerquests"> <img src="https://img.shields.io/spiget/stars/114157"> <img src="https://img.shields.io/discord/1189911593958506567">
 
 - [Join our little Discord community](http://discord.gg/EvWVSn9URf)
 - [Let me help you on GitHub](http://github.com/sammypanda/MCJE-PlayerQuests-Plugin/issues/)
