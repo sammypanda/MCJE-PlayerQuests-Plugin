@@ -40,8 +40,6 @@
   <h3>
     View <a href="https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/blob/main/branding/docs/tutorial/README.md">the tutorial</a>! and ask in the discord to <br> try it in the available test server ^_^
   </h3>
-</center>
-
 </div>
 
 <br>
