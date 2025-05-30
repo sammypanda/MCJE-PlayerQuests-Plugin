@@ -26,12 +26,12 @@ import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * Singleton for putting and accessing quest products from anywhere.
- * 
+ *
  * This class manages quests and their associated data, such as NPCs and quest clients. It allows for adding, removing,
  * updating, and retrieving quests, as well as handling quests in the filesystem.
  */
 public class QuestRegistry {
-    
+
     /**
      * This QuestRegistry singleton.
      */
@@ -64,7 +64,7 @@ public class QuestRegistry {
         this.inventories = Database.getInstance().getAllQuestInventories();
     }
 
-    /** 
+    /**
      * Returns the QuestRegistry instance.
      * @return singleton instance of the quest registry.
      */
@@ -74,10 +74,10 @@ public class QuestRegistry {
 
     /**
      * Submits a quest to the registry.
-     * 
+     *
      * This method figures out the conditions of the quest
      * and acts according to the needs.
-     * 
+     *
      * @param quest the quest to submit.
      */
     public void submit(Quest quest) {
@@ -91,7 +91,7 @@ public class QuestRegistry {
                 .type(MessageType.WARN);
             return;
         }
-        
+
         // remove if already exists
         if (this.registry.values().removeIf(registryQuest -> registryQuest.getID().equals(questID))) {
             this.delete(quest, false, false, false);
@@ -112,9 +112,9 @@ public class QuestRegistry {
 
     /**
      * Deletes a quest *permanently*.
-     * 
+     *
      * Hides non-permanently.
-     * 
+     *
      * @param quest the quest to delete.
      * @return if the quest was successfully deleted
      */
@@ -124,9 +124,9 @@ public class QuestRegistry {
 
     /**
      * Deletes a quest.
-     * 
+     *
      * If wanting to just make quest uninteractable use {@link #untoggle(Quest)}.
-     * 
+     *
      * @param quest the quest to delete.
      * @param permanently if should also delete from database/filesystem
      * @return if the quest was successfully deleted
@@ -167,7 +167,7 @@ public class QuestRegistry {
                     .player(Bukkit.getPlayer(creator))
                     .style(MessageStyle.PRETTY);
             }
-                
+
             errorMessage.send();
             return false;
         }
@@ -177,7 +177,7 @@ public class QuestRegistry {
 
     /**
      * Stores the quest as a data point.
-     * 
+     *
      * @param questID the quest ID as a string
      * @param quest the quest object
      */
@@ -191,7 +191,7 @@ public class QuestRegistry {
 
     /**
      * Shows the physical quest in the world.
-     * 
+     *
      * @param quest the quest to show/toggle on.
      * @return if was successful
      */
@@ -212,7 +212,7 @@ public class QuestRegistry {
     }
 
     /**
-     * Determine whether quest NPCs can be placed at the location 
+     * Determine whether quest NPCs can be placed at the location
      * they are specified
      * @param quest the quest containing the NPCs
      * @return false if any NPCs are not placeable
@@ -223,7 +223,7 @@ public class QuestRegistry {
 
     /**
      * Hides the physical quest in the world.
-     * 
+     *
      * @param quest the quest to hide/toggle off.
      */
     public void untoggle(Quest quest) {
@@ -236,7 +236,7 @@ public class QuestRegistry {
 
     /**
      * Gets the map of all quests that have been registered.
-     * 
+     *
      * @return the map of registered quests
      */
     public Map<String, Quest> getAllQuests() {
@@ -253,9 +253,9 @@ public class QuestRegistry {
 
     /**
      * Get a quest from the quest registry.
-     * 
+     *
      * If the quest is not found in the registry, it will search the questPath (resources folder).
-     * 
+     *
      * @param questID the quest ID
      * @return the quest object
      */
@@ -265,9 +265,9 @@ public class QuestRegistry {
 
     /**
      * Get a quest from the quest registry.
-     * 
+     *
      * If the quest is not found in the registry, you can choose to search the questPath (resources folder).
-     * 
+     *
      * @param questID the quest ID
      * @param searchFS whether to try searching the filesystem
      * @return the quest object
@@ -283,7 +283,7 @@ public class QuestRegistry {
             try {
                 result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json"));
 
-                // if everything is okay, submit the quest to the database 
+                // if everything is okay, submit the quest to the database
                 // to avoid having to search for it again like this.
                 if (result != null) {
                     this.submit(result);
@@ -300,10 +300,10 @@ public class QuestRegistry {
 
     /**
      * Get the current inventory/stock levels of a quest.
-     * 
-     * Never returns null, if it doesn't exist, it will 
+     *
+     * Never returns null, if it doesn't exist, it will
      * create (and submit) an empty map.
-     * 
+     *
      * @param quest the quest to get the inventory of.
      * @return the inventory.
      */
@@ -332,7 +332,7 @@ public class QuestRegistry {
 
     /**
      * Update a quests inventory's item.
-     * Takes a map instead of simply just the item and the material 
+     * Takes a map instead of simply just the item and the material
      * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
      * @param items a map of the materials and their amounts
@@ -343,7 +343,7 @@ public class QuestRegistry {
 
     /**
      * Update a quests inventory's item.
-     * Takes a map instead of simply just the item and the material 
+     * Takes a map instead of simply just the item and the material
      * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
      * @param items a map of the materials and their amounts
@@ -355,7 +355,7 @@ public class QuestRegistry {
 
     /**
      * Update a quests inventory's item.
-     * Takes a map instead of simply just the item and the material 
+     * Takes a map instead of simply just the item and the material
      * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
      * @param items a map of the materials and their amounts
@@ -375,7 +375,7 @@ public class QuestRegistry {
             // then it mutates the amount as such here
             //
             // - this is after the callback since negative
-            //   values in the callback don't make much sense 
+            //   values in the callback don't make much sense
             if (invert) {
                 amount = -amount;
             }
@@ -386,12 +386,11 @@ public class QuestRegistry {
                 stagingInventory.put(material, amount);
                 return;
             }
-            
+
             // update existing in quest inventory
             stagingInventory.put(material, amount + inventoryCount);
         });
 
-        quest.isAllowed(); // check if is still allowed
         this.setInventory(quest, stagingInventory); // update database and registry
     }
 
@@ -408,7 +407,7 @@ public class QuestRegistry {
 
         if (questClient.isPresent()) {
             this.questers.set(
-                questers.indexOf(questClient.get()), 
+                questers.indexOf(questClient.get()),
                 quester
             );
             return;

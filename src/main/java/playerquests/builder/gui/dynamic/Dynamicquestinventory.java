@@ -55,14 +55,14 @@ public class Dynamicquestinventory extends GUIDynamic {
     protected void setUp_custom() {
         // quest we are setting the inventory of
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);;
-
-        // retrieve the items
-        this.inventory = QuestRegistry.getInstance().getInventory(quest);
-        this.requiredInventory = this.quest.getRequiredInventory();
     }
 
     @Override
     protected void execute_custom() {
+        // retrieve the items
+        this.inventory = QuestRegistry.getInstance().getInventory(quest);
+        this.requiredInventory = this.quest.getRequiredInventory();
+
         // sort the inventory ascending item amounts
         this.sortInventory();
 
@@ -184,5 +184,5 @@ public class Dynamicquestinventory extends GUIDynamic {
         }
 
         this.inventory = sortedInventory;
-    }    
+    }
 }
