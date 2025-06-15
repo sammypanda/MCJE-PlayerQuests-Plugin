@@ -69,7 +69,7 @@ public class TakeItemAction extends QuestAction {
         final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
 
         ComponentBuilder message = new ComponentBuilder(String.format("\nThe '%s' quest is requesting to take items\n", quest.getTitle()));
-            
+
         // list the items
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         itemsOption.getItems().forEach((material, amount) -> {
@@ -96,7 +96,7 @@ public class TakeItemAction extends QuestAction {
         Inventory playerInventory = questerData.getQuester().getPlayer().getInventory();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
-        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey(), entry.getValue()));
+        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey().getMaterial(), entry.getValue())); // TODO: fix generic item check
     }
 
     @Override
@@ -111,9 +111,12 @@ public class TakeItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         Quest quest = this.getStage().getQuest();
 
-        itemsOption.getItems().forEach((material, count) -> {
-            playerInventory.removeItem(new ItemStack(material, count));
-            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(material, count));
+        itemsOption.getItems().forEach((itemSerialisable, amount) -> {
+            ItemStack itemStack = itemSerialisable.toItemStack();
+            itemStack.setAmount(amount);
+
+            playerInventory.removeItem(itemStack);
+            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemSerialisable, amount));
         });
 
         player.sendMessage(

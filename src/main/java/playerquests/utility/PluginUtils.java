@@ -6,9 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import org.bukkit.Material;
-
 import playerquests.product.Quest;
+import playerquests.utility.serialisable.ItemSerialisable;
 
 /**
  * Utility class containing methods for common plugin-related operations.
@@ -22,15 +21,15 @@ public class PluginUtils {
 
     /**
      * Validates that the parameters match the expected types.
-     * 
-     * This method checks if the number and types of the provided parameters 
-     * align with the expected types. It ensures that each parameter is an instance 
+     *
+     * This method checks if the number and types of the provided parameters
+     * align with the expected types. It ensures that each parameter is an instance
      * of the corresponding type specified in the expectedTypes array.
-     * 
+     *
      * @param params The list of parameters to validate.
      * @param expectedTypes The array of expected types for the parameters.
-     * @throws IllegalArgumentException If the number of parameters does not match 
-     *                                  the number of expected types, or if any 
+     * @throws IllegalArgumentException If the number of parameters does not match
+     *                                  the number of expected types, or if any
      *                                  parameter does not match its expected type.
      */
     public static void validateParams(List<Object> params, Class<?>... expectedTypes) throws IllegalArgumentException {
@@ -56,25 +55,24 @@ public class PluginUtils {
      * @param inventory the current inventory without any required.
      * @return the current inventory combined with the required one.
      */
-    public static Map<Material, Integer> getPredictiveInventory(Quest quest, Map<Material, Integer> inventory) {
-        // create inventory of required (and out of stock) and stocked
-        Map<Material, Integer> predictiveInventory = new LinkedHashMap<>();
-        Map<Material, Integer> requiredInventory = quest.getRequiredInventory();
+    public static Map<ItemSerialisable, Integer> getPredictiveInventory(Quest quest, Map<ItemSerialisable, Integer> inventory) {
+        Map<ItemSerialisable, Integer> predictiveInventory = new LinkedHashMap<>();
+        Map<ItemSerialisable, Integer> requiredInventory = quest.getRequiredInventory();
 
-        // set start values of predictiveInventory to -amount of requiredInventory
+        // Step 1: Subtract required amounts (initialize with negative values)
         if (requiredInventory != null) {
-            requiredInventory.forEach((material, amount) -> predictiveInventory.put(material, (0 - amount)));
+            requiredInventory.forEach((item, amount) ->
+                predictiveInventory.merge(item, -amount, Integer::sum)
+            );
         }
 
-        // modify values of predictiveInventory in place to amount + inventoryAmount
+        // Step 2: Add inventory amounts (merge with existing values)
         if (inventory != null) {
-            inventory.forEach((material, amount) -> {
-                predictiveInventory.computeIfPresent(material, (_material, predictiveAmount) -> {
-                    return predictiveAmount + amount;
-                });
-            });
+            inventory.forEach((item, amount) ->
+                predictiveInventory.merge(item, amount, Integer::sum)
+            );
         }
-        
+
         return predictiveInventory;
     }
 }

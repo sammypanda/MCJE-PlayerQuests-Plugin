@@ -7,7 +7,6 @@ import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
 import org.bukkit.Bukkit; // Bukkit API
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,6 +37,7 @@ import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.PluginUtils;
 import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.Database; // the preservation everything store
 import playerquests.utility.singleton.PlayerQuests;
 import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
@@ -492,8 +492,8 @@ public class Quest {
      * @return the minimum numbers of items required.
      */
     @JsonIgnore
-    public Map<Material, Integer> getRequiredInventory() {
-        Map<Material, Integer> requiredInventory = new HashMap<>();
+    public Map<ItemSerialisable, Integer> getRequiredInventory() {
+        Map<ItemSerialisable, Integer> requiredInventory = new HashMap<>();
 
         // from each stage
         this.getStages().values().forEach(stage -> {
@@ -506,8 +506,8 @@ public class Quest {
                 ) { return; }
 
                 // add the items expected to the requiredInventory list
-                action.getData().getOption(ItemsOption.class).get().getItems().forEach((material, amount) -> {
-                    requiredInventory.put(material, amount);
+                action.getData().getOption(ItemsOption.class).get().getItems().forEach((itemSerialisable, amount) -> {
+                    requiredInventory.put(itemSerialisable, amount);
                 });
             });
         });

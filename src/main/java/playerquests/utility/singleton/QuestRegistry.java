@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player; // representing players
 
 import playerquests.Core;
@@ -22,6 +21,7 @@ import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.serialisable.ItemSerialisable;
 
 
 /**
@@ -45,7 +45,7 @@ public class QuestRegistry {
     /**
      * The inventories belonging to quests.
      */
-    private Map<String, Map<Material, Integer>> inventories = new HashMap<>();
+    private Map<String, Map<ItemSerialisable, Integer>> inventories = new HashMap<>();
 
     /**
      * A list of questers that are currently playing.
@@ -307,8 +307,8 @@ public class QuestRegistry {
      * @param quest the quest to get the inventory of.
      * @return the inventory.
      */
-    public Map<Material, Integer> getInventory(Quest quest) {
-        Map<Material, Integer> inventory = this.inventories.get(quest.getID());
+    public Map<ItemSerialisable, Integer> getInventory(Quest quest) {
+        Map<ItemSerialisable, Integer> inventory = this.inventories.get(quest.getID());
 
         if (inventory == null) {
             inventory = new HashMap<>();
@@ -323,7 +323,7 @@ public class QuestRegistry {
      * @param quest quest to set for.
      * @param inventory the inventory item/quantity map.
      */
-    public void setInventory(Quest quest, Map<Material, Integer> inventory) {
+    public void setInventory(Quest quest, Map<ItemSerialisable, Integer> inventory) {
         this.inventories.put(quest.getID(), inventory);
 
         // preserve in database
@@ -335,9 +335,9 @@ public class QuestRegistry {
      * Takes a map instead of simply just the item and the material
      * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
-     * @param items a map of the materials and their amounts
+     * @param items a map of the ItemSerialisable and their amounts
      */
-    public void updateInventoryItem(Quest quest, Map<Material, Integer> items) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items) {
         this.updateInventoryItem(quest, items, null, false);
     }
 
@@ -346,10 +346,10 @@ public class QuestRegistry {
      * Takes a map instead of simply just the item and the material
      * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
-     * @param items a map of the materials and their amounts
+     * @param items a map of the ItemSerialisable and their amounts
      * @param invert whether to subtract item quantities instead of adding
      */
-    public void updateInventoryItem(Quest quest, Map<Material, Integer> items, Boolean invert) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, Boolean invert) {
         this.updateInventoryItem(quest, items, null, invert);
     }
 
@@ -358,12 +358,12 @@ public class QuestRegistry {
      * Takes a map instead of simply just the item and the material
      * to discourage putting in a loop; there's a database operation.
      * @param quest the inventory of this quest
-     * @param items a map of the materials and their amounts
+     * @param items a map of the ItemSerialisable and their amounts
      * @param callback optional thing to run on each item
      * @param invert whether to subtract instead of add items
      */
-    public void updateInventoryItem(Quest quest, Map<Material, Integer> items, BiConsumer<Material, Integer> callback, Boolean invert) {
-        Map<Material, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, BiConsumer<ItemSerialisable, Integer> callback, Boolean invert) {
+        Map<ItemSerialisable, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
 
         items.forEach((material, amount) -> {
             // run a callback operation if exists

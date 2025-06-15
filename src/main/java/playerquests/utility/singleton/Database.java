@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List; // generic list type
 import java.util.Map;
 import java.util.UUID; // how users are identified
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -29,6 +30,7 @@ import org.apache.maven.model.v4.MavenStaxReader;
 import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +41,7 @@ import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.MigrationUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -153,7 +156,7 @@ public class Database {
             String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
             + "id TEXT PRIMARY KEY,"
             + "toggled BOOLEAN NOT NULL DEFAULT TRUE,"
-            + "inventory TEXT NOT NULL DEFAULT '{ }');";
+            + "inventory TEXT NOT NULL DEFAULT '');";
             statement.execute(questsTableSQL);
 
             String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
@@ -247,6 +250,8 @@ public class Database {
             StringBuilder query = new StringBuilder();
 
             switch (version) {
+                case "0.10.1":
+                    query.append(MigrationUtils.dbV0_10_1());
                 case "0.10":
                     query.append(MigrationUtils.dbV0_10());
                 case "0.9.2":
@@ -656,19 +661,22 @@ public class Database {
      *
      * This method inserts or updates the inventory associated with the given quest. If a record with the same
      * quest ID already exists in the database, the inventory will be updated with the new values provided.
-     * The inventory is represented as a map of materials to quantities, which is converted to a string for storage.
+     * The inventory is represented as a map of ItemSerialisable to quantities, which is converted to a string for storage.
      *
      * @param quest The {@link Quest} object representing the quest whose inventory is to be set.
-     * @param inventory A {@link Map} where keys are {@link Material} representing the items in the inventory,
+     * @param inventory A {@link Map} where keys are {@link ItemSerialisable} representing the items in the inventory,
      *                  and values are {@link Integer} representing the quantities of those items.
      */
-    public void setQuestInventory(Quest quest, Map<Material, Integer> inventory) {
+    public void setQuestInventory(Quest quest, Map<ItemSerialisable, Integer> inventory) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id, inventory) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET inventory = EXCLUDED.inventory")) {
 
+            // generate an item=amount|item=amount|... inventory string
+            String inventoryString = inventory.entrySet().stream().map(entry -> String.format("%s=%d", entry.getKey().toString(), entry.getValue())).collect(Collectors.joining("|"));
+
             // preparedStatement
             preparedStatement.setString(1, quest.getID());
-            preparedStatement.setString(2, inventory.toString());
+            preparedStatement.setString(2, inventoryString);
             preparedStatement.execute();
 
         } catch (SQLException e) {
@@ -681,8 +689,8 @@ public class Database {
      *
      * @return A map of quest inventory maps retrieved from the database, or an empty map if an error occurs.
      */
-    public synchronized Map<String, Map<Material, Integer>> getAllQuestInventories() {
-        Map<String, Map<Material, Integer>> inventories = new HashMap<>();
+    public synchronized Map<String, Map<ItemSerialisable, Integer>> getAllQuestInventories() {
+        Map<String, Map<ItemSerialisable, Integer>> inventories = new HashMap<>();
 
         try (Connection connection = getConnection();
         Statement statement = connection.createStatement()) {
@@ -691,13 +699,34 @@ public class Database {
             ResultSet result = statement.executeQuery(allQuestsSQL);
 
             while (result.next()) {
-                Map<Material, Integer> inventoryMap = new HashMap<>();
-                String[] pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
+                String[] pairs = result.getString("inventory").split("\\|"); // escape for raw "|"
+                Map<ItemSerialisable, Integer> inventoryMap = new HashMap<>();
 
+                if ( ! result.getString("inventory").contains("{")) { // TODO: remove conditional after v0.10.2
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split("=");
+                        if (keyValue.length == 2) {
+                            ItemSerialisable itemSerialisable = new ItemSerialisable(keyValue[0].trim());
+                            Integer quantity;
+                            try {
+                                quantity = Integer.parseInt(keyValue[1].trim());
+                            } catch (NumberFormatException e) {
+                                // Handle the case where the quantity is not a valid integer
+                                System.err.println("Invalid quantity format: " + keyValue[1]);
+                                continue;
+                            }
+                            inventoryMap.put(itemSerialisable, quantity);
+                        }
+                    }
+                }
+
+                // old matching: TODO: remove above v0.10.2
+                pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
                 for (String pair : pairs) {
                     String[] keyValue = pair.split("=");
                     if (keyValue.length == 2) {
-                        Material material = Material.matchMaterial(keyValue[0].trim());
+                        String materialString = keyValue[0].trim().replace("{", "").replace("}", "");
+                        Material material = Material.matchMaterial(materialString);
                         Integer quantity;
                         try {
                             quantity = Integer.parseInt(keyValue[1].trim());
@@ -706,10 +735,11 @@ public class Database {
                             System.err.println("Invalid quantity format: " + keyValue[1]);
                             continue;
                         }
-                        inventoryMap.put(material, quantity);
+                        inventoryMap.put(new ItemSerialisable(new ItemStack(material)), quantity);
                     }
                 }
 
+                // put quest id and retrieved inventory for returning
                 inventories.put(result.getString("id"), inventoryMap);
             }
 

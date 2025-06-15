@@ -15,6 +15,7 @@ import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // accessing the client state
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -52,7 +53,7 @@ public class Dynamicquesteditor extends GUIDynamic {
 
         // set the GUI title as: Edit Quest ([quest title])
         guiFrame.setTitle(
-            String.format("Edit Quest %s", 
+            String.format("Edit Quest %s",
                 questTitle != null ? "("+ChatUtils.shortenString(questTitle, 18)+")" : null
             )
         );
@@ -73,7 +74,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Set Title")
             .onClick(() -> {
                 new ChatPrompt(
-                    Arrays.asList("Enter quest title", "none"), 
+                    Arrays.asList("Enter quest title", "none"),
                     director
                 ).onFinish(guiFunction -> {
                     ChatPrompt function = (ChatPrompt) guiFunction;
@@ -84,11 +85,11 @@ public class Dynamicquesteditor extends GUIDynamic {
                     Quest quest = questBuilder.build();
 
                     // get current inventory
-                    Map<Material, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
+                    Map<ItemSerialisable, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
 
                     // delete current quest
                     QuestRegistry.getInstance().delete(quest, true, false, true);
-                    
+
                     // change title
                     questBuilder.setTitle(function.getResponse());
 
@@ -111,17 +112,17 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setItem("GRAY_STAINED_GLASS_PANE")
             .setLabel("Quest Stages")
             .setDescription(List.of("Add an NPC to add Stages"));
-        
+
         if (!questBuilder.getQuestNPCs().isEmpty()) { // view quest stages button (unblocked)
             stagesSlot.setItem("CHEST")
             .setLabel("Quest Stages")
             .setDescription(List.of("")) // clear the description
             .addFunction(
                 new UpdateScreen(
-                    Arrays.asList("queststages"), 
+                    Arrays.asList("queststages"),
                     director
                 )
-            ); 
+            );
         }
 
         new GUISlot(gui, 5) // view quest NPCs button
@@ -129,7 +130,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             .setLabel("Quest NPCs")
             .addFunction(
                 new UpdateScreen(
-                    Arrays.asList("questnpcs"), 
+                    Arrays.asList("questnpcs"),
                     director
                 )
             );

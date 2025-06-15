@@ -20,6 +20,7 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
 import playerquests.utility.PluginUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -30,7 +31,7 @@ public class Dynamicquestinventory extends GUIDynamic {
     /**
      * The quest inventory.
      */
-    Map<Material, Integer> inventory = new HashMap<>();
+    Map<ItemSerialisable, Integer> inventory = new HashMap<>();
 
     /**
      * The quest product.
@@ -40,7 +41,7 @@ public class Dynamicquestinventory extends GUIDynamic {
     /**
      * The required inventory.
      */
-    Map<Material, Integer> requiredInventory;
+    Map<ItemSerialisable, Integer> requiredInventory;
 
     /**
      * Creates a dynamic GUI showing the quest inventory.
@@ -77,7 +78,7 @@ public class Dynamicquestinventory extends GUIDynamic {
             .setLabel("Back")
             .onClick(() -> {
                 new UpdateScreen(
-                    Arrays.asList(this.previousScreen), 
+                    Arrays.asList(this.previousScreen),
                     director
                 ).execute();
             });;
@@ -112,11 +113,11 @@ public class Dynamicquestinventory extends GUIDynamic {
                                 continue;
                             }
 
-                            Material itemMaterial = item.getType();
+                            ItemSerialisable itemSerialisable = new ItemSerialisable(item);
                             Integer itemCount = item.getAmount();
 
                             // update inventory item
-                            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemMaterial, itemCount));
+                            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemSerialisable, itemCount));
                         };
 
                         // go back
@@ -139,22 +140,22 @@ public class Dynamicquestinventory extends GUIDynamic {
             .setLabel("Next");
 
         // create inventory of required (and out of stock) and stocked
-        Map<Material, Integer> predictiveInventory = PluginUtils.getPredictiveInventory(quest, this.inventory);
+        Map<ItemSerialisable, Integer> predictiveInventory = PluginUtils.getPredictiveInventory(quest, this.inventory);
 
         // create slot for each inventory material
         predictiveInventory.entrySet().stream().anyMatch((entry) -> {
-            Integer slot = gui.getEmptySlot();      
+            Integer slot = gui.getEmptySlot();
 
             if (slot == 45) {
                 return true; // exit out early
             }
 
-            Material material = entry.getKey();
+            ItemSerialisable itemSerialisable = entry.getKey();
             Integer predictedAmount = entry.getValue();
-            Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(material)).orElse(0);
+            Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
 
             new GUISlot(gui, gui.getEmptySlot())
-                .setItem(material)
+                .setItem(itemSerialisable.getMaterial())
                 .setLabel(
                     realAmount == 0
                     ? ChatColor.RED + "Out of Stock" + ChatColor.RESET + " (" + realAmount + ")"
@@ -172,14 +173,14 @@ public class Dynamicquestinventory extends GUIDynamic {
 
     private void sortInventory() {
         // convert to sortable form
-        List<Entry<Material, Integer>> list = new ArrayList<>(this.inventory.entrySet());
+        List<Entry<ItemSerialisable, Integer>> list = new ArrayList<>(this.inventory.entrySet());
 
         // sort by amount
         list.sort(Entry.comparingByValue());
 
         // resubmit as linked list
-        Map<Material, Integer> sortedInventory = new LinkedHashMap<>();
-        for (Entry<Material, Integer> entry : list) {
+        Map<ItemSerialisable, Integer> sortedInventory = new LinkedHashMap<>();
+        for (Entry<ItemSerialisable, Integer> entry : list) {
             sortedInventory.put(entry.getKey(), entry.getValue());
         }
 
