@@ -7,12 +7,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,15 +21,12 @@ public class ItemSerialisable implements Serialisable {
     @JsonIgnore
     private PotionType potionType;
 
-    @JsonIgnore
-    private LinkedList<PotionEffect> potionEffects;
-
     public ItemSerialisable(String string) {
         this.fromString(string);
     }
 
     public ItemSerialisable(ItemStack itemStack) {
-        material = itemStack.getType();
+        this.fromItemStack(itemStack);
     }
 
     /**
@@ -60,36 +53,17 @@ public class ItemSerialisable implements Serialisable {
 
         if (this.material.equals(Material.POTION)) {
             // Get potion stuff
-            this.findPotion(data.get("potion_type"), data.get("potion_effect_types"), data.get("potion_amplifier"), data.get("potion_duration"));
+            this.findPotion(data.get("potion_type"));
         }
 
         return this;
     }
 
-    private void findPotion(String potion_type, String potion_effect_types, String potion_amplifiers, String potion_durations) {
+    private void findPotion(String potion_type) {
         try {
             this.potionType = PotionType.valueOf(potion_type);
         } catch (Exception e) {
             this.potionType = PotionType.AWKWARD;
-        }
-
-        String[] potionEffectTypes = potion_effect_types.split(",");
-        String[] potionAmplifiers = potion_amplifiers.split(",");
-        String[] potionDurations = potion_durations.split(",");
-
-        // construct potion effects based on the amount of types of effects we found
-        for (int i = 0; i < potionEffectTypes.length; i++) {
-            PotionEffectType type = Registry.EFFECT.get(
-                NamespacedKey.fromString(potionEffectTypes[i].trim())
-            );
-            if (type == null) continue; // Skip invalid types
-
-            int amplifier = Integer.parseInt(potionAmplifiers[i].trim());
-            int duration = Integer.parseInt(potionDurations[i].trim());
-
-            this.potionEffects.add(new PotionEffect(
-                type, duration, amplifier, true
-            ));
         }
 	}
 
@@ -98,9 +72,6 @@ public class ItemSerialisable implements Serialisable {
 
         // set potion type
         this.potionType = potionMeta.getBasePotionType();
-
-        // set potion effects
-        this.potionEffects = new LinkedList<PotionEffect>(potionMeta.getCustomEffects());
 	}
 
 	private void findMaterial(String materialString, String serialisedString) {
@@ -120,8 +91,8 @@ public class ItemSerialisable implements Serialisable {
         // get material from itemstack
         this.material = itemStack.getType();
 
-        // get potion effect from itemstack
-        if (this.material.equals(Material.POTION)) {
+        // get potion details from itemstack
+        if (this.material == Material.POTION) {
             this.findPotion(itemStack);
         }
 
@@ -150,9 +121,6 @@ public class ItemSerialisable implements Serialisable {
 
         // add new unique attributes here:
         appendIfNotNull(sb, ",potion_type:", this.getPotionType());
-        appendIfNotNull(sb, ",potion_effect_types:", this.getPotionEffectTypes());
-        appendIfNotNull(sb, ",potion_amplifiers:", this.getPotionAmplifiers());
-        appendIfNotNull(sb, ",potion_durations:", this.getPotionDurations());
 
         return sb.toString();
     }
@@ -183,35 +151,5 @@ public class ItemSerialisable implements Serialisable {
 
 	public PotionType getPotionType() {
 	    return this.potionType;
-	}
-
-	public LinkedList<Integer> getPotionAmplifiers() {
-    	if (this.potionEffects == null) {
-            return null;
-        }
-
-	    return this.potionEffects.stream()
-			.map(effect -> effect.getAmplifier())
-			.collect(Collectors.toCollection(LinkedList::new));
-	}
-
-	public LinkedList<Integer> getPotionDurations() {
-       	if (this.potionEffects == null) {
-            return null;
-        }
-
-        return this.potionEffects.stream()
-            .map(effect -> effect.getDuration())
-            .collect(Collectors.toCollection(LinkedList::new));
-	}
-
-	public LinkedList<PotionEffectType> getPotionEffectTypes() {
-	    if (this.potionEffects == null) {
-			return null;
-		}
-
-	    return this.potionEffects.stream()
-			.map(effect -> effect.getType())
-			.collect(Collectors.toCollection(LinkedList::new));
 	}
 }
