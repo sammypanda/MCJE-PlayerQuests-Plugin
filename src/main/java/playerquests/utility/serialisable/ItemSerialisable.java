@@ -13,12 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import playerquests.utility.serialisable.data.ItemData;
 
 public final class ItemSerialisable implements Serialisable {
-    // Predefined variants
-    public static final ItemSerialisable WHITE_WOOL =
-        new ItemSerialisable(ItemData.WOOL, Map.of("color", "WHITE"));
-    public static final ItemSerialisable HEALING_POTION =
-        new ItemSerialisable(ItemData.POTION, Map.of("type", "HEALING", "upgraded", "false"));
-
     private final ItemData itemData;
     private final Map<String, String> properties;
 
