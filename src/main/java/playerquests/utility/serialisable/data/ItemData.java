@@ -26,20 +26,20 @@ import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 
 public enum ItemData {
-    // Fallback if unimplemented:
+    // Generic handler
     GENERIC {
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             Material material = Material.valueOf(properties.get("material"));
-            warnUnimplemented(material);
+            if (!isAllowedGeneric(material)) {
+                warnUnimplemented(material);
+            }
             return new ItemStack(material);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            Map<String, String> props = new HashMap<>();
-            props.put("material", (item != null) ? item.getType().name() : "AIR");
-            return props;
+            return Map.of("material", item.getType().name());
         }
     },
 
@@ -135,7 +135,6 @@ public enum ItemData {
             String flavour = item.getType().name().replace("_SOUP", "");
             return Map.of("flavour", flavour);
         }
-
     },
 
     AIR {
@@ -150,15 +149,34 @@ public enum ItemData {
 		}
 	};
 
+    // Explicit allowlist of materials that can use GENERIC without warnings
+    private static final Set<Material> ALLOWED_GENERIC_MATERIALS = new HashSet<>(Arrays.asList(
+        Material.DIAMOND,
+        Material.EMERALD,
+        Material.GOLD_INGOT,
+        Material.IRON_INGOT,
+        Material.COAL,
+        Material.REDSTONE,
+        Material.LAPIS_LAZULI,
+        Material.QUARTZ,
+        Material.STONE,
+        Material.COBBLESTONE,
+        Material.PAPER
+    ));
+
+    private static boolean isAllowedGeneric(Material material) {
+        return ALLOWED_GENERIC_MATERIALS.contains(material);
+    }
+
     // Bukkit material mappings
-    private static final Map<Material, ItemData> MATERIAL_MAPPINGS = new HashMap<>();
+    private static final Map<Material, ItemData> SPECIAL_MAPPINGS = new HashMap<>();
     static {
-        MATERIAL_MAPPINGS.put(Material.POTION, POTION);
-        MATERIAL_MAPPINGS.put(Material.SPLASH_POTION, POTION);
-        MATERIAL_MAPPINGS.put(Material.LINGERING_POTION, POTION);
-        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_WOOL")).forEach(m -> MATERIAL_MAPPINGS.put(m, WOOL));
-        MATERIAL_MAPPINGS.put(Material.PLAYER_HEAD, PLAYER_HEAD);
-        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_SOUP")).forEach(m -> MATERIAL_MAPPINGS.put(m, SOUP));
+        SPECIAL_MAPPINGS.put(Material.POTION, POTION);
+        SPECIAL_MAPPINGS.put(Material.SPLASH_POTION, POTION);
+        SPECIAL_MAPPINGS.put(Material.LINGERING_POTION, POTION);
+        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_WOOL")).forEach(m -> SPECIAL_MAPPINGS.put(m, WOOL));
+        SPECIAL_MAPPINGS.put(Material.PLAYER_HEAD, PLAYER_HEAD);
+        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_SOUP")).forEach(m -> SPECIAL_MAPPINGS.put(m, SOUP));
     }
 
     // Add these new members at the bottom of the class
@@ -177,17 +195,13 @@ public enum ItemData {
     }
 
     public static ItemData fromMaterial(Material material) {
-        return Optional.ofNullable(MATERIAL_MAPPINGS.get(material))
-        .orElseGet(() -> {
-            ChatUtils.message("Uh oh! only found a generic handler for: " + material + ", please report this message to sammypanda.")
-                .type(MessageType.WARN)
-                .style(MessageStyle.SIMPLE)
-                .target(MessageTarget.CONSOLE)
-                .send();
-            return GENERIC;
-        });
-    }
+        // 1. Return special handler if exists
+        ItemData specialHandler = SPECIAL_MAPPINGS.get(material);
+        if (specialHandler != null) return specialHandler;
 
+        // 2. Return GENERIC (will warn if not allowed)
+        return GENERIC;
+    }
 
     public static ItemData fromString(String string) {
         // 1. First try to find matching ItemData (excluding GENERIC)
@@ -214,7 +228,6 @@ public enum ItemData {
             .type(MessageType.ERROR)
             .style(MessageStyle.PRETTY)
             .send();
-        System.out.println("from material match ");
         return ItemData.AIR;
     }
 

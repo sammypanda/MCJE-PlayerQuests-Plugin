@@ -151,7 +151,6 @@ public class Dynamicquestinventory extends GUIDynamic {
             }
 
             ItemSerialisable itemSerialisable = entry.getKey();
-            System.out.println("serialisable " + itemSerialisable);
             Integer predictedAmount = entry.getValue();
             Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
 
