@@ -81,7 +81,7 @@ public class TakeItemAction extends QuestAction {
         message
             // .append("Do you consent?\n\n").color(ChatColor.GRAY)
             .append("\n> ").reset()
-            .append("Click to proceed").color(ChatColor.GREEN).underlined(true)
+            .append("Click here to proceed").color(ChatColor.GREEN).underlined(true)
             .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
 
         player.spigot().sendMessage(message.build()); // send request for consent
