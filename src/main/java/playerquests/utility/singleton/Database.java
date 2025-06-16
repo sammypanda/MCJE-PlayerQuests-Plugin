@@ -21,16 +21,13 @@ import java.util.HashMap;
 import java.util.List; // generic list type
 import java.util.Map;
 import java.util.UUID; // how users are identified
-import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLStreamException;
 
 import org.apache.maven.api.model.Model;
 import org.apache.maven.model.v4.MavenStaxReader;
 import org.bukkit.Bukkit; // the Bukkit API
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

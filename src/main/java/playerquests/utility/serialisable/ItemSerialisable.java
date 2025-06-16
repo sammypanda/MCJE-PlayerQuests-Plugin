@@ -18,7 +18,7 @@ public final class ItemSerialisable implements Serialisable {
 
     // Public from string - use builder for other construction
     public ItemSerialisable(String string) {
-        // Convert to GENERIC
+        // Convert Spigot Material to our GENERIC
         if (!string.contains("[")) {
             this.itemData = ItemData.fromString(string);
             this.properties = Map.of("material", string);
@@ -31,21 +31,22 @@ public final class ItemSerialisable implements Serialisable {
             .map(pair -> pair.split(":"))
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         ItemData base;
+        String baseString = parts[0];
+        String materialString = keyValues.get("material");
 
-        // convert from GENERIC
-        if (parts[0].equalsIgnoreCase("GENERIC")) {
-            String materialString = keyValues.get("material");
-            Material material = Material.valueOf(materialString);
-            keyValues.remove("material");
-            base = ItemData.fromMaterial(material);
-            keyValues = base.extractProperties(new ItemStack(material));
+        // convert from GENERIC (GENERIC[material:HERE]), otherwise use special ItemData base string (HERE[key:value])
+        if (materialString != null && ( ! materialString.isEmpty())) {
+            base = ItemData.fromString(materialString);
         } else {
-            base = ItemData.fromString(parts[0]);
+            base = ItemData.fromString(baseString);
         }
 
-        // set final ItemData base and key-value properties
+        // set final ItemData
         this.itemData = base;
-        this.properties = keyValues;
+
+        // set purified properties
+        ItemStack itemStack = base.createItem(keyValues);
+        this.properties = base.extractProperties(itemStack);
     }
 
     // Private constructor - use builder
