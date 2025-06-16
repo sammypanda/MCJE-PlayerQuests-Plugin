@@ -111,7 +111,7 @@ public class ItemsOption extends ActionOption {
      * @return items in map form
      */
     private Map<ItemSerialisable, Integer> toMap(List<ItemStack> items) {
-        return items.stream().collect(Collectors.toMap(ItemSerialisable::new, ItemStack::getAmount));
+        return items.stream().collect(Collectors.toMap(ItemSerialisable::fromItemStack, ItemStack::getAmount));
     }
 
     /**

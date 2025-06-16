@@ -113,7 +113,7 @@ public class Dynamicquestinventory extends GUIDynamic {
                                 continue;
                             }
 
-                            ItemSerialisable itemSerialisable = new ItemSerialisable(item);
+                            ItemSerialisable itemSerialisable = ItemSerialisable.fromItemStack(item);
                             Integer itemCount = item.getAmount();
 
                             // update inventory item
@@ -151,11 +151,12 @@ public class Dynamicquestinventory extends GUIDynamic {
             }
 
             ItemSerialisable itemSerialisable = entry.getKey();
+            System.out.println("serialisable " + itemSerialisable);
             Integer predictedAmount = entry.getValue();
             Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
 
             new GUISlot(gui, gui.getEmptySlot())
-                .setItem(itemSerialisable.getMaterial())
+                .setItem(itemSerialisable.toItemStack().getType())
                 .setLabel(
                     realAmount == 0
                     ? ChatColor.RED + "Out of Stock" + ChatColor.RESET + " (" + realAmount + ")"

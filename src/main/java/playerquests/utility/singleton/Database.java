@@ -671,12 +671,9 @@ public class Database {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id, inventory) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET inventory = EXCLUDED.inventory")) {
 
-            // generate an item=amount|item=amount|... inventory string
-            String inventoryString = inventory.entrySet().stream().map(entry -> String.format("%s=%d", entry.getKey().toString(), entry.getValue())).collect(Collectors.joining("|"));
-
             // preparedStatement
             preparedStatement.setString(1, quest.getID());
-            preparedStatement.setString(2, inventoryString);
+            preparedStatement.setString(2, inventory.toString());
             preparedStatement.execute();
 
         } catch (SQLException e) {
@@ -702,31 +699,12 @@ public class Database {
                 String[] pairs = result.getString("inventory").split("\\|"); // escape for raw "|"
                 Map<ItemSerialisable, Integer> inventoryMap = new HashMap<>();
 
-                if ( ! result.getString("inventory").contains("{")) { // TODO: remove conditional after v0.10.2
-                    for (String pair : pairs) {
-                        String[] keyValue = pair.split("=");
-                        if (keyValue.length == 2) {
-                            ItemSerialisable itemSerialisable = new ItemSerialisable(keyValue[0].trim());
-                            Integer quantity;
-                            try {
-                                quantity = Integer.parseInt(keyValue[1].trim());
-                            } catch (NumberFormatException e) {
-                                // Handle the case where the quantity is not a valid integer
-                                System.err.println("Invalid quantity format: " + keyValue[1]);
-                                continue;
-                            }
-                            inventoryMap.put(itemSerialisable, quantity);
-                        }
-                    }
-                }
-
-                // old matching: TODO: remove above v0.10.2
                 pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
                 for (String pair : pairs) {
                     String[] keyValue = pair.split("=");
                     if (keyValue.length == 2) {
-                        String materialString = keyValue[0].trim().replace("{", "").replace("}", "");
-                        Material material = Material.matchMaterial(materialString);
+                        String itemString = keyValue[0].trim().replace("{", "").replace("}", "");
+                        ItemSerialisable itemSerialisable = new ItemSerialisable(itemString);
                         Integer quantity;
                         try {
                             quantity = Integer.parseInt(keyValue[1].trim());
@@ -735,7 +713,7 @@ public class Database {
                             System.err.println("Invalid quantity format: " + keyValue[1]);
                             continue;
                         }
-                        inventoryMap.put(new ItemSerialisable(new ItemStack(material)), quantity);
+                        inventoryMap.put(itemSerialisable, quantity);
                     }
                 }
 

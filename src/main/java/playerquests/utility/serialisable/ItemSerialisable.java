@@ -1,155 +1,132 @@
 package playerquests.utility.serialisable;
 
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import playerquests.utility.serialisable.data.ItemData;
 
-public class ItemSerialisable implements Serialisable {
+public final class ItemSerialisable implements Serialisable {
+    // Predefined variants
+    public static final ItemSerialisable WHITE_WOOL =
+        new ItemSerialisable(ItemData.WOOL, Map.of("color", "WHITE"));
+    public static final ItemSerialisable HEALING_POTION =
+        new ItemSerialisable(ItemData.POTION, Map.of("type", "HEALING", "upgraded", "false"));
 
-    @JsonIgnore
-    private Material material;
+    private final ItemData itemData;
+    private final Map<String, String> properties;
 
-    @JsonIgnore
-    private PotionType potionType;
-
+    // Public from string - use builder for other construction
     public ItemSerialisable(String string) {
-        this.fromString(string);
+        // Convert to GENERIC
+        if (!string.contains("[")) {
+            this.itemData = ItemData.fromString(string);
+            this.properties = Map.of("material", string);
+            return;
+        }
+
+        // get ItemData base and key-value pairs
+        String[] parts = string.split("\\[|\\]");
+        Map<String, String> keyValues = Arrays.stream(parts[1].split(";"))
+            .map(pair -> pair.split(":"))
+            .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
+        ItemData base;
+
+        // convert from GENERIC
+        if (parts[0].equalsIgnoreCase("GENERIC")) {
+            String materialString = keyValues.get("material");
+            Material material = Material.valueOf(materialString);
+            keyValues.remove("material");
+            base = ItemData.fromMaterial(material);
+            keyValues = base.extractProperties(new ItemStack(material));
+        } else {
+            base = ItemData.fromString(parts[0]);
+        }
+
+        // set final ItemData base and key-value properties
+        this.itemData = base;
+        this.properties = keyValues;
     }
 
-    public ItemSerialisable(ItemStack itemStack) {
-        this.fromItemStack(itemStack);
+    // Private constructor - use builder
+    private ItemSerialisable(ItemData itemData, Map<String, String> properties) {
+        this.itemData = Objects.requireNonNull(itemData);
+        this.properties = Collections.unmodifiableMap(new HashMap<>(properties));
     }
 
-    /**
-     * Takes an ItemSerialisable or Material string and converts it
-     * to an ItemSerialisable object.
-     * @param serialised an ItemSerialisable or Material string
-     * @return deserialised ItemSerialisable object
-     */
-    public ItemSerialisable fromString(String serialised) {
-        if (serialised == null || serialised.isEmpty()) {
-            throw new IllegalArgumentException("Serialized string cannot be null or empty");
-        }
-
-        // get map of key value pairs of the attributes
-        Map<String, String> data = Arrays.stream(serialised.split(","))
-            .map(keyvalue -> keyvalue.split(":", 2))
-            .collect(Collectors.toMap(
-                keyvalue -> keyvalue[0],
-                keyvalue -> keyvalue.length > 1 ? keyvalue[1] : ""
-            ));
-
-        // Get material
-        this.findMaterial(data.get("material"), serialised);
-
-        if (this.material.equals(Material.POTION)) {
-            // Get potion stuff
-            this.findPotion(data.get("potion_type"));
-        }
-
-        return this;
-    }
-
-    private void findPotion(String potion_type) {
-        try {
-            this.potionType = PotionType.valueOf(potion_type);
-        } catch (Exception e) {
-            this.potionType = PotionType.AWKWARD;
-        }
-	}
-
-	private void findPotion(ItemStack itemStack) {
-        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
-
-        // set potion type
-        this.potionType = potionMeta.getBasePotionType();
-	}
-
-	private void findMaterial(String materialString, String serialisedString) {
-        if (materialString == null) {
-            materialString = serialisedString; // for if the string passed in is a raw material
-        }
-
-        // resolve material from string
-        try {
-            this.material = Material.valueOf(materialString.toUpperCase());
-        } catch (IllegalArgumentException _e) {
-            throw new IllegalArgumentException("Invalid material encountered");
-        }
-    }
-
-    public ItemSerialisable fromItemStack(ItemStack itemStack) {
-        // get material from itemstack
-        this.material = itemStack.getType();
-
-        // get potion details from itemstack
-        if (this.material == Material.POTION) {
-            this.findPotion(itemStack);
-        }
-
-        return this;
-    }
-
+    // Serialisation
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ItemSerialisable that = (ItemSerialisable) o;
-        return Objects.equals(this.toString(), that.toString()); // TODO: make more robust/manually checking the fields
+    public String toString() {
+        if (properties.isEmpty()) return itemData.name();
+        return itemData.name() + properties.entrySet().stream()
+            .map(e -> e.getKey() + ":" + e.getValue())
+            .collect(Collectors.joining(";", "[", "]"));
+    }
+
+    // Deserialisation
+    @Override
+    public Serialisable fromString(String string) {
+        return new ItemSerialisable(string);
+    }
+
+    // Bukkit conversion (out of)
+    public ItemStack toItemStack() {
+        return itemData.createItem(properties);
+    }
+
+    // Bukkit conversion (into)
+    public static ItemSerialisable fromItemStack(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return null;
+        ItemData data = ItemData.fromMaterial(item.getType());
+        if (data == null) throw new IllegalArgumentException("Unsupported item type " + item.getType());
+        return new ItemSerialisable(data, data.extractProperties(item));
+    }
+
+    // Builder pattern
+    public static class Builder {
+        private final ItemData itemData;
+        private final Map<String, String> properties = new HashMap<>();
+
+        public Builder(ItemData itemData) {
+            this.itemData = itemData;
+        }
+
+        public Builder with(String key, String value) {
+            properties.put(key, value);
+            return this;
+        }
+
+        public ItemSerialisable build() {
+            return new ItemSerialisable(itemData, properties);
+        }
+    }
+
+    // Getters
+    public ItemData getItemData() { return itemData; }
+    public Map<String, String> getProperties() { return properties; }
+
+    // Equality Checking
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        ItemSerialisable other = (ItemSerialisable) obj;
+        return Objects.equals(itemData, other.itemData) &&
+               Objects.equals(properties, other.properties);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(toString()); // TODO: make more robust/hashing the fields
+        return Objects.hash(itemData, properties);
     }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        // set base material
-        sb.append("material:").append(this.getMaterial());
-
-        // add new unique attributes here:
-        appendIfNotNull(sb, ",potion_type:", this.getPotionType());
-
-        return sb.toString();
-    }
-
-    // Helper method
-    private void appendIfNotNull(StringBuilder sb, String prefix, Object value) {
-        if (value != null) sb.append(prefix).append(value);
-    }
-
-    public ItemStack toItemStack() {
-        Material material = this.getMaterial();
-        ItemStack itemStack = new ItemStack(material);
-
-        if (material.equals(Material.POTION)) {
-            this.findPotion(itemStack);
-        }
-
-        return itemStack;
-    }
-
-	public Material getMaterial() {
-	    if (this.material == null) {
-			throw new IllegalStateException("ItemSerialisable missing a material");
-		}
-
-	    return this.material;
-	}
-
-	public PotionType getPotionType() {
-	    return this.potionType;
-	}
 }

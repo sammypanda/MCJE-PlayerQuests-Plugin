@@ -96,7 +96,7 @@ public class TakeItemAction extends QuestAction {
         Inventory playerInventory = questerData.getQuester().getPlayer().getInventory();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
-        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey().getMaterial(), entry.getValue())); // TODO: fix generic item check
+        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey().toItemStack().getType(), entry.getValue())); // TODO: fix generic item check
     }
 
     @Override
