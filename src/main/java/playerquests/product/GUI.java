@@ -130,6 +130,10 @@ public class GUI {
             ItemStack item = MaterialUtils.toItemStack(slot.getItem()); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
 
+            if (itemMeta == null) {
+                return; // possibly AIR
+            }
+
             // Strip the ItemMeta
             itemMeta.setLore(List.of());
 

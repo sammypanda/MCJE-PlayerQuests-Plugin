@@ -39,6 +39,7 @@ import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.MigrationUtils;
 import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -702,6 +703,13 @@ public class Database {
                     if (keyValue.length == 2) {
                         String itemString = keyValue[0].trim().replace("{", "").replace("}", "");
                         ItemSerialisable itemSerialisable = new ItemSerialisable(itemString);
+
+                        // skip if invalid itemSerialisable
+                        if (itemSerialisable.getItemData().equals(ItemData.AIR)) {
+                            continue;
+                        }
+
+                        // resolve item quantity
                         Integer quantity;
                         try {
                             quantity = Integer.parseInt(keyValue[1].trim());
@@ -710,6 +718,8 @@ public class Database {
                             System.err.println("Invalid quantity format: " + keyValue[1]);
                             continue;
                         }
+
+                        // prepare to be shipped
                         inventoryMap.put(itemSerialisable, quantity);
                     }
                 }
