@@ -77,7 +77,6 @@ public class RequestItemAction extends QuestAction {
     @Override
     protected Boolean isCompleted(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer();
-
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         
         // First create a snapshot of the player's inventory counting similar items
@@ -87,7 +86,7 @@ public class RequestItemAction extends QuestAction {
                 ItemSerialisable::fromItemStack,  // Key: serialized item
                 ItemStack::getAmount,            // Value: amount
                 Integer::sum                     // Merge function for duplicates
-            ));
+        ));
 
         // Then check if all required items are present in sufficient quantities
         return itemsOption.getItems().entrySet().stream()
@@ -97,7 +96,7 @@ public class RequestItemAction extends QuestAction {
                 
                 Integer availableAmount = inventorySnapshot.get(requiredItem);
                 return availableAmount != null && availableAmount >= requiredAmount;
-    });
+        });
     }
 
     @Override

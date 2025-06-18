@@ -1,8 +1,11 @@
 package playerquests.builder.quest.action;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -27,6 +30,7 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.product.Quest;
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
 public class TakeItemAction extends QuestAction {
@@ -93,10 +97,27 @@ public class TakeItemAction extends QuestAction {
             return false;
         }
 
-        Inventory playerInventory = questerData.getQuester().getPlayer().getInventory();
+        Player player = questerData.getQuester().getPlayer();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+        
+        // First create a snapshot of the player's inventory counting similar items
+        Map<ItemSerialisable, Integer> inventorySnapshot = Arrays.stream(player.getInventory().getContents())
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(
+                ItemSerialisable::fromItemStack,  // Key: serialized item
+                ItemStack::getAmount,            // Value: amount
+                Integer::sum                     // Merge function for duplicates
+        ));
 
-        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey().toItemStack().getType(), entry.getValue())); // TODO: fix generic item check
+        // Then check if all required items are present in sufficient quantities
+        return itemsOption.getItems().entrySet().stream()
+            .allMatch(entry -> {
+                ItemSerialisable requiredItem = entry.getKey();
+                int requiredAmount = entry.getValue();
+                
+                Integer availableAmount = inventorySnapshot.get(requiredItem);
+                return availableAmount != null && availableAmount >= requiredAmount;
+        });
     }
 
     @Override
