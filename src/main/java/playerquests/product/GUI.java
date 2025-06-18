@@ -16,7 +16,6 @@ import playerquests.Core; // getting the GUI NamespacedKey
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
 import playerquests.builder.gui.component.GUISlot; // GUI buttons
-import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
 
 /**
  * The GUI product as it appears on the players screen.
@@ -127,7 +126,7 @@ public class GUI {
      */
     private void drawSlots() {
         this.slots.forEach((position, slot) -> {
-            ItemStack item = MaterialUtils.toItemStack(slot.getItem()); // for setting the slot item
+            ItemStack item = slot.getItem().toItemStack(); // for setting the slot item
             ItemMeta itemMeta = item.getItemMeta(); // for editing the slot meta such as label
 
             if (itemMeta == null) {

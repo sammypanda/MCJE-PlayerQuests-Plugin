@@ -170,6 +170,11 @@ public class Quest {
             System.err.println("Malformed JSON attempted as a quest string. " + e);
         }
 
+        // if no quest, fail
+        if ( quest == null ) {
+            return quest;
+        }
+
         // if trying to start quest with dependencies missing, fail
         if ( ! PlayerQuests.getInstance().hasCitizens2() && quest.getNPCs().values().stream().anyMatch(npc -> npc.getAssigned() instanceof EntityNPC)) { // if citizens2 missing
             System.err.println("Cannot load " + quest.getID() + " as it has EntityNPCs, but your server does not have the Citizens2 plugin");

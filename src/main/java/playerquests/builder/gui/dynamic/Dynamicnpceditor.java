@@ -3,6 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays; // generic array type
 import java.util.Optional; // for handling nullables
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUIFrame; // the style of the outer GUI frame
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
 import playerquests.builder.gui.function.ChatPrompt; // prompting user input
@@ -61,7 +63,7 @@ public class Dynamicnpceditor extends GUIDynamic {
 
         // add back button
         GUISlot backButton = new GUISlot(this.gui, 1);
-        backButton.setItem("OAK_DOOR");
+        backButton.setItem(Material.OAK_DOOR);
         backButton.setLabel("Back");
         backButton.addFunction(
             new UpdateScreen(
@@ -73,7 +75,7 @@ public class Dynamicnpceditor extends GUIDynamic {
         // add 'change NPC name' button
         GUISlot nameButton = new GUISlot(this.gui, 3);
         String label = this.npc.getName() == null ? "Set NPC Name" : "Change NPC Name (" + this.npc.getName() + ")";
-        nameButton.setItem("NAME_TAG");
+        nameButton.setItem(Material.NAME_TAG);
         nameButton.setLabel(label);
         nameButton.addFunction(
             new ChatPrompt(
@@ -92,7 +94,7 @@ public class Dynamicnpceditor extends GUIDynamic {
                 this.npc.getName() != null ? this.npc.getName() : "NPC" // put NPC name if available, otherwise "NPC"
             )
         );
-        assignButton.setItem(this.npc.getBlock().getMaterial().toString());
+        assignButton.setItem(this.npc.getBlock().getMaterial());
         assignButton.addFunction(
             new UpdateScreen(
                 Arrays.asList("npctypes"), 
@@ -102,7 +104,7 @@ public class Dynamicnpceditor extends GUIDynamic {
 
         // add delete button
         GUISlot deleteButton = new GUISlot(this.gui, 8);
-        deleteButton.setItem("RED_DYE");
+        deleteButton.setItem(Material.RED_DYE);
         deleteButton.setLabel("Delete NPC");
         deleteButton.onClick(() -> {
             quest.removeNPC(npc);
@@ -116,7 +118,7 @@ public class Dynamicnpceditor extends GUIDynamic {
 
         // add save button
         GUISlot saveButton = new GUISlot(this.gui, 9);
-        saveButton.setItem("GREEN_DYE");
+        saveButton.setItem(Material.GREEN_DYE);
         saveButton.setLabel("Save NPC");
         saveButton.onClick(() -> {
             if (npc.getQuest() == null) {
@@ -140,7 +142,7 @@ public class Dynamicnpceditor extends GUIDynamic {
         // add divider slots
         GUISlot backDivider = new GUISlot(this.gui, 2);
         GUISlot saveDivider = new GUISlot(this.gui, 7);
-        backDivider.setItem("BLACK_STAINED_GLASS_PANE");
-        saveDivider.setItem("BLACK_STAINED_GLASS_PANE");
+        backDivider.setItem(Material.BLACK_STAINED_GLASS_PANE);
+        saveDivider.setItem(Material.BLACK_STAINED_GLASS_PANE);
     }
 }

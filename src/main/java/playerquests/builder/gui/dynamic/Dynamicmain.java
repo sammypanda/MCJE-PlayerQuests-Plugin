@@ -45,14 +45,14 @@ public class Dynamicmain extends GUIDynamic {
         guiFrame.setSize(9);
 
         new GUISlot(gui, 1)
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .setLabel("Exit")
             .addFunction(
                 new CloseScreen(List.of(), director)
             );
 
         new GUISlot(gui, 3)
-            .setItem("LIME_DYE")
+            .setItem(Material.LIME_DYE)
             .setLabel("Create Quest")
             .onClick(() -> {
                 new ChatPrompt(Arrays.asList("Enter quest title", "none"), director)
@@ -77,7 +77,7 @@ public class Dynamicmain extends GUIDynamic {
             });
 
         new GUISlot(gui, 4)
-            .setItem("PAINTING")
+            .setItem(Material.PAINTING)
             .setLabel("Edit Quests")
             .addFunction(
                 new UpdateScreen(Arrays.asList("myquests"), director)

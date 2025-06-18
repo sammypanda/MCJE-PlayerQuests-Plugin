@@ -11,6 +11,7 @@ import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
@@ -120,7 +121,7 @@ public class Dynamicmyquests extends GUIDynamic {
 
         // false button for amount of invalid quests (malformed json or otherwise malformed data)
         new GUISlot(this.gui, 43)
-            .setItem("RED_STAINED_GLASS")
+            .setItem(Material.RED_STAINED_GLASS)
             .setLabel(String.format("Unreadable Quests: %s", 
                 this.invalidQuests >= 64 ? "(More than 64)" : this.invalidQuests
             ))
@@ -153,7 +154,7 @@ public class Dynamicmyquests extends GUIDynamic {
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, 37);
         exitButton.setLabel("Back");
-        exitButton.setItem("OAK_DOOR");
+        exitButton.setItem(Material.OAK_DOOR);
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director
@@ -163,7 +164,7 @@ public class Dynamicmyquests extends GUIDynamic {
         GUISlot backButton = new GUISlot(this.gui, 44);
         if (this.myQuests.size() != remainingQuests.size()) { // if the remaining is the same as all 
             backButton.setLabel("Back");
-            backButton.setItem("ORANGE_STAINED_GLASS_PANE");
+            backButton.setItem(Material.ORANGE_STAINED_GLASS_PANE);
             backButton.onClick(() -> {
                 this.gui.clearSlots(); // unset the old slots
                 this.lastBuiltSlot = this.lastBuiltSlot - this.slotsPerPage; // put slots for the remainingSlots
@@ -175,7 +176,7 @@ public class Dynamicmyquests extends GUIDynamic {
         GUISlot nextButton = new GUISlot(this.gui, 45);
         if (this.slotsPerPage <= remainingQuests.size()) { // if the remaining is bigger or the same as the default slots per page
             nextButton.setLabel("Next");
-            nextButton.setItem("GREEN_STAINED_GLASS_PANE");
+            nextButton.setItem(Material.GREEN_STAINED_GLASS_PANE);
             nextButton.onClick(() -> {
                 this.gui.clearSlots(); // unset the old slots
                 this.lastBuiltSlot = this.lastBuiltSlot + this.slotsPerPage; // take slots for the remainingSlots
@@ -219,7 +220,7 @@ public class Dynamicmyquests extends GUIDynamic {
                     )
                 );
 
-                questSlot.setItem("RED_STAINED_GLASS_PANE");
+                questSlot.setItem(Material.RED_STAINED_GLASS_PANE);
 
                 return false; // return if this quest is broken (false for match not found, continue to check next)
             }
@@ -229,10 +230,10 @@ public class Dynamicmyquests extends GUIDynamic {
 
             if (playerUUID.equals(quest.getCreator())) {
                 screen = Arrays.asList("myquest");
-                questSlot.setItem("BOOK");
+                questSlot.setItem(Material.BOOK);
             } else {
                 screen = Arrays.asList("theirquest");
-                questSlot.setItem("ENCHANTED_BOOK");
+                questSlot.setItem(Material.ENCHANTED_BOOK);
                 questSlot.setLabel(questSlot.getLabel() + " (Shared)");
             }
 

@@ -3,6 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays; // working with literal arrays
 import java.util.stream.IntStream; // fills slots procedually
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUISlot; // for managing gui slots
 import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.builder.gui.function.UpdateScreen; // another GUI function to go to
@@ -72,16 +74,16 @@ public class Dynamicqueststages extends GUIDynamic {
         // dividers (first two rows)
         IntStream.iterate(1, n -> n + 9).limit(54/9).forEach((divSlot) -> {
             new GUISlot(this.gui, divSlot)
-                .setItem("BLACK_STAINED_GLASS_PANE");
+                .setItem(Material.BLACK_STAINED_GLASS_PANE);
 
             new GUISlot(this.gui, divSlot + 1)
-                .setItem("BLACK_STAINED_GLASS_PANE");
+                .setItem(Material.BLACK_STAINED_GLASS_PANE);
         });
 
         // when the exit button is pressed
         GUISlot exitButton = new GUISlot(this.gui, this.gui.getFrame().getSize() - 8);
         exitButton.setLabel("Back");
-        exitButton.setItem("OAK_DOOR");
+        exitButton.setItem(Material.OAK_DOOR);
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             Arrays.asList(this.previousScreen), // set the previous screen
             director // set the client director
@@ -91,7 +93,7 @@ public class Dynamicqueststages extends GUIDynamic {
         if (this.questBuilder.getStages().size() < 42) {
             new GUISlot(this.gui, this.gui.getFrame().getSize())
                 .setLabel("Add Stage")
-                .setItem("LIME_DYE")
+                .setItem(Material.LIME_DYE)
                 .onClick(() -> {
                     questBuilder.addStage(
                         new QuestStage(
@@ -114,7 +116,7 @@ public class Dynamicqueststages extends GUIDynamic {
             QuestStage stage = this.questBuilder.getStages().get(index);
             Integer nextEmptySlot = this.gui.getEmptySlot();
             GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
-            questSlot.setItem("DIRT_PATH");
+            questSlot.setItem(Material.DIRT_PATH);
             questSlot.setLabel(stage.getLabel());
             questSlot.onClick(() -> {
                 if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {

@@ -100,7 +100,7 @@ public class BlockNPC extends NPCType {
     public GUISlot createTypeSlot(GUIDynamic screen, ClientDirector director, GUIBuilder gui, Integer slot, QuestNPC npc) {
         return new GUISlot(gui, slot)
             .setLabel("A Block")
-            .setItem("GRASS_BLOCK")
+            .setItem(Material.GRASS_BLOCK)
             .onClick(() -> {
             new SelectMaterial(
                 Arrays.asList(
@@ -158,11 +158,7 @@ public class BlockNPC extends NPCType {
                     ) :
                 List.of()
             )
-            .setItem(
-                String.format("%s",
-                    npc.isAssigned() ? npc.getBlock().getMaterial().toString() : "BARRIER"  
-                )
-            )
+            .setItem(npc.isAssigned() ? npc.getBlock().getMaterial() : Material.BARRIER)
             .onClick(() -> {
                 Player player = director.getPlayer();
                 PlayerInventory playerInventory = player.getInventory();

@@ -9,7 +9,12 @@ import org.bukkit.entity.Player;
 
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
-import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 
 /**
  * The contents and function list of a slot.
@@ -29,7 +34,7 @@ public class GUISlot {
     /**
      * The item or block displayed in this slot. Defaults to "GRAY_STAINED_GLASS_PANE".
      */
-    private String item = "GRAY_STAINED_GLASS_PANE";
+    private ItemSerialisable item = new ItemSerialisable("GRAY_STAINED_GLASS_PANE");
 
     /**
      * The label displayed when hovering over the slot. Defaults to a single space.
@@ -108,36 +113,23 @@ public class GUISlot {
 
     /**
      * Sets the item or block to be displayed in this slot.
-     * @param item The string representation of the item or block.
+     * @param item The item or block.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setItem(String item) {
-        try { // check if the item would create a valid ItemStack (the Material exists and isn't legacy)
-            MaterialUtils.toItemStack(item);
-            this.item = item; // if no issue caught overwrite the default slot item
-        } catch (IllegalArgumentException exception) { // this means the ItemStack failed to construct
+    public GUISlot setItem(ItemSerialisable item) {
+        // handle if invalid item
+        if (item.getItemData().equals(ItemData.AIR)) {
             this.errored = true;
-            this.item = "RED_STAINED_GLASS_PANE"; // express that there was a problem visually by using an alarming item
-            System.err.println(exception.getMessage());
+            this.item = new ItemSerialisable("RED_STAINED_GLASS_PANE"); // express that there was a problem visually by using an alarming item
+            ChatUtils.message("Failed to setItem in GUISlot " + item)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .style(MessageStyle.SIMPLE)
+                .send();
+            return this;
         }
-        
-        return this;
-    }
 
-    /**
-     * Sets the material to be displayed in this slot.
-     * 
-     * <p>This method updates the item in the slot to be represented by the given {@link Material}.
-     * The provided material is converted to its string representation and stored in the internal
-     * item field. This method is typically used to configure the slot with a specific material
-     * for display or interaction purposes.</p>
-     * 
-     * @param material The {@link Material} to be displayed in the slot. This is converted to a
-     *                 string and assigned to the slot's item.
-     * @return The current instance of {@link GUISlot}, allowing for method chaining.
-     */
-    public GUISlot setItem(Material material) {
-        this.item = material.toString();
+        this.item = item;
         return this;
     }
 
@@ -171,9 +163,9 @@ public class GUISlot {
 
     /**
      * Gets the item or block to be displayed in this slot.
-     * @return The raw string representation of the item or block.
+     * @return The raw representation of the item or block.
      */
-    public String getItem() {
+    public ItemSerialisable getItem() {
         return this.item;
     }
 
@@ -302,5 +294,16 @@ public class GUISlot {
      */
     public boolean isGlinting() {
         return this.glinting;
+    }
+
+    /**
+     * Simple translation method that allows for setting lame Material enums
+     * as item; simply translates it into ItemSerialisable.
+     * @param material the generic material
+     * @return a generic item in a detailed container
+     */
+    public GUISlot setItem(Material material) {
+        this.item = new ItemSerialisable(material.name());
+        return this;
     }
 }

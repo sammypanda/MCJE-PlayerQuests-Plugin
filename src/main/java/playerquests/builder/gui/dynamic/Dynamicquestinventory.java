@@ -155,7 +155,7 @@ public class Dynamicquestinventory extends GUIDynamic {
             Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
 
             new GUISlot(gui, gui.getEmptySlot())
-                .setItem(itemSerialisable.toItemStack().getType())
+                .setItem(itemSerialisable)
                 .setLabel(
                     realAmount == 0
                     ? ChatColor.RED + "Out of Stock" + ChatColor.RESET + " (" + realAmount + ")"

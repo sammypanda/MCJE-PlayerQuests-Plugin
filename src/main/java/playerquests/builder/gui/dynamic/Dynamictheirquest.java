@@ -2,6 +2,8 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays; // generic array type
 
+import org.bukkit.Material;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
@@ -60,7 +62,7 @@ public class Dynamictheirquest extends GUIDynamic {
         // create back button
         new GUISlot(gui, 1)
             .setLabel("Back")
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .addFunction(new UpdateScreen(
                 Arrays.asList(previousScreen), 
                 director
@@ -69,7 +71,7 @@ public class Dynamictheirquest extends GUIDynamic {
         // create clone button
         new GUISlot(gui, 3)
             .setLabel("Clone")
-            .setItem("CHAIN")
+            .setItem(Material.CHAIN)
             .onClick(() -> {
                 // create a quest builder from the current quest
                 // (using setDirector sets it as the current quest in director)

@@ -60,7 +60,7 @@ public class Dynamicquesteditor extends GUIDynamic {
 
         // add the buttons
         new GUISlot(gui, 1) // back button
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .setLabel("Back")
             .addFunction(
                 new UpdateScreen(
@@ -70,7 +70,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             );
 
         new GUISlot(gui, 3) // set quest title button
-            .setItem("ACACIA_HANGING_SIGN")
+            .setItem(Material.ACACIA_HANGING_SIGN)
             .setLabel("Set Title")
             .onClick(() -> {
                 new ChatPrompt(
@@ -109,12 +109,12 @@ public class Dynamicquesteditor extends GUIDynamic {
             });
 
         GUISlot stagesSlot = new GUISlot(gui, 4) // view quest stages button (blocked)
-            .setItem("GRAY_STAINED_GLASS_PANE")
+            .setItem(Material.GRAY_STAINED_GLASS_PANE)
             .setLabel("Quest Stages")
             .setDescription(List.of("Add an NPC to add Stages"));
 
         if (!questBuilder.getQuestNPCs().isEmpty()) { // view quest stages button (unblocked)
-            stagesSlot.setItem("CHEST")
+            stagesSlot.setItem(Material.CHEST)
             .setLabel("Quest Stages")
             .setDescription(List.of("")) // clear the description
             .addFunction(
@@ -126,7 +126,7 @@ public class Dynamicquesteditor extends GUIDynamic {
         }
 
         new GUISlot(gui, 5) // view quest NPCs button
-            .setItem("ENDER_CHEST")
+            .setItem(Material.ENDER_CHEST)
             .setLabel("Quest NPCs")
             .addFunction(
                 new UpdateScreen(
@@ -153,7 +153,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             });
 
         new GUISlot(gui, 9) // save quest button
-            .setItem("GREEN_DYE")
+            .setItem(Material.GREEN_DYE)
             .setLabel("Save")
             .onClick(() -> {
                 // save the quest

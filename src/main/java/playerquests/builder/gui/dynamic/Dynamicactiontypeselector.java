@@ -85,7 +85,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
         // add back button
         new GUISlot(this.gui, 1)
             .setLabel("Back")
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .addFunction(new UpdateScreen( // set function as 'UpdateScreen'
                 Arrays.asList(this.previousScreen), // set the previous screen 
                 director // set the client director

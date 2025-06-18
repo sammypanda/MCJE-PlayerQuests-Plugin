@@ -5,6 +5,8 @@ import java.util.List; // generic list type
 import java.util.Map; // generic map type
 import java.util.stream.Collectors; // turning stream results into java objects
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI
 import playerquests.builder.gui.component.GUISlot; // object for GUI slots
 import playerquests.builder.gui.function.UpdateScreen; // used to change the GUI screen
@@ -76,10 +78,10 @@ public class Dynamicquestnpcs extends GUIDynamic {
 
             // different visual representation for incomplete and complete NPCs
             if (key == "npc_-1") { // if invalid or incomplete npc
-                npcSlot.setItem("SPAWNER");
+                npcSlot.setItem(Material.SPAWNER);
                 npcSlot.setLabel("<Unsaved NPC>");
             } else { // a valid npc
-                npcSlot.setItem("VILLAGER_SPAWN_EGG");
+                npcSlot.setItem(Material.VILLAGER_SPAWN_EGG);
                 npcSlot.setLabel(npc.getTitle());
             }
 
@@ -95,7 +97,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         // add new npc button
         Integer nextEmptySlot = this.gui.getEmptySlot();
         GUISlot addButton = new GUISlot(this.gui, nextEmptySlot);
-        addButton.setItem("LIME_DYE");
+        addButton.setItem(Material.LIME_DYE);
         addButton.setLabel("Add NPC");
         addButton.onClick(() -> {
             QuestNPC npc = new QuestNPC(); // create new empty npc
@@ -111,7 +113,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
         // add back button
         GUISlot backButton = new GUISlot(this.gui, 46);
         backButton.setLabel("Back");
-        backButton.setItem("OAK_DOOR");
+        backButton.setItem(Material.OAK_DOOR);
         backButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             Arrays.asList(this.previousScreen), // set the previous screen 
             director // set the client director

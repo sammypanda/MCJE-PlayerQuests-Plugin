@@ -3,6 +3,8 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.data.ActionData;
@@ -44,7 +46,7 @@ public class Dynamicoptioneditor extends GUIDynamic {
         // the back button
         new GUISlot(this.gui, 1)
             .setLabel("Back")
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .onClick(() -> {
                 // get error message/if is valid
                 Optional<String> errorMessage = this.actionData.getAction().isValid();
