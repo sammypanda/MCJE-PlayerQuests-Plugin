@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import playerquests.utility.serialisable.data.ItemData;
@@ -123,5 +124,21 @@ public final class ItemSerialisable implements Serialisable {
     @Override
     public int hashCode() {
         return Objects.hash(itemData, properties);
+    }
+
+    public static boolean hasRequiredItems(Player player, Map<ItemSerialisable, Integer> requiredItems) {
+        Map<ItemSerialisable, Integer> inventory = Arrays.stream(player.getInventory().getContents())
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(
+                ItemSerialisable::fromItemStack,
+                ItemStack::getAmount,
+                Integer::sum
+            ));
+
+        return requiredItems.entrySet().stream()
+            .allMatch(entry -> {
+                Integer available = inventory.get(entry.getKey());
+                return available != null && available >= entry.getValue();
+            });
     }
 }

@@ -1,11 +1,8 @@
 package playerquests.builder.quest.action;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -99,25 +96,7 @@ public class TakeItemAction extends QuestAction {
 
         Player player = questerData.getQuester().getPlayer();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-        
-        // First create a snapshot of the player's inventory counting similar items
-        Map<ItemSerialisable, Integer> inventorySnapshot = Arrays.stream(player.getInventory().getContents())
-            .filter(Objects::nonNull)
-            .collect(Collectors.toMap(
-                ItemSerialisable::fromItemStack,  // Key: serialized item
-                ItemStack::getAmount,            // Value: amount
-                Integer::sum                     // Merge function for duplicates
-        ));
-
-        // Then check if all required items are present in sufficient quantities
-        return itemsOption.getItems().entrySet().stream()
-            .allMatch(entry -> {
-                ItemSerialisable requiredItem = entry.getKey();
-                int requiredAmount = entry.getValue();
-                
-                Integer availableAmount = inventorySnapshot.get(requiredItem);
-                return availableAmount != null && availableAmount >= requiredAmount;
-        });
+        return ItemSerialisable.hasRequiredItems(player, itemsOption.getItems());
     }
 
     @Override
