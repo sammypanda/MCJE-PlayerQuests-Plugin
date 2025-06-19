@@ -41,7 +41,7 @@ public enum ItemData {
 
         @Override
         public String getName(Map<String, String> properties) {
-            return WordUtils.capitalizeFully(properties.get("material"));
+            return formatText(properties.get("material"));
         }
     },
 
@@ -87,7 +87,7 @@ public enum ItemData {
             }
 
             PotionType type = PotionType.valueOf(properties.get("type"));
-            return WordUtils.capitalizeFully(type.toString() + " Potion");
+            return formatText(type.toString() + " Potion");
         }
     },
 
@@ -110,7 +110,7 @@ public enum ItemData {
                 return "Wool";   
             }
 
-            return WordUtils.capitalizeFully(properties.get("color") + " Wool");
+            return formatText(properties.get("color") + " Wool");
         }
     },
 
@@ -148,7 +148,7 @@ public enum ItemData {
                 return "Player Head";
             }
 
-            return WordUtils.capitalizeFully(properties.get("player") + " Head");
+            return formatText(properties.get("player") + " Head");
         }
     },
 
@@ -171,7 +171,7 @@ public enum ItemData {
                 return "Soup";
             }
 
-            return WordUtils.capitalizeFully(properties.get("flavour") + " Soup");
+            return formatText(properties.get("flavour") + " Soup");
         }
     },
 
@@ -1340,6 +1340,12 @@ public enum ItemData {
             .style(MessageStyle.PRETTY)
             .send();
         return ItemData.AIR;
+    }
+
+    String formatText(String string) {
+        return WordUtils.capitalizeFully(
+            string.replaceAll("_+", " ")
+        );
     }
 
     // Core interface methods
