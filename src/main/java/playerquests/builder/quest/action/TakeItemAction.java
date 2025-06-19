@@ -73,8 +73,8 @@ public class TakeItemAction extends QuestAction {
 
         // list the items
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-        itemsOption.getItems().forEach((material, amount) -> {
-            message.append(String.format("- %s (%d)", material, amount)).color(ChatColor.GRAY);
+        itemsOption.getItems().forEach((item, amount) -> {
+            message.append(String.format("- %s (%d)", item.getName(), amount)).color(ChatColor.GRAY);
         });
 
 
@@ -123,9 +123,9 @@ public class TakeItemAction extends QuestAction {
             String.format("\n<%s>", "Taking item")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 

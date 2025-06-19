@@ -163,6 +163,7 @@ public class Dynamicquestinventory extends GUIDynamic {
                         ? Integer.toString(realAmount)
                         : ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET + " (" + realAmount + ")")
                 )
+                .setDescription(List.of(itemSerialisable.getName()))
                 .setGlinting(
                     predictedAmount >= 0 ? false : true
                 );

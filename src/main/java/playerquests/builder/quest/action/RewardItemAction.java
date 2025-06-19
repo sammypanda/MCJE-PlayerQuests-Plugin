@@ -59,9 +59,9 @@ public class RewardItemAction extends QuestAction {
             String.format("\n<%s>", "Dropping reward")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 

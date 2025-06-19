@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -36,6 +37,11 @@ public enum ItemData {
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
             return Map.of("material", item.getType().name());
+        }
+
+        @Override
+        public String getName(Map<String, String> properties) {
+            return WordUtils.capitalizeFully(properties.get("material"));
         }
     },
 
@@ -73,6 +79,16 @@ public enum ItemData {
 
             return props;
         }
+
+        @Override
+        public String getName(Map<String, String> properties) {
+            if ( ! properties.containsKey("type")) {
+                return "Potion";
+            }
+
+            PotionType type = PotionType.valueOf(properties.get("type"));
+            return WordUtils.capitalizeFully(type.toString() + " Potion");
+        }
     },
 
     WOOL {
@@ -86,6 +102,15 @@ public enum ItemData {
         public Map<String, String> extractProperties(ItemStack item) {
             String color = item.getType().name().replace("_WOOL", "");
             return Map.of("color", color);
+        }
+
+        @Override
+        public String getName(Map<String, String> properties) {
+            if ( ! properties.containsKey("color")) {
+                return "Wool";   
+            }
+
+            return WordUtils.capitalizeFully(properties.get("color") + " Wool");
         }
     },
 
@@ -116,6 +141,15 @@ public enum ItemData {
             props.put("player", playerName);
             return props;
         }
+
+        @Override
+        public String getName(Map<String, String> properties) {
+            if ( ! properties.containsKey("player")) {
+                return "Player Head";
+            }
+
+            return WordUtils.capitalizeFully(properties.get("player") + " Head");
+        }
     },
 
     SOUP {
@@ -130,6 +164,15 @@ public enum ItemData {
             String flavour = item.getType().name().replace("_SOUP", "");
             return Map.of("flavour", flavour);
         }
+
+        @Override
+        public String getName(Map<String, String> properties) {
+            if ( ! properties.containsKey("flavour")) {
+                return "Soup";
+            }
+
+            return WordUtils.capitalizeFully(properties.get("flavour") + " Soup");
+        }
     },
 
     AIR {
@@ -142,6 +185,11 @@ public enum ItemData {
 		public Map<String, String> extractProperties(ItemStack item) {
 		    return Map.of();
 		}
+
+        @Override
+        public String getName(Map<String, String> properties) {
+            return "Air";
+        }
 	};
 
     // Explicit allowlist of materials that can use GENERIC without warnings
@@ -1297,4 +1345,5 @@ public enum ItemData {
     // Core interface methods
     public abstract ItemStack createItem(Map<String, String> properties);
     public abstract Map<String, String> extractProperties(ItemStack item);
+    public abstract String getName(Map<String, String> properties);
 }

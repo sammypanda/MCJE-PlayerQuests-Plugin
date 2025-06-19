@@ -65,6 +65,11 @@ public final class ItemSerialisable implements Serialisable {
             .collect(Collectors.joining(";", "[", "]"));
     }
 
+    // User friendly display name
+    public String getName() {
+        return this.getItemData().getName(this.getProperties());
+    }
+
     // Deserialisation
     @Override
     public Serialisable fromString(String string) {

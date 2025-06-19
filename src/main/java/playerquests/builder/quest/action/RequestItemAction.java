@@ -59,9 +59,9 @@ public class RequestItemAction extends QuestAction {
             String.format("\n<%s>", "Items requested")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 
@@ -90,9 +90,9 @@ public class RequestItemAction extends QuestAction {
             String.format("\n<%s>", "Items successfully collected")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 
