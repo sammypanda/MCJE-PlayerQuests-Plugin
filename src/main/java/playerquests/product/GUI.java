@@ -5,10 +5,12 @@ import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 
 import org.bukkit.Bukkit; // to create the inventory
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory; // to modify the inventory
 import org.bukkit.inventory.InventoryView; // the view of the GUI
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack; // to visually represent buttons
+import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 import org.bukkit.persistence.PersistentDataType; // tagging GUI items with GUI=true
 
@@ -161,6 +163,10 @@ public class GUI {
 
             // Return the ItemMeta to the ItemStack
             item.setItemMeta(itemMeta);
+
+            if (item.getType().equals(Material.NETHERITE_LEGGINGS)) {
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+            }
 
             // Set the slot item at the slot position
             if (position > 0 && position <= this.frame.getSize()) { // if the slot position is not out of bounds

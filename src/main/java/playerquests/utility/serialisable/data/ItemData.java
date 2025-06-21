@@ -4,19 +4,32 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.text.WordUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Keyed;
 import org.bukkit.Material;
+import org.bukkit.Registry;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ArmorMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionType;
 
-
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.keys.TrimMaterialKeys;
+import io.papermc.paper.registry.keys.TrimPatternKeys;
+import net.kyori.adventure.key.Key;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -31,12 +44,12 @@ public enum ItemData {
             if (!isAllowedGeneric(material)) {
                 warnUnimplemented(material);
             }
-            return new ItemStack(material);
+            return basicItem(new ItemStack(material), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            return Map.of("material", item.getType().name());
+            return basicProperties(item, Map.of("material", item.getType().name()));
         }
 
         @Override
@@ -57,7 +70,7 @@ public enum ItemData {
             meta.setBasePotionType(type);
 
             item.setItemMeta(meta);
-            return item;
+            return basicItem(item, properties);
         }
 
         @Override
@@ -77,7 +90,7 @@ public enum ItemData {
             // set properties - type can't be null at this point
             props.put("type", type.name());
 
-            return props;
+            return basicProperties(item, props);
         }
 
         @Override
@@ -95,13 +108,13 @@ public enum ItemData {
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             String color = properties.getOrDefault("color", "WHITE");
-            return new ItemStack(Material.valueOf(color + "_WOOL"));
+            return basicItem(new ItemStack(Material.valueOf(color + "_WOOL")), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
             String color = item.getType().name().replace("_WOOL", "");
-            return Map.of("color", color);
+            return basicProperties(item, Map.of("color", color));
         }
 
         @Override
@@ -121,7 +134,7 @@ public enum ItemData {
             SkullMeta meta = (SkullMeta) item.getItemMeta();
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(properties.get("player")));
             item.setItemMeta(meta);
-            return item;
+            return basicItem(item, properties);
         }
 
         @Override
@@ -139,7 +152,7 @@ public enum ItemData {
                 : "UNKNOWN";
 
             props.put("player", playerName);
-            return props;
+            return basicProperties(item, props);
         }
 
         @Override
@@ -156,13 +169,13 @@ public enum ItemData {
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             String flavour = properties.getOrDefault("flavour", "BEETROOT");
-            return new ItemStack(Material.valueOf(flavour + "_SOUP"));
+            return basicItem(new ItemStack(Material.valueOf(flavour + "_SOUP")), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
             String flavour = item.getType().name().replace("_SOUP", "");
-            return Map.of("flavour", flavour);
+            return basicProperties(item, Map.of("flavour", flavour));
         }
 
         @Override
@@ -1346,6 +1359,96 @@ public enum ItemData {
         return WordUtils.capitalizeFully(
             string.replaceAll("_+", " ")
         );
+    }
+
+    /**
+     * Adds basic item properties to an item.
+     * Used to supplement creating "special mapping" ItemStacks.
+     * @param itemStack the item with custom changes already made (can be unmodified)
+     * @param properties the current properties set (can be empty)
+     * @return a modified ItemStack
+     */
+    private static ItemStack basicItem(ItemStack itemStack, Map<String, String> properties) {
+        // set enchantments
+        if (properties.containsKey("enchantment")) { // TODO: also fix only supporting one enchantment datum
+            String enchantmentString = properties.get("enchantment");
+            List<String> enchantmentStringParts = List.of(enchantmentString.split("_"));
+            
+            // resolve enchantment level
+            Integer level = Integer.parseInt(enchantmentStringParts.getLast());
+
+            // resolve enchantment type
+            String enchantmentType = String.join("_", enchantmentStringParts.removeLast());
+            Enchantment enchantment = Registry.ENCHANTMENT.match(enchantmentType);
+
+            // apply enchantment
+            itemStack.addEnchantment(enchantment, level);
+        }
+
+        // set nametag
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (properties.containsKey("nametag")) {
+            String nametagString = properties.get("nametag");
+
+            // apply nametag
+            itemMeta.setDisplayName(nametagString);
+            itemStack.setItemMeta(itemMeta);
+        }
+
+        // set trim
+        if (properties.containsKey("trimPattern") && properties.containsKey("trimMaterial")) {
+            String trimPatternString = properties.get("trimPattern").toLowerCase();
+            String trimMaterialString = properties.get("trimMaterial").toLowerCase();
+            ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+
+            // resolve trim
+            TrimPattern trimPattern = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).getOrThrow(TrimPatternKeys.create(Key.key(trimPatternString)));
+            TrimMaterial trimMaterial = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).getOrThrow(TrimMaterialKeys.create(Key.key(trimMaterialString)));
+
+            // apply trim
+            armorMeta.setTrim(new ArmorTrim(trimMaterial, trimPattern));
+            itemStack.setItemMeta(armorMeta);
+        }
+
+        return itemStack;
+    }
+
+    /**
+     * Gets basic item properties from an item.
+     * Used to supplement extracting properties from "special mapping" items.
+     * @param itemStack the item to extract properties from
+     * @return properties the existing properties already extracted (can be empty)
+     */
+    private static Map<String, String> basicProperties(ItemStack itemStack, Map<String, String> properties) {
+        Map<String, String> newProperties = new HashMap<>(properties); // useful if properties is a Map (immutable)
+
+        // add enchantment as properties
+        Map<Enchantment, Integer> enchantments = itemStack.getEnchantments();
+        enchantments.forEach((enchantment, level) -> {
+            newProperties.put("enchantment", enchantment.getKey().asString()+"_"+String.valueOf(level)); // TODO: fix only supporting one enchantment datum
+        });
+
+        // add nametag as property
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta.hasDisplayName()) {
+            newProperties.put("nametag", itemStack.getItemMeta().getDisplayName());
+        }
+
+        // add trims as property
+        List<Material> trimCapable = List.of(Material.NETHERITE_BOOTS, Material.NETHERITE_HELMET, Material.NETHERITE_CHESTPLATE, Material.NETHERITE_LEGGINGS);
+        if (trimCapable.contains(itemStack.getType())) {
+            ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+            if (armorMeta.hasTrim()) {
+                ArmorTrim armorTrim = armorMeta.getTrim();
+                String trimPatternString = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).getKey(armorTrim.getPattern()).getKey();
+                String trimMaterialString = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).getKey(armorTrim.getMaterial()).getKey();
+                newProperties.put("trimPattern", trimPatternString);
+                newProperties.put("trimMaterial", trimMaterialString);
+            }
+        }
+
+        return newProperties;
+
     }
 
     // Core interface methods

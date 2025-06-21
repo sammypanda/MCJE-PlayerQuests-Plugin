@@ -156,13 +156,15 @@ public class Dynamicquestinventory extends GUIDynamic {
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(itemSerialisable)
-                .setLabel(
-                    realAmount == 0
-                    ? ChatColor.RED + "Out of Stock" + ChatColor.RESET + " (" + realAmount + ")"
-                    : (predictedAmount >= 0
-                        ? Integer.toString(realAmount)
-                        : ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET + " (" + realAmount + ")")
-                )
+                .setLabel(String.format("%s x%d (%s)",
+                    itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName()),
+                    realAmount,
+                    realAmount == 0 
+                        ? ChatColor.RED + "Out of Stock" + ChatColor.RESET
+                        : (predictedAmount >= 0 
+                            ? "In Stock" 
+                            : ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET)
+                ))
                 .setDescription(List.of(itemSerialisable.getName()))
                 .setGlinting(
                     predictedAmount >= 0 ? false : true
