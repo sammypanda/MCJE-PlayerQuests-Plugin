@@ -13,6 +13,7 @@ import java.util.stream.IntStream; // fills slots procedually
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
+import net.kyori.adventure.text.Component;
 import playerquests.Core; // fetching Singletons (like: Plugin)
 import playerquests.builder.gui.component.GUISlot; // creating each quest button / other buttons
 import playerquests.builder.gui.function.UpdateScreen;// used to go back to the 'main' screen
@@ -234,7 +235,9 @@ public class Dynamicmyquests extends GUIDynamic {
             } else {
                 screen = Arrays.asList("theirquest");
                 questSlot.setItem(Material.ENCHANTED_BOOK);
-                questSlot.setLabel(questSlot.getLabel() + " (Shared)");
+                questSlot.setLabel(questSlot.getLabel()
+                    .append(Component.text(" (Shared)"))
+                );
             }
 
             questSlot.onClick(() -> {
