@@ -73,7 +73,6 @@ public class GUI {
         );
 
         this.display(); // opening (and unlocking) the inventory window (InventoryView)
-
         this.draw(); // function containing all the builder components of the GUI
     }
 
@@ -107,19 +106,7 @@ public class GUI {
         this.slots = this.builder.getSlots();
 
         // everything operating on InventoryView types
-        drawFrame(); // populating the GUI frame
         drawSlots(); // populating the GUI slots
-    }
-
-    /**
-     * Populate the outer GUI window.
-     */
-    private void drawFrame() {
-        ChatUtils.message("Paper broke renaming inventories")
-            .target(MessageTarget.CONSOLE)
-            .type(MessageType.ERROR)
-            .style(MessageStyle.SIMPLE)
-            .send();
     }
 
     /**

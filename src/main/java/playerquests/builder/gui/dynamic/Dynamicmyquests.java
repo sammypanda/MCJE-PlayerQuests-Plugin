@@ -113,10 +113,9 @@ public class Dynamicmyquests extends GUIDynamic {
         Integer pageNumber = this.lastBuiltSlot/this.slotsPerPage + 1;
 
         // set the GUI title (w/ page number feature)
-        this.gui.getFrame().setTitle(String.format("%s%s%s",
+        this.gui.getFrame().setTitle(String.format("%s%s",
             this.guiTitle, // set the default title
-            pageNumber != 1 ? " [Page " + pageNumber + "]" : "", // add page number when not page one
-            !this.myquestLoaded ? " (Loading)" : "" // indicate that the page is loading
+            pageNumber != 1 ? " [Page " + pageNumber + "]" : "" // add page number when not page one
         ));
 
 
