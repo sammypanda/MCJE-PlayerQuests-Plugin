@@ -12,6 +12,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import org.bukkit.entity.Player; // refers to the player
 
@@ -72,8 +73,12 @@ public class ChatPrompt extends GUIFunction {
                 return; // do not capture other players events
             }
 
+            // get user response
+            String response = PlainTextComponentSerializer.plainText().serialize(event.message());
+
+            // finish
             event.setCancelled(true); // cancel the chat message from sending to others
-            this.parentClass.setResponse(event.message().toString()); // set the user response
+            this.parentClass.setResponse(response); // set the user response
             this.parentClass.execute(); // loop back to the function
         }
 
