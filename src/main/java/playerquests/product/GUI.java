@@ -5,12 +5,10 @@ import java.util.Map; // generic map type
 import java.util.Optional; // evaluates nullable values
 
 import org.bukkit.Bukkit; // to create the inventory
-import org.bukkit.Material;
 import org.bukkit.inventory.Inventory; // to modify the inventory
 import org.bukkit.inventory.InventoryView; // the view of the GUI
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack; // to visually represent buttons
-import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 import org.bukkit.persistence.PersistentDataType; // tagging GUI items with GUI=true
 
@@ -19,6 +17,10 @@ import playerquests.Core; // getting the GUI NamespacedKey
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
 import playerquests.builder.gui.component.GUISlot; // GUI buttons
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 
 /**
  * The GUI product as it appears on the players screen.
@@ -113,7 +115,11 @@ public class GUI {
      * Populate the outer GUI window.
      */
     private void drawFrame() {
-        throw new RuntimeException("Paper broke renaming inventories");
+        ChatUtils.message("Paper broke renaming inventories")
+            .target(MessageTarget.CONSOLE)
+            .type(MessageType.ERROR)
+            .style(MessageStyle.SIMPLE)
+            .send();
     }
 
     /**
