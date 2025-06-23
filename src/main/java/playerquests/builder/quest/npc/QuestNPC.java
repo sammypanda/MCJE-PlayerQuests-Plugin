@@ -19,6 +19,7 @@ import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -185,7 +186,7 @@ public class QuestNPC {
     public boolean isValid() {
         UUID questCreator = quest.getCreator();
         Player player = null;
-        MessageBuilder response = new MessageBuilder("Something is wrong with a quest NPC") // default message; default sends to console
+        MessageBuilder response = ChatUtils.message("Something is wrong with a quest NPC") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);

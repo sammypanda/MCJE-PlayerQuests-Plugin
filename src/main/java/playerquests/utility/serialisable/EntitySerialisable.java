@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -16,6 +15,8 @@ import org.bukkit.entity.Rabbit;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Rabbit.Type;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import net.citizensnpcs.api.npc.NPC;
 import playerquests.utility.singleton.PlayerQuests;
 
@@ -91,7 +92,7 @@ public class EntitySerialisable implements Serialisable {
             case CAT:
                 String catVariantString = data.getOrDefault("cat_variant", this.getCatVariant().toString());
                 NamespacedKey catVariantKey = NamespacedKey.fromString(catVariantString.toLowerCase());
-                this.catVariant = Registry.CAT_VARIANT.get(catVariantKey);
+                RegistryAccess.registryAccess().getRegistry(RegistryKey.CAT_VARIANT).get(catVariantKey);
                 break;
             case RABBIT:
                 String rabbitVariantString = data.getOrDefault("rabbit_variant", this.getRabbitVariant().toString());

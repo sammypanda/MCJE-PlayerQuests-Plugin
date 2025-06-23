@@ -381,7 +381,7 @@ public class Quest {
     public boolean isValid() {
         UUID questCreator = this.creator;
         Player player = null;
-        MessageBuilder response = new MessageBuilder("Something is wrong with the quest") // default message; default sends to console
+        MessageBuilder response = ChatUtils.message("Something is wrong with the quest") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);
@@ -416,7 +416,7 @@ public class Quest {
     public boolean isAllowed() {
         UUID questCreator = this.creator;
         Player player = null;
-        MessageBuilder response = new MessageBuilder("Cannot enable the quest") // default message; default sends to console
+        MessageBuilder response = ChatUtils.message("Cannot enable the quest") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);

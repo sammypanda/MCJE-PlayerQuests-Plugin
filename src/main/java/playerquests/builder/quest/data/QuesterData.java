@@ -11,9 +11,9 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import net.citizensnpcs.api.npc.NPC;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import playerquests.builder.quest.action.NoneAction;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
@@ -22,6 +22,7 @@ import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.FX;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
 
 /**
  * The data about the quester playing the action.
@@ -172,8 +173,11 @@ public class QuesterData {
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
         Player player = quester.getPlayer(); // get the player
-        ComponentBuilder message = new ComponentBuilder("\nThis area offers more than one action\n")
-            .append("Click one of the following:\n\n").color(ChatColor.GRAY); // establish the message to send
+        Component message = Component.newline()
+            .append(Component.text("This area offers more than one action\n"))
+            .appendNewline()
+            .append(Component.text("Click one of the following:").color(NamedTextColor.GRAY))
+            .appendNewline().appendNewline(); // establish the message to send
 
         clashingActions.forEach((clashingAction) -> { // add actions
             final QuestStage questStage = clashingAction.getStage();
@@ -182,13 +186,18 @@ public class QuesterData {
             final String command = String.format("/action start %s.%s", quest.getID(), path); // command that resolves the clash?
 
             message
-                .append(String.format("> %s.%s\n",
-                    quest.getTitle(), // the quest title
-                    path)) // the path to the action
-                .reset() // clear inherited formatting
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+                .append(Component.text(
+                    String.format("> %s.%s\n",
+                        quest.getTitle(), // the quest title
+                        path)) // the path to the action
+                )
+                .clickEvent(ClickEvent.runCommand(command));
         });
-        player.spigot().sendMessage(message.build()); // send the message
+        
+        // send the finished message
+        ChatUtils.message(message)
+            .player(player) // to the player
+            .send();
 
         this.clashLock = false;
 

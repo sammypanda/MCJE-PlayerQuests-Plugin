@@ -205,7 +205,7 @@ public class Database {
      */
     private synchronized void migrate(String version, String version_db) {
         // Check if there is a new version
-        MessageBuilder alert = new MessageBuilder("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
+        MessageBuilder alert = ChatUtils.message("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
             .style(MessageStyle.PRETTY)
             .target(MessageTarget.WORLD)
             .type(MessageType.WARN);

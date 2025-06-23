@@ -3,10 +3,11 @@ package playerquests.builder.gui.component;
 import java.util.ArrayList; // used to transport GUI functions
 import java.util.List; // generic list type
 
-import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
 import playerquests.utility.ChatUtils;
@@ -39,12 +40,12 @@ public class GUISlot {
     /**
      * The label displayed when hovering over the slot. Defaults to a single space.
      */
-    private String label = " ";
+    private Component label = Component.text(" ");
     
     /**
      * The description or subtitle displayed when hovering over the slot. Defaults to an empty string.
      */
-    private List<String> description = new ArrayList<String>();
+    private Component description = Component.text("");
 
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
@@ -138,18 +139,22 @@ public class GUISlot {
      * @param label The label text to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setLabel(String label) {
-        String errorLabel = "(Error)";
+    public GUISlot setLabel(Component label) {
+        Component errorPrefix = Component.text("(Error)");
 
-        // Evaluate label for error prefix and avoid malformatting labels
-        label = String.format("%s%s%s%s", 
-            ChatColor.RESET, // remove the italics set when changing from default item display name
-            this.hasError() ? errorLabel : "", // add an error notice if applicable
-            this.hasError() && !label.equals(" ") ? " " : "", // put whitespace if applicable
-            this.hasError() && label.equals(" ") ? label.trim() : label // add the real label if applicable
+        // if no error return as is
+        if ( ! this.hasError()) {
+            this.label = label;
+            return this;
+        }
+
+        Component errorLabel = Component.join(
+            JoinConfiguration.separator(Component.space()), // auto-add whitespace if applicable
+            errorPrefix,
+            label
         );
-        
-        this.label = label;
+
+        this.label = errorLabel;
         return this;
     }
 
@@ -171,9 +176,9 @@ public class GUISlot {
 
     /**
      * Gets the hover label for this slot.
-     * @return The label text displayed when hovering over the slot.
+     * @return The label component displayed when hovering over the slot.
      */
-    public String getLabel() {
+    public Component getLabel() {
         return this.label;
     }
 
@@ -227,38 +232,34 @@ public class GUISlot {
 
     /**
      * Sets the hover description or subtitle for this slot.
-     * @param descriptionLines The description text to be displayed when hovering over the slot.
+     * @param description The description component to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setDescription(List<String> descriptionLines) {
-        String errorDescription = "";
-        List<String> descriptionLinesProcessed = new ArrayList<>();
+    public GUISlot setDescription(Component description) {
+        Component errorText = Component.text("");
 
-        descriptionLines.forEach(description -> {
-            if (description.isEmpty()) {
-                return;
-            }
+        // if no error return as is
+        if ( ! this.hasError()) {
+            this.description = description;
+            return this;
+        }
 
-            // Evaluate label for error prefix and avoid malformatting labels
-            description = String.format("%s%s%s%s", 
-                description.isBlank() ? "" : ChatColor.RESET, // remove the italics set when changing from default item display name
-                this.hasError() ? errorDescription : "", // add an error notice if applicable
-                this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
-                this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
-            );
-
-            descriptionLinesProcessed.add(description);
-        });
+        // otherwise...
+        Component errorDescription = Component.join(
+            JoinConfiguration.separator(Component.space()), // auto-add whitespace if applicable
+            errorText,
+            description
+        );
         
-        this.description = descriptionLinesProcessed;
+        this.description = errorDescription;
         return this;
     }
 
     /**
      * Gets the hover description for this slot.
-     * @return The description text displayed when hovering over the slot.
+     * @return The description component displayed when hovering over the slot.
      */
-    public List<String> getDescription() {
+    public Component getDescription() {
         return this.description;
     }
 
@@ -304,6 +305,29 @@ public class GUISlot {
      */
     public GUISlot setItem(Material material) {
         this.item = new ItemSerialisable(material.name());
+        return this;
+    }
+
+    /**
+     * Shortcut method if just setting simple string as label
+     * @param string a plain, unformatted label
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setLabel(String string) {
+        this.setLabel(Component.text(string));
+        return this;
+    }
+
+    /**
+     * Shortcut method if just setting simple strings as description
+     * @param description a list of plain unformatted strings
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setDescription(List<String> description) {
+        this.description = Component.join(
+            JoinConfiguration.separator(Component.newline()), // auto-add newline if applicable
+            description.stream().map(Component::text).toList()
+        );
         return this;
     }
 }

@@ -7,10 +7,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit; // used to get server logger
-import org.bukkit.ChatColor; // used to colour and format the chat messages!
 import org.bukkit.entity.HumanEntity; // identifies a player to send messages to  
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import playerquests.Core; // used to access the plugin and get all online players
 
 /**
@@ -30,22 +31,22 @@ public class ChatUtils {
         /**
          * Notification type message.
          */
-        NOTIF("[PlayerQuests]", ChatColor.GRAY),
+        NOTIF("[PlayerQuests]", NamedTextColor.GRAY),
 
         /**
          * Warning type message.
          */
-        WARN("[PlayerQuests] ⚠ Help", ChatColor.YELLOW),
+        WARN("[PlayerQuests] ⚠ Help", NamedTextColor.YELLOW),
 
         /**
          * Error type message.
          */
-        ERROR("[PlayerQuests] 🚫 Error", ChatColor.RED);
+        ERROR("[PlayerQuests] 🚫 Error", NamedTextColor.RED);
 
         private final String prefix;
-        private final ChatColor color;
+        private final NamedTextColor color;
 
-        MessageType(String prefix, ChatColor color) {
+        MessageType(String prefix, NamedTextColor color) {
             this.prefix = prefix;
             this.color = color;
         }
@@ -62,7 +63,7 @@ public class ChatUtils {
          */
         CONSOLE {
             @Override
-            public void send(String formattedMessage, @Nullable HumanEntity player) {
+            public void send(Component formattedMessage, @Nullable HumanEntity player) {
                 Bukkit.getConsoleSender().sendMessage(formattedMessage);
             }
         },
@@ -72,8 +73,8 @@ public class ChatUtils {
          */
         WORLD {
             @Override
-            public void send(String formattedMessage, @Nullable HumanEntity player) {
-                Bukkit.broadcastMessage(formattedMessage);
+            public void send(Component formattedMessage, @Nullable HumanEntity player) {
+                Bukkit.broadcast(formattedMessage);
             }
         },
 
@@ -82,7 +83,7 @@ public class ChatUtils {
          */
         PLAYER {
             @Override
-            public void send(String formattedMessage, @Nullable HumanEntity player) {
+            public void send(Component formattedMessage, @Nullable HumanEntity player) {
                 if (player == null) {
                     ChatUtils.message("MessageTarget.PLAYER did not pass in player, for message: " + formattedMessage)
                         .type(MessageType.ERROR)
@@ -100,7 +101,7 @@ public class ChatUtils {
          * @param formattedMessage the message to send
          * @param player the player to send the message to, or null if not applicable
          */
-        public abstract void send(String formattedMessage, @Nullable HumanEntity player);
+        public abstract void send(Component formattedMessage, @Nullable HumanEntity player);
     }
 
     /**
@@ -114,14 +115,10 @@ public class ChatUtils {
          */
         PRETTY {
             @Override
-            public String formatMessage(String content, MessageType type) {
-                return String.format("\n%s%s:%s %s%s\n", 
-                    ChatColor.BOLD,
-                    type.prefix,
-                    type.color,
-                    content,
-                    ChatColor.RESET
-                );
+            public Component formatMessage(Component content, MessageType type) {
+                return Component.newline()
+                    .append(Component.text(type.prefix + ": "))
+                    .append(content.color(type.color));
             }
         },
 
@@ -130,13 +127,8 @@ public class ChatUtils {
          */
         SIMPLE {
             @Override
-            public String formatMessage(String content, MessageType type) {
-                return String.format("%s:%s %s%s",
-                    type.prefix,
-                    type.color,
-                    content,
-                    ChatColor.RESET
-                );
+            public Component formatMessage(Component content, MessageType type) {
+                return Component.text(type.prefix + ": ").append(content).color(type.color);
             }
         },
 
@@ -145,11 +137,8 @@ public class ChatUtils {
          */
         PLAIN {
             @Override
-            public String formatMessage(String content, MessageType type) {
-                return String.format("%s: %s",
-                    type.prefix,
-                    content
-                );
+            public Component formatMessage(Component content, MessageType type) {
+                return Component.text(type.prefix + ": ").append(content);
             }
         };
         
@@ -160,7 +149,7 @@ public class ChatUtils {
          * @param type the type of the message
          * @return the formatted message
          */
-        public abstract String formatMessage(String content, MessageType type);
+        public abstract Component formatMessage(Component content, MessageType type);
     }
 
     /**
@@ -169,7 +158,7 @@ public class ChatUtils {
      * Allows for customization of message content, type, target, style, and recipient.
      */
     public static class MessageBuilder {
-        private String content;
+        private Component content;
         private MessageType type = MessageType.NOTIF; // Default
         private MessageTarget target = MessageTarget.WORLD; // Default
         private MessageStyle style = MessageStyle.PRETTY; // Default
@@ -182,8 +171,19 @@ public class ChatUtils {
          * 
          * @param content the message to send
          */
-        public MessageBuilder(String content) {
+        private MessageBuilder(Component content) {
             this.content = content;
+        }
+
+        /**
+         * Sets the component content of the message.
+         * 
+         * @param baseMessage the new message content
+         * @return this MessageBuilder
+         */
+        public MessageBuilder content(Component baseMessage) {
+            this.content = baseMessage;
+            return this;
         }
 
         /**
@@ -193,8 +193,7 @@ public class ChatUtils {
          * @return this MessageBuilder
          */
         public MessageBuilder content(String baseMessage) {
-            this.content = baseMessage;
-            return this;
+            return this.content(Component.text(baseMessage));
         }
         
         /**
@@ -202,7 +201,7 @@ public class ChatUtils {
          * 
          * @return the string message content.
          */
-        public String getContent() {
+        public Component getContent() {
             return this.content;
         }
 
@@ -256,7 +255,7 @@ public class ChatUtils {
          * Sends the constructed message to the target.
          */
         public void send() {
-            String formattedMessage = style.formatMessage(content, type);
+            Component formattedMessage = style.formatMessage(content, type);
             target.send(formattedMessage, this.player);
         }
     }
@@ -347,6 +346,16 @@ public class ChatUtils {
      * @return a message builder to customise the message
      */
     public static MessageBuilder message(String content) {
+        return new MessageBuilder(Component.text(content));
+    }
+
+    /**
+     * Neatly accesses the message builder.
+     * 
+     * @param content the bare minimum message
+     * @return a message builder to customise the message
+     */
+    public static MessageBuilder message(Component content) {
         return new MessageBuilder(content);
     }
 

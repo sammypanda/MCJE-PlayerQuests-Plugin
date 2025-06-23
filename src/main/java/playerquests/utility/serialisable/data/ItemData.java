@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.text.WordUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
@@ -27,6 +26,7 @@ import org.bukkit.potion.PotionType;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.keys.EnchantmentKeys;
 import io.papermc.paper.registry.keys.TrimMaterialKeys;
 import io.papermc.paper.registry.keys.TrimPatternKeys;
 import net.kyori.adventure.key.Key;
@@ -1379,7 +1379,7 @@ public enum ItemData {
 
             // resolve enchantment type
             String enchantmentType = String.join("_", enchantmentStringParts.removeLast());
-            Enchantment enchantment = Registry.ENCHANTMENT.match(enchantmentType);
+            Enchantment enchantment = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).get(EnchantmentKeys.create(Key.key(enchantmentType)));
 
             // apply enchantment
             itemStack.addEnchantment(enchantment, level);

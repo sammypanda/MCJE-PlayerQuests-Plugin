@@ -3,7 +3,6 @@ package playerquests.builder.gui.function;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block; // data object representing a placed block
 import org.bukkit.block.data.BlockData; // data object representing the metadata of a block
 import org.bukkit.entity.Player; // refers to the player
@@ -13,6 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent; // event which captures what block was placed
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import playerquests.Core;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector;
@@ -177,9 +178,9 @@ public class SelectLocation extends GUIFunction {
         ChatUtils.clearChat(this.player);
 
         if (this.location == null) {
-            this.player.sendMessage(
-                ChatColor.UNDERLINE + this.prompt + ChatColor.RESET
-            );
+            ChatUtils.message(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
+                .player(this.player)
+                .send();
             return;
         }
 

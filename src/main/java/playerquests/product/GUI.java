@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta; // to modify button meta info
 import org.bukkit.persistence.PersistentDataType; // tagging GUI items with GUI=true
 
+import net.kyori.adventure.text.Component;
 import playerquests.Core; // getting the GUI NamespacedKey
 import playerquests.builder.gui.GUIBuilder; // to control and modify the GUI
 import playerquests.builder.gui.component.GUIFrame; // the content of the GUI like the title
@@ -65,7 +66,8 @@ public class GUI {
     public void open() {
         this.inventory = Bukkit.createInventory( // create inventory
             this.builder.getDirector().getPlayer(), // the player who should see the inventory view
-            this.frame.getSize() // the count of slots in the inventory
+            this.frame.getSize(), // the count of slots in the inventory
+            Component.text(this.frame.getTitle())
         );
 
         this.display(); // opening (and unlocking) the inventory window (InventoryView)
@@ -111,7 +113,7 @@ public class GUI {
      * Populate the outer GUI window.
      */
     private void drawFrame() {
-        this.view.setTitle(this.frame.getTitle()); // set the GUI title
+        throw new RuntimeException("Paper broke renaming inventories");
     }
 
     /**
@@ -136,19 +138,19 @@ public class GUI {
             }
 
             // Strip the ItemMeta
-            itemMeta.setLore(List.of());
+            itemMeta.lore(List.of());
 
             // Edit the ItemMeta
-            itemMeta.setDisplayName(slot.getLabel()); // set the slot label
+            itemMeta.displayName(slot.getLabel()); // set the slot label
 
             // Hide item tooltips and attributes
-            itemMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_ATTRIBUTES);
+            itemMeta.addItemFlags(ItemFlag.HIDE_STORED_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
 
             // Add the description
-            itemMeta.setLore(null);
-            if (!slot.getDescription().isEmpty()) {
-                itemMeta.setLore( // set the slot description
-                    slot.getDescription() // list: each line of the description
+            itemMeta.lore(null);
+            if ( ! slot.getDescription().equals(Component.text("")) ) { // if not empty string
+                itemMeta.lore( // set the slot description
+                    List.of(slot.getDescription()) // list: each line of the description
                 );
             }
 
@@ -163,10 +165,6 @@ public class GUI {
 
             // Return the ItemMeta to the ItemStack
             item.setItemMeta(itemMeta);
-
-            if (item.getType().equals(Material.NETHERITE_LEGGINGS)) {
-                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
-            }
 
             // Set the slot item at the slot position
             if (position > 0 && position <= this.frame.getSize()) { // if the slot position is not out of bounds
