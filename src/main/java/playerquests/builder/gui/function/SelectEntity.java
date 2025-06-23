@@ -11,11 +11,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler; // registering methods as event handlers
 import org.bukkit.event.HandlerList; // unregistering event handlers
 import org.bukkit.event.Listener; // listening to in-game events
-import org.bukkit.event.player.AsyncPlayerChatEvent; // handling request to exit
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
 import playerquests.client.ClientDirector; // controls the plugin
@@ -118,7 +119,7 @@ public class SelectEntity extends GUIFunction {
          * @param event the {@code AsyncPlayerChatEvent} triggered when a player sends a chat message
          */
         @EventHandler
-        private void onChat(AsyncPlayerChatEvent event) {
+        private void onChat(AsyncChatEvent event) {
             // if the event is coming from a different player
             if (this.player != event.getPlayer()) {
                 return; // do not capture other players events
@@ -127,7 +128,7 @@ public class SelectEntity extends GUIFunction {
             event.setCancelled(true);
 
             Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // run on next tick
-                String message = event.getMessage();
+                String message = PlainTextComponentSerializer.plainText().serialize(event.message());
 
                 // if wanting to exit (or trying to do another command)
                 if (ChatUtils.isExitKeyword(message)) {
