@@ -13,6 +13,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
@@ -108,8 +110,9 @@ public class Dynamicquestinventory extends GUIDynamic {
                                 continue;
                             }
 
-                            // if the item is the submit button
-                            if (item.getItemMeta().getDisplayName().equals(displayName)) {
+                            // if the item is the submit button (the button is the same text)
+                            Component displayNameComponent = item.getItemMeta().displayName();
+                            if (displayNameComponent != null && PlainTextComponentSerializer.plainText().serialize(displayNameComponent).equals(displayName)) {
                                 continue;
                             }
 
