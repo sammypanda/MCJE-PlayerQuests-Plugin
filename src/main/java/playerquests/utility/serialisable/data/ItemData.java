@@ -1285,7 +1285,8 @@ public enum ItemData {
         Material.VILLAGER_SPAWN_EGG,
         Material.WRITABLE_BOOK,
         Material.WRITTEN_BOOK,
-        Material.ENCHANTED_BOOK
+        Material.ENCHANTED_BOOK,
+        Material.NAME_TAG
     ));
 
     private static boolean isAllowedGeneric(Material material) {
