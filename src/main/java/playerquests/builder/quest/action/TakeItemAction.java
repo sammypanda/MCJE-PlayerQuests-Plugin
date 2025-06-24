@@ -9,9 +9,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
@@ -27,6 +28,7 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
 import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
@@ -69,23 +71,32 @@ public class TakeItemAction extends QuestAction {
         final String path = new StagePath(questStage, List.of(this)).toString(); // the path to the action
         final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
 
-        ComponentBuilder message = new ComponentBuilder(String.format("\nThe '%s' quest is requesting to take items\n", quest.getTitle()));
+        Component message = Component
+            .newline()
+            .append(Component.text(
+                String.format("The '%s' quest is requesting to take items", quest.getTitle())
+            ))
+            .appendNewline();
+
+        // ComponentBuilder message = new ComponentBuilder(String.format("\nThe '%s' quest is requesting to take items\n", quest.getTitle()));
 
         // list the items
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         itemsOption.getItems().forEach((item, amount) -> {
-            message.append(String.format("- %s (%d)", item.getName(), amount)).color(ChatColor.GRAY);
+            message.append(Component.text(
+                String.format("- %s (%d)", item.getName(), amount)).color(NamedTextColor.GRAY)
+            );
         });
-
 
         // add the click functionality
         message
             // .append("Do you consent?\n\n").color(ChatColor.GRAY)
-            .append("\n> ").reset()
-            .append("Click here to proceed").color(ChatColor.GREEN).underlined(true)
-            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+            .appendNewline()
+            .append(Component.text("> "))
+            .append(Component.text("Click here to proceed").color(NamedTextColor.GREEN).decorate(TextDecoration.UNDERLINED))
+            .clickEvent(ClickEvent.runCommand(command));
 
-        player.spigot().sendMessage(message.build()); // send request for consent
+        ChatUtils.message(message).player(player).send(); // send request for consent
     }
 
     @Override
