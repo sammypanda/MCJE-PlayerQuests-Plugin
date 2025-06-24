@@ -23,7 +23,6 @@ import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
-import playerquests.utility.annotation.Key; // key-value pair annottation
 
 /**
  * Represents a Non-Player Character (NPC) associated with a quest.
