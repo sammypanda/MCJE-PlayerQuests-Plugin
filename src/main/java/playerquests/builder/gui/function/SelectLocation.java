@@ -178,9 +178,9 @@ public class SelectLocation extends GUIFunction {
         ChatUtils.clearChat(this.player);
 
         if (this.location == null) {
-            ChatUtils.message(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
-                .player(this.player)
-                .send();
+            ChatUtils.message(Component.empty()
+                .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
+            ).player(player).send();
             return;
         }
 

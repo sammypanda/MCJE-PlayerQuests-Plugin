@@ -71,8 +71,8 @@ public class TakeItemAction extends QuestAction {
         final String path = new StagePath(questStage, List.of(this)).toString(); // the path to the action
         final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
 
-        Component message = Component
-            .newline()
+        Component message = Component.empty()
+            .appendNewline()
             .append(Component.text(
                 String.format("The '%s' quest is requesting to take items", quest.getTitle())
             ))

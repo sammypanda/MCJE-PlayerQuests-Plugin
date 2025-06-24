@@ -173,7 +173,8 @@ public class QuesterData {
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
         Player player = quester.getPlayer(); // get the player
-        Component message = Component.newline()
+        Component message = Component.empty()
+            .appendNewline()
             .append(Component.text("This area offers more than one action\n"))
             .appendNewline()
             .append(Component.text("Click one of the following:").color(NamedTextColor.GRAY))

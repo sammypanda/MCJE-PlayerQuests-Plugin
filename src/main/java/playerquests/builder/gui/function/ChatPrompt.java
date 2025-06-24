@@ -270,7 +270,8 @@ public class ChatPrompt extends GUIFunction {
     private void putPredefinedMessage(MessageType type) {
         switch(type) {
             case REQUEST:
-            ChatUtils.message(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED)
+            ChatUtils.message(Component.empty()
+                .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
                 .appendNewline()
                 .append(Component.text("or type ").color(NamedTextColor.RED))
                 .append(Component.text("exit").color(NamedTextColor.GRAY))
@@ -278,7 +279,8 @@ public class ChatPrompt extends GUIFunction {
             break;
 
             case CONFIRM:
-            ChatUtils.message(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED).appendSpace().append(Component.text("Entered: " + this.value).decorate(TextDecoration.ITALIC))
+            ChatUtils.message(Component.empty()
+                .append(Component.text("Entered: " + this.value).decorate(TextDecoration.ITALIC))
                 .appendNewline()
                 .append(Component.text("enter again").color(NamedTextColor.GRAY))
                 .appendNewline()
@@ -291,14 +293,16 @@ public class ChatPrompt extends GUIFunction {
             break;
 
             case EXITED:
-            ChatUtils.message(Component.text("exited")
+            ChatUtils.message(Component.empty()
+                .append(Component.text("exited"))
                 .decorate(TextDecoration.ITALIC)
                 .color(NamedTextColor.RED)
             ).player(player).send();
             break;
 
             case CONFIRMED:
-            ChatUtils.message(Component.text("confirmed")
+            ChatUtils.message(Component.empty()
+                .append(Component.text("confirmed"))
                 .decorate(TextDecoration.ITALIC)
                 .color(NamedTextColor.DARK_GREEN)
             ).player(player).send();

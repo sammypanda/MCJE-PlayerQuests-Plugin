@@ -345,8 +345,8 @@ public class SelectMaterial extends GUIFunction {
         }
 
         if (this.result == null) {
-            ChatUtils.message(
-                Component.text(this.prompt).decorate(TextDecoration.UNDERLINED)
+            ChatUtils.message(Component.empty()
+                .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
                 .appendNewline().appendNewline()
                 .append(Component.text("or type ").color(NamedTextColor.RED))
                 .append(Component.text("exit").color(NamedTextColor.GRAY))
@@ -354,8 +354,8 @@ public class SelectMaterial extends GUIFunction {
             return;
         }
 
-        ChatUtils.message(
-            Component.text("Selected: " + result.toString()).decorate(TextDecoration.ITALIC).color(NamedTextColor.GRAY)
+        ChatUtils.message(Component.empty()
+            .append(Component.text("Selected: " + result.toString()).decorate(TextDecoration.ITALIC).color(NamedTextColor.GRAY))
         ).player(player).send();
 
         this.exit(); // finish

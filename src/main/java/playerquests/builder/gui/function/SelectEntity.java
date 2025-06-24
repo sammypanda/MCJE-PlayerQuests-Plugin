@@ -295,8 +295,8 @@ public class SelectEntity extends GUIFunction {
         }
 
         if (this.result == null) {
-            ChatUtils.message(
-                Component.text(this.prompt).decorate(TextDecoration.UNDERLINED)
+            ChatUtils.message(Component.empty()
+                .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
                 .appendNewline().appendNewline()
                 .append(Component.text("or type ").color(NamedTextColor.RED))
                 .append(Component.text("exit").color(NamedTextColor.GRAY))

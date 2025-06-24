@@ -116,7 +116,8 @@ public class ChatUtils {
         PRETTY {
             @Override
             public Component formatMessage(Component content, MessageType type) {
-                return Component.newline()
+                return Component.empty()
+                    .appendNewline()
                     .append(Component.text(type.prefix + ": "))
                     .append(content.color(type.color));
             }
