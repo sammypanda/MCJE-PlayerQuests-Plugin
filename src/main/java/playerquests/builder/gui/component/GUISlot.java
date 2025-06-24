@@ -5,6 +5,7 @@ import java.util.List; // generic list type
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
@@ -304,7 +305,7 @@ public class GUISlot {
      * @return a generic item in a detailed container
      */
     public GUISlot setItem(Material material) {
-        this.item = new ItemSerialisable(material.name());
+        this.item = ItemSerialisable.fromItemStack(new ItemStack(material));
         return this;
     }
 
