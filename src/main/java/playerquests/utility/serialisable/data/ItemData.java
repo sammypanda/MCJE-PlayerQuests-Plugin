@@ -29,6 +29,8 @@ import io.papermc.paper.registry.keys.EnchantmentKeys;
 import io.papermc.paper.registry.keys.TrimMaterialKeys;
 import io.papermc.paper.registry.keys.TrimPatternKeys;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -1391,7 +1393,7 @@ public enum ItemData {
             String nametagString = properties.get("nametag");
 
             // apply nametag
-            itemMeta.setDisplayName(nametagString);
+            itemMeta.displayName(Component.text(nametagString));
             itemStack.setItemMeta(itemMeta);
         }
 
@@ -1431,7 +1433,7 @@ public enum ItemData {
         // add nametag as property
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta.hasDisplayName()) {
-            newProperties.put("nametag", itemStack.getItemMeta().getDisplayName());
+            newProperties.put("nametag", PlainTextComponentSerializer.plainText().serialize(itemStack.getItemMeta().displayName()));
         }
 
         // add trims as property
