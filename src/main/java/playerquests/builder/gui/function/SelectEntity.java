@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors; // transforming stream to data type
 
 import org.bukkit.Bukkit; // getting the plugin manager
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -16,6 +15,9 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import playerquests.Core; // accessing singletons
 import playerquests.builder.gui.function.data.SelectMethod; // defining which methods to select something
@@ -285,27 +287,26 @@ public class SelectEntity extends GUIFunction {
         ChatUtils.clearChat(this.player);
 
         if (this.cancelled) {
-            this.player.sendMessage(
-                ChatColor.GRAY + "" + ChatColor.ITALIC + "exited" + ChatColor.RESET
-            );
+            ChatUtils.message(
+                Component.text("exited").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)
+            ).player(player).send();
             this.exit();
             return;
         }
 
         if (this.result == null) {
-            this.player.sendMessage(
-                ChatColor.UNDERLINE + this.prompt + ChatColor.RESET
-            );
-            ChatUtils.clearChat(this.player, 1);
-            this.player.sendMessage(
-                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET
-            );
+            ChatUtils.message(
+                Component.text(this.prompt).decorate(TextDecoration.UNDERLINED)
+                .appendNewline().appendNewline()
+                .append(Component.text("or type ").color(NamedTextColor.RED))
+                .append(Component.text("exit").color(NamedTextColor.GRAY))
+            ).player(player).send();
             return;
         }
 
-        this.player.sendMessage(
-            ChatColor.GRAY + "" + ChatColor.ITALIC + "Selected: " + result.toString()
-        );
+        ChatUtils.message(
+            Component.text("Selected: " + result.toString()).decorate(TextDecoration.ITALIC).color(NamedTextColor.GRAY)
+        ).player(player).send();
 
         this.exit(); // finish
     }

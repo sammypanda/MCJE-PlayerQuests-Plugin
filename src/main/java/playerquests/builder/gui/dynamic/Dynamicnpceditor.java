@@ -77,14 +77,17 @@ public class Dynamicnpceditor extends GUIDynamic {
         String label = this.npc.getName() == null ? "Set NPC Name" : "Change NPC Name (" + this.npc.getName() + ")";
         nameButton.setItem(Material.NAME_TAG);
         nameButton.setLabel(label);
-        nameButton.addFunction(
+        nameButton.onClick(() -> {
             new ChatPrompt(
-                Arrays.asList("Set the name for this NPC", "npc.name"), 
+                Arrays.asList("Set the name for this NPC", "none"), 
                 director
-            ).onFinish((_f) -> {
-                this.execute();
-            })
-        );
+            ).onFinish((func) -> {
+                ChatPrompt function = (ChatPrompt) func;
+                String response = function.getResponse();
+                this.npc.setName(response);
+                this.refresh();
+            }).execute();
+        });
 
         // add 'assign NPC to' button
         GUISlot assignButton = new GUISlot(this.gui, 4);

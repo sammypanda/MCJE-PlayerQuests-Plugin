@@ -129,7 +129,6 @@ public class QuestNPC {
      * 
      * @param name The new name for the NPC.
      */
-    @Key("npc.name")
     public void setName(String name) {
         this.name = name;
     }
