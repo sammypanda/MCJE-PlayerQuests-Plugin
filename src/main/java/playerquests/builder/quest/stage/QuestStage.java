@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from showin
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.product.Quest; // back reference to quest this stage belongs to
@@ -61,9 +60,6 @@ public class QuestStage {
      */
     public QuestStage(@JsonProperty("id") String id) {
         this.id = id;
-
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
     }
 
     /**
@@ -76,9 +72,6 @@ public class QuestStage {
 
         // set which quest this stage belongs to
         this.quest = quest;
-
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this); // add the current quest stage to be accessed with key-pair syntax
     }
 
     /**

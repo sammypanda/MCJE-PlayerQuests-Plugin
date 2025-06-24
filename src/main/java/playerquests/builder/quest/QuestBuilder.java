@@ -13,7 +13,6 @@ import java.util.stream.IntStream; // used to iterate over a range
 import com.fasterxml.jackson.annotation.JsonIgnore; // remove fields from serialising to json
 import com.fasterxml.jackson.annotation.JsonProperty; // for declaring a field as a json property
 
-import playerquests.Core; // gets the KeyHandler singleton
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.npc.QuestNPC; // quest npc builder
 import playerquests.builder.quest.stage.QuestStage; // quest stage builder
@@ -22,7 +21,6 @@ import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest; // quest product class
 import playerquests.utility.ChatUtils; // sends message in-game
 import playerquests.utility.ChatUtils.MessageType;
-import playerquests.utility.annotation.Key; // to associate a key name with a method
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -79,15 +77,6 @@ public class QuestBuilder {
     private List<StagePath> startPoints = new ArrayList<StagePath>();
 
     /**
-     * Operations to run whenever the class is instantiated.
-     * This block registers the instance with the KeyHandler.
-     */
-    {
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this);
-    }
-
-    /**
      * Creates and returns a new default Quest.
      *
      * @param director The {@link ClientDirector} used to control the plugin.
@@ -115,11 +104,6 @@ public class QuestBuilder {
 
             // add the stages from the product
             this.questPlan = product.getStages();
-
-            // recurse submission of stages to KeyHandler registry
-            this.questPlan.values().stream().forEach(stage -> {
-                Core.getKeyHandler().registerInstance(stage);
-            });
 
             // add the NPCs from the product
             product.getNPCs().forEach((id, npc) -> {
@@ -189,7 +173,6 @@ public class QuestBuilder {
      *
      * @return The current {@link QuestBuilder} instance.
      */
-    @Key("quest.title")
     public QuestBuilder setTitle(String title) {
         if (title == null || title.isBlank()) {
             this.title = "My Quest";
@@ -214,7 +197,6 @@ public class QuestBuilder {
      *
      * @return The quest name.
      */
-    @Key("Quest")
     public String getTitle() {
         return this.title;
     }

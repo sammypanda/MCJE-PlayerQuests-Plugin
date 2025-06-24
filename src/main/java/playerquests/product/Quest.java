@@ -36,7 +36,6 @@ import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.PluginUtils;
-import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
 import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.Database; // the preservation everything store
 import playerquests.utility.singleton.PlayerQuests;
@@ -103,9 +102,6 @@ public class Quest {
         @JsonProperty("id") String id,
         @JsonProperty("startpoints") List<StagePath> startpoints
     ) {
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this);
-
         // remove null NPCs and stages
         npcs.entrySet().removeIf(stage -> stage.getValue() == null);
         stages.entrySet().removeIf(npc -> npc.getValue() == null);
@@ -274,7 +270,6 @@ public class Quest {
      *
      * @return A message indicating the result of the save operation.
      */
-    @Key("quest")
     public String save() {
         String questName = Core.getQuestsPath() + this.getID() + ".json"; // name pattern
         Player player = null;

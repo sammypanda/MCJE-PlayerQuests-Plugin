@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when seria
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
-import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
@@ -74,14 +73,6 @@ public class QuestNPC {
      */
     @JsonProperty("location")
     private LocationData location;
-
-    /**
-     * Initializer block that registers this NPC instance with the key-value pattern handler.
-     */
-    {
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this);
-    }
 
     /**
      * Constructs a new empty QuestNPC.

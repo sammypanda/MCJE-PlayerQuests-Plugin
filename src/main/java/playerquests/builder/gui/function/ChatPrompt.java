@@ -224,17 +224,7 @@ public class ChatPrompt extends GUIFunction {
 
         if (this.confirmedValue) {
             if (!this.key.equals("none")) {
-                try {
-                    Class<?> classType = Core.getKeyHandler().getClassFromKey(this.key); // discover what class type the key is for
-                    Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
-                    Core.getKeyHandler().setValue(instance, this.key, this.value); // set the value
-                } catch (IllegalArgumentException e) {
-                    ChatUtils.message(e.getMessage())
-                        .player(this.player)
-                        .type(ChatUtils.MessageType.ERROR)
-                        .send();
-                    this.errored = true;
-                }
+                throw new RuntimeException("KeyHandler removed.");
             }
 
             putPredefinedMessage(MessageType.CONFIRMED);
