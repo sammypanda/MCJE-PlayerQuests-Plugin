@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import net.kyori.adventure.text.Component;
 import playerquests.Core;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
@@ -158,7 +159,7 @@ public class Dynamicquestdiary extends GUIDynamic {
         BookMeta bookMeta = (BookMeta) book.getItemMeta();
         bookMeta.setAuthor(player.getName());
         bookMeta.setTitle("Quest Diary");
-        bookMeta.setPages(this.generateBookPages(player));
+        bookMeta.pages(this.generateBookPages(player));
 
         // apply the meta
         book.setItemMeta(bookMeta);
@@ -173,12 +174,12 @@ public class Dynamicquestdiary extends GUIDynamic {
      * @param player the player to generate book pages for
      * @return a list of book pages (up to 100 pages : 1024 characters per page)
      */
-    private List<String> generateBookPages(Player player) {
+    private List<Component> generateBookPages(Player player) {
         // get the QuestClient that represents the player
         QuestClient quester = QuestRegistry.getInstance().getQuester(player);
 
         // get the first tracked quest from the QuestClient to use as a sample page
-        List<String> bookEntries = quester.getTrackedActions().stream()
+        List<Component> bookEntries = quester.getTrackedActions().stream()
             .map(action -> this.formatBookEntry(action))
             .toList();
 
@@ -207,17 +208,19 @@ public class Dynamicquestdiary extends GUIDynamic {
      * @param action the action to format the page for
      * @return a formatted page explaining a quest action
      */
-    private String formatBookEntry(QuestAction action) {
+    private Component formatBookEntry(QuestAction action) {
         // get the attached quest
         Quest quest = action.getStage().getQuest();
         LocationData location = action.getLocation();
 
         // return formatted page content
-        return String.format("Quest: %s\n\nAction: %s (%s)\n\n%s",
-            quest.getTitle(),
-            action.getLabel(),
-            action.getName(),
-            location != null ? location.toString() : "Unknown location"
+        return Component.text(
+            String.format("Quest: %s\n\nAction: %s (%s)\n\n%s",
+                quest.getTitle(),
+                action.getLabel(),
+                action.getName(),
+                location != null ? location.toString() : "Unknown location"
+            )
         );
     }
 }
