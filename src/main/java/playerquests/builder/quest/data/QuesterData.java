@@ -12,8 +12,10 @@ import org.bukkit.entity.Player;
 
 import net.citizensnpcs.api.npc.NPC;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent.Builder;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import playerquests.builder.quest.action.NoneAction;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.action.listener.ActionListener;
@@ -173,7 +175,7 @@ public class QuesterData {
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
         Player player = quester.getPlayer(); // get the player
-        Component message = Component.empty()
+        Builder message = Component.text()
             .appendNewline()
             .append(Component.text("This area offers more than one action\n"))
             .appendNewline()
@@ -192,11 +194,12 @@ public class QuesterData {
                         quest.getTitle(), // the quest title
                         path)) // the path to the action
                 )
+                .color(NamedTextColor.WHITE)
                 .clickEvent(ClickEvent.runCommand(command));
         });
         
         // send the finished message
-        ChatUtils.message(message)
+        ChatUtils.message(message.asComponent())
             .player(player) // to the player
             .send();
 

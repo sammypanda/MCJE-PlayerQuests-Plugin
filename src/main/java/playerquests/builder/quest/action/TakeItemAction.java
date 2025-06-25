@@ -10,8 +10,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent.Builder;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -70,32 +73,36 @@ public class TakeItemAction extends QuestAction {
         final Quest quest = questStage.getQuest();
         final String path = new StagePath(questStage, List.of(this)).toString(); // the path to the action
         final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
-
-        Component message = Component.empty()
+        
+        Builder message = Component.text()
             .appendNewline()
             .append(Component.text(
                 String.format("The '%s' quest is requesting to take items", quest.getTitle())
             ))
+            .color(NamedTextColor.GRAY)
             .appendNewline();
 
-        // ComponentBuilder message = new ComponentBuilder(String.format("\nThe '%s' quest is requesting to take items\n", quest.getTitle()));
-
-        // list the items
+        // List the items
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         itemsOption.getItems().forEach((item, amount) -> {
-            message.append(Component.text(
-                String.format("- %s (%d)", item.getName(), amount)).color(NamedTextColor.GRAY)
-            );
+            message.append(
+                Component.text(String.format("- %s (%d)", item.getName(), amount))
+                    .color(NamedTextColor.WHITE)
+            ).appendNewline();
         });
 
-        // add the click functionality
+        // Add the click functionality
         message
             .appendNewline()
             .append(Component.text("> "))
-            .append(Component.text("Click here to proceed").color(NamedTextColor.GREEN).decorate(TextDecoration.UNDERLINED))
-            .clickEvent(ClickEvent.runCommand(command));
+            .append(Component.text("Click here to proceed")
+                .color(NamedTextColor.GREEN)
+                .decorate(TextDecoration.UNDERLINED)
+                .clickEvent(ClickEvent.runCommand(command))
+            )
+            .build();
 
-        ChatUtils.message(message).player(player).send(); // send request for consent
+        ChatUtils.message(message.asComponent()).player(player).send(); // send request for consent
     }
 
     @Override
