@@ -1329,26 +1329,17 @@ public enum ItemData {
         return GENERIC;
     }
 
-    public static ItemData fromString(String string) {
-        // 1. First try to find matching ItemData (excluding GENERIC)
+    public static ItemData getEnum(String string) {
+        // First try to find matching ItemData (excluding GENERIC)
         Optional<ItemData> itemDataMatch = Arrays.stream(values())
             .filter(e -> !e.equals(GENERIC))
             .filter(e -> e.name().equalsIgnoreCase(string))
             .findFirst();
-
         if (itemDataMatch.isPresent()) {
             return itemDataMatch.get();
         }
 
-        // 2. Try to match with Material enum
-        try {
-            Material material = Material.valueOf(string.toUpperCase());
-            return fromMaterial(material);
-        } catch (IllegalArgumentException _e) {
-            // Material not found, continue to fallback
-        }
-
-        // 3. No matches found - complain and return AIR
+        // No matches found - complain and return AIR
         ChatUtils.message("Unknown item type: " + string + ". Defaulting to AIR. 💔")
             .target(MessageTarget.CONSOLE)
             .type(MessageType.ERROR)

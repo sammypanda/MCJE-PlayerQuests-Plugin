@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import playerquests.utility.MaterialUtils;
 import playerquests.utility.serialisable.data.ItemData;
 
 public final class ItemSerialisable implements Serialisable {
@@ -21,7 +22,7 @@ public final class ItemSerialisable implements Serialisable {
     public ItemSerialisable(String string) {
         // Convert Spigot Material to our GENERIC
         if (!string.contains("[")) {
-            this.itemData = ItemData.fromString(string);
+            this.itemData = ItemData.GENERIC;
             this.properties = Map.of("material", string);
             return;
         }
@@ -31,23 +32,20 @@ public final class ItemSerialisable implements Serialisable {
         Map<String, String> keyValues = Arrays.stream(parts[1].split(";"))
             .map(pair -> pair.split(":"))
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-        ItemData base;
+        ItemStack itemStack;
         String baseString = parts[0];
         String materialString = keyValues.get("material");
 
         // convert from GENERIC (GENERIC[material:HERE]), otherwise use special ItemData base string (HERE[key:value])
         if (materialString != null && ( ! materialString.isEmpty())) {
-            base = ItemData.fromString(materialString);
+            itemStack = MaterialUtils.toItemStack(materialString);
         } else {
-            base = ItemData.fromString(baseString);
+            itemStack = ItemData.getEnum(baseString).createItem(Map.of());
         }
 
-        // set final ItemData
-        this.itemData = base;
-
-        // set purified properties
-        ItemStack itemStack = base.createItem(keyValues);
-        this.properties = base.extractProperties(itemStack);
+        // set final ItemSerialisable data
+        this.itemData = ItemData.fromMaterial(itemStack.getType()); // resolve basic ItemData
+        this.properties = this.itemData.extractProperties(itemStack); // resolve ItemData properties; rinsing out unimportant properties
     }
 
     // Private constructor - use builder
