@@ -323,8 +323,8 @@ public class ChatPrompt extends GUIFunction {
         HandlerList.unregisterAll(this.chatListener);
 
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // execute next on main thread
+            this.director.getGUI().getResult().display(); // open the old GUI again after minimise()
             this.finished(); // run code for when finished
-            this.director.getGUI().getResult().open(); // open the old GUI again after minimise()
 
             // reset values
             this.value = null;

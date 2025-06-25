@@ -109,7 +109,8 @@ public class Dynamicquesteditor extends GUIDynamic {
                     // update quest reference
                     this.director.setCurrentInstance(newQuest, Quest.class);
 
-                    this.execute(); // refresh UI to reflect title change
+                    // refresh UI to reflect title change
+                    new UpdateScreen(List.of(this.gui.getScreenName()), director).execute();
                 })
                 .execute();
             });
