@@ -90,7 +90,6 @@ public class TakeItemAction extends QuestAction {
 
         // add the click functionality
         message
-            // .append("Do you consent?\n\n").color(ChatColor.GRAY)
             .appendNewline()
             .append(Component.text("> "))
             .append(Component.text("Click here to proceed").color(NamedTextColor.GREEN).decorate(TextDecoration.UNDERLINED))

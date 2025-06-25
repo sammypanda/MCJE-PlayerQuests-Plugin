@@ -1,5 +1,7 @@
 package playerquests.utility.listener;
 
+import javax.xml.crypto.Data;
+
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,7 +9,9 @@ import org.bukkit.event.Listener; // registering listening to Bukkit in-game eve
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
@@ -47,18 +51,15 @@ public class PlayerListener implements Listener {
 
             // send intro message if is fresh instance
             if (this.isFresh) {
-                ChatUtils.message(
-                    String.format("Thank you for trying PlayerQuests, use %s/playerquests%s to get started. You can also find a tutorial here! %shttps://sammypanda.moe/docs/playerquests/v%s%s",
-                        ChatColor.AQUA,
-                        ChatColor.GRAY,
-                        ChatColor.UNDERLINE,
-                        Database.getInstance().getPluginVersion(),
-                        ChatColor.RESET)
-                    )
-                    .player(player)
-                    .style(MessageStyle.PRETTY)
-                    .type(MessageType.NOTIF)
-                    .send();
+                ChatUtils.message(Component.empty()
+                    .append(Component.text("Thank you for trying PlayerQuests, use ").color(NamedTextColor.GRAY))
+                    .append(Component.text("/playerquests ").color(NamedTextColor.AQUA))
+                    .append(Component.text("to get started. You can also find a tutorial here! ").color(NamedTextColor.GRAY))
+                    .append(Component.text("%shttps://sammypanda.moe/docs/playerquests/v" + Database.getInstance().getPluginVersion()).decorate(TextDecoration.UNDERLINED))
+                ).player(player)
+                 .style(MessageStyle.PRETTY)
+                 .type(MessageType.NOTIF)
+                 .send();
             }
         }, 60);
     }

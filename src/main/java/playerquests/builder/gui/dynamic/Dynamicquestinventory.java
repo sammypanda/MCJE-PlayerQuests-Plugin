@@ -14,8 +14,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
 import playerquests.builder.gui.component.GUIFrame;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
@@ -156,18 +156,29 @@ public class Dynamicquestinventory extends GUIDynamic {
             ItemSerialisable itemSerialisable = entry.getKey();
             Integer predictedAmount = entry.getValue();
             Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
+            
+            // Create slot label
+            Component label = Component.empty()
+                .append(Component.text(itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName())))
+                .appendSpace()
+                .append(Component.text("("));
+            if (realAmount == 0) {
+                label
+                    .append(Component.text("Out of Stock").color(NamedTextColor.RED));
+            } else if (predictedAmount >= 0) {
+                label
+                    .append(Component.text("In Stock"));
+            } else {
+                label
+                    .append(Component.text("Not Enough Stock").color(NamedTextColor.YELLOW));
+            }
+            label.append(Component.text(")"));
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(itemSerialisable)
-                .setLabel(String.format("%s x%d (%s)",
-                    itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName()),
-                    realAmount,
-                    realAmount == 0 
-                        ? ChatColor.RED + "Out of Stock" + ChatColor.RESET
-                        : (predictedAmount >= 0 
-                            ? "In Stock" 
-                            : ChatColor.YELLOW + "Not Enough Stock" + ChatColor.RESET)
-                ))
+                .setLabel(Component.empty()
+                    .append(Component.text())
+                )
                 .setDescription(List.of(itemSerialisable.getName()))
                 .setGlinting(
                     predictedAmount >= 0 ? false : true
