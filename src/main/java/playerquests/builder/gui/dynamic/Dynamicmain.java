@@ -61,15 +61,13 @@ public class Dynamicmain extends GUIDynamic {
                         String response = function.getResponse(); // retrieve the 'ChatPrompt' response from the function state
 
                         // create quest from response
-                        if (response == null) {
+                        if (response == null || response.isBlank()) {
                             return;
                         }
                         QuestBuilder questBuilder = new QuestBuilder(director).setTitle(response); // create a quest
+                        questBuilder.build().save();
 
                         // show quest editor
-                        if (questBuilder.getTitle() == "") {
-                            return;
-                        }
                         new UpdateScreen(Arrays.asList("questeditor"), director) // change screen to the quest editor
                             .execute();
                     })
