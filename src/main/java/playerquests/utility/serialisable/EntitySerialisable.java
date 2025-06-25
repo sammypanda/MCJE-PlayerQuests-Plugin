@@ -114,6 +114,10 @@ public class EntitySerialisable implements Serialisable {
             throw new IllegalStateException("Entity type missing from entity serialisable data");
         }
 
+        if ( ! PlayerQuests.getInstance().hasCitizens2() ) {
+            throw new RuntimeException("Tried to spawn and NPC without Citizens plugin");
+        }
+
         NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(entityType, "", location);
         Entity entity = citizen.getEntity();
 
