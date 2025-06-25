@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.Material;
 
+import net.kyori.adventure.text.Component;
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
 import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
@@ -95,7 +96,12 @@ public class Dynamicquesteditor extends GUIDynamic {
 
                     // create and save new
                     Quest newQuest = questBuilder.build();
-                    newQuest.save();
+                    String saveMessage = newQuest.save();
+
+                    // send save message
+                    ChatUtils.message(Component.text(saveMessage))
+                        .player(this.director.getPlayer())
+                        .send();
 
                     // restore inventory
                     QuestRegistry.getInstance().setInventory(newQuest, questInventory);
