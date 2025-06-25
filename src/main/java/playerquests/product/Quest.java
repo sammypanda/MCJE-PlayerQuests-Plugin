@@ -424,6 +424,11 @@ public class Quest {
             response.player(player).style(MessageStyle.PRETTY); // set message target to player if player is found
         }
 
+        // if player not found send to console instead
+        if (player == null) {
+            response.target(MessageTarget.CONSOLE).style(MessageStyle.PLAIN);
+        }
+
         // Validate quest title
         isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
             Integer amount = entry.getValue();
