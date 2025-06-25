@@ -14,6 +14,8 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TextComponent.Builder;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import playerquests.builder.gui.component.GUIFrame;
@@ -158,7 +160,9 @@ public class Dynamicquestinventory extends GUIDynamic {
             Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
             
             // Create slot label
-            Component label = Component.empty()
+            Builder label = Component.text()
+                .append(Component.text(realAmount.toString() + "x"))
+                .appendSpace()
                 .append(Component.text(itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName())))
                 .appendSpace()
                 .append(Component.text("("));
@@ -176,9 +180,7 @@ public class Dynamicquestinventory extends GUIDynamic {
 
             new GUISlot(gui, gui.getEmptySlot())
                 .setItem(itemSerialisable)
-                .setLabel(Component.empty()
-                    .append(Component.text())
-                )
+                .setLabel(label.asComponent())
                 .setDescription(List.of(itemSerialisable.getName()))
                 .setGlinting(
                     predictedAmount >= 0 ? false : true

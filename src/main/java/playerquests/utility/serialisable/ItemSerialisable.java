@@ -40,7 +40,7 @@ public final class ItemSerialisable implements Serialisable {
         if (materialString != null && ( ! materialString.isEmpty())) {
             itemStack = MaterialUtils.toItemStack(materialString);
         } else {
-            itemStack = ItemData.getEnum(baseString).createItem(Map.of());
+            itemStack = ItemData.getEnum(baseString).createItem(keyValues);
         }
 
         // set final ItemSerialisable data
