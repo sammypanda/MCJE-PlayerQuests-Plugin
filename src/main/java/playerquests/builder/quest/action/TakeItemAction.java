@@ -75,7 +75,6 @@ public class TakeItemAction extends QuestAction {
         final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
         
         Builder message = Component.text()
-            .appendNewline()
             .append(Component.text(
                 String.format("The '%s' quest is requesting to take items", quest.getTitle())
             ))
