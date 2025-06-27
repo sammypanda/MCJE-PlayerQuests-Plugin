@@ -45,14 +45,14 @@ public class Dynamicmain extends GUIDynamic {
         guiFrame.setSize(9);
 
         new GUISlot(gui, 1)
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .setLabel("Exit")
             .addFunction(
                 new CloseScreen(List.of(), director)
             );
 
         new GUISlot(gui, 3)
-            .setItem("LIME_DYE")
+            .setItem(Material.LIME_DYE)
             .setLabel("Create Quest")
             .onClick(() -> {
                 new ChatPrompt(Arrays.asList("Enter quest title", "none"), director)
@@ -61,15 +61,13 @@ public class Dynamicmain extends GUIDynamic {
                         String response = function.getResponse(); // retrieve the 'ChatPrompt' response from the function state
 
                         // create quest from response
-                        if (response == null) {
+                        if (response == null || response.isBlank()) {
                             return;
                         }
                         QuestBuilder questBuilder = new QuestBuilder(director).setTitle(response); // create a quest
+                        questBuilder.build().save();
 
                         // show quest editor
-                        if (questBuilder.getTitle() == "") {
-                            return;
-                        }
                         new UpdateScreen(Arrays.asList("questeditor"), director) // change screen to the quest editor
                             .execute();
                     })
@@ -77,7 +75,7 @@ public class Dynamicmain extends GUIDynamic {
             });
 
         new GUISlot(gui, 4)
-            .setItem("PAINTING")
+            .setItem(Material.PAINTING)
             .setLabel("Edit Quests")
             .addFunction(
                 new UpdateScreen(Arrays.asList("myquests"), director)

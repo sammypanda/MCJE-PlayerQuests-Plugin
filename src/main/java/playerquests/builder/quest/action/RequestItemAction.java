@@ -18,6 +18,7 @@ import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
+import playerquests.utility.serialisable.ItemSerialisable;
 
 /**
  * Action for an NPC requesting an item from the quester.
@@ -58,9 +59,9 @@ public class RequestItemAction extends QuestAction {
             String.format("\n<%s>", "Items requested")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 
@@ -72,8 +73,7 @@ public class RequestItemAction extends QuestAction {
     protected Boolean isCompleted(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-
-        return itemsOption.getItems().entrySet().stream().allMatch(entry -> player.getInventory().contains(entry.getKey(), entry.getValue()));
+        return ItemSerialisable.hasRequiredItems(player, itemsOption.getItems());
     }
 
     @Override
@@ -90,9 +90,9 @@ public class RequestItemAction extends QuestAction {
             String.format("\n<%s>", "Items successfully collected")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 

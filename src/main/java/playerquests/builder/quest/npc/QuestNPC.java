@@ -12,18 +12,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore; // ignore a field when seria
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty; // specifying property for when serialising to a JSON object
 
-import playerquests.Core; // for accessing singletons
 import playerquests.builder.quest.QuestBuilder;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector; // for controlling the plugin
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
-import playerquests.utility.annotation.Key; // key-value pair annottation
 
 /**
  * Represents a Non-Player Character (NPC) associated with a quest.
@@ -73,14 +72,6 @@ public class QuestNPC {
      */
     @JsonProperty("location")
     private LocationData location;
-
-    /**
-     * Initializer block that registers this NPC instance with the key-value pattern handler.
-     */
-    {
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this);
-    }
 
     /**
      * Constructs a new empty QuestNPC.
@@ -137,7 +128,6 @@ public class QuestNPC {
      * 
      * @param name The new name for the NPC.
      */
-    @Key("npc.name")
     public void setName(String name) {
         this.name = name;
     }
@@ -185,7 +175,7 @@ public class QuestNPC {
     public boolean isValid() {
         UUID questCreator = quest.getCreator();
         Player player = null;
-        MessageBuilder response = new MessageBuilder("Something is wrong with a quest NPC") // default message; default sends to console
+        MessageBuilder response = ChatUtils.message("Something is wrong with a quest NPC") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);

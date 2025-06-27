@@ -51,7 +51,7 @@ public class Dynamicactioneditor extends GUIDynamic {
         // the back button
         new GUISlot(this.gui, 1)
             .setLabel("Back")
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .onClick(() -> {
                 // do not allow leaving if there is an issue! dramaaaa
                 Optional<String> issueMessage = this.action.isValid();
@@ -91,7 +91,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
         // select next actions button
         new GUISlot(this.gui, 3)
-            .setItem("HOPPER")
+            .setItem(Material.HOPPER)
             .setLabel("Next Actions")
             .setDescription(List.of("Select actions to come after this one."))
             .onClick(() -> {

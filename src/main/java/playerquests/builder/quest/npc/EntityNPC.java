@@ -18,7 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.LookClose;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import playerquests.Core;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
@@ -67,14 +68,12 @@ public class EntityNPC extends NPCType {
             .setLabel("An Entity")
             .setDescription(
                 hasCitizens2 ?
-                    List.of(
-                        String.format("%sWork in Progress", ChatColor.DARK_GRAY)
-                    )
+                    Component.empty()
+                        .append(Component.text("Work in Progress").color(NamedTextColor.DARK_GRAY))
                 :
-                    List.of(
-                        "Entity NPCs require",
-                        "the Citizens2 plugin"
-                    )
+                    Component.empty()
+                        .append(Component.text("Entity NPCs require"))
+                        .append(Component.text("the Citizens2 plugin"))
             )
             .setItem(hasCitizens2 ? Material.EGG : Material.BARRIER)
             .onClick(() -> {

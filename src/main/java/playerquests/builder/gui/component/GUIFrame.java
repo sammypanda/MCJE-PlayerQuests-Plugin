@@ -1,9 +1,5 @@
 package playerquests.builder.gui.component;
 
-import java.util.regex.Matcher; // matching string to regex pattern
-import java.util.regex.Pattern; // creating regex pattern
-
-import playerquests.Core; // getting the keyhandler
 import playerquests.builder.gui.data.GUIMode; // how the GUI can be interacted with
 import playerquests.client.ClientDirector; // controlling the plugin
 
@@ -15,6 +11,7 @@ public class GUIFrame {
     /**
      * The director for this context
      */
+    @SuppressWarnings("unused")
     private ClientDirector director;
 
     /**
@@ -55,27 +52,7 @@ public class GUIFrame {
      * @return string of the gui title 
      */
     public String getTitle() {
-        String title = this.title; // empty title to receive substitutions
-        Pattern replacePattern = Pattern.compile("\\{([^}]+)\\}"); // regex for anything inside curly {} brackets
-        Matcher matches = replacePattern.matcher(title); // find replacement pattern in the title
-
-        while (matches.find()) {
-            String match = matches.group(1); // get the match string
-
-            try {
-                Class<?> classType = Core.getKeyHandler().getClassFromKey(match);
-                Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
-                String response = (String) Core.getKeyHandler().getValue(instance, match); // get the value
-
-                title = title.replace("{"+match+"}", response);
-
-            } catch (SecurityException e) {
-
-                title = title.replace("{"+match+"}", "").trim(); // clear the replacement string
-            }
-        }
-
-        return title;
+        return this.title;
     }
 
     /**

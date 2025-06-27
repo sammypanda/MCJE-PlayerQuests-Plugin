@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.QuestBuilder;
@@ -78,7 +80,7 @@ public class Dynamicselectnpc extends GUIDynamic {
 
             new GUISlot(gui, slot)
                 .setLabel(npc.getName())
-                .setItem("VILLAGER_SPAWN_EGG")
+                .setItem(Material.VILLAGER_SPAWN_EGG)
                 .onClick(() -> {
                     this.select(npc);
                 });
@@ -86,7 +88,7 @@ public class Dynamicselectnpc extends GUIDynamic {
 
         new GUISlot(gui, 1)
             .setLabel("Back")
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .addFunction(
                 new UpdateScreen(
                     Arrays.asList(this.previousScreen),

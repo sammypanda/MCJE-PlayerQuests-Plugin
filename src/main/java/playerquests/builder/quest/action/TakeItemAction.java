@@ -9,9 +9,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent.Builder;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
@@ -27,6 +31,8 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.builder.quest.data.StagePath;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.product.Quest;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
 public class TakeItemAction extends QuestAction {
@@ -67,24 +73,35 @@ public class TakeItemAction extends QuestAction {
         final Quest quest = questStage.getQuest();
         final String path = new StagePath(questStage, List.of(this)).toString(); // the path to the action
         final String command = String.format("/action consent %s.%s", quest.getID(), path); // command that resolves the clash?
+        
+        Builder message = Component.text()
+            .append(Component.text(
+                String.format("The '%s' quest is requesting to take items", quest.getTitle())
+            ))
+            .color(NamedTextColor.GRAY)
+            .appendNewline();
 
-        ComponentBuilder message = new ComponentBuilder(String.format("\nThe '%s' quest is requesting to take items\n", quest.getTitle()));
-            
-        // list the items
+        // List the items
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-        itemsOption.getItems().forEach((material, amount) -> {
-            message.append(String.format("- %s (%d)", material, amount)).color(ChatColor.GRAY);
+        itemsOption.getItems().forEach((item, amount) -> {
+            message.append(
+                Component.text(String.format("- %s (%d)", item.getName(), amount))
+                    .color(NamedTextColor.WHITE)
+            ).appendNewline();
         });
 
-
-        // add the click functionality
+        // Add the click functionality
         message
-            // .append("Do you consent?\n\n").color(ChatColor.GRAY)
-            .append("\n> ").reset()
-            .append("Click to proceed").color(ChatColor.GREEN).underlined(true)
-            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
+            .appendNewline()
+            .append(Component.text("> "))
+            .append(Component.text("Click here to proceed")
+                .color(NamedTextColor.GREEN)
+                .decorate(TextDecoration.UNDERLINED)
+                .clickEvent(ClickEvent.runCommand(command))
+            )
+            .build();
 
-        player.spigot().sendMessage(message.build()); // send request for consent
+        ChatUtils.message(message.asComponent()).player(player).send(); // send request for consent
     }
 
     @Override
@@ -93,10 +110,9 @@ public class TakeItemAction extends QuestAction {
             return false;
         }
 
-        Inventory playerInventory = questerData.getQuester().getPlayer().getInventory();
+        Player player = questerData.getQuester().getPlayer();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-
-        return itemsOption.getItems().entrySet().stream().allMatch(entry -> playerInventory.contains(entry.getKey(), entry.getValue()));
+        return ItemSerialisable.hasRequiredItems(player, itemsOption.getItems());
     }
 
     @Override
@@ -111,18 +127,21 @@ public class TakeItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         Quest quest = this.getStage().getQuest();
 
-        itemsOption.getItems().forEach((material, count) -> {
-            playerInventory.removeItem(new ItemStack(material, count));
-            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(material, count));
+        itemsOption.getItems().forEach((itemSerialisable, amount) -> {
+            ItemStack itemStack = itemSerialisable.toItemStack();
+            itemStack.setAmount(amount);
+
+            playerInventory.removeItem(itemStack);
+            QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemSerialisable, amount));
         });
 
         player.sendMessage(
             String.format("\n<%s>", "Taking item")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 

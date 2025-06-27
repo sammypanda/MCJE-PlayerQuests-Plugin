@@ -91,7 +91,7 @@ public class UpdateScreen extends GUIFunction {
         // NOTE: using contains is the lazy way of doing so
         if (screenNames_previous.contains(this.screenName)) {
             screenNames_previous.remove(screenNames_previous.size() - 1); // if going backwards
-        } else {
+        } else if ( this.screenName_previous != null && ! this.screenName_previous.equals(this.screenName) ) { // as long as not doubling up
             screenNames_previous.add(this.screenName_previous); // if going forwards
         }
         

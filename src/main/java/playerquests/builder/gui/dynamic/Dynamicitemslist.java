@@ -65,7 +65,7 @@ public class Dynamicitemslist extends GUIDynamic {
 
         // create back button
         new GUISlot(gui, 1)
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .setLabel("Back")
             .onClick(() -> {
                 // clear the item list from the director
@@ -84,7 +84,7 @@ public class Dynamicitemslist extends GUIDynamic {
         // create button for adding items
         if (!listSize.equals(maxItems)) { // as long as the item list isn't the max size yet
             new GUISlot(gui, (this.items.size() + 2))
-                .setItem("LIME_DYE")
+                .setItem(Material.LIME_DYE)
                 .setLabel("Add an item")
                 .onClick(() -> {
                     new SelectMaterial(

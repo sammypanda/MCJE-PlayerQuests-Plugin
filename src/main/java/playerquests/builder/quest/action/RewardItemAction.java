@@ -59,9 +59,9 @@ public class RewardItemAction extends QuestAction {
             String.format("\n<%s>", "Dropping reward")
         );
 
-        itemsOption.getItems().forEach((material, amount) -> {
+        itemsOption.getItems().forEach((item, amount) -> {
             player.sendMessage(
-                String.format("- %s (%d)", material, amount)
+                String.format("- %s (%d)", item.getName(), amount)
             );
         });
 
@@ -85,8 +85,11 @@ public class RewardItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         Quest quest = this.getStage().getQuest();
 
-        QuestRegistry.getInstance().updateInventoryItem(quest, itemsOption.getItems(), (material, amount) -> {
-            playerLocation.getWorld().dropItem(playerLocation, new ItemStack(material, amount));
+        QuestRegistry.getInstance().updateInventoryItem(quest, itemsOption.getItems(), (itemSerialisable, amount) -> {
+            ItemStack itemStack = itemSerialisable.toItemStack(); // get an item stack from playerquests item data
+            itemStack.setAmount(amount); // set the amount of the above
+
+            playerLocation.getWorld().dropItem(playerLocation, itemStack);
         }, true);
     }
 
@@ -119,5 +122,5 @@ public class RewardItemAction extends QuestAction {
     public LocationData getLocation() {
         return null;
     }
-    
+
 }

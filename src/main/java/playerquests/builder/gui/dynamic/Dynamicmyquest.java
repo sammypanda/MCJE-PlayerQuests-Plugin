@@ -2,6 +2,8 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays; // generic arrays type
 
+import org.bukkit.Material;
+
 import playerquests.builder.gui.component.GUIFrame; // the outer frame of the GUI window
 import playerquests.builder.gui.component.GUISlot; // inventory slots representing GUI buttons
 import playerquests.builder.gui.function.UpdateScreen; // GUI function to change GUI
@@ -65,7 +67,7 @@ public class Dynamicmyquest extends GUIDynamic {
 
         // create back button
         new GUISlot(gui, 1)
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .setLabel("Back")
             .addFunction(new UpdateScreen(
                 Arrays.asList(previousScreen), 
@@ -74,7 +76,7 @@ public class Dynamicmyquest extends GUIDynamic {
 
         // create edit button
         new GUISlot(gui, 3)
-            .setItem("WRITABLE_BOOK")
+            .setItem(Material.WRITABLE_BOOK)
             .setLabel("Edit")
             .onClick(() -> {
                 // create a quest builder (for editing)
@@ -89,7 +91,7 @@ public class Dynamicmyquest extends GUIDynamic {
 
         // create quest inventory button
         new GUISlot(gui, 4)
-            .setItem("ITEM_FRAME")
+            .setItem(Material.ITEM_FRAME)
             .setLabel("Quest Inventory")
             .onClick(() -> {
                 new UpdateScreen(
@@ -101,7 +103,7 @@ public class Dynamicmyquest extends GUIDynamic {
         // create remove quest button (with confirmation check)
         if (confirm_delete.equals(false)) {
             new GUISlot(gui, 8)
-                .setItem("RED_DYE")
+                .setItem(Material.RED_DYE)
                 .setLabel("Delete")
                 .onClick(() -> {
                     this.confirm_delete = true;
@@ -109,7 +111,7 @@ public class Dynamicmyquest extends GUIDynamic {
                 });
         } else {
             new GUISlot(gui, 8)
-                .setItem("RED_WOOL")
+                .setItem(Material.RED_WOOL)
                 .setLabel("Delete (Confirm)")
                 .onClick(() -> {
                     // delete the quest
@@ -132,7 +134,7 @@ public class Dynamicmyquest extends GUIDynamic {
         Boolean isToggled = quest.isToggled();
         
         new GUISlot(gui, 9)
-            .setItem(isToggled ? "GREEN_STAINED_GLASS_PANE" : "GRAY_STAINED_GLASS_PANE")
+            .setItem(isToggled ? Material.GREEN_STAINED_GLASS_PANE : Material.GRAY_STAINED_GLASS_PANE)
             .setLabel(isToggled ? "Toggle Off" : "Toggle On")
             .onClick(() -> {
                 quest.toggle();

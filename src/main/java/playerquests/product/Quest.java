@@ -7,7 +7,6 @@ import java.util.Map; // generic map type
 import java.util.UUID; // identifies the player who created this quest
 
 import org.bukkit.Bukkit; // Bukkit API
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,7 +20,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper; // used to deserialise/serialise this class
 import com.fasterxml.jackson.databind.SerializationFeature; // used to configure serialisation
 
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import playerquests.Core; // the main class of this plugin
 import playerquests.builder.quest.action.RewardItemAction;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -37,7 +37,7 @@ import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.FileUtils; // helpers for working with files
 import playerquests.utility.PluginUtils;
-import playerquests.utility.annotation.Key; // key-value pair annotations for KeyHandler
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.Database; // the preservation everything store
 import playerquests.utility.singleton.PlayerQuests;
 import playerquests.utility.singleton.QuestRegistry; // multi-threaded quest store
@@ -103,9 +103,6 @@ public class Quest {
         @JsonProperty("id") String id,
         @JsonProperty("startpoints") List<StagePath> startpoints
     ) {
-        // adding to key-value pattern handler
-        Core.getKeyHandler().registerInstance(this);
-
         // remove null NPCs and stages
         npcs.entrySet().removeIf(stage -> stage.getValue() == null);
         stages.entrySet().removeIf(npc -> npc.getValue() == null);
@@ -168,6 +165,11 @@ public class Quest {
             System.err.println("Could not map a quest JSON string to a valid quest product. " + e);
         } catch (JsonProcessingException e) {
             System.err.println("Malformed JSON attempted as a quest string. " + e);
+        }
+
+        // if no quest, fail
+        if ( quest == null ) {
+            return quest;
         }
 
         // if trying to start quest with dependencies missing, fail
@@ -269,7 +271,6 @@ public class Quest {
      *
      * @return A message indicating the result of the save operation.
      */
-    @Key("quest")
     public String save() {
         String questName = Core.getQuestsPath() + this.getID() + ".json"; // name pattern
         Player player = null;
@@ -376,7 +377,7 @@ public class Quest {
     public boolean isValid() {
         UUID questCreator = this.creator;
         Player player = null;
-        MessageBuilder response = new MessageBuilder("Something is wrong with the quest") // default message; default sends to console
+        MessageBuilder response = ChatUtils.message("Something is wrong with the quest") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);
@@ -411,7 +412,7 @@ public class Quest {
     public boolean isAllowed() {
         UUID questCreator = this.creator;
         Player player = null;
-        MessageBuilder response = new MessageBuilder("Cannot enable the quest") // default message; default sends to console
+        MessageBuilder response = ChatUtils.message("Cannot enable the quest") // default message; default sends to console
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);
@@ -423,12 +424,20 @@ public class Quest {
             response.player(player).style(MessageStyle.PRETTY); // set message target to player if player is found
         }
 
+        // if player not found send to console instead
+        if (player == null) {
+            response.target(MessageTarget.CONSOLE).style(MessageStyle.PLAIN);
+        }
+
         // Validate quest title
         isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
             Integer amount = entry.getValue();
 
             if (amount < 0) {
-                response.content(String.format("The '%s' quest is missing some stock. %sThis might be because you have a reward greater than what's in the quest inventory.", this.title, ChatColor.GRAY));
+                response.content(Component.empty()
+                    .append(Component.text(String.format("The '%s' quest is missing some stock. ", this.title)))
+                    .append(Component.text("This might be because you have a reward greater than what's in the quest inventory.").color(NamedTextColor.GRAY))
+                );
                 return true; // exit
             }
 
@@ -492,8 +501,8 @@ public class Quest {
      * @return the minimum numbers of items required.
      */
     @JsonIgnore
-    public Map<Material, Integer> getRequiredInventory() {
-        Map<Material, Integer> requiredInventory = new HashMap<>();
+    public Map<ItemSerialisable, Integer> getRequiredInventory() {
+        Map<ItemSerialisable, Integer> requiredInventory = new HashMap<>();
 
         // from each stage
         this.getStages().values().forEach(stage -> {
@@ -506,8 +515,8 @@ public class Quest {
                 ) { return; }
 
                 // add the items expected to the requiredInventory list
-                action.getData().getOption(ItemsOption.class).get().getItems().forEach((material, amount) -> {
-                    requiredInventory.put(material, amount);
+                action.getData().getOption(ItemsOption.class).get().getItems().forEach((itemSerialisable, amount) -> {
+                    requiredInventory.put(itemSerialisable, amount);
                 });
             });
         });

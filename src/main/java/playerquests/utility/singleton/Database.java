@@ -27,7 +27,6 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.maven.api.model.Model;
 import org.apache.maven.model.v4.MavenStaxReader;
 import org.bukkit.Bukkit; // the Bukkit API
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,6 +38,8 @@ import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.MigrationUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -153,7 +154,7 @@ public class Database {
             String questsTableSQL = "CREATE TABLE IF NOT EXISTS quests ("
             + "id TEXT PRIMARY KEY,"
             + "toggled BOOLEAN NOT NULL DEFAULT TRUE,"
-            + "inventory TEXT NOT NULL DEFAULT '{ }');";
+            + "inventory TEXT NOT NULL DEFAULT '');";
             statement.execute(questsTableSQL);
 
             String diariesTableSQL = "CREATE TABLE IF NOT EXISTS diaries ("
@@ -204,7 +205,7 @@ public class Database {
      */
     private synchronized void migrate(String version, String version_db) {
         // Check if there is a new version
-        MessageBuilder alert = new MessageBuilder("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
+        MessageBuilder alert = ChatUtils.message("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
             .style(MessageStyle.PRETTY)
             .target(MessageTarget.WORLD)
             .type(MessageType.WARN);
@@ -247,6 +248,8 @@ public class Database {
             StringBuilder query = new StringBuilder();
 
             switch (version) {
+                case "0.10.1":
+                    query.append(MigrationUtils.dbV0_10_1());
                 case "0.10":
                     query.append(MigrationUtils.dbV0_10());
                 case "0.9.2":
@@ -656,13 +659,13 @@ public class Database {
      *
      * This method inserts or updates the inventory associated with the given quest. If a record with the same
      * quest ID already exists in the database, the inventory will be updated with the new values provided.
-     * The inventory is represented as a map of materials to quantities, which is converted to a string for storage.
+     * The inventory is represented as a map of ItemSerialisable to quantities, which is converted to a string for storage.
      *
      * @param quest The {@link Quest} object representing the quest whose inventory is to be set.
-     * @param inventory A {@link Map} where keys are {@link Material} representing the items in the inventory,
+     * @param inventory A {@link Map} where keys are {@link ItemSerialisable} representing the items in the inventory,
      *                  and values are {@link Integer} representing the quantities of those items.
      */
-    public void setQuestInventory(Quest quest, Map<Material, Integer> inventory) {
+    public void setQuestInventory(Quest quest, Map<ItemSerialisable, Integer> inventory) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id, inventory) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET inventory = EXCLUDED.inventory")) {
 
@@ -681,8 +684,8 @@ public class Database {
      *
      * @return A map of quest inventory maps retrieved from the database, or an empty map if an error occurs.
      */
-    public synchronized Map<String, Map<Material, Integer>> getAllQuestInventories() {
-        Map<String, Map<Material, Integer>> inventories = new HashMap<>();
+    public synchronized Map<String, Map<ItemSerialisable, Integer>> getAllQuestInventories() {
+        Map<String, Map<ItemSerialisable, Integer>> inventories = new HashMap<>();
 
         try (Connection connection = getConnection();
         Statement statement = connection.createStatement()) {
@@ -691,13 +694,22 @@ public class Database {
             ResultSet result = statement.executeQuery(allQuestsSQL);
 
             while (result.next()) {
-                Map<Material, Integer> inventoryMap = new HashMap<>();
-                String[] pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
+                String[] pairs = result.getString("inventory").split("\\|"); // escape for raw "|"
+                Map<ItemSerialisable, Integer> inventoryMap = new HashMap<>();
 
+                pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
                 for (String pair : pairs) {
                     String[] keyValue = pair.split("=");
                     if (keyValue.length == 2) {
-                        Material material = Material.matchMaterial(keyValue[0].trim());
+                        String itemString = keyValue[0].trim().replace("{", "").replace("}", "");
+                        ItemSerialisable itemSerialisable = new ItemSerialisable(itemString);
+
+                        // skip if invalid itemSerialisable
+                        if (itemSerialisable.getItemData().equals(ItemData.AIR)) {
+                            continue;
+                        }
+
+                        // resolve item quantity
                         Integer quantity;
                         try {
                             quantity = Integer.parseInt(keyValue[1].trim());
@@ -706,10 +718,13 @@ public class Database {
                             System.err.println("Invalid quantity format: " + keyValue[1]);
                             continue;
                         }
-                        inventoryMap.put(material, quantity);
+
+                        // prepare to be shipped
+                        inventoryMap.put(itemSerialisable, quantity);
                     }
                 }
 
+                // put quest id and retrieved inventory for returning
                 inventories.put(result.getString("id"), inventoryMap);
             }
 

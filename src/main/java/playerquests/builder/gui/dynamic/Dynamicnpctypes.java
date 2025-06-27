@@ -54,7 +54,7 @@ public class Dynamicnpctypes extends GUIDynamic {
         // add back button
         GUISlot backButton = new GUISlot(gui, 1);
         backButton.setLabel("Back");
-        backButton.setItem("OAK_DOOR");
+        backButton.setItem(Material.OAK_DOOR);
         backButton.addFunction(
             new UpdateScreen(
                 Arrays.asList(this.previousScreen), 
@@ -65,8 +65,8 @@ public class Dynamicnpctypes extends GUIDynamic {
         // add dividers
         GUISlot backDivider = new GUISlot(gui, 2);
         GUISlot placeDivider = new GUISlot(gui, 8);
-        backDivider.setItem("BLACK_STAINED_GLASS_PANE");
-        placeDivider.setItem("BLACK_STAINED_GLASS_PANE");
+        backDivider.setItem(Material.BLACK_STAINED_GLASS_PANE);
+        placeDivider.setItem(Material.BLACK_STAINED_GLASS_PANE);
 
         // add npc type buttons
         NPCType.getAllTypes()

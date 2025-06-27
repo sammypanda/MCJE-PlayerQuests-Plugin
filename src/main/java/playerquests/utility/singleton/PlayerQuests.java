@@ -10,7 +10,7 @@ import org.bukkit.plugin.Plugin;
 
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.DespawnReason;
-import net.citizensnpcs.api.npc.MemoryNPCDataStore;
+import net.citizensnpcs.api.npc.NPCDataStore;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import playerquests.Core;
 import playerquests.client.Director; // generic director type
@@ -84,7 +84,7 @@ public class PlayerQuests {
     /**
      * Non-persistent citizens NPC registry, required for citizens plugin API.
      */
-    private NPCRegistry citizensRegistry = CitizensAPI.createNamedNPCRegistry("playerquests", new MemoryNPCDataStore());
+    private NPCRegistry citizensRegistry;
 
     /**
      * Should be accessed statically.
@@ -112,10 +112,26 @@ public class PlayerQuests {
 
     /**
      * Gets the PlayerQuests Citizens plugin registry.
+     * !! Please check hasCitizens2 before using.
      * @return a non-persistent citizens registry named 'playerquests'
      */
     public NPCRegistry getCitizensRegistry() {
-        return this.citizensRegistry;
+        // exit if not has citizens 2
+        if ( ! this.hasCitizens2() ) {
+            throw new RuntimeException("Tried to access CitizensRegistry without Citizens");
+        }
+
+        // set if not set
+        try {
+            if (this.citizensRegistry == null) {
+                Class<?> memoryNPCDataStoreClass = Class.forName("net.citizensnpcs.api.npc.MemoryNPCDataStore");
+                Object dataStore = memoryNPCDataStoreClass.getDeclaredConstructor().newInstance();
+                this.citizensRegistry = CitizensAPI.createNamedNPCRegistry("playerquests", (NPCDataStore) dataStore);
+            }
+            return this.citizensRegistry;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize Citizens registry", e);
+        }
     }
 
     /**
@@ -248,8 +264,10 @@ public class PlayerQuests {
         });
 
         // despawn the citizens and remove citizens registry
-        this.getCitizensRegistry().despawnNPCs(DespawnReason.REMOVAL);
-        CitizensAPI.removeNamedNPCRegistry("playerquests");
+        if ( PlayerQuests.getInstance().hasCitizens2() ) {
+            this.getCitizensRegistry().despawnNPCs(DespawnReason.REMOVAL);
+            CitizensAPI.removeNamedNPCRegistry("playerquests");
+        }
 
         // clear the quest registry
         QuestRegistry.getInstance().clear();

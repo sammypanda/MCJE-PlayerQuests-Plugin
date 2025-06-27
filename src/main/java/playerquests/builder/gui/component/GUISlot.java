@@ -3,13 +3,20 @@ package playerquests.builder.gui.component;
 import java.util.ArrayList; // used to transport GUI functions
 import java.util.List; // generic list type
 
-import org.bukkit.ChatColor; // used to modify formatting of in-game chat text
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
-import playerquests.utility.MaterialUtils; // converts string of item to presentable itemstack
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 
 /**
  * The contents and function list of a slot.
@@ -29,17 +36,17 @@ public class GUISlot {
     /**
      * The item or block displayed in this slot. Defaults to "GRAY_STAINED_GLASS_PANE".
      */
-    private String item = "GRAY_STAINED_GLASS_PANE";
+    private ItemSerialisable item = new ItemSerialisable("GRAY_STAINED_GLASS_PANE");
 
     /**
      * The label displayed when hovering over the slot. Defaults to a single space.
      */
-    private String label = " ";
+    private Component label = Component.text(" ");
     
     /**
      * The description or subtitle displayed when hovering over the slot. Defaults to an empty string.
      */
-    private List<String> description = new ArrayList<String>();
+    private Component description = Component.text("");
 
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
@@ -108,36 +115,23 @@ public class GUISlot {
 
     /**
      * Sets the item or block to be displayed in this slot.
-     * @param item The string representation of the item or block.
+     * @param item The item or block.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setItem(String item) {
-        try { // check if the item would create a valid ItemStack (the Material exists and isn't legacy)
-            MaterialUtils.toItemStack(item);
-            this.item = item; // if no issue caught overwrite the default slot item
-        } catch (IllegalArgumentException exception) { // this means the ItemStack failed to construct
+    public GUISlot setItem(ItemSerialisable item) {
+        // handle if invalid item
+        if (item.getItemData().equals(ItemData.AIR)) {
             this.errored = true;
-            this.item = "RED_STAINED_GLASS_PANE"; // express that there was a problem visually by using an alarming item
-            System.err.println(exception.getMessage());
+            this.item = new ItemSerialisable("RED_STAINED_GLASS_PANE"); // express that there was a problem visually by using an alarming item
+            ChatUtils.message("Failed to setItem in GUISlot " + item)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .style(MessageStyle.SIMPLE)
+                .send();
+            return this;
         }
-        
-        return this;
-    }
 
-    /**
-     * Sets the material to be displayed in this slot.
-     * 
-     * <p>This method updates the item in the slot to be represented by the given {@link Material}.
-     * The provided material is converted to its string representation and stored in the internal
-     * item field. This method is typically used to configure the slot with a specific material
-     * for display or interaction purposes.</p>
-     * 
-     * @param material The {@link Material} to be displayed in the slot. This is converted to a
-     *                 string and assigned to the slot's item.
-     * @return The current instance of {@link GUISlot}, allowing for method chaining.
-     */
-    public GUISlot setItem(Material material) {
-        this.item = material.toString();
+        this.item = item;
         return this;
     }
 
@@ -146,18 +140,22 @@ public class GUISlot {
      * @param label The label text to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setLabel(String label) {
-        String errorLabel = "(Error)";
+    public GUISlot setLabel(Component label) {
+        Component errorPrefix = Component.text("(Error)");
 
-        // Evaluate label for error prefix and avoid malformatting labels
-        label = String.format("%s%s%s%s", 
-            ChatColor.RESET, // remove the italics set when changing from default item display name
-            this.hasError() ? errorLabel : "", // add an error notice if applicable
-            this.hasError() && !label.equals(" ") ? " " : "", // put whitespace if applicable
-            this.hasError() && label.equals(" ") ? label.trim() : label // add the real label if applicable
+        // if no error return as is
+        if ( ! this.hasError()) {
+            this.label = label;
+            return this;
+        }
+
+        Component errorLabel = Component.join(
+            JoinConfiguration.separator(Component.space()), // auto-add whitespace if applicable
+            errorPrefix,
+            label
         );
-        
-        this.label = label;
+
+        this.label = errorLabel;
         return this;
     }
 
@@ -171,17 +169,17 @@ public class GUISlot {
 
     /**
      * Gets the item or block to be displayed in this slot.
-     * @return The raw string representation of the item or block.
+     * @return The raw representation of the item or block.
      */
-    public String getItem() {
+    public ItemSerialisable getItem() {
         return this.item;
     }
 
     /**
      * Gets the hover label for this slot.
-     * @return The label text displayed when hovering over the slot.
+     * @return The label component displayed when hovering over the slot.
      */
-    public String getLabel() {
+    public Component getLabel() {
         return this.label;
     }
 
@@ -235,38 +233,34 @@ public class GUISlot {
 
     /**
      * Sets the hover description or subtitle for this slot.
-     * @param descriptionLines The description text to be displayed when hovering over the slot.
+     * @param description The description component to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setDescription(List<String> descriptionLines) {
-        String errorDescription = "";
-        List<String> descriptionLinesProcessed = new ArrayList<>();
+    public GUISlot setDescription(Component description) {
+        Component errorText = Component.text("");
 
-        descriptionLines.forEach(description -> {
-            if (description.isEmpty()) {
-                return;
-            }
+        // if no error return as is
+        if ( ! this.hasError()) {
+            this.description = description;
+            return this;
+        }
 
-            // Evaluate label for error prefix and avoid malformatting labels
-            description = String.format("%s%s%s%s", 
-                description.isBlank() ? "" : ChatColor.RESET, // remove the italics set when changing from default item display name
-                this.hasError() ? errorDescription : "", // add an error notice if applicable
-                this.hasError() && !description.equals("") ? "" : "", // put whitespace if applicable
-                this.hasError() && description.equals("") ? description.trim() : description // add the real label if applicable
-            );
-
-            descriptionLinesProcessed.add(description);
-        });
+        // otherwise...
+        Component errorDescription = Component.join(
+            JoinConfiguration.separator(Component.space()), // auto-add whitespace if applicable
+            errorText,
+            description
+        );
         
-        this.description = descriptionLinesProcessed;
+        this.description = errorDescription;
         return this;
     }
 
     /**
      * Gets the hover description for this slot.
-     * @return The description text displayed when hovering over the slot.
+     * @return The description component displayed when hovering over the slot.
      */
-    public List<String> getDescription() {
+    public Component getDescription() {
         return this.description;
     }
 
@@ -302,5 +296,39 @@ public class GUISlot {
      */
     public boolean isGlinting() {
         return this.glinting;
+    }
+
+    /**
+     * Simple translation method that allows for setting lame Material enums
+     * as item; simply translates it into ItemSerialisable.
+     * @param material the generic material
+     * @return a generic item in a detailed container
+     */
+    public GUISlot setItem(Material material) {
+        this.item = ItemSerialisable.fromItemStack(new ItemStack(material));
+        return this;
+    }
+
+    /**
+     * Shortcut method if just setting simple string as label
+     * @param string a plain, unformatted label
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setLabel(String string) {
+        this.setLabel(Component.text(string));
+        return this;
+    }
+
+    /**
+     * Shortcut method if just setting simple strings as description
+     * @param description a list of plain unformatted strings
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setDescription(List<String> description) {
+        this.description = Component.join(
+            JoinConfiguration.separator(Component.newline()), // auto-add newline if applicable
+            description.stream().map(Component::text).toList()
+        );
+        return this;
     }
 }

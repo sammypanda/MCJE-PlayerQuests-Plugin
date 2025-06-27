@@ -6,9 +6,14 @@ import org.bukkit.Bukkit; // used to access a Scheduler
 import org.bukkit.event.EventHandler; // handling spigot events
 import org.bukkit.event.HandlerList; // to unregister event listener (ChatPromptListener)
 import org.bukkit.event.Listener; // to register event listener (ChatPromptListener)
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.ChatColor; // used to format the chat messages to guide user input/UX
+
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
 import org.bukkit.entity.Player; // refers to the player
 
 import playerquests.Core; // used to access the Plugin and KeyHandler instances
@@ -63,13 +68,17 @@ public class ChatPrompt extends GUIFunction {
          * @param event
          */
         @EventHandler
-        private void onChat(AsyncPlayerChatEvent event) {
+        private void onChat(AsyncChatEvent event) {
             if (this.player != event.getPlayer()) {
                 return; // do not capture other players events
             }
 
+            // get user response
+            String response = PlainTextComponentSerializer.plainText().serialize(event.message());
+
+            // finish
             event.setCancelled(true); // cancel the chat message from sending to others
-            this.parentClass.setResponse(event.getMessage()); // set the user response
+            this.parentClass.setResponse(response); // set the user response
             this.parentClass.execute(); // loop back to the function
         }
 
@@ -215,17 +224,7 @@ public class ChatPrompt extends GUIFunction {
 
         if (this.confirmedValue) {
             if (!this.key.equals("none")) {
-                try {
-                    Class<?> classType = Core.getKeyHandler().getClassFromKey(this.key); // discover what class type the key is for
-                    Object instance = this.director.getCurrentInstance(classType); // get the current in-use instance for the class type
-                    Core.getKeyHandler().setValue(instance, this.key, this.value); // set the value
-                } catch (IllegalArgumentException e) {
-                    ChatUtils.message(e.getMessage())
-                        .player(this.player)
-                        .type(ChatUtils.MessageType.ERROR)
-                        .send();
-                    this.errored = true;
-                }
+                throw new RuntimeException("KeyHandler removed.");
             }
 
             putPredefinedMessage(MessageType.CONFIRMED);
@@ -271,38 +270,42 @@ public class ChatPrompt extends GUIFunction {
     private void putPredefinedMessage(MessageType type) {
         switch(type) {
             case REQUEST:
-            this.player.sendMessage(
-                ChatColor.UNDERLINE + this.prompt + ChatColor.RESET
-            );
-            ChatUtils.clearChat(this.player, 1);
-            this.player.sendMessage(
-                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET
-            );
+            ChatUtils.message(Component.empty()
+                .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
+                .appendNewline()
+                .append(Component.text("or type ").color(NamedTextColor.RED))
+                .append(Component.text("exit").color(NamedTextColor.GRAY))
+            ).player(player).send();
             break;
 
             case CONFIRM:
-            this.player.sendMessage(
-                ChatColor.UNDERLINE + prompt + ChatColor.RESET + " " +
-                ChatColor.GRAY + "" + ChatColor.ITALIC + "Entered: " + this.value
-            );
-            ChatUtils.clearChat(this.player, 1);
-            this.player.sendMessage(
-                ChatColor.GRAY + "enter again\n" +
-                ChatColor.GREEN + "or type " + ChatColor.GRAY + "confirm\n" +
-                ChatColor.RED + "or type " + ChatColor.GRAY + "exit" + ChatColor.RESET
-            );
+            ChatUtils.message(Component.empty()
+                .append(Component.text("Entered: " + this.value).decorate(TextDecoration.ITALIC))
+                .appendNewline()
+                .append(Component.text("enter again").color(NamedTextColor.GRAY))
+                .appendNewline()
+                .append(Component.text("or type ").color(NamedTextColor.GREEN))
+                .append(Component.text("confirm").color(NamedTextColor.GRAY))
+                .appendNewline()
+                .append(Component.text("or type ").color(NamedTextColor.RED))
+                .append(Component.text("exit").color(NamedTextColor.GRAY))
+            ).player(player).send();
             break;
 
             case EXITED:
-            this.player.sendMessage(
-                ChatColor.GRAY + "" + ChatColor.ITALIC + "exited"
-            );
+            ChatUtils.message(Component.empty()
+                .append(Component.text("exited"))
+                .decorate(TextDecoration.ITALIC)
+                .color(NamedTextColor.RED)
+            ).player(player).send();
             break;
 
             case CONFIRMED:
-            this.player.sendMessage(
-                ChatColor.DARK_GREEN + "" + ChatColor.ITALIC + "confirmed"
-            );
+            ChatUtils.message(Component.empty()
+                .append(Component.text("confirmed"))
+                .decorate(TextDecoration.ITALIC)
+                .color(NamedTextColor.DARK_GREEN)
+            ).player(player).send();
             break;
         }
     }
@@ -320,7 +323,7 @@ public class ChatPrompt extends GUIFunction {
         HandlerList.unregisterAll(this.chatListener);
 
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> { // execute next on main thread
-            this.director.getGUI().getResult().open(); // open the old GUI again after minimise()
+            this.director.getGUI().getResult().display(); // open the old GUI again after minimise()
             this.finished(); // run code for when finished
 
             // reset values

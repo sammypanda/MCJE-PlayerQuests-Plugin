@@ -79,7 +79,7 @@ public class Dynamicqueststage extends GUIDynamic {
         // the back button
         GUISlot exitButton = new GUISlot(this.gui, 19);
         exitButton.setLabel("Back");
-        exitButton.setItem("OAK_DOOR");
+        exitButton.setItem(Material.OAK_DOOR);
         exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
             Arrays.asList("queststages"), // set the previous screen
             director // set the client director
@@ -125,11 +125,11 @@ public class Dynamicqueststage extends GUIDynamic {
 
         // left side dividers
         new GUISlot(this.gui, 2)
-            .setItem("BLACK_STAINED_GLASS_PANE");
+            .setItem(Material.BLACK_STAINED_GLASS_PANE);
         new GUISlot(this.gui, 11)
-            .setItem("BLACK_STAINED_GLASS_PANE");
+            .setItem(Material.BLACK_STAINED_GLASS_PANE);
         new GUISlot(this.gui, 20)
-            .setItem("BLACK_STAINED_GLASS_PANE");
+            .setItem(Material.BLACK_STAINED_GLASS_PANE);
 
         // produce slots listing current actions
         if (!confirm_actionKeys) {
@@ -178,7 +178,7 @@ public class Dynamicqueststage extends GUIDynamic {
         // add 'delete stage' button (with confirm)
         if (!this.confirm_delete) { // if delete hasn't been confirmed
             new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
-                .setItem("RED_DYE")
+                .setItem(Material.RED_DYE)
                 .setLabel("Delete Stage")
                 .onClick(() -> {
                     this.confirm_delete = true;
@@ -186,7 +186,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 });
         } else {
             new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
-                .setItem("RED_WOOL")
+                .setItem(Material.RED_WOOL)
                 .setLabel("Delete")
                 .onClick(() -> {
                     if (this.questBuilder.removeStage(this.questStage)) { // if quest was removed
@@ -206,7 +206,7 @@ public class Dynamicqueststage extends GUIDynamic {
 
         if (!this.questBuilder.removeStage(this.questStage, true)) { // if cannot delete the stage
             new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
-                .setItem("GRAY_DYE")
+                .setItem(Material.GRAY_DYE)
                 .setLabel("Cannot Delete")
                 .setDescription(List.of("This stage is connected to other stages and actions."));
         }
@@ -215,7 +215,7 @@ public class Dynamicqueststage extends GUIDynamic {
         GUISlot newActionButton = new GUISlot(this.gui, this.gui.getFrame().getSize());
         if (this.questStage.getActions().size() < 19) {
             newActionButton.setLabel("Add Action");
-            newActionButton.setItem("LIME_DYE");
+            newActionButton.setItem(Material.LIME_DYE);
             newActionButton.onClick(() -> {
                 // create the new action
                 questStage.addAction(new NoneAction(questStage));
@@ -227,7 +227,7 @@ public class Dynamicqueststage extends GUIDynamic {
             });
         } else {
             newActionButton.setLabel("No More Action Slots");
-            newActionButton.setItem("BARRIER");
+            newActionButton.setItem(Material.BARRIER);
         }
     }
 }

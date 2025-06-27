@@ -187,4 +187,14 @@ public class MigrationUtils {
             COMMIT;
         """;
     }
+
+    public static String dbV0_10_1() {
+        return """
+            BEGIN TRANSACTION;
+
+            ALTER TABLE quests ADD COLUMN inventory TEXT NOT NULL DEFAULT "";
+
+            COMMIT;
+        """;
+    }
 }

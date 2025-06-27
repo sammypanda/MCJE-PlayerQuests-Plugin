@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.Material;
 
+import net.kyori.adventure.text.Component;
 import playerquests.builder.gui.component.GUIFrame; // describes the outer GUI frame/window
 import playerquests.builder.gui.component.GUISlot; // describes a GUI button
 import playerquests.builder.gui.function.ChatPrompt; // GUI taking input from chat box
@@ -15,6 +16,7 @@ import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector; // accessing the client state
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -52,14 +54,14 @@ public class Dynamicquesteditor extends GUIDynamic {
 
         // set the GUI title as: Edit Quest ([quest title])
         guiFrame.setTitle(
-            String.format("Edit Quest %s", 
+            String.format("Edit Quest %s",
                 questTitle != null ? "("+ChatUtils.shortenString(questTitle, 18)+")" : null
             )
         );
 
         // add the buttons
         new GUISlot(gui, 1) // back button
-            .setItem("OAK_DOOR")
+            .setItem(Material.OAK_DOOR)
             .setLabel("Back")
             .addFunction(
                 new UpdateScreen(
@@ -69,11 +71,11 @@ public class Dynamicquesteditor extends GUIDynamic {
             );
 
         new GUISlot(gui, 3) // set quest title button
-            .setItem("ACACIA_HANGING_SIGN")
+            .setItem(Material.ACACIA_HANGING_SIGN)
             .setLabel("Set Title")
             .onClick(() -> {
                 new ChatPrompt(
-                    Arrays.asList("Enter quest title", "none"), 
+                    Arrays.asList("Enter quest title", "none"),
                     director
                 ).onFinish(guiFunction -> {
                     ChatPrompt function = (ChatPrompt) guiFunction;
@@ -84,17 +86,22 @@ public class Dynamicquesteditor extends GUIDynamic {
                     Quest quest = questBuilder.build();
 
                     // get current inventory
-                    Map<Material, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
+                    Map<ItemSerialisable, Integer> questInventory = QuestRegistry.getInstance().getInventory(quest);
 
                     // delete current quest
                     QuestRegistry.getInstance().delete(quest, true, false, true);
-                    
+
                     // change title
                     questBuilder.setTitle(function.getResponse());
 
                     // create and save new
                     Quest newQuest = questBuilder.build();
-                    newQuest.save();
+                    String saveMessage = newQuest.save();
+
+                    // send save message
+                    ChatUtils.message(Component.text(saveMessage))
+                        .player(this.director.getPlayer())
+                        .send();
 
                     // restore inventory
                     QuestRegistry.getInstance().setInventory(newQuest, questInventory);
@@ -102,34 +109,35 @@ public class Dynamicquesteditor extends GUIDynamic {
                     // update quest reference
                     this.director.setCurrentInstance(newQuest, Quest.class);
 
-                    this.execute(); // refresh UI to reflect title change
+                    // refresh UI to reflect title change
+                    new UpdateScreen(List.of(this.gui.getScreenName()), director).execute();
                 })
                 .execute();
             });
 
         GUISlot stagesSlot = new GUISlot(gui, 4) // view quest stages button (blocked)
-            .setItem("GRAY_STAINED_GLASS_PANE")
+            .setItem(Material.GRAY_STAINED_GLASS_PANE)
             .setLabel("Quest Stages")
             .setDescription(List.of("Add an NPC to add Stages"));
-        
+
         if (!questBuilder.getQuestNPCs().isEmpty()) { // view quest stages button (unblocked)
-            stagesSlot.setItem("CHEST")
+            stagesSlot.setItem(Material.CHEST)
             .setLabel("Quest Stages")
             .setDescription(List.of("")) // clear the description
             .addFunction(
                 new UpdateScreen(
-                    Arrays.asList("queststages"), 
+                    Arrays.asList("queststages"),
                     director
                 )
-            ); 
+            );
         }
 
         new GUISlot(gui, 5) // view quest NPCs button
-            .setItem("ENDER_CHEST")
+            .setItem(Material.ENDER_CHEST)
             .setLabel("Quest NPCs")
             .addFunction(
                 new UpdateScreen(
-                    Arrays.asList("questnpcs"), 
+                    Arrays.asList("questnpcs"),
                     director
                 )
             );
@@ -152,7 +160,7 @@ public class Dynamicquesteditor extends GUIDynamic {
             });
 
         new GUISlot(gui, 9) // save quest button
-            .setItem("GREEN_DYE")
+            .setItem(Material.GREEN_DYE)
             .setLabel("Save")
             .onClick(() -> {
                 // save the quest
