@@ -20,12 +20,9 @@ import java.util.ArrayList; // array list type
 import java.util.HashMap;
 import java.util.List; // generic list type
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID; // how users are identified
 
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.maven.api.model.Model;
-import org.apache.maven.model.v4.MavenStaxReader;
 import org.bukkit.Bukkit; // the Bukkit API
 import org.bukkit.entity.Player;
 
@@ -125,16 +122,15 @@ public class Database {
         String dbVersion = getPluginVersion();
         String version = "0.0"; // default version
 
-        try (InputStream inputStream = getClass().getResourceAsStream("/META-INF/maven/moe.sammypanda/playerquests/pom.xml")) {
-            if (inputStream != null) {
-                MavenStaxReader reader = new MavenStaxReader();
-                Model model = reader.read(new InputStreamReader(inputStream));
-                version = model.getVersion();
-            } else {
-                System.err.println("Error: Resource not found.");
+        try (InputStream input = getClass().getResourceAsStream(
+            "/META-INF/maven/moe.sammypanda/playerquests/pom.properties")) {
+            if (input != null) {
+                Properties props = new Properties();
+                props.load(input);
+                version = props.getProperty("version");
             }
-        } catch (IOException | XMLStreamException e) {
-            System.err.println("Error reading pom.xml: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Failed to read PlayerQuests version property from pom: " + e.getMessage());
         }
 
         try (Connection connection = getConnection();
