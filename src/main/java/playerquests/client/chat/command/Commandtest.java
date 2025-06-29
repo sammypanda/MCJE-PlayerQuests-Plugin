@@ -3,9 +3,7 @@ package playerquests.client.chat.command;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,6 +15,7 @@ import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.test.TestUtility;
 import playerquests.utility.test.Testdatabase;
+import playerquests.utility.test.TestUtility.TestResult;
 
 public class Commandtest extends ChatCommand {
 
@@ -57,89 +56,108 @@ public class Commandtest extends ChatCommand {
 
         // do all if no args
         if (args.length <= 1) {
-            return runAllTests(player, clientDirector);
+            runAllTests(clientDirector);
+            return true;
         }
 
         // Run specific test based on keyword
         final String testKeyword = args[0].toLowerCase();
-        return runSpecificTest(player, clientDirector, testKeyword);
-    }
-
-    private boolean runSpecificTest(Player player, ClientDirector clientDirector, String testKeyword) {
-        Class<? extends TestUtility> testClass = tests.get(testKeyword);
-        
-        if (testClass == null) {
-            ChatUtils.message("Unknown test module: " + testKeyword)
-                .type(MessageType.ERROR)
-                .target(MessageTarget.PLAYER)
-                .player(player)
-                .send();
-            return false;
-        }
-
-        try {
-            TestUtility testInstance = testClass.getDeclaredConstructor(ClientDirector.class).newInstance(clientDirector);
-            List<TestUtility.TestResult> results = testInstance.runTests();
-
-            sendTestResults(player, results); return true;
-        } catch (Exception e) {
-            ChatUtils.message("Failed to run test: " + e.getMessage())
-                .type(MessageType.ERROR)
-                .target(MessageTarget.PLAYER)
-                .player(player)
-                .send();
-
-            e.printStackTrace(); return false;
-        }
-    }
-
-    private boolean runAllTests(Player sender, ClientDirector clientDirector) {
-        this.tests.keySet().forEach(testKeyword -> {
-            this.runSpecificTest(sender, clientDirector, testKeyword);
-        });
+        runSpecificTest(clientDirector, testKeyword);
         return true;
     }
 
-    private void sendTestResults(Player player, List<TestUtility.TestResult> results) {
-        int totalTests = results.size();
-        int totalPassed = (int) results.stream().filter(r -> r.didTestPass).count();
+    private void runSpecificTest(ClientDirector clientDirector, String testKeyword) {
+        Player player = clientDirector.getPlayer();
 
-        // Detailed results
-        results.forEach(result -> {
-            MessageType msgType = result.didTestPass ? MessageType.NOTIF : MessageType.ERROR;
-            String status = result.didTestPass ? "PASS" : "FAIL";
-            String message = String.format("[%s] %s: %s", 
-                status, 
-                result.className, 
-                result.testLabel.isEmpty() ? result.testName : result.testLabel);
+        // get test module
+        Class<? extends TestUtility> testClass = this.tests.get(testKeyword);
 
-            if (result.testError != null) {
-                message += " - " + result.testError.getMessage();
-            }
-
-            ChatUtils.message(message)
-                .type(msgType)
-                .target(MessageTarget.PLAYER)
-                .style(MessageStyle.SIMPLE)
+        // if the test module is null, send message and exit
+        if (testClass == null) {
+            ChatUtils.message(String.format("Could not find '%s' test module", testKeyword))
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.ERROR)
                 .player(player)
                 .send();
+            return;
+        }
+
+        // try to construct an instance of the test module
+        try {
+            TestUtility testUtility = testClass.getDeclaredConstructor(ClientDirector.class).newInstance(clientDirector);
+
+            // define what happens when each test completes, and when the entire module completes
+            testUtility.runTests(
+                (testResult) -> {
+                    sendTestSingular(clientDirector, testResult);
+                }, 
+                (testResults) -> {
+                    sendTestSummary(clientDirector, testResults);
+                }
+            );
+
+        // catch if the test module could not be ran
+        } catch (Exception e) {
+            String baseMessage = String.format("Could not run the '%s' test module", testKeyword);
+
+            // send a simple message to the player
+            ChatUtils.message(baseMessage+"\nCheck the console for more details")
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.ERROR)
+                .player(player)
+                .send();
+            
+            // send a detailed message to the console
+            ChatUtils.message(baseMessage+", Cause: "+e.getMessage())
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.ERROR)
+                .target(MessageTarget.CONSOLE)
+                .send();
+        }
+    }
+
+    private void runAllTests(ClientDirector clientDirector) {
+        this.tests.keySet().forEach(testKeyword -> {
+            this.runSpecificTest(clientDirector, testKeyword);
         });
+    }
 
-        // Console logging
-        String consoleReport = results.stream()
-            .map(r -> String.format("[%s] %s.%s - %s", 
-                r.didTestPass ? "PASS" : "FAIL", 
-                r.className, 
-                r.testName,
-                r.testLabel.isEmpty() ? r.testName : r.testLabel))
-            .collect(Collectors.joining("\n"));
+    private void sendTestSingular(ClientDirector clientDirector, TestResult testResult) {
+        Player player = clientDirector.getPlayer();
 
-        Bukkit.getLogger().info("Test Results for " + player.getName() + ":\n" + consoleReport);
+        // determine decorations based on passing
+        String prefix = testResult.didTestPass ? "[PASS]" : "[FAIL]";
+        String icon = testResult.didTestPass ? "✅" : "❌";
 
-        // Summary message
-        ChatUtils.message(String.format("Test Results: %d/%d passed", totalPassed, totalTests))
-            .type(totalPassed == totalTests ? MessageType.NOTIF : MessageType.ERROR)
-            .target(MessageTarget.PLAYER)
+        // compose message body
+        String message = String.format("%s %s: %s %s", 
+            testResult.className, 
+            testResult.testLabel, 
+            prefix, 
+            icon
+        );
+
+        // compose message specs & send message to player
+        ChatUtils.message(message)
+            .style(MessageStyle.SIMPLE)
+            .type(MessageType.NOTIF)
+            .player(player)
+            .send();
+    }
+
+    private void sendTestSummary(ClientDirector clientDirector, List<TestResult> testResults) {
+        Player player = clientDirector.getPlayer();
+
+        // compute passed tests
+        List<TestResult> passedTests = testResults.stream().filter(result -> result.didTestPass).toList();
+
+        // compose message
+        String message = String.format("%d/%d Tests Passed!", passedTests.size(), testResults.size());
+
+        // send message to player
+        ChatUtils.message(message)
+            .style(MessageStyle.SIMPLE)
+            .type(MessageType.NOTIF)
             .player(player)
             .send();
     }

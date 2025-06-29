@@ -2,7 +2,11 @@ package playerquests.utility.test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import playerquests.client.ClientDirector;
 import playerquests.utility.annotation.PlayerQuestsTest;
@@ -31,26 +35,81 @@ public abstract class TestUtility {
         this.clientDirector = clientDirector;
     }
 
-    public List<TestResult> runTests() {
-        Method[] methods = this.getClass().getDeclaredMethods();
-        String className = this.getClass().getSimpleName();
+    public void runTests(
+        Consumer<TestResult> onEach, 
+        Consumer<List<TestResult>> onSummary
+    ) {
+        // resolve PlayerQuestsTest annotated methods into an ordered list
+        LinkedList<Method> remainingMethods = new LinkedList<>(
+            Arrays.stream(this.getClass().getDeclaredMethods())
+                .filter(method -> method.isAnnotationPresent(PlayerQuestsTest.class))
+                .toList()
+        );
 
-        for (Method method : methods) {
-            if ( ! method.isAnnotationPresent(PlayerQuestsTest.class)) {
-                break;
-            }
+        // use the ordered list to start a self-managed recursion
+        manageTests(new ArrayList<>(), remainingMethods, onEach, onSummary);
+    }
 
-            PlayerQuestsTest annotation = method.getAnnotation(PlayerQuestsTest.class);
-            String label = annotation.label().isEmpty() ? method.getName() : annotation.label();
-
-            try {
-                boolean result = (boolean) method.invoke(this);
-                testResults.add(new TestResult(className, method.getName(), label, result, null));
-            } catch (Exception e) {
-                testResults.add(new TestResult(className, className, label, false, e.getCause()));
-            }
+    private void manageTests(
+        List<TestResult> completed,
+        LinkedList<Method> remainingMethods,
+        Consumer<TestResult> onEach,
+        Consumer<List<TestResult>> onSummary
+    ) {
+        // if no more methods, then all tests done: do a summise and exit
+        if (remainingMethods.isEmpty()) {
+            onSummary.accept(completed);
+            return;
         }
 
-        return testResults;
+        // otherwise, pop next method for invoking
+        Method testMethod = remainingMethods.pop();
+
+        // collect details
+        PlayerQuestsTest annotation = testMethod.getAnnotation(PlayerQuestsTest.class);
+        String className = testMethod.getClass().getSimpleName();
+        String testName = testMethod.getName();
+        String testLabel = annotation.label().isEmpty() ? testMethod.getName() : annotation.label();
+
+        // try invoking
+        try {
+            // if the method is not a CompletableFuture, goto next and exit this
+            if ( testMethod.getReturnType() != CompletableFuture.class ) {
+                return;
+            }
+
+            // otherwise, invoke the test
+            @SuppressWarnings("unchecked") // is already checked
+            CompletableFuture<Boolean> futureResult = (CompletableFuture<Boolean>) testMethod.invoke(this);
+
+            // attach test resolving for when test done
+            futureResult.whenComplete((result, throwable) -> {
+                Boolean didTestPass = throwable == null && result;
+                TestResult testResult = new TestResult(
+                    className, 
+                    testName, 
+                    testLabel, 
+                    didTestPass, 
+                    throwable != null ? throwable.getCause() : null
+                );
+                completed.add(testResult);
+                onEach.accept(testResult);
+                manageTests(completed, remainingMethods, onEach, onSummary);
+            });
+
+        // catch if invoking failed
+        } catch (Exception e) {
+            // resolve test as failed
+            TestResult testResult = new TestResult(
+                className, 
+                testName, 
+                testLabel, 
+                false, 
+                e.getCause()
+            );
+            completed.add(testResult);
+            onEach.accept(testResult);
+            manageTests(completed, remainingMethods, onEach, onSummary);
+        }
     }
 }
