@@ -20,3 +20,8 @@ commands:
     description: Working with quest actions.
     usage: /<command> <start|stop>
     aliases: [a]
+  
+  test:
+    description: Run developer tests.
+    usage: /<command> <module>
+    aliases: [t]

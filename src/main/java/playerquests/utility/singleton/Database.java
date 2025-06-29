@@ -110,6 +110,14 @@ public class Database {
     }
 
     /**
+     * Checks if we can connect to the database.
+     * @return true if able to get Connection object
+     */
+    public boolean canConnect() {
+        return (this.getConnection() != null);
+    }
+
+    /**
      * Initializes the database schema and performs any necessary migrations.
      * <p>
      * This method creates the necessary tables if they do not exist and performs
