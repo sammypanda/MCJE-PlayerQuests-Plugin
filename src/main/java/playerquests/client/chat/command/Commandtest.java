@@ -15,12 +15,14 @@ import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.test.TestUtility;
 import playerquests.utility.test.Testdatabase;
+import playerquests.utility.test.Testquest;
 import playerquests.utility.test.TestUtility.TestResult;
 
 public class Commandtest extends ChatCommand {
 
     Map<String, Class<? extends TestUtility>> tests = Map.of(
-        "database", Testdatabase.class
+        "database", Testdatabase.class,
+        "quest", Testquest.class
     );
 
     public Commandtest() {

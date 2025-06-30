@@ -298,6 +298,22 @@ public class QuestRegistry {
         return result;
     }
 
+    public boolean hasQuest(String questID, Boolean searchFS) {
+        boolean result = this.getAllQuests().get(questID) != null;
+
+        // search in filesystem
+        if (!result && searchFS) {
+            // attempt finding it in the files
+            try {
+                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json")).isValid();
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Get the current inventory/stock levels of a quest.
      *
