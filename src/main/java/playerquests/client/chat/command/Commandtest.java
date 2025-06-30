@@ -55,7 +55,7 @@ public class Commandtest extends ChatCommand {
         ClientDirector clientDirector = new ClientDirector(player);
 
         // do all if no args
-        if (args.length <= 1) {
+        if (args.length == 0) {
             runAllTests(clientDirector);
             return true;
         }
