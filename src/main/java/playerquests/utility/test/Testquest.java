@@ -25,7 +25,7 @@ public class Testquest extends TestUtility {
         super(clientDirector);
     }
 
-    @PlayerQuestsTest(label = "None action quest, no NPC")
+    @PlayerQuestsTest(label = "None action, no NPC")
     public CompletableFuture<Boolean> testNoneAction() {
         CompletableFuture<Boolean> result = new CompletableFuture<>();
         Player player = this.clientDirector.getPlayer();
@@ -118,7 +118,7 @@ public class Testquest extends TestUtility {
         return result;
     }
 
-    @PlayerQuestsTest(label = "None action quest, with NPC")
+    @PlayerQuestsTest(label = "None action, with NPC")
     public CompletableFuture<Boolean> testNoneActionBlockNPC() {
         CompletableFuture<Boolean> result = new CompletableFuture<>();
         Player player = this.clientDirector.getPlayer();

@@ -67,7 +67,7 @@ public abstract class TestUtility {
 
         // collect details
         PlayerQuestsTest annotation = testMethod.getAnnotation(PlayerQuestsTest.class);
-        String className = testMethod.getClass().getSimpleName();
+        String className = testMethod.getDeclaringClass().getSimpleName();
         String testName = testMethod.getName();
         String testLabel = annotation.label().isEmpty() ? testMethod.getName() : annotation.label();
 

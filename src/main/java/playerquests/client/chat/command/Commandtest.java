@@ -8,6 +8,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
@@ -129,15 +131,16 @@ public class Commandtest extends ChatCommand {
 
         // determine decorations based on passing
         String prefix = testResult.didTestPass ? "[PASS]" : "[FAIL]";
+        NamedTextColor color = testResult.didTestPass ? NamedTextColor.GREEN : NamedTextColor.RED;
         String icon = testResult.didTestPass ? "✅" : "❌";
 
         // compose message body
-        String message = String.format("%s %s: %s %s", 
-            testResult.className, 
-            testResult.testLabel, 
-            prefix, 
-            icon
-        );
+        Component message = Component.empty()
+            .append(Component.text("("+testResult.className+") "))
+            .append(Component.text(testResult.testLabel+": "))
+            .append(Component.text(prefix+" "))
+            .append(Component.text(icon))
+            .color(color);
 
         // compose message specs & send message to player
         ChatUtils.message(message)
@@ -154,7 +157,7 @@ public class Commandtest extends ChatCommand {
         List<TestResult> passedTests = testResults.stream().filter(result -> result.didTestPass).toList();
 
         // compose message
-        String message = String.format("%d/%d Tests Passed!", passedTests.size(), testResults.size());
+        String message = String.format("%s: %d/%d Tests Passed!", testResults.getFirst().className, passedTests.size(), testResults.size());
 
         // send message to player
         ChatUtils.message(message)
