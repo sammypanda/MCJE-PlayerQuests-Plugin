@@ -1,7 +1,5 @@
 package playerquests.utility.listener;
 
-import javax.xml.crypto.Data;
-
 import org.bukkit.Bukkit; // bukkit API
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

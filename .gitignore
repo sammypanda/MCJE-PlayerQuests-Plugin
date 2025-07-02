@@ -12,7 +12,6 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 # Test Minecraft Server
 test-server
-test
 
 # VSCodium
 .vscode

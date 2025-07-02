@@ -110,6 +110,14 @@ public class Database {
     }
 
     /**
+     * Checks if we can connect to the database.
+     * @return true if able to get Connection object
+     */
+    public boolean canConnect() {
+        return (this.getConnection() != null);
+    }
+
+    /**
      * Initializes the database schema and performs any necessary migrations.
      * <p>
      * This method creates the necessary tables if they do not exist and performs
@@ -244,6 +252,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
 
             switch (version) {
+                case "0.10.2":
                 case "0.10.1":
                     query.append(MigrationUtils.dbV0_10_1());
                 case "0.10":
