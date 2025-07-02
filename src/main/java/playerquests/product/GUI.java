@@ -137,9 +137,9 @@ public class GUI {
 
             // Add the description
             itemMeta.lore(null);
-            if ( ! slot.getDescription().equals(Component.text("")) ) { // if not empty string
+            if ( ! slot.getDescription().isEmpty() ) { // if not empty string
                 itemMeta.lore( // set the slot description
-                    List.of(slot.getDescription()) // list: each line of the description
+                    slot.getDescription() // list: each line of the description
                 );
             }
 

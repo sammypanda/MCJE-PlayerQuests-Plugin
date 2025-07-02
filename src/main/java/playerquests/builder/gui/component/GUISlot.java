@@ -44,9 +44,9 @@ public class GUISlot {
     private Component label = Component.text(" ");
     
     /**
-     * The description or subtitle displayed when hovering over the slot. Defaults to an empty string.
+     * The description or subtitle displayed when hovering over the slot. Defaults to an empty list.
      */
-    private Component description = Component.text("");
+    private List<Component> description = List.of();
 
     /**
      * List of functions associated with this slot. Functions are executed when this slot is interacted with.
@@ -241,7 +241,7 @@ public class GUISlot {
 
         // if no error return as is
         if ( ! this.hasError()) {
-            this.description = description;
+            this.description = List.of(description);
             return this;
         }
 
@@ -252,7 +252,7 @@ public class GUISlot {
             description
         );
         
-        this.description = errorDescription;
+        this.description = List.of(errorDescription);
         return this;
     }
 
@@ -260,7 +260,7 @@ public class GUISlot {
      * Gets the hover description for this slot.
      * @return The description component displayed when hovering over the slot.
      */
-    public Component getDescription() {
+    public List<Component> getDescription() {
         return this.description;
     }
 
@@ -325,10 +325,7 @@ public class GUISlot {
      * @return the state of the GUI slot.
      */
     public GUISlot setDescription(List<String> description) {
-        this.description = Component.join(
-            JoinConfiguration.separator(Component.newline()), // auto-add newline if applicable
-            description.stream().map(Component::text).toList()
-        );
+        this.description = description.stream().map(string -> (Component) Component.text(string)).toList();
         return this;
     }
 }
