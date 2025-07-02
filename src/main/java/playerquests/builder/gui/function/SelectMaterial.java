@@ -13,6 +13,7 @@ import org.bukkit.event.Listener; // listening to in-game events
 import org.bukkit.event.inventory.InventoryClickEvent; // for detecting block selections in listener
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent; // for detecting block hits in listener
+import org.bukkit.inventory.ItemStack;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -79,7 +80,7 @@ public class SelectMaterial extends GUIFunction {
             Block clickedBlock = event.getClickedBlock();
 
             if (clickedBlock != null) {
-                this.parentClass.setResponse(clickedBlock.getType());
+                this.parentClass.setResponse(new ItemStack(clickedBlock.getType()));
             }
         }
 
@@ -106,7 +107,7 @@ public class SelectMaterial extends GUIFunction {
                 }
                 
                 event.getView().close();
-                parentClass.setResponse(event.getCurrentItem().getType());
+                parentClass.setResponse(event.getCurrentItem());
             });
         }
 
@@ -173,7 +174,7 @@ public class SelectMaterial extends GUIFunction {
     /**
      * The resulting block selected.
      */
-    private Material result;
+    private ItemStack result;
 
     /**
      * The player selecting the block.
@@ -367,8 +368,8 @@ public class SelectMaterial extends GUIFunction {
      *
      * @param material the {@code Material} to set as the selected block
      */
-    public void setResponse(Material material) {
-        if (this.deniedBlocks.contains(material)) {
+    public void setResponse(ItemStack itemStack) {
+        if (this.deniedBlocks.contains(itemStack.getType())) {
             ChatUtils.message("This item is denied from being set as an NPC block.")
                 .player(this.player)
                 .type(MessageType.WARN)
@@ -377,7 +378,7 @@ public class SelectMaterial extends GUIFunction {
             return;
         }
 
-        if (this.blocksOnly && !material.isBlock()) {
+        if (this.blocksOnly && !itemStack.getType().isBlock()) {
             ChatUtils.message("Could not set this item as an NPC block.")
                 .player(this.player)
                 .type(MessageType.WARN)
@@ -386,7 +387,7 @@ public class SelectMaterial extends GUIFunction {
             return; // keep trying
         }
 
-        this.result = material; // set the block the user selected
+        this.result = itemStack; // set the block the user selected
         this.execute();
     }
 
@@ -396,16 +397,16 @@ public class SelectMaterial extends GUIFunction {
      *
      * @param material the name of the material to set as the selected block
      */
-    public void setResponse(String material) {
-        result = Material.matchMaterial(material);
+    public void setResponse(String materialString) {
+        Material material = Material.matchMaterial(materialString);
 
-        if (result == null) {
-            ChatUtils.message(String.format("Could not find %s block to set, try to be more specific.", material))
+        if (material == null) {
+            ChatUtils.message(String.format("Could not find %s block to set, needs to be the exact name.", material))
                 .player(this.player)
                 .type(MessageType.WARN)
                 .send();
         } else {
-            setResponse(result); // set the block the user selected
+            setResponse(new ItemStack(material)); // set the block the user selected
         }
     }
 
@@ -414,7 +415,7 @@ public class SelectMaterial extends GUIFunction {
      *
      * @return the selected block material
      */
-    public Material getResult() {
+    public ItemStack getResult() {
         return this.result;
     }
 

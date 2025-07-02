@@ -13,6 +13,7 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.SelectMaterial;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.client.ClientDirector;
+import playerquests.utility.serialisable.ItemSerialisable;
 
 /**
  * A dynamic GUI screen for viewing items selected.
@@ -97,7 +98,7 @@ public class Dynamicitemslist extends GUIDynamic {
                         director
                     ).onFinish((func) -> {
                         SelectMaterial function = (SelectMaterial) func;
-                        Material result = function.getResult();
+                        ItemStack result = function.getResult();
 
                         // re-open the gui
                         this.gui.getResult().display();
@@ -108,7 +109,7 @@ public class Dynamicitemslist extends GUIDynamic {
                         }
 
                         // add the selected item to the list
-                        this.addItem(new ItemStack(result));
+                        this.addItem(result);
 
                         // show it added
                         this.execute();
@@ -136,7 +137,7 @@ public class Dynamicitemslist extends GUIDynamic {
             // simple thing that has to be over-complicated).
 
             new GUISlot(gui, (index + 2))
-                .setItem(item.getType())
+                .setItem(ItemSerialisable.fromItemStack(item))
                 .setLabel(itemName)
                 .setDescription(
                     List.of(String.format("%s", 
