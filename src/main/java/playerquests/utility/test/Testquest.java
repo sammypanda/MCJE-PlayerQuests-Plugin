@@ -96,7 +96,7 @@ public class Testquest extends TestUtility {
             testNoneActionQuest.save(); // bring to life
         });
 
-        // Schedule cleanup after 100 ticks
+        // Schedule cleanup after 50 ticks
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             // test result
             Quest quest = QuestRegistry.getInstance().getQuest("testNoneActionNoNPC");
@@ -113,7 +113,7 @@ public class Testquest extends TestUtility {
                 isNPCAir &&
                 wasQuestSaved
             );
-        }, 100);
+        }, 50);
 
         return result;
     }
@@ -189,7 +189,7 @@ public class Testquest extends TestUtility {
             testNoneActionQuest.save(); // bring to life
         });
 
-        // Schedule cleanup after 100 ticks
+        // Schedule cleanup after 50 ticks
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             // prep test
             Quest quest = QuestRegistry.getInstance().getQuest("testNoneActionWithNPC");
@@ -212,7 +212,7 @@ public class Testquest extends TestUtility {
                 isNPCGrassBlock &&
                 wasQuestSaved
             );
-        }, 100);
+        }, 50);
 
         return result;
     }
