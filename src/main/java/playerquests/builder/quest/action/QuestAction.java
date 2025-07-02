@@ -58,7 +58,8 @@ import playerquests.utility.singleton.Database;
     @JsonSubTypes.Type(value = SpeakAction.class, name = "SpeakAction"),
     @JsonSubTypes.Type(value = RequestItemAction.class, name = "RequestItemAction"),
     @JsonSubTypes.Type(value = RewardItemAction.class, name = "RewardItemAction"),
-    @JsonSubTypes.Type(value = TakeItemAction.class, name = "TakeItemAction")
+    @JsonSubTypes.Type(value = TakeItemAction.class, name = "TakeItemAction"),
+    @JsonSubTypes.Type(value = CraftAction.class, name = "CraftAction")
 })
 public abstract class QuestAction {
 
