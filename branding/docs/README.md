@@ -21,6 +21,9 @@ I'm always planning to add more quest actions, but so far:
 | Narrate                                 | Sends a message to the player                           | ❌         |
 | Walk                                    | Makes an NPC walk to a location                         | ❌         |
 | Teleport                                | Makes an NPC appear at a location                       | ❌         |
+| Craft                                   | Waits for the player to craft an item                   | ❌         |
+| Sleep                                   | Waits for a player to sleep x amount of times           | ❌         |
+| Bossbar                                 | Puts text into the boss bar                             | ❌         |
 
 <br>
 
@@ -30,9 +33,9 @@ NPCs are the main part of how quests are interacted with.
 | NPC Type                                              | Supported |
 | ----------------------------------------------------- | --------- |
 | Block                                                 | ✅        |
-| Customised Blocks                                     | ❌        |
+| Customised Blocks                                     | ❌         |
 | Entities                                              | ✅        |
-| Players                                               | ❌        |
+| Players                                               | ❌         |
 
 <br>
 
@@ -49,4 +52,5 @@ Sometimes you might want to change the requirements for when the action can be p
 | Hunger                                  | Set the required hunger to play this action                     | ❌          |
 | Random Chance                           | Set the random chance this action can be played                 | ❌          |
 | Cooldown                                | Set the required time elapsed before this action can be played  | ❌          |
-| Weather                                 | Set the weather required for this action can be played          | ❌          |
+| Weather                                 | Set the weather required before this action can be played       | ❌          |
+| Achievement                             | Set an achievement required before this action to be played     | ❌          |
