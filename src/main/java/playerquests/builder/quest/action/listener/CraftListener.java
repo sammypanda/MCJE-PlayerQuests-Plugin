@@ -29,6 +29,7 @@ public class CraftListener extends ActionListener<CraftAction> {
     public CraftListener(CraftAction action, QuesterData questerData) {
         super(action, questerData);
         progress = new HashMap<>(action.getData().getOption(ItemsOption.class).get().getItems()); // initialise progress
+        // TODO: add restoring progress from previous state
     }
 
     @EventHandler
