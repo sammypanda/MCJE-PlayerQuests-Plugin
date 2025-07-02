@@ -43,7 +43,7 @@ public class ItemsOption extends ActionOption {
 
     @Override
     public GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director) {
-        List<String> items = this.items.entrySet().stream().map(entry -> String.format("%s (%d)", entry.getKey().toString(), entry.getValue())).toList();
+        List<String> items = this.items.entrySet().stream().map(entry -> String.format("%s (%d)", entry.getKey().getName(), entry.getValue())).toList();
 
         return new GUISlot(gui, slot)
             .setLabel(this.getItems().isEmpty() ? "Set items" : String.format("Change the items"))
