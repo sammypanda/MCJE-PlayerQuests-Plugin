@@ -3,7 +3,6 @@ package playerquests.utility;
 import org.bukkit.Material; // used to get a usable material instance
 import org.bukkit.inventory.ItemStack; // important type used to fill GUI slots
 
-
 /**
  * Helpful tools which can reduce the verbosity of handling blocks.
  */
@@ -29,7 +28,7 @@ public class MaterialUtils {
                 "Invalid item, probably couldn't find the Material ENUM for: " + item // report that the material was null
             ); // this is important since ItemStack won't correctly construct with a missing material
         } else if (!material.isItem()) { // if material is not an item type
-            material = Material.matchMaterial(material.getTranslationKey()); // last ditch effort to try to get the material as an item
+            material = Material.matchMaterial(material.toString()); // last ditch effort to try to get the material as an item
         }
 
         return new ItemStack(material); // otherwise return a healthy ItemStack
