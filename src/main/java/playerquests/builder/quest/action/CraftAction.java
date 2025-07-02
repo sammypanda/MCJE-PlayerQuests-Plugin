@@ -102,7 +102,7 @@ public class CraftAction extends QuestAction {
     public GUISlot createSlot(GUIBuilder gui, Integer slot) {
         return new GUISlot(gui, slot)
             .setLabel(this.getName())
-            .setDescription(List.of("Waits until an item is crafted."))
+            .setDescription(List.of("Waits until an item ", "is crafted."))
             .setItem(Material.CRAFTING_TABLE);
     }
 
