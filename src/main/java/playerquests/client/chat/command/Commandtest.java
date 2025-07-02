@@ -1,5 +1,7 @@
 package playerquests.client.chat.command;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.FileUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
@@ -26,6 +29,7 @@ public class Commandtest extends ChatCommand {
         "database", Testdatabase.class,
         "quest", Testquest.class
     );
+    private String testLogFilename;
 
     public Commandtest() {
         super("test");
@@ -121,6 +125,11 @@ public class Commandtest extends ChatCommand {
     }
 
     private void runAllTests(ClientDirector clientDirector) {
+        // prep test log
+        this.testLogFilename = "test.log";
+        try {FileUtils.delete(testLogFilename); } catch (IOException e) {} // delete old if exists
+
+        // run tests
         this.tests.keySet().forEach(testKeyword -> {
             this.runSpecificTest(clientDirector, testKeyword);
         });
@@ -165,5 +174,18 @@ public class Commandtest extends ChatCommand {
             .type(MessageType.NOTIF)
             .player(player)
             .send();
+
+        // send to log
+        try {
+            FileUtils.append(
+                this.testLogFilename, 
+                String.join(
+                    "", 
+                    testResults.stream().map(res -> res.toString()+"\n").toList()
+                ).getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

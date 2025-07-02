@@ -29,6 +29,17 @@ public abstract class TestUtility {
             this.didTestPass = didTestPass;
             this.testError = testError;
         }
+
+        @Override
+        public String toString() {
+            return String.format("(%s) %s: %s - %s (%s)", 
+                className, 
+                testName,
+                testLabel,
+                didTestPass,
+                testError
+            );
+        }
     }
 
     public TestUtility(ClientDirector clientDirector) {

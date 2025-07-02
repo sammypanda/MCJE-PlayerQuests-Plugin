@@ -5,6 +5,7 @@ import java.io.IOException; // thrown if a file cannot be created or written to
 import java.nio.file.Files; // create/modify files
 import java.nio.file.Path; // used to locate files on the filesystem
 import java.nio.file.Paths; // for getting path type
+import java.nio.file.StandardOpenOption;
 
 import playerquests.Core; // to retrieve Singletons
 
@@ -75,5 +76,34 @@ public class FileUtils {
         Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
 
         return Files.exists(fullPath);
+    }
+
+    public static void append(String filename, byte[] content) throws IOException {
+        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+
+        byte[] oldContent;
+        try {
+            // Read existing file content if it exists
+            oldContent = Files.readAllBytes(fullPath);
+        } catch (IOException e) {
+            oldContent = new byte[0];
+        }
+
+        // Combine old and new content
+        byte[] combinedContent = new byte[oldContent.length + content.length];
+        System.arraycopy(oldContent, 0, combinedContent, 0, oldContent.length);
+        System.arraycopy(content, 0, combinedContent, oldContent.length, content.length);
+
+        try {
+            // Write combined content to file
+            Files.write(
+                fullPath,
+                combinedContent,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+        } catch (IOException e) {
+            throw new IOException("Could not write to the '" + filename + "' file.", e);
+        }
     }
 }
