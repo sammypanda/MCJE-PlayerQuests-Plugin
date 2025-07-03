@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
@@ -97,7 +99,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
 
             if (action.getClass().isAssignableFrom(this.action.getClass())) {
                 slot
-                    .setLabel(String.format("%s (Selected)", slot.getLabel()))
+                    .setLabel(Component.join(JoinConfiguration.spaces(), slot.getLabel(), Component.text("(Selected)")))
                     .setItem(Material.FIREWORK_ROCKET);
             }
 

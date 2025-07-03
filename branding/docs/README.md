@@ -21,7 +21,7 @@ I'm always planning to add more quest actions, but so far:
 | Narrate                                 | Sends a message to the player                           | ❌         |
 | Walk                                    | Makes an NPC walk to a location                         | ❌         |
 | Teleport                                | Makes an NPC appear at a location                       | ❌         |
-| Craft                                   | Waits for the player to craft an item                   | ❌         |
+| Craft                                   | Waits for the player to craft an item                   | ✅        |
 | Sleep                                   | Waits for a player to sleep x amount of times           | ❌         |
 | Bossbar                                 | Puts text into the boss bar                             | ❌         |
 

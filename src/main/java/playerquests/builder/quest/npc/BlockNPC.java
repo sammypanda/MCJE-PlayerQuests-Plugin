@@ -119,11 +119,11 @@ public class BlockNPC extends NPCType {
             ).onFinish((f) -> {
                 // get the block that was selected
                 SelectMaterial function = (SelectMaterial) f;
-                Material block = function.getResult();
+                ItemStack item = function.getResult();
 
                 // assign this block as the quest NPC
-                if (block != null) {
-                    BlockNPC blockNPC = new BlockNPC(block.createBlockData(), npc); // create NPC type
+                if (item != null) {
+                    BlockNPC blockNPC = new BlockNPC(item.getType().createBlockData(), npc); // create NPC type
                     
                     // set this npc type
                     npc.assign(
