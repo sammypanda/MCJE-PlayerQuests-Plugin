@@ -45,8 +45,8 @@ Sometimes you might want to change the requirements for when the action can be p
 | Action Condition                        | Description                                                     | Supported  |
 | --------------------------------------- | --------------------------------------------------------------- | ---------- |
 | Time                                    | Set the time of day this action can be played                   | ✅         |
-| Action Completion                       | Set actions required before this action can be played           | ✅         |
-| Anti Action Completion                  | Set actions that if are completed, this action cannot be played | ❌          |
+| Action Requirement                      | Set actions required before this action can be played           | ✅         |
+| Action Blocklist                        | Set actions that if are completed, this action cannot be played | ❌          |
 | Location                                | Set the area this action can be played in                       | ❌          |
 | Health                                  | Set the required health to play this action                     | ❌          |
 | Hunger                                  | Set the required hunger to play this action                     | ❌          |
