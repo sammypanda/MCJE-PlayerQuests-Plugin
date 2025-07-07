@@ -54,6 +54,9 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setLabel("Back")
             .setItem(Material.OAK_DOOR)
             .onClick(() -> {
+                // apply the possibly unset QuestStage
+                this.director.setCurrentInstance(this.action.getStage());
+
                 // do not allow leaving if there is an issue! dramaaaa
                 Optional<String> issueMessage = this.action.isValid();
                 if (!issueMessage.isEmpty()) {

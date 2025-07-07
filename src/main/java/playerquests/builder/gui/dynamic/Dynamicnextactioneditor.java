@@ -197,6 +197,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                         .send();
                 }
 
+                this.actionData.setNextActions(nextActions);
                 this.refresh();
             });
     }
