@@ -9,6 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.format.TextDecoration;
 import playerquests.builder.gui.GUIBuilder; // the builder which enlists this slot
 import playerquests.builder.gui.function.GUIFunction; // the way GUI functions are executed/managed/handled
 import playerquests.utility.ChatUtils;
@@ -140,8 +141,13 @@ public class GUISlot {
      * @param label The label text to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setLabel(Component label) {
+    public GUISlot setLabel(Component label, Boolean italicSensitive) {
         Component errorPrefix = Component.text("(Error)");
+
+        // disable italics if italic insensitive
+        if ( ! italicSensitive ) {
+            label = label.decoration(TextDecoration.ITALIC, false);
+        }
 
         // if no error return as is
         if ( ! this.hasError()) {
@@ -156,6 +162,36 @@ public class GUISlot {
         );
 
         this.label = errorLabel;
+        return this;
+    }
+
+    /**
+     * Sets the hover label for this slot.
+     * @param label The label text to be displayed when hovering over the slot.
+     * @return The modified instance of {@code GUISlot}.
+     */
+    public GUISlot setLabel(Component label) {
+        this.setLabel(label, false);
+        return this;
+    }
+
+    /**
+     * Shortcut method if just setting simple string as label
+     * @param string a plain, unformatted label
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setLabel(String string) {
+        this.setLabel(Component.text(string), false);
+        return this;
+    }
+
+    /**
+     * Shortcut method if just setting simple string as label
+     * @param string a plain, unformatted label
+     * @return the state of the GUI slot.
+     */
+    public GUISlot setLabel(String string, Boolean italicSensitive) {
+        this.setLabel(Component.text(string), italicSensitive);
         return this;
     }
 
@@ -306,16 +342,6 @@ public class GUISlot {
      */
     public GUISlot setItem(Material material) {
         this.item = ItemSerialisable.fromItemStack(new ItemStack(material));
-        return this;
-    }
-
-    /**
-     * Shortcut method if just setting simple string as label
-     * @param string a plain, unformatted label
-     * @return the state of the GUI slot.
-     */
-    public GUISlot setLabel(String string) {
-        this.setLabel(Component.text(string));
         return this;
     }
 
