@@ -138,20 +138,28 @@ public class Dynamicqueststage extends GUIDynamic {
                 QuestAction action = actionKeys.get(index);
                 Integer nextEmptySlot = this.gui.getEmptySlot();
                 GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
+                String typeString = String.format("Type: %s", action.getName());
+                List<String> description;
 
-                boolean isPresent = this.questStage.getStartPoints().stream()
+                // check if this action is a start point 
+                boolean isStartPoint = this.questStage.getStartPoints().stream()
                     .filter(p -> p.getStage().equals(this.questStage.getID()))
                     .filter(p -> p.getActions().contains(action.getID()))
                     .findFirst()
                     .isPresent();
+
+                // set description
+                if (isStartPoint) {
+                    description = List.of(typeString, "Is an entry point");
+                } else {
+                    description = List.of(typeString);
+                }
+
                 actionSlot
                     .setLabel(String.format(
                         "%s", action.getLabel()))
-                    .setDescription(List.of(
-                        String.format("Type: %s", action.getName()),
-                        isPresent ? "Is an entry point" : ""))
-                    .setItem(
-                        isPresent ? Material.DETECTOR_RAIL : Material.RAIL);
+                    .setDescription(description)
+                    .setItem(isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL);
 
                 actionSlot.onClick(() -> {
                     if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
