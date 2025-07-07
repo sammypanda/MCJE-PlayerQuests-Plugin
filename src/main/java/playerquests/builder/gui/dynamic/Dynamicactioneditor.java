@@ -11,6 +11,7 @@ import playerquests.builder.gui.function.ChatPrompt;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.ActionData;
+import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
@@ -96,6 +97,7 @@ public class Dynamicactioneditor extends GUIDynamic {
             .setDescription(List.of("Select actions to come after this one."))
             .onClick(() -> {
                 this.director.setCurrentInstance(action); // set this action as the one to edit
+                this.director.removeCurrentInstance(QuestStage.class); // do not automatically enter a QuestStage in this case
                 new UpdateScreen(Arrays.asList("nextactioneditor"), director).execute(); // open 'next action editor' screen
             });
 

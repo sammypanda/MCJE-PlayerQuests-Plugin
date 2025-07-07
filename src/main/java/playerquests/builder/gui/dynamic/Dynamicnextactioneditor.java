@@ -55,6 +55,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
         this.actionData = this.action.getData();
         this.nextActions = new ArrayList<>(this.actionData.getNextActions());
     }
@@ -128,7 +129,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             .setLabel(stage.getLabel())
             .setItem(Material.CHEST)
             .onClick(() -> {
-                this.selectedStage = stage; // set the stage at the actions of
+                this.director.setCurrentInstance(stage, QuestStage.class);
                 this.refresh();
             });
     }
@@ -215,7 +216,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 if (this.selectedStage == null) {
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                 } else { // go to stages view if is viewing stage actions list
-                    this.selectedStage = null; // unset the stage to go back
+                    this.director.removeCurrentInstance(QuestStage.class); // unset the stage to go back
                     this.refresh();
                 }
             });
