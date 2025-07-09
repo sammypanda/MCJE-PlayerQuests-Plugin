@@ -1,9 +1,11 @@
 package playerquests.utility.singleton;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -15,6 +17,10 @@ import net.citizensnpcs.api.npc.NPCRegistry;
 import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.enums.DependencyIssue;
 import playerquests.utility.listener.BlockListener; // for block-related events
 import playerquests.utility.listener.EntityListener;
@@ -161,14 +167,23 @@ public class PlayerQuests {
             String versionToNumberRegex = ".*?(\\d+)\\.(\\d+)\\.(\\d+).*"; // captures each number of the version major.minor.patch and squashes into a number
             String flatVersionString = PlayerQuests.getCitizens2().getPluginMeta().getVersion().replaceAll(versionToNumberRegex, "$1$2$3");
             Integer flatVersion = Integer.parseInt(flatVersionString);
-                
-            switch (Core.getPlugin().getPluginMeta().getVersion()) {
-                case "0.10.4":
-                    isSupported = flatVersion >= 2039;
-                    break;
-                default:
-                    break;
+            String expectedFlatVersionString = null;
+            Integer expectedFlatVersion = 0;
+
+            try (InputStream input = getClass().getResourceAsStream("/plugin.properties")) {
+                Properties props = new Properties();
+                props.load(input);
+                expectedFlatVersionString = props.getProperty("citizensFlatVersion");
+                expectedFlatVersion = Integer.parseInt(expectedFlatVersionString);
+            } catch (Exception e) {
+                ChatUtils.message("POM.XML is missing the expected citizensFlatVersion (got " + expectedFlatVersionString + ") for this PlayerQuests release, please report this to sammypanda")
+                    .type(MessageType.ERROR)
+                    .style(MessageStyle.PRETTY)
+                    .target(MessageTarget.CONSOLE)
+                    .send();
             }
+
+            isSupported = flatVersion >= expectedFlatVersion;
 
             // notify if failing support check on version
             if ( ! isSupported ) {

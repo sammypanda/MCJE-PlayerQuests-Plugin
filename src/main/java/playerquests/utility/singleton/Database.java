@@ -130,14 +130,11 @@ public class Database {
         String dbVersion = getPluginVersion();
         String version = "0.0"; // default version
 
-        try (InputStream input = getClass().getResourceAsStream(
-            "/META-INF/maven/moe.sammypanda/playerquests/pom.properties")) {
-            if (input != null) {
-                Properties props = new Properties();
-                props.load(input);
-                version = props.getProperty("version");
-            }
-        } catch (IOException e) {
+        try (InputStream input = getClass().getResourceAsStream("/plugin.properties")) {
+            Properties props = new Properties();
+            props.load(input);
+            version = props.getProperty("version");
+        } catch (Exception e) {
             System.err.println("Failed to read PlayerQuests version property from pom: " + e.getMessage());
         }
 
