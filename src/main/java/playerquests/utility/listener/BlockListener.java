@@ -109,6 +109,11 @@ public class BlockListener implements Listener {
             .filter(npc -> npc.getValue().getLocation().toBukkitLocation().equals(eventBlockLocation))
             .toList();
 
+        // don't disturb ghost block if is a BlockNPC here
+        if ( ! npcs.isEmpty() ) {
+            event.setCancelled(true);
+        }
+
         // persist client-side blocks
         Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
             npcs.forEach(npc -> {
