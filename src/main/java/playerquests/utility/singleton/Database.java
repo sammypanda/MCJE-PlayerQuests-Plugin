@@ -34,13 +34,13 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
-import playerquests.utility.MigrationUtils;
-import playerquests.utility.serialisable.ItemSerialisable;
-import playerquests.utility.serialisable.data.ItemData;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.MigrationUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 
 /**
  * Provides access to the game database, managing connections and database operations.
@@ -147,7 +147,7 @@ public class Database {
             String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
             + "plugin TEXT PRIMARY KEY,"
             + "version TEXT NOT NULL,"
-            + "citizens2 BOOLEAN NOT NULL DEFAULT FALSE,"
+            + "citizens2 INTEGER NOT NULL DEFAULT FALSE,"
             + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
             statement.execute(pluginTableSQL);
 
@@ -252,6 +252,8 @@ public class Database {
             StringBuilder query = new StringBuilder();
 
             switch (version) {
+                case "0.10.4":
+                    query.append(MigrationUtils.dbV0_10_4());
                 case "0.10.3":
                 case "0.10.2":
                 case "0.10.1":
@@ -288,11 +290,8 @@ public class Database {
             .send();
     }
 
-    private void setCitizens2Support() {
-        final boolean isSupported = PlayerQuests.getCitizens2() != null;
-
-        if (isSupported == false) {
-            ChatUtils.message("""
+    private void unsetCitizens2Support() {
+        ChatUtils.message("""
             Soft Dependency Reminder! ✨
             To unlock all the NPC types, consider installing Citizens! Without it, some NPC types will be unavailable. <3
 
@@ -302,7 +301,6 @@ public class Database {
                 .style(MessageStyle.PRETTY)
                 .type(MessageType.NOTIF)
                 .send();
-        }
 
         try (Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("""
@@ -311,7 +309,33 @@ public class Database {
                 WHERE plugin.plugin = 'PlayerQuests'
             """)) {
 
-            preparedStatement.setBoolean(1, isSupported);
+            preparedStatement.setInt(1, 0);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            System.err.println("Could not 0 citizens2 support boolean in the db " + e.getMessage());
+        }
+    }
+
+    private void setCitizens2Support() {
+        if ( PlayerQuests.getCitizens2() == null ) {
+            this.unsetCitizens2Support();
+            return;
+        }
+
+        String versionToNumberRegex = ".*?(\\d+)\\.(\\d+)\\.(\\d+).*"; // captures each number of the version major.minor.patch and squashes into a number
+        String flatVersionString = PlayerQuests.getCitizens2().getPluginMeta().getVersion().replaceAll(versionToNumberRegex, "$1$2$3");
+        Integer flatVersionNumber = Integer.parseInt(flatVersionString);
+
+        try (Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("""
+                UPDATE plugin
+                SET citizens2 = ?
+                WHERE plugin.plugin = 'PlayerQuests'
+            """)) {
+
+            preparedStatement.setInt(1, flatVersionNumber);
 
             preparedStatement.execute();
 
@@ -325,7 +349,17 @@ public class Database {
             PreparedStatement statement = connection.prepareStatement("SELECT citizens2 FROM plugin WHERE plugin = 'PlayerQuests';")) {
 
             ResultSet results = statement.executeQuery();
-            boolean isSupported = results.getBoolean("citizens2");
+            Integer flatVersion = results.getInt("citizens2");
+            Boolean isSupported = false;
+            
+            switch (Core.getPlugin().getPluginMeta().getVersion()) {
+                case "0.10.4":
+                    isSupported = flatVersion >= 2039;
+                    break;
+                default:
+                    isSupported = false;
+                    break;
+            }
 
             return isSupported;
         } catch (SQLException e) {
