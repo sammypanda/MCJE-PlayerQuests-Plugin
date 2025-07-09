@@ -34,13 +34,13 @@ import playerquests.builder.quest.data.StagePath;
 import playerquests.client.quest.QuestDiary;
 import playerquests.product.Quest;
 import playerquests.utility.ChatUtils;
-import playerquests.utility.MigrationUtils;
-import playerquests.utility.serialisable.ItemSerialisable;
-import playerquests.utility.serialisable.data.ItemData;
 import playerquests.utility.ChatUtils.MessageBuilder;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.MigrationUtils;
+import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 
 /**
  * Provides access to the game database, managing connections and database operations.
@@ -130,14 +130,11 @@ public class Database {
         String dbVersion = getPluginVersion();
         String version = "0.0"; // default version
 
-        try (InputStream input = getClass().getResourceAsStream(
-            "/META-INF/maven/moe.sammypanda/playerquests/pom.properties")) {
-            if (input != null) {
-                Properties props = new Properties();
-                props.load(input);
-                version = props.getProperty("version");
-            }
-        } catch (IOException e) {
+        try (InputStream input = getClass().getResourceAsStream("/plugin.properties")) {
+            Properties props = new Properties();
+            props.load(input);
+            version = props.getProperty("version");
+        } catch (Exception e) {
             System.err.println("Failed to read PlayerQuests version property from pom: " + e.getMessage());
         }
 
@@ -147,7 +144,6 @@ public class Database {
             String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
             + "plugin TEXT PRIMARY KEY,"
             + "version TEXT NOT NULL,"
-            + "citizens2 BOOLEAN NOT NULL DEFAULT FALSE,"
             + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
             statement.execute(pluginTableSQL);
 
@@ -179,9 +175,6 @@ public class Database {
 
             // Migrate to new versions if applicable
             migrate(version, dbVersion);
-
-            // Update dependency status in db
-            setCitizens2Support();
 
             // Report to rest of plugin if a fresh install
             isFresh();
@@ -252,6 +245,8 @@ public class Database {
             StringBuilder query = new StringBuilder();
 
             switch (version) {
+                case "0.10.4":
+                    query.append(MigrationUtils.dbV0_10_4());
                 case "0.10.3":
                 case "0.10.2":
                 case "0.10.1":
@@ -287,52 +282,6 @@ public class Database {
             .type(MessageType.NOTIF)
             .send();
     }
-
-    private void setCitizens2Support() {
-        final boolean isSupported = PlayerQuests.getCitizens2() != null;
-
-        if (isSupported == false) {
-            ChatUtils.message("""
-            Soft Dependency Reminder! ✨
-            To unlock all the NPC types, consider installing Citizens! Without it, some NPC types will be unavailable. <3
-
-            🔗 https://ci.citizensnpcs.co/job/Citizens2/
-            """.strip())
-                .target(MessageTarget.WORLD)
-                .style(MessageStyle.PRETTY)
-                .type(MessageType.NOTIF)
-                .send();
-        }
-
-        try (Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                UPDATE plugin
-                SET citizens2 = ?
-                WHERE plugin.plugin = 'PlayerQuests'
-            """)) {
-
-            preparedStatement.setBoolean(1, isSupported);
-
-            preparedStatement.execute();
-
-        } catch (SQLException e) {
-            System.err.println("Could not insert or set citizens2 support boolean in the db " + e.getMessage());
-        }
-	}
-
-	public boolean getCitizens2Support() {
-        try (Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT citizens2 FROM plugin WHERE plugin = 'PlayerQuests';")) {
-
-            ResultSet results = statement.executeQuery();
-            boolean isSupported = results.getBoolean("citizens2");
-
-            return isSupported;
-        } catch (SQLException e) {
-            System.err.println("Could not get citizens2 status from database " + e.getMessage());
-            return false;
-        }
-	}
 
 	/**
      * Retrieves the current version of the plugin from the database.

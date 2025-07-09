@@ -1,9 +1,11 @@
 package playerquests.utility.singleton;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -15,6 +17,11 @@ import net.citizensnpcs.api.npc.NPCRegistry;
 import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.enums.DependencyIssue;
 import playerquests.utility.listener.BlockListener; // for block-related events
 import playerquests.utility.listener.EntityListener;
 import playerquests.utility.listener.PlayerListener; // for player-related events
@@ -152,10 +159,71 @@ public class PlayerQuests {
         // the server we are running inside for Citizens2
         // ---
 
-        // call on Database class to verify support
-        final boolean databasedSupport = Database.getInstance().getCitizens2Support();
-        this.dependencies.put("Citizens2", databasedSupport); // instantiate the 'quickdraw' support checking
-        return databasedSupport; // provide the check result
+        // verify support
+        Boolean isSupported = false;
+        DependencyIssue dependencyIssue = DependencyIssue.MISSING;
+
+        if ( PlayerQuests.getCitizens2() != null ) {
+            String[] versionParts = PlayerQuests.getCitizens2().getPluginMeta().getVersion().split("\\D+"); // e.g: 2, 0, 36 (also ignores "-SNAPSHOT (BUILD XYZ)")
+            Integer majorVersion = Integer.parseInt(versionParts[0]); // e.g: 2
+            Integer minorVersion = Integer.parseInt(versionParts[1]); // e.g: 0
+            Integer patchVersion = Integer.parseInt(versionParts[2]); // e.g: 36   
+            
+            String expectedVersion = null;
+            Integer expectedMajorVersion = majorVersion; // (equalise to allow Citizens use if this process fails; no false warnings)
+            Integer expectedMinorVersion = minorVersion;
+            Integer expectedPatchVersion = patchVersion;
+            try (InputStream input = getClass().getResourceAsStream("/plugin.properties")) {
+                Properties props = new Properties();
+                props.load(input);
+
+                expectedVersion = props.getProperty("expectedCitizensVersion");
+                String[] expectedVersionParts = expectedVersion.split("\\.");
+                expectedMajorVersion = Integer.parseInt(expectedVersionParts[0]);
+                expectedMinorVersion = Integer.parseInt(expectedVersionParts[1]);
+                expectedPatchVersion = Integer.parseInt(expectedVersionParts[2]);
+            } catch (Exception e) {
+                ChatUtils.message("POM.XML is missing the expected citizensFlatVersion (got " + expectedVersion + ") for this PlayerQuests release, please report this to sammypanda")
+                    .type(MessageType.ERROR)
+                    .style(MessageStyle.PRETTY)
+                    .target(MessageTarget.CONSOLE)
+                    .send();
+            }
+
+            final boolean isSameMajor = majorVersion == expectedMajorVersion;
+            final boolean isHigherMinor = minorVersion > expectedMinorVersion;
+            final boolean isSameMinor = minorVersion == expectedMinorVersion;
+            final boolean isPatchSufficient = patchVersion >= expectedPatchVersion;
+
+            isSupported = (
+                isSameMajor && 
+                (isHigherMinor || (isSameMinor && isPatchSufficient))
+            );
+
+            // notify if version older than expected
+            if ( ! isSupported && majorVersion <= expectedMajorVersion ) {
+                dependencyIssue = DependencyIssue.OUT_OF_DATE;
+            }
+
+            // notify if major version too new
+            if ( majorVersion > expectedMajorVersion ) {
+                dependencyIssue = DependencyIssue.TOO_NEW;
+            }
+        };
+
+        if ( ! isSupported ) {
+            // send message about what is wrong with Citizens2
+            dependencyIssue.sendMessage(
+                "To unlock all the NPC types, consider " + dependencyIssue.getRemedyPresentPrinciple() + " Citizens! Without it, some NPC types will be unavailable. <3", 
+                "https://ci.citizensnpcs.co/job/Citizens2/"
+            );
+        }
+
+        // instantiate the 'quickdraw' support checking
+        this.dependencies.put("Citizens2", isSupported);
+        
+        // provide the check result
+        return isSupported;
     }
 
     /**

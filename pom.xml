@@ -4,8 +4,7 @@
 
   <groupId>moe.sammypanda</groupId>
   <artifactId>playerquests</artifactId>
-  <version>0.10.3</version>
-
+  <version>0.10.4</version>
   <packaging>jar</packaging>
 
   <name>PlayerQuests</name>
@@ -13,6 +12,7 @@
   <url>https://www.spigotmc.org</url>
 
   <properties>
+    <expectedCitizensVersion>2.0.39</expectedCitizensVersion>
     <java.version>21</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -97,6 +97,11 @@
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.yml</include>
+          <include>**/*.json</include>
+        </includes>
       </resource>
     </resources>
     <plugins>

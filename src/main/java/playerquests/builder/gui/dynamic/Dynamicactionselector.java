@@ -114,7 +114,7 @@ public class Dynamicactionselector extends GUIDynamic {
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                     this.finish(); // trigger onfinish logics
                 } else {
-                    this.selectedStage = null;
+                    this.director.removeCurrentInstance(QuestStage.class);
                     this.refresh();
                 }
             });
@@ -132,7 +132,7 @@ public class Dynamicactionselector extends GUIDynamic {
             .setLabel(stage.getLabel())
             .setItem(Material.CHEST)
             .onClick(() -> {
-                this.selectedStage = stage;
+                this.director.setCurrentInstance(stage);
                 this.refresh();
             });
     }
@@ -156,6 +156,9 @@ public class Dynamicactionselector extends GUIDynamic {
             .setLabel(String.format("%s%s",
                 action.getLabel(),
                 isPresent ? " (Selected)" : ""))
+            .setDescription(List.of(
+                String.format("Type: %s", action.getName())
+            ))
             .setItem(
                 isPresent ? Material.POWERED_RAIL : Material.RAIL)
             .onClick(() -> {

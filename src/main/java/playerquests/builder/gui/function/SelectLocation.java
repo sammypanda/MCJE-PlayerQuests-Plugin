@@ -242,8 +242,8 @@ public class SelectLocation extends GUIFunction {
      */
     private void exit() {
         HandlerList.unregisterAll(this.locationListener); // remove listeners
-        this.finished(); // execute onFinish code
         this.director.getGUI().getResult().open(); // re-open GUI
+        this.finished(); // execute onFinish code
     }
     
 }

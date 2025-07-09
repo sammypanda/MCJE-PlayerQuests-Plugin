@@ -45,6 +45,6 @@ public class SpeakListener extends ActionListener<SpeakAction> {
         }
         
         // then proceed to check this action
-        action.check(questerData);
+        action.check(questerData, true);
     }
 }
