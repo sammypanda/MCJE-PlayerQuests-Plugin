@@ -1,6 +1,8 @@
 package playerquests.utility.listener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -15,6 +17,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent; // when a player interacts with a block
 import org.bukkit.inventory.EquipmentSlot;
 
+import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import playerquests.Core; // accessing plugin singeltons
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
@@ -36,6 +39,8 @@ import playerquests.utility.event.NPCInteractEvent;
  */
 public class BlockListener implements Listener {
 
+    private Map<Player, Boolean> canQuesterRefreshNPCs = new HashMap<>();
+
     /**
      * Constructs a new {@code BlockListener} and registers it with the Bukkit event system.
      */
@@ -54,6 +59,37 @@ public class BlockListener implements Listener {
 
         // clear the block if no other NPCs here
         player.sendBlockChange(npcLocation, emptyBlockData); // remove the NPC
+    }
+
+    @EventHandler
+    public void onChunkLoad(PlayerChunkLoadEvent event) { 
+        // Get or create the refresh state for this player
+        Boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
+        
+        // If refresh not allowed for this player, exit
+        if ( ! state) {
+            return;
+        }
+
+        QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
+        this.canQuesterRefreshNPCs.put(event.getPlayer(), false); // block refresh for period
+        
+        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
+            // get NPCs
+            List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+                .filter(npc -> npc.getValue().getAssigned() instanceof BlockNPC)
+                .filter(npc -> npc.getValue().getLocation().toBukkitLocation().getChunk().isLoaded())
+                .toList();
+
+            // execute refresh
+            npcs.forEach(npc -> {
+                BlockNPC blockNPC = (BlockNPC) npc.getValue().getAssigned();
+                blockNPC.spawn(npc.getKey(), quester);
+            });
+            
+            // clean up
+            this.canQuesterRefreshNPCs.put(event.getPlayer(), true);
+        }, 30 * 20); // 30 seconds (20 ticks per second)
     }
     
     /**
