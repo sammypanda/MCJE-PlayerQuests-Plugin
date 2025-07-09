@@ -15,6 +15,7 @@ import net.citizensnpcs.api.npc.NPCRegistry;
 import playerquests.Core;
 import playerquests.client.Director; // generic director type
 import playerquests.product.Quest; // represents a quest product
+import playerquests.utility.enums.DependencyIssue;
 import playerquests.utility.listener.BlockListener; // for block-related events
 import playerquests.utility.listener.EntityListener;
 import playerquests.utility.listener.PlayerListener; // for player-related events
@@ -152,10 +153,42 @@ public class PlayerQuests {
         // the server we are running inside for Citizens2
         // ---
 
-        // call on Database class to verify support
-        final boolean databasedSupport = Database.getInstance().getCitizens2Support();
-        this.dependencies.put("Citizens2", databasedSupport); // instantiate the 'quickdraw' support checking
-        return databasedSupport; // provide the check result
+        // verify support
+        Boolean isSupported = false;
+        DependencyIssue dependencyIssue = DependencyIssue.MISSING;
+
+        if ( PlayerQuests.getCitizens2() != null ) {
+            String versionToNumberRegex = ".*?(\\d+)\\.(\\d+)\\.(\\d+).*"; // captures each number of the version major.minor.patch and squashes into a number
+            String flatVersionString = PlayerQuests.getCitizens2().getPluginMeta().getVersion().replaceAll(versionToNumberRegex, "$1$2$3");
+            Integer flatVersion = Integer.parseInt(flatVersionString);
+                
+            switch (Core.getPlugin().getPluginMeta().getVersion()) {
+                case "0.10.4":
+                    isSupported = flatVersion >= 2039;
+                    break;
+                default:
+                    break;
+            }
+
+            // notify if failing support check on version
+            if ( ! isSupported ) {
+                dependencyIssue = DependencyIssue.OUT_OF_DATE;
+            }
+        };
+
+        if ( ! isSupported ) {
+            // send message about what is wrong with Citizens2
+            dependencyIssue.sendMessage(
+                "To unlock all the NPC types, consider " + dependencyIssue.getRemedyPresentPrinciple() + " Citizens! Without it, some NPC types will be unavailable. <3", 
+                "https://ci.citizensnpcs.co/job/Citizens2/"
+            );
+        }
+
+        // instantiate the 'quickdraw' support checking
+        this.dependencies.put("Citizens2", isSupported);
+        
+        // provide the check result
+        return isSupported;
     }
 
     /**

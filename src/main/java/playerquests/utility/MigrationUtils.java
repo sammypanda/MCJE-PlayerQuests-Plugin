@@ -198,21 +198,20 @@ public class MigrationUtils {
         """;
     }
 
-    public static Object dbV0_10_4() {
+    public static String dbV0_10_4() {
         return """
             BEGIN TRANSACTION;
             
             -- Create replacement plugin table
             CREATE TABLE IF NOT EXISTS temp_plugin (
-                plugin TEXT PRIMARY KEY,"
-                version TEXT NOT NULL,"
-                citizens2 INTEGER NOT NULL DEFAULT FALSE,"
+                plugin TEXT PRIMARY KEY,
+                version TEXT NOT NULL,
                 CONSTRAINT single_row_constraint UNIQUE (plugin)
             );
 
             -- Migrate data from old plugib table to temporary plugin table
-            INSERT INTO temp_plugin (plugin, version, citizens2)
-            SELECT plugin.plugin, plugin.version, plugin.citizens2 
+            INSERT INTO temp_plugin (plugin, version)
+            SELECT plugin.plugin, plugin.version
             FROM plugin;
 
             -- Drop old plugin table

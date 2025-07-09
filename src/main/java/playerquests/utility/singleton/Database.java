@@ -147,7 +147,6 @@ public class Database {
             String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
             + "plugin TEXT PRIMARY KEY,"
             + "version TEXT NOT NULL,"
-            + "citizens2 INTEGER NOT NULL DEFAULT FALSE,"
             + "CONSTRAINT single_row_constraint UNIQUE (plugin));";
             statement.execute(pluginTableSQL);
 
@@ -179,9 +178,6 @@ public class Database {
 
             // Migrate to new versions if applicable
             migrate(version, dbVersion);
-
-            // Update dependency status in db
-            setCitizens2Support();
 
             // Report to rest of plugin if a fresh install
             isFresh();
@@ -289,84 +285,6 @@ public class Database {
             .type(MessageType.NOTIF)
             .send();
     }
-
-    private void unsetCitizens2Support() {
-        ChatUtils.message("""
-            Soft Dependency Reminder! ✨
-            To unlock all the NPC types, consider installing Citizens! Without it, some NPC types will be unavailable. <3
-
-            🔗 https://ci.citizensnpcs.co/job/Citizens2/
-            """.strip())
-                .target(MessageTarget.WORLD)
-                .style(MessageStyle.PRETTY)
-                .type(MessageType.NOTIF)
-                .send();
-
-        try (Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                UPDATE plugin
-                SET citizens2 = ?
-                WHERE plugin.plugin = 'PlayerQuests'
-            """)) {
-
-            preparedStatement.setInt(1, 0);
-
-            preparedStatement.execute();
-
-        } catch (SQLException e) {
-            System.err.println("Could not 0 citizens2 support boolean in the db " + e.getMessage());
-        }
-    }
-
-    private void setCitizens2Support() {
-        if ( PlayerQuests.getCitizens2() == null ) {
-            this.unsetCitizens2Support();
-            return;
-        }
-
-        String versionToNumberRegex = ".*?(\\d+)\\.(\\d+)\\.(\\d+).*"; // captures each number of the version major.minor.patch and squashes into a number
-        String flatVersionString = PlayerQuests.getCitizens2().getPluginMeta().getVersion().replaceAll(versionToNumberRegex, "$1$2$3");
-        Integer flatVersionNumber = Integer.parseInt(flatVersionString);
-
-        try (Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("""
-                UPDATE plugin
-                SET citizens2 = ?
-                WHERE plugin.plugin = 'PlayerQuests'
-            """)) {
-
-            preparedStatement.setInt(1, flatVersionNumber);
-
-            preparedStatement.execute();
-
-        } catch (SQLException e) {
-            System.err.println("Could not insert or set citizens2 support boolean in the db " + e.getMessage());
-        }
-	}
-
-	public boolean getCitizens2Support() {
-        try (Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT citizens2 FROM plugin WHERE plugin = 'PlayerQuests';")) {
-
-            ResultSet results = statement.executeQuery();
-            Integer flatVersion = results.getInt("citizens2");
-            Boolean isSupported = false;
-            
-            switch (Core.getPlugin().getPluginMeta().getVersion()) {
-                case "0.10.4":
-                    isSupported = flatVersion >= 2039;
-                    break;
-                default:
-                    isSupported = false;
-                    break;
-            }
-
-            return isSupported;
-        } catch (SQLException e) {
-            System.err.println("Could not get citizens2 status from database " + e.getMessage());
-            return false;
-        }
-	}
 
 	/**
      * Retrieves the current version of the plugin from the database.
