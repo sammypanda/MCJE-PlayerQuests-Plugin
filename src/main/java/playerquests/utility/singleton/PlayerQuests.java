@@ -164,30 +164,50 @@ public class PlayerQuests {
         DependencyIssue dependencyIssue = DependencyIssue.MISSING;
 
         if ( PlayerQuests.getCitizens2() != null ) {
-            String versionToNumberRegex = ".*?(\\d+)\\.(\\d+)\\.(\\d+).*"; // captures each number of the version major.minor.patch and squashes into a number
-            String flatVersionString = PlayerQuests.getCitizens2().getPluginMeta().getVersion().replaceAll(versionToNumberRegex, "$1$2$3");
-            Integer flatVersion = Integer.parseInt(flatVersionString);
-            String expectedFlatVersionString = null;
-            Integer expectedFlatVersion = 0;
-
+            String[] versionParts = PlayerQuests.getCitizens2().getPluginMeta().getVersion().split("\\D+"); // e.g: 2, 0, 36 (also ignores "-SNAPSHOT (BUILD XYZ)")
+            Integer majorVersion = Integer.parseInt(versionParts[0]); // e.g: 2
+            Integer minorVersion = Integer.parseInt(versionParts[1]); // e.g: 0
+            Integer patchVersion = Integer.parseInt(versionParts[2]); // e.g: 36   
+            
+            String expectedVersion = null;
+            Integer expectedMajorVersion = majorVersion; // (equalise to allow Citizens use if this process fails; no false warnings)
+            Integer expectedMinorVersion = minorVersion;
+            Integer expectedPatchVersion = patchVersion;
             try (InputStream input = getClass().getResourceAsStream("/plugin.properties")) {
                 Properties props = new Properties();
                 props.load(input);
-                expectedFlatVersionString = props.getProperty("citizensFlatVersion");
-                expectedFlatVersion = Integer.parseInt(expectedFlatVersionString);
+
+                expectedVersion = props.getProperty("expectedCitizensVersion");
+                String[] expectedVersionParts = expectedVersion.split("\\.");
+                expectedMajorVersion = Integer.parseInt(expectedVersionParts[0]);
+                expectedMinorVersion = Integer.parseInt(expectedVersionParts[1]);
+                expectedPatchVersion = Integer.parseInt(expectedVersionParts[2]);
             } catch (Exception e) {
-                ChatUtils.message("POM.XML is missing the expected citizensFlatVersion (got " + expectedFlatVersionString + ") for this PlayerQuests release, please report this to sammypanda")
+                ChatUtils.message("POM.XML is missing the expected citizensFlatVersion (got " + expectedVersion + ") for this PlayerQuests release, please report this to sammypanda")
                     .type(MessageType.ERROR)
                     .style(MessageStyle.PRETTY)
                     .target(MessageTarget.CONSOLE)
                     .send();
             }
 
-            isSupported = flatVersion >= expectedFlatVersion;
+            final boolean isSameMajor = majorVersion == expectedMajorVersion;
+            final boolean isHigherMinor = minorVersion > expectedMinorVersion;
+            final boolean isSameMinor = minorVersion == expectedMinorVersion;
+            final boolean isPatchSufficient = patchVersion >= expectedPatchVersion;
 
-            // notify if failing support check on version
-            if ( ! isSupported ) {
+            isSupported = (
+                isSameMajor && 
+                (isHigherMinor || (isSameMinor && isPatchSufficient))
+            );
+
+            // notify if version older than expected
+            if ( ! isSupported && majorVersion <= expectedMajorVersion ) {
                 dependencyIssue = DependencyIssue.OUT_OF_DATE;
+            }
+
+            // notify if major version too new
+            if ( majorVersion > expectedMajorVersion ) {
+                dependencyIssue = DependencyIssue.TOO_NEW;
             }
         };
 

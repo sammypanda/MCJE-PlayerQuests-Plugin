@@ -12,7 +12,7 @@
   <url>https://www.spigotmc.org</url>
 
   <properties>
-    <citizensFlatVersion>2039</citizensFlatVersion>
+    <expectedCitizensVersion>2.0.39</expectedCitizensVersion>
     <java.version>21</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>

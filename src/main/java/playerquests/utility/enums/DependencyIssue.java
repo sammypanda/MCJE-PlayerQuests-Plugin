@@ -38,6 +38,20 @@ public enum DependencyIssue {
             .type(MessageType.ERROR)
             .send();
         }
+    }, 
+    TOO_NEW("downgrade", "downgrading") {
+        @Override
+        public void sendMessage(String dependencyExplainer, String dependencyLink) {
+            ChatUtils.message("""
+                A Dependency Is Too New! ✨\n """ + dependencyExplainer + """
+
+                🔗 """ + dependencyLink
+            .strip())
+            .target(MessageTarget.WORLD)
+            .style(MessageStyle.PRETTY)
+            .type(MessageType.ERROR)
+            .send();
+        }
     };
 
     private final String remedyVerb;
