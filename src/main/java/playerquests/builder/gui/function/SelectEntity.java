@@ -88,7 +88,7 @@ public class SelectEntity extends GUIFunction {
             event.setCancelled(true);
 
             // get as serialiable entity
-            EntitySerialisable entitySerialisable = new EntitySerialisable(clickedEntity);
+            EntitySerialisable entitySerialisable = EntitySerialisable.fromEntity(clickedEntity);
 
             // TODO: disallow selecting existing NPCs
 
@@ -317,7 +317,7 @@ public class SelectEntity extends GUIFunction {
      * @param entitySerialisable the {@code EntitySerialisable} to set as the selected entity
      */
     public void setResponse(EntitySerialisable entitySerialisable) {
-        if (this.deniedEntities.contains(entitySerialisable.getEntityType())) {
+        if (this.deniedEntities.contains(entitySerialisable.getEntityData().getEntityType(entitySerialisable.getProperties()))) {
             ChatUtils.message("This entity is denied from being set as an NPC.")
                 .player(this.player)
                 .type(MessageType.WARN)

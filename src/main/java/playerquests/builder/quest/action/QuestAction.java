@@ -1,14 +1,11 @@
 package playerquests.builder.quest.action;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -18,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import net.citizensnpcs.api.npc.NPC;
 import playerquests.Core;
 import playerquests.builder.fx.FXBuilder;
 import playerquests.builder.gui.GUIBuilder;
@@ -359,19 +357,12 @@ public abstract class QuestAction {
             QuestNPC npc = npcOption.getNPC(quest);
             NPCType npcType = npc.getAssigned();
             if (npcType instanceof EntityNPC) {
-                Location bukkitLocation = location.toBukkitLocation();
-                EntityNPC entityNPC = (EntityNPC) npcType;
+                NPC citizen = questerData.getCitizenNPC(this, npc);
 
-                Collection<Entity> entities = bukkitLocation.getWorld().getNearbyEntities(bukkitLocation, 0, 1, 0);
-
-                // find height of spawned NPC
-                entities.stream()
-                    .filter(entity -> (entity.getType() == entityNPC.getEntity().getEntityType()))
-                    .findFirst()
-                    .ifPresent(entity -> {
-                        location.setY(location.getY() + entity.getHeight() + 0.5);
-                    });
+                // get height above entity head
+                location.setY(location.getY() + citizen.getEntity().getHeight() + 0.5);
             } else {
+                // get generic height above
                 location.setY(location.getY() + 1.5);
             }
 
