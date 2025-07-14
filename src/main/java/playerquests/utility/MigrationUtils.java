@@ -1,5 +1,9 @@
 package playerquests.utility;
 
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
+
 /**
  * Provides SQL migration queries for updating the database schema to X from the last real version.
  * <p>
@@ -199,6 +203,12 @@ public class MigrationUtils {
     }
 
     public static String dbV0_10_4() {
+        ChatUtils.message("Entities changed in this update, for all your quest files you need to change entity values from 'type:CHICKEN,color:black' to 'CHICKEN'; meaning, remove everything except the name of the entity.")
+            .style(MessageStyle.PRETTY)
+            .type(MessageType.WARN)
+            .target(MessageTarget.WORLD)
+            .send();
+
         return """
             BEGIN TRANSACTION;
             

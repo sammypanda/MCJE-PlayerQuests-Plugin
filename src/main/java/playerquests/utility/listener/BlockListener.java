@@ -24,6 +24,7 @@ import playerquests.builder.quest.npc.BlockNPC; // NPCs represented by blocks
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient;
 import playerquests.utility.event.NPCInteractEvent;
+import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * Listens for block-related events to manage interactions with BlockNPCs in the game.
@@ -63,6 +64,11 @@ public class BlockListener implements Listener {
 
     @EventHandler
     public void onChunkLoad(PlayerChunkLoadEvent event) { 
+        // Ensure at least one QuestClient exists before continuing
+        if ( QuestRegistry.getInstance().getAllQuesters().isEmpty() ) {
+            return;
+        }
+
         // Get or create the refresh state for this player
         Boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
         
