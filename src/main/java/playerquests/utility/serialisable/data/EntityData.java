@@ -111,7 +111,7 @@ public enum EntityData {
     }
 
     Map<String, String> basicProperties(Entity entity, Map<String, String> properties) {
-        return Map.of(); // TODO: ADD THINGS LIKE IF ITS A BABY OR ADULT
+        return properties; // TODO: ADD THINGS LIKE IF ITS A BABY OR ADULT
     }
 
     String formatText(String string) {
