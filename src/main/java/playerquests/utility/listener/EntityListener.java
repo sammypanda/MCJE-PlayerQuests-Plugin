@@ -38,7 +38,7 @@ public class EntityListener implements Listener {
         QuestClient quester = Core.getQuestRegistry().getQuester(event.getClicker());
         List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
             .filter(npc -> { // check if is NPC
-                return quester.getData().getCitizenNPC(npc.getKey(), npc.getValue()).equals(citizen);
+                return citizen.equals(quester.getData().getCitizenNPC(npc.getKey(), npc.getValue()));
             })
             .toList(); // put into list for calling event
 
