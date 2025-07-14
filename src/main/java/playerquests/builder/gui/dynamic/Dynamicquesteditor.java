@@ -123,7 +123,7 @@ public class Dynamicquesteditor extends GUIDynamic {
         if (!questBuilder.getQuestNPCs().isEmpty()) { // view quest stages button (unblocked)
             stagesSlot.setItem(Material.CHEST)
             .setLabel("Quest Stages")
-            .setDescription(List.of("")) // clear the description
+            .setDescription(List.of()) // clear the description
             .addFunction(
                 new UpdateScreen(
                     Arrays.asList("queststages"),

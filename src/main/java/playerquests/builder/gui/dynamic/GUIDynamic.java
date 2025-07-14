@@ -1,9 +1,11 @@
 package playerquests.builder.gui.dynamic;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 import playerquests.builder.gui.GUIBuilder; // creating the Dynamic GUI on the screen
 import playerquests.builder.gui.function.GUIFunction;
+import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.client.ClientDirector; // enables the dynamic GUI to retrieve info
 
 /**
@@ -130,7 +132,6 @@ public abstract class GUIDynamic {
      * Refreshes the GUI screen.
      */
     public void refresh() {
-        this.gui.clearSlots();
-        this.execute();
+        new UpdateScreen(List.of(this.gui.getScreenName()), director).execute();
     }
 }

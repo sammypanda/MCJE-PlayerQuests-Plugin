@@ -174,7 +174,11 @@ public class Quest {
 
         // if trying to start quest with dependencies missing, fail
         if ( ! PlayerQuests.getInstance().hasCitizens2() && quest.getNPCs().values().stream().anyMatch(npc -> npc.getAssigned() instanceof EntityNPC)) { // if citizens2 missing
-            System.err.println("Cannot load " + quest.getID() + " as it has EntityNPCs, but your server does not have the Citizens2 plugin");
+            ChatUtils.message("Cannot load " + quest.getID() + " as it has EntityNPCs, but your server does not have the Citizens2 plugin")
+                .type(MessageType.ERROR)
+                .style(MessageStyle.PLAIN)
+                .target(MessageTarget.CONSOLE)
+                .send();
             return null;
         }
 

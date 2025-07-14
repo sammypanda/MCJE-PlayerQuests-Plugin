@@ -119,7 +119,7 @@ public class EntityNPC extends NPCType {
             entityData = new EntitySerialisable(this.value);
         } catch (IllegalArgumentException e) {
             System.err.println("malformed entity data in a quest. " + e.getMessage());
-            entityData = new EntitySerialisable("type:VILLAGER");
+            entityData = new EntitySerialisable("entity:VILLAGER");
             this.value = entityData.toString(); // replace invalid data
         }
 

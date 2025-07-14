@@ -4,20 +4,16 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.inventory.EquipmentSlot;
 
+import net.citizensnpcs.api.event.NPCRightClickEvent;
+import net.citizensnpcs.api.npc.NPC;
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
-import playerquests.builder.quest.npc.EntityNPC;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.client.quest.QuestClient;
 import playerquests.utility.event.NPCInteractEvent;
-import playerquests.utility.serialisable.EntitySerialisable;
 
 public class EntityListener implements Listener {
 
@@ -33,34 +29,28 @@ public class EntityListener implements Listener {
      * @param event the {@code PlayerInteractEntityEvent} to handle
      */
     @EventHandler
-    public void onEntityNPCInteract(PlayerInteractEntityEvent event) {
-        Entity entity = event.getRightClicked();
+    public void onEntityNPCInteract(NPCRightClickEvent event) {
+        NPC citizen = event.getNPC();
 
-        if (entity == null) { return; }
+        if (citizen == null) { return; }
 
         // find matching entity to be sure it is an NPC
-        Location eventEntityLocation = entity.getLocation();
-        EntitySerialisable eventEntityObject = new EntitySerialisable(entity);
-        QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
+        QuestClient quester = Core.getQuestRegistry().getQuester(event.getClicker());
         List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
-            .filter(npc -> npc.getValue().getAssigned() instanceof EntityNPC) // check if NPC is actually an 'entity type NPC'
-            .filter(npc -> npc.getValue().getLocation().toBukkitLocation().distance(eventEntityLocation) < 1) // check if entity locations match
-            .filter(npc -> { // check if entity attributes match
-                EntityNPC entityNPC = (EntityNPC) npc.getValue().getAssigned();
-                return entityNPC.getEntity().toString().equals(eventEntityObject.toString());
+            .filter(npc -> { // check if is NPC
+                return citizen.equals(quester.getData().getCitizenNPC(npc.getKey(), npc.getValue()));
             })
             .toList(); // put into list for calling event
 
 
         // conditions to not continue the event:
         if (
-            npcs.isEmpty() || // if entity is not an active NPC
-            event.getHand().equals(EquipmentSlot.OFF_HAND) // no duplicating interaction
+            npcs.isEmpty() // if entity is not an active NPC
         ) { return; }
 
         // send out the event
         Bukkit.getServer().getPluginManager().callEvent(
-            new NPCInteractEvent(npcs, event.getPlayer())
+            new NPCInteractEvent(npcs, event.getClicker())
         );
     }
 }

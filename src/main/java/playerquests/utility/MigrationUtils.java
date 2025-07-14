@@ -1,5 +1,9 @@
 package playerquests.utility;
 
+import playerquests.utility.ChatUtils.MessageStyle;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
+
 /**
  * Provides SQL migration queries for updating the database schema to X from the last real version.
  * <p>
@@ -194,6 +198,39 @@ public class MigrationUtils {
 
             ALTER TABLE quests ADD COLUMN inventory TEXT NOT NULL DEFAULT "";
 
+            COMMIT;
+        """;
+    }
+
+    public static String dbV0_10_4() {
+        ChatUtils.message("Entities changed in this update, for all your quest files you need to change entity values from 'type:CHICKEN,color:black' to 'CHICKEN'; meaning, remove everything except the name of the entity.")
+            .style(MessageStyle.PRETTY)
+            .type(MessageType.WARN)
+            .target(MessageTarget.WORLD)
+            .send();
+
+        return """
+            BEGIN TRANSACTION;
+            
+            -- Create replacement plugin table
+            CREATE TABLE IF NOT EXISTS temp_plugin (
+                plugin TEXT PRIMARY KEY,
+                version TEXT NOT NULL,
+                CONSTRAINT single_row_constraint UNIQUE (plugin)
+            );
+
+            -- Migrate data from old plugib table to temporary plugin table
+            INSERT INTO temp_plugin (plugin, version)
+            SELECT plugin.plugin, plugin.version
+            FROM plugin;
+
+            -- Drop old plugin table
+            DROP TABLE IF EXISTS plugin;
+
+            -- Rename temporary tables to match new schema
+            ALTER TABLE temp_plugin RENAME TO plugin;
+
+            -- Commit the transaction if everything is successful
             COMMIT;
         """;
     }

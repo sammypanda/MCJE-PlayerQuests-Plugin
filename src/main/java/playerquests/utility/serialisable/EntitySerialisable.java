@@ -1,202 +1,122 @@
 package playerquests.utility.serialisable;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.bukkit.DyeColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Cat;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Pose;
-import org.bukkit.entity.Rabbit;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Rabbit.Type;
 
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import net.citizensnpcs.api.npc.NPC;
-import playerquests.utility.singleton.PlayerQuests;
+import playerquests.utility.serialisable.data.EntityData;
 
 public class EntitySerialisable implements Serialisable {
+    private final EntityData entityData;
+    private final Map<String, String> properties;
 
-    private EntityType entityType;
+    // Public from string - use builder for other construction
+    public EntitySerialisable(String string) {
+        // Convert Spigot EntityType to our GENERIC
+        if (!string.contains("[")) {
+            this.entityData = EntityData.GENERIC;
 
-    private Pose entityPose;
+            // TODO: remove me vvv
+            // Convert old format to curr
+            if (string.contains("type:")) {
+                this.properties = Map.of("entity", string.split(":")[1].split(",")[0]);
+                return;
+            }
 
-    private Cat.Type catVariant;
+            this.properties = Map.of("entity", string);
+            return;
+        }
 
-    private Type rabbitVariant;
+        // get EntityData base and key-value pairs
+        String[] parts = string.split("\\[|\\]");
+        Map<String, String> keyValues = Arrays.stream(parts[1].split(";"))
+            .map(pair -> pair.split(":"))
+            .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
+        String baseString = parts[0];
+        String typeString = keyValues.get("entity");
 
-    private DyeColor sheepColor;
+        EntityData entityData;
+        // convert from GENERIC (GENERIC[entity:HERE]), otherwise use special EntityData base string (HERE[key:value])
+        if (typeString != null && ( ! typeString.isEmpty())) {
+            entityData = EntityData.getEnum(typeString);
+        } else {
+            entityData = EntityData.getEnum(baseString);
+        }
 
-    public EntitySerialisable(String entityTypeString) {
-        this.fromString(entityTypeString);
+        // spawn entity to wash properties (wash properties meaning cycle them to remove fake/unused ones)
+        World world = Bukkit.getServer().getWorlds().getFirst();
+        Location location = new Location(world, 0, -100, 0); // hidden location, requires spawning in world
+        NPC citizen = entityData.createEntity(keyValues, location);
+        citizen.getEntity().setInvisible(true); // hide the entity
+
+        // set final EntitySerialisable data
+        this.entityData = entityData;
+        this.properties = entityData.extractProperties(citizen.getEntity());
+        
+        // remove data collection entity
+        citizen.destroy();
     }
 
-    public EntitySerialisable(Entity entity) {
-        this.entityType = entity.getType();
-        this.entityPose = entity.getPose();
-
-        // NOTE: custom entries for each entity here
-        switch (this.entityType) {
-            case CAT:
-                Cat cat = (Cat) entity;
-                this.catVariant = cat.getCatType();
-                break;
-            case RABBIT:
-                Rabbit rabbit = (Rabbit) entity;
-                this.rabbitVariant = rabbit.getRabbitType();
-                break;
-            case SHEEP:
-                Sheep sheep = (Sheep) entity;
-                this.sheepColor = sheep.getColor();
-            default:
-                break;
-        }
+    // Private constructor - use builder
+    private EntitySerialisable(EntityData entityData, Map<String, String> properties) {
+        this.entityData = Objects.requireNonNull(entityData);
+        this.properties = Collections.unmodifiableMap(new HashMap<>(properties));
     }
 
     @Override
-    public Serialisable fromString(String serialised) {
-        if (serialised == null || serialised.isEmpty()) {
-            throw new IllegalArgumentException("Serialized string cannot be null or empty");
+    public Serialisable fromString(String string) {
+        return new EntitySerialisable(string);
+    }
+
+    public static EntitySerialisable fromEntity(Entity entity) {
+        if (entity == null) return null;
+        EntityData data = EntityData.fromEntity(entity);
+        if (data == null) throw new IllegalArgumentException("Unsupported entity type " + entity.getType());
+        return new EntitySerialisable(data, data.extractProperties(entity));
+    }
+
+    // Getters
+    public EntityData getEntityData() { return entityData; }
+    public Map<String, String> getProperties() { return properties; }
+
+    // Equality Checking
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-
-        // get map of key value pairs of the entity attributes
-        Map<String, String> data = Arrays.stream(serialised.split(","))
-            .map(keyvalue -> keyvalue.split(":", 2))
-            .collect(Collectors.toMap(
-                keyvalue -> keyvalue[0],
-                keyvalue -> keyvalue.length > 1 ? keyvalue[1] : ""
-            ));
-
-        // Get and validate entity type
-        String entityTypeString = data.get("type");
-        if (entityTypeString == null) {
-            throw new IllegalArgumentException("Missing entity type in serialized data");
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
         }
+        EntitySerialisable other = (EntitySerialisable) obj;
+        return Objects.equals(entityData, other.entityData) &&
+               Objects.equals(properties, other.properties);
+    }
 
-        // resolve entity type from string
-        try {
-            this.entityType = EntityType.valueOf(entityTypeString.toLowerCase());
-        } catch (IllegalArgumentException _e) {
-            this.entityType = EntityType.VILLAGER;
-        }
-
-        // set pose
-        this.entityPose = Pose.valueOf(data.getOrDefault("pose", "STANDING"));
-
-        switch (this.entityType) {
-            case CAT:
-                String catVariantString = data.getOrDefault("cat_variant", this.getCatVariant().toString());
-                NamespacedKey catVariantKey = NamespacedKey.fromString(catVariantString.toLowerCase());
-                RegistryAccess.registryAccess().getRegistry(RegistryKey.CAT_VARIANT).get(catVariantKey);
-                break;
-            case RABBIT:
-                String rabbitVariantString = data.getOrDefault("rabbit_variant", this.getRabbitVariant().toString());
-                this.rabbitVariant = Rabbit.Type.valueOf(rabbitVariantString.toUpperCase());
-            case SHEEP:
-                String sheepColorString = data.getOrDefault("sheep_color", this.getSheepColor().toString());
-                this.sheepColor = DyeColor.valueOf(sheepColorString.toUpperCase());
-            default:
-                break;
-        }
-
-        return this;
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityData, properties);
     }
 
     public NPC spawn(Location location) {
-        EntityType entityType = this.getEntityType();
-
-        if ( entityType == null ) {
-            throw new IllegalStateException("Entity type missing from entity serialisable data");
-        }
-
-        if ( ! PlayerQuests.getInstance().hasCitizens2() ) {
-            throw new RuntimeException("Tried to spawn and NPC without Citizens plugin");
-        }
-
-        NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(entityType, "", location);
-        Entity entity = citizen.getEntity();
-
-        // NOTE: applying unique attributes to spawned entity here
-        switch (entityType) {
-            case CAT:
-                Cat cat = (Cat) entity;
-                Cat.Type catVariant = this.getCatVariant();
-
-                cat.setCatType(catVariant);
-                cat.setSitting(this.entityPose == Pose.SITTING);
-                break;
-            case RABBIT:
-                Rabbit rabbit = (Rabbit) entity;
-                Rabbit.Type rabbitVariant = this.getRabbitVariant();
-
-                rabbit.setRabbitType(rabbitVariant);
-                break;
-            case SHEEP:
-                Sheep sheep = (Sheep) entity;
-                DyeColor sheepColor = this.getSheepColor();
-
-                sheep.setColor(sheepColor);
-            default:
-                break;
-        }
-
-        return citizen;
+        return this.getEntityData().createEntity(this.getProperties(), location);
     }
 
+    // Serialisation
     @Override
     public String toString() {
-        // NOTE: add new unique attributes here:
-        return String.format("type:%s,pose:%s,cat_variant:%s,rabbit_variant:%s,sheep_color:%s",
-            this.getEntityType(),
-            this.getPose(),
-            this.getCatVariant(),
-            this.getRabbitVariant(),
-            this.getSheepColor()
-        );
-    }
-
-    public EntityType getEntityType() {
-        if (this.entityType == null) {
-            return EntityType.VILLAGER;
-        }
-
-        return this.entityType;
-    }
-
-    public Pose getPose() {
-        if (this.entityPose == null) {
-            return Pose.STANDING;
-        }
-
-        return this.entityPose;
-    }
-
-    public Cat.Type getCatVariant() {
-        if (this.catVariant == null) {
-            return Cat.Type.ALL_BLACK;
-        }
-
-        return this.catVariant;
-    }
-
-    public Rabbit.Type getRabbitVariant() {
-        if (this.rabbitVariant == null) {
-            return Rabbit.Type.BLACK;
-        }
-
-        return this.rabbitVariant;
-    }
-
-    public DyeColor getSheepColor() {
-        if (this.sheepColor == null) {
-            return DyeColor.BLACK;
-        }
-
-        return this.sheepColor;
+        if (properties.isEmpty()) return entityData.name();
+        return entityData.name() + properties.entrySet().stream()
+            .map(e -> e.getKey() + ":" + e.getValue())
+            .collect(Collectors.joining(";", "[", "]"));
     }
 }
