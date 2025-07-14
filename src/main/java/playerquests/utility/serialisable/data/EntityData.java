@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.text.WordUtils;
 import org.bukkit.Location;
+import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
@@ -56,7 +57,10 @@ public enum EntityData {
 
         @Override
         public Map<String, String> extractProperties(Entity entity) {
-            return basicProperties(entity, Map.of()); // TODO: add special properties here
+            Chicken chicken = (Chicken) entity;
+            Chicken.Variant variant = chicken.getVariant();
+
+            return basicProperties(entity, Map.of("variant", variant.getKey().asMinimalString()));
         }
 
         @Override
