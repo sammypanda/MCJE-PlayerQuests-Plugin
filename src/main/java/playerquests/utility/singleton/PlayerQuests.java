@@ -190,9 +190,9 @@ public class PlayerQuests {
                     .send();
             }
 
-            final boolean isSameMajor = majorVersion == expectedMajorVersion;
+            final boolean isSameMajor = majorVersion.equals(expectedMajorVersion);
             final boolean isHigherMinor = minorVersion > expectedMinorVersion;
-            final boolean isSameMinor = minorVersion == expectedMinorVersion;
+            final boolean isSameMinor = minorVersion.equals(expectedMinorVersion);
             final boolean isPatchSufficient = patchVersion >= expectedPatchVersion;
 
             isSupported = (
