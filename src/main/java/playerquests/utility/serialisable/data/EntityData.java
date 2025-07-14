@@ -34,17 +34,17 @@ public enum EntityData {
 
         @Override
         public Map<String, String> extractProperties(Entity entity) {
-            return basicProperties(entity, Map.of("type", entity.getType().name()));
+            return basicProperties(entity, Map.of("entity", entity.getType().name()));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            return formatText(properties.get("type"));
+            return formatText(properties.get("entity"));
         }
 
         @Override
         public EntityType getEntityType(Map<String, String> properties) {
-            return EntityType.fromName(properties.get("type"));
+            return EntityType.fromName(properties.get("entity"));
         }
     },
     CHICKEN {
