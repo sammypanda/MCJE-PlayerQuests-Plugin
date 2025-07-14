@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Chicken.Variant;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
@@ -59,11 +60,11 @@ public enum EntityData {
             Chicken entity = (Chicken) citizen.getEntity();
 
             // apply chicken variant
-            Chicken.Variant variant = RegistryAccess.registryAccess()
+            Chicken.Variant variant = Optional.ofNullable(RegistryAccess.registryAccess()
                 .getRegistry(RegistryKey.CHICKEN_VARIANT)
                 .get(ChickenVariantKeys.create(Key.key(
-                    properties.getOrDefault("chicken_variant", "temperate"))
-                ));
+                    properties.getOrDefault("variant", "temperate"))
+                ))).orElse(Variant.TEMPERATE);
             entity.setVariant(variant);
 
             // apply basic properties
@@ -75,7 +76,7 @@ public enum EntityData {
             Chicken chicken = (Chicken) entity;
             Chicken.Variant variant = chicken.getVariant();
 
-            return basicProperties(entity, Map.of("chicken_variant", variant.getKey().asMinimalString()));
+            return basicProperties(entity, Map.of("variant", variant.getKey().asMinimalString()));
         }
 
         @Override
