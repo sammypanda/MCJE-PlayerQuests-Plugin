@@ -14,7 +14,11 @@ import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.keys.ChickenVariantKeys;
 import net.citizensnpcs.api.npc.NPC;
+import net.kyori.adventure.key.Key;
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -52,6 +56,17 @@ public enum EntityData {
         @Override
         public NPC createEntity(Map<String, String> properties, Location location) {
             NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(this.getEntityType(properties), "", location);
+            Chicken entity = (Chicken) citizen.getEntity();
+
+            // apply chicken variant
+            Chicken.Variant variant = RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.CHICKEN_VARIANT)
+                .get(ChickenVariantKeys.create(Key.key(
+                    properties.getOrDefault("chicken_variant", "temperate"))
+                ));
+            entity.setVariant(variant);
+
+            // apply basic properties
             return basicEntity(citizen, properties);
         }
 
@@ -60,7 +75,7 @@ public enum EntityData {
             Chicken chicken = (Chicken) entity;
             Chicken.Variant variant = chicken.getVariant();
 
-            return basicProperties(entity, Map.of("variant", variant.getKey().asMinimalString()));
+            return basicProperties(entity, Map.of("chicken_variant", variant.getKey().asMinimalString()));
         }
 
         @Override
