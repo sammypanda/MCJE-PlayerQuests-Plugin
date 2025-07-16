@@ -156,12 +156,11 @@ public class GUIBuilder implements Builder {
     public Integer getEmptySlot() {
         Set<Integer> filledSlots = this.guiSlots.keySet(); // get the positions of all currently stored slots
 
-        Integer lowestEmptySlot = IntStream.iterate(1, i -> i + 1) // counter stream, starting at 1
+        // return lowest empty slot
+        return IntStream.iterate(1, i -> i + 1) // counter stream, starting at 1
             .filter(slot -> !filledSlots.contains(slot)) // conditional for adding to stream
             .findFirst() // terminate if there is a value in the stream
             .orElse(1); // default value
-
-        return lowestEmptySlot; // the next empty slot
     }
 
     /**
