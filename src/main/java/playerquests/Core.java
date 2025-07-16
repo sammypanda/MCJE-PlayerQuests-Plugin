@@ -34,7 +34,7 @@ public class Core extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        plugin = this;
+        Core.setPlugin(this);
 
         // call the playerquests game class
         PlayerQuests.getInstance();
@@ -52,6 +52,14 @@ public class Core extends JavaPlugin {
 
         // mount bStats for some minimal usage info
         new Metrics(this, 22692);
+    }
+
+    /**
+     * Set the singleton of the plugin for future access.
+     * @param core this class.
+     */
+    private static void setPlugin(Core core) {
+        plugin = core;
     }
 
     @Override
