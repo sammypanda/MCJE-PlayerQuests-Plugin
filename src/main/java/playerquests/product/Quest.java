@@ -327,7 +327,7 @@ public class Quest {
      * @return Whether the quest is enabled.
      */
     @JsonIgnore
-    public Boolean isToggled() {
+    public boolean isToggled() {
         // if value, uninitiated or unset
         // find truth in database
         if (this.toggled == null) {

@@ -131,7 +131,7 @@ public class Dynamicmyquest extends GUIDynamic {
         }
 
         // create quest toggle button
-        Boolean isToggled = quest.isToggled();
+        boolean isToggled = quest.isToggled();
         
         new GUISlot(gui, 9)
             .setItem(isToggled ? Material.GREEN_STAINED_GLASS_PANE : Material.GRAY_STAINED_GLASS_PANE)
