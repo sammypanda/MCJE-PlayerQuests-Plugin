@@ -32,11 +32,6 @@ public class Core extends JavaPlugin {
      */
     private static QuestRegistry questRegistry = QuestRegistry.getInstance();
 
-    /**
-     * Core class, to be instantiated by server.
-     */
-    public Core() {}
-
     @Override
     public void onEnable() {
         plugin = this;
