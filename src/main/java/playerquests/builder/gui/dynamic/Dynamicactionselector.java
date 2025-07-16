@@ -143,11 +143,11 @@ public class Dynamicactionselector extends GUIDynamic {
      * @return a GUI slot button
      */
     private GUISlot createActionButton(QuestAction action) {
-        String action_id = action.getID();
+        String actionID = action.getID();
 
         boolean isPresent = this.selectedActions.stream()
             // (p = stage path)
-            .anyMatch(p -> p.getStage().equals(action.getStage().getID()) && p.getActions().contains(action_id));
+            .anyMatch(p -> p.getStage().equals(action.getStage().getID()) && p.getActions().contains(actionID));
 
         return new GUISlot(gui, this.gui.getEmptySlot())
             .setLabel(String.format("%s%s",
@@ -165,7 +165,7 @@ public class Dynamicactionselector extends GUIDynamic {
                 // if already in list
                 if (isPresent) {
                     // then remove
-                    this.selectedActions.removeIf(p -> p.getActions().contains(action_id));
+                    this.selectedActions.removeIf(p -> p.getActions().contains(actionID));
                 } else {
                     // otherwise, add to the list
                     this.selectedActions.add(stagePath);

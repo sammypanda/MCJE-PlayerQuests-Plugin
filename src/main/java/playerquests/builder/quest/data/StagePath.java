@@ -171,8 +171,8 @@ public class StagePath {
     public List<QuestAction> getActions(Quest quest) {
         List<QuestAction> actions = new ArrayList<QuestAction>();
 
-        this.actions.forEach(action_id -> {
-            QuestAction action = this.getStage(quest).getActions().get(action_id);
+        this.actions.forEach(actionID -> {
+            QuestAction action = this.getStage(quest).getActions().get(actionID);
 
             // check the action exists in the actions map
             if (action == null) {

@@ -141,12 +141,12 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * @return a GUI slot button
      */
     private GUISlot createActionButton(QuestAction action) {
-        String action_id = action.getID();
+        String actionID = action.getID();
 
         boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
             .stream()
             .filter(path -> path.hasActions()) // isn't just a stage in the path
-            .filter(path -> path.getActions().contains(action_id)) // the action ID matches
+            .filter(path -> path.getActions().contains(actionID)) // the action ID matches
             .findFirst()
             .isPresent();
 
@@ -154,7 +154,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             .stream()
             .filter(path -> path.hasActions()) // isn't just a stage in the path
             .filter(path -> path.getStage().contains(action.getStage().getID())) // the stage ID matches
-            .filter(path -> path.getActions().contains(action_id)) // the action ID matches
+            .filter(path -> path.getActions().contains(actionID)) // the action ID matches
             .findFirst()
             .isPresent();
 
@@ -171,11 +171,11 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
             )
             .onClick(() -> {
-                this.handleActionButtonClick(isSelected, action_id, isStartPoint);
+                this.handleActionButtonClick(isSelected, actionID, isStartPoint);
             });
     }
 
-    private void handleActionButtonClick(boolean isSelected, String action_id, boolean isStartPoint) {
+    private void handleActionButtonClick(boolean isSelected, String actionID, boolean isStartPoint) {
         StagePath stagePath = new StagePath(action.getStage(), List.of(action));
 
         // unselect
@@ -185,7 +185,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                     return false;
                 }
 
-                return path.getActions().contains(action_id);
+                return path.getActions().contains(actionID);
             });
         }
 
