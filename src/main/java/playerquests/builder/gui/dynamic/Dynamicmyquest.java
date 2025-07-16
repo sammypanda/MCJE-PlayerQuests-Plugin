@@ -34,7 +34,7 @@ public class Dynamicmyquest extends GUIDynamic {
      * If {@code false}, the button will initiate the delete confirmation process.
      * </p>
      */
-    Boolean confirm_delete = false;
+    Boolean confirmDeletion = false;
 
     /**
      * Constructs a new {@code Dynamicmyquest} instance.
@@ -101,12 +101,12 @@ public class Dynamicmyquest extends GUIDynamic {
             });
 
         // create remove quest button (with confirmation check)
-        if (confirm_delete.equals(false)) {
+        if (confirmDeletion.equals(false)) {
             new GUISlot(gui, 8)
                 .setItem(Material.RED_DYE)
                 .setLabel("Delete")
                 .onClick(() -> {
-                    this.confirm_delete = true;
+                    this.confirmDeletion = true;
                     this.execute();
                 });
         } else {
