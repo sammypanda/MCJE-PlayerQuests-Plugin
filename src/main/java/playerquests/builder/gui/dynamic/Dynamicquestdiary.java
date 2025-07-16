@@ -123,11 +123,11 @@ public class Dynamicquestdiary extends GUIDynamic {
                 .setDescription(List.of(
                     String.format("%s (%s)",
                         action.getID(),
-                        state ? "Tracking" : "Untracked"
+                        Boolean.TRUE.equals(state) ? "Tracking" : "Untracked"
                     ))
                 )
                 .setItem(
-                    state ? Material.GREEN_WOOL : Material.RED_WOOL
+                    Boolean.TRUE.equals(state) ? Material.GREEN_WOOL : Material.RED_WOOL
                 );
         });
     }
