@@ -128,7 +128,7 @@ public class Dynamicnpceditor extends GUIDynamic {
                 this.quest.addNPC(npc);
             }
 
-            Boolean success = npc.save(this.quest, this.npc);
+            boolean success = npc.save(this.quest, this.npc);
 
             if (success) { // if the npc was successfully saved..
                 // update the quest
