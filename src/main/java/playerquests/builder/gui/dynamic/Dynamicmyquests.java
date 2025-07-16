@@ -131,10 +131,10 @@ public class Dynamicmyquests extends GUIDynamic {
         // automatically create the page of slots/options (when ready)
         if (this.myquestLoaded) {
             // filter out the quests (pagination)
-            ArrayList<String> remainingQuests = (ArrayList<String>) this.myQuests
+            ArrayList<String> remainingQuests = new ArrayList<String>(this.myQuests
                 .stream()
                 .filter(i -> new ArrayList<String>(this.myQuests).indexOf(i) > this.lastBuiltSlot - 1)
-                .toList();
+                .toList());
 
             // generate the paginated slots
             this.generatePage(remainingQuests);
