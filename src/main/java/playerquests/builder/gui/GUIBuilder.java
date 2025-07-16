@@ -85,7 +85,7 @@ public class GUIBuilder implements Builder {
      * @param director director for the gui to utilise.
      * @param current if to set the builder as the current builder instance.
      */
-    public GUIBuilder(ClientDirector director, Boolean current) {
+    public GUIBuilder(ClientDirector director, boolean current) {
         // set which director instance created this GUIBuilder
         this.director = director;
 
