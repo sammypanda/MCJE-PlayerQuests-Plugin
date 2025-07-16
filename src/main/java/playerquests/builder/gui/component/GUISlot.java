@@ -141,7 +141,7 @@ public class GUISlot {
      * @param label The label text to be displayed when hovering over the slot.
      * @return The modified instance of {@code GUISlot}.
      */
-    public GUISlot setLabel(Component label, Boolean italicSensitive) {
+    public GUISlot setLabel(Component label, boolean italicSensitive) {
         Component errorPrefix = Component.text("(Error)");
 
         // disable italics if italic insensitive
