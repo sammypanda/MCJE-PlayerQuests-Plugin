@@ -68,8 +68,8 @@ public class Dynamicquestdiary extends GUIDynamic {
                 .stream()
                 .flatMap(entry -> entry.getValue().stream()
                     .flatMap(path -> path.getActions(entry.getKey()).stream()))
-                .filter(action -> !this.actionState.containsKey((QuestAction) action))
-                .collect(Collectors.toMap(action -> (QuestAction) action, action -> false, (prev, curr) -> curr))
+                .filter(action -> !this.actionState.containsKey(action))
+                .collect(Collectors.toMap(action -> action, action -> false, (prev, curr) -> curr))
         );
     }
 
