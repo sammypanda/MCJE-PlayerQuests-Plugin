@@ -201,7 +201,7 @@ public class Dynamicmyquests extends GUIDynamic {
 
             return false; // return if this quest is broken (false for match not found, continue to check next)
         }
-        // --------;
+        // --------
 
         questSlot.setLabel(questID.split("_")[0]);
 
