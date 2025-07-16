@@ -77,10 +77,10 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     @Override
     protected void execute_custom() {
         int minimumSize = Math.clamp(
-            Math.round(
-                (Integer.valueOf(this.actionTypes.size()) / 9) * 9), 
+            (Integer.valueOf(this.actionTypes.size()) / 9) * 9, 
             9, 
-            54);
+            54
+        );
 
         // set the GUI title
         this.gui.getFrame()
