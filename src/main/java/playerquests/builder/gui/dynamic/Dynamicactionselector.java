@@ -146,11 +146,8 @@ public class Dynamicactionselector extends GUIDynamic {
         // (p = stage path)
         String action_id = action.getID();
 
-        Boolean isPresent = this.selectedActions.stream()
-            .filter(p -> p.getStage().equals(action.getStage().getID()))
-            .filter(p -> p.getActions().contains(action_id))
-            .findFirst()
-            .isPresent();
+        boolean isPresent = this.selectedActions.stream()
+            .anyMatch(p -> p.getStage().equals(action.getStage().getID()) && p.getActions().contains(action_id));
 
         return new GUISlot(gui, this.gui.getEmptySlot())
             .setLabel(String.format("%s%s",
