@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -165,7 +164,7 @@ public class ActionData {
                 }
             })
             .filter(option -> option != null) // filter out any null values
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**

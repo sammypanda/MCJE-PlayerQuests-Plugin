@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set; // generic set type
 import java.util.UUID; // for working with in-game player IDs
 import java.util.concurrent.CompletableFuture; // async methods
-import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
 import org.bukkit.Bukkit;
@@ -135,7 +134,7 @@ public class Dynamicmyquests extends GUIDynamic {
             ArrayList<String> remainingQuests = (ArrayList<String>) this.myQuests
                 .stream()
                 .filter(i -> new ArrayList<String>(this.myQuests).indexOf(i) > this.lastBuiltSlot - 1)
-                .collect(Collectors.toList());
+                .toList();
 
             // generate the paginated slots
             this.generatePage(remainingQuests);

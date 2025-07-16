@@ -218,7 +218,7 @@ public class QuestStage {
             .map(QuestStage::getActions)
             .map(Map::values)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
 
         // check if any action of all actions, contains the passed in one as
         // a dependency (a 'next action').
@@ -227,7 +227,7 @@ public class QuestStage {
                 .flatMap(path -> path.getActions(quest).stream())
                 .anyMatch(actionMatch -> actionMatch.equals(action)))
             .map(actions -> actions.getID())
-            .collect(Collectors.toList());
+            .toList();
 
 
         // if it's depended, then return error message early

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -83,7 +82,7 @@ public class StagePath {
             // store action IDs
             this.actions = action.stream()
                 .map(QuestAction::getID)
-                .collect(Collectors.toList());
+                .toList();
         }
     }
 

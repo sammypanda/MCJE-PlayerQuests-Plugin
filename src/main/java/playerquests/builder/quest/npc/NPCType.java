@@ -2,7 +2,6 @@ package playerquests.builder.quest.npc;
 
 import java.util.Arrays;
 import java.util.List; // generic list type
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -78,8 +77,8 @@ public abstract class NPCType {
         return Arrays.stream(jsonSubTypes.value())
             .map(type -> type.value())
             .filter(clazz -> NPCType.class.isAssignableFrom(clazz)) // Type check
-            .map(clazz -> (Class<? extends NPCType>) clazz) // Safe cast
-            .collect(Collectors.toList());
+            .<Class<? extends NPCType>>map(clazz -> (Class<? extends NPCType>) clazz) // Safe cast
+            .toList();
     }
 
     /**

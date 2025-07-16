@@ -3,7 +3,6 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
-import java.util.stream.Collectors; // turning stream results into java objects
 
 import org.bukkit.Material;
 
@@ -64,7 +63,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
             int intValue2 = Integer.parseInt(key2.split("_")[1]);
             return Integer.compare(intValue2, intValue1); // compare in descending order
         })
-        .collect(Collectors.toList());
+        .toList();
         
         // set frame options
         guiFrame.setTitle("Quest NPCs (" + ChatUtils.shortenString(this.questBuilder.getTitle(), 18) + ")");

@@ -2,7 +2,6 @@ package playerquests.client.quest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
@@ -240,7 +239,7 @@ public class QuestClient {
             // only return predicates that don't match 
             // (aka: clear out trackedActions of this quest)
             return !match;
-        }).collect(Collectors.toList()); // get the filtered elements as a list
+        }).toList(); // get the filtered elements as a list
     }
 
     /**

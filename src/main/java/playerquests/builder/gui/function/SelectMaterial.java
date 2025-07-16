@@ -1,7 +1,6 @@
 package playerquests.builder.gui.function;
 
 import java.util.List; // used for creating deniedBlocks list
-import java.util.stream.Collectors; // transforming stream to data type
 
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.Material; // the resulting material (block)
@@ -294,7 +293,7 @@ public class SelectMaterial extends GUIFunction {
                 }
                 return material;
             }) 
-            .collect(Collectors.toList()); // collect into final denylist
+            .toList(); // collect into final denylist
     }
 
     /**
@@ -316,7 +315,7 @@ public class SelectMaterial extends GUIFunction {
         return (List<SelectMethod>) castedList.stream()
             .filter(method -> method instanceof SelectMethod) // filter out non-method items
             .map(method -> (SelectMethod) method) // cast safely
-            .collect(Collectors.toList()); // collect into final denylist
+            .toList(); // collect into final denylist
     }
 
     /**

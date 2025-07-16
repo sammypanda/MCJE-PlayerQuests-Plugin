@@ -1,7 +1,6 @@
 package playerquests.builder.gui.function;
 
 import java.util.List;
-import java.util.stream.Collectors; // transforming stream to data type
 
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.entity.Entity;
@@ -243,7 +242,7 @@ public class SelectEntity extends GUIFunction {
         return (List<EntityType>) castedList.stream()
             .filter(entityType -> entityType instanceof EntityType) // filter out items that aren't entity
             .map(entityType -> (EntityType) entityType) // cast
-            .collect(Collectors.toList()); // collect into final denylist
+            .toList(); // collect into final denylist
     }
 
     /**
@@ -265,7 +264,7 @@ public class SelectEntity extends GUIFunction {
         return (List<SelectMethod>) castedList.stream()
             .filter(method -> method instanceof SelectMethod) // filter out non-method items
             .map(method -> (SelectMethod) method) // cast safely
-            .collect(Collectors.toList()); // collect into final denylist
+            .toList(); // collect into final denylist
     }
 
     /**

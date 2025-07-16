@@ -3,7 +3,6 @@ package playerquests.builder.quest.action;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -394,8 +393,8 @@ public abstract class QuestAction {
         return Arrays.stream(jsonSubTypes.value())
             .map(type -> type.value())
             .filter(clazz -> QuestAction.class.isAssignableFrom(clazz)) // Type check
-            .map(clazz -> (Class<? extends QuestAction>) clazz) // Safe cast
-            .collect(Collectors.toList());
+            .<Class<? extends QuestAction>>map(clazz -> (Class<? extends QuestAction>) clazz) // Safe cast
+            .toList();
     }
 
     /**

@@ -2,8 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bukkit.Material;
 
@@ -14,6 +13,9 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.exception.MissingStageException;
 
 /**
@@ -61,17 +63,19 @@ public class Dynamicactiontypeselector extends GUIDynamic {
         // get all annotated action types
         this.actionTypes = QuestAction.getAllTypes()
             .stream()
-            .map(actionClass -> {
+            .flatMap(actionClass -> {
                 try {
                     // create QuestAction instance from class type
-                    return actionClass.getDeclaredConstructor().newInstance();
+                    return Stream.of((QuestAction) actionClass.getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+                    ChatUtils.message(e.getMessage())
+                        .target(MessageTarget.CONSOLE)
+                        .type(MessageType.ERROR)
+                        .send();
+                    return Stream.empty();
                 }
             })
-            .filter(Objects::nonNull) // Filter out any nulls resulting from exceptions
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
