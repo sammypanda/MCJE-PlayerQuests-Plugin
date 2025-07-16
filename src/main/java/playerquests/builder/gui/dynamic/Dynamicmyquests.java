@@ -54,7 +54,7 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * indicate when the quests can start to load in
      */
-    private Boolean myquestLoaded = false;
+    private boolean myquestLoaded = false;
 
     /**
      * Creates a dynamic GUI with a list of 'my quests'.
