@@ -98,8 +98,8 @@ public class Dynamicactiontypeselector extends GUIDynamic {
             ));
 
         // create the action selection buttons
-        this.actionTypes.forEach(action -> {
-            GUISlot slot = action.createSlot(this.gui, this.gui.getEmptySlot());
+        this.actionTypes.forEach(actionType -> {
+            GUISlot slot = actionType.createSlot(this.gui, this.gui.getEmptySlot());
 
             if (action.getClass().isAssignableFrom(this.action.getClass())) {
                 slot
@@ -109,7 +109,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
 
             // functionality for changing the action type
             slot.onClick(() -> {
-                this.changeType(this.action, action);
+                this.changeType(this.action, actionType);
             });
         });                
     }
