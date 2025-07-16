@@ -14,6 +14,7 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
+import playerquests.utility.exception.MissingStageException;
 
 /**
  * GUI for selecting action types.
@@ -51,7 +52,10 @@ public class Dynamicactiontypeselector extends GUIDynamic {
 
         // hmm actions should always have stages!
         if (this.stage == null) {
-            throw new RuntimeException("When changing action types, an action had a null stage.");
+            throw new MissingStageException(
+                "When changing action types, an action had a null stage.", 
+                new IllegalStateException("An action is missing a stage. All actions should belong to a stage.")
+            );
         }
 
         // get all annotated action types
