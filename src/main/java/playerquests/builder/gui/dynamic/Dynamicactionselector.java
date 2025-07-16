@@ -110,7 +110,7 @@ public class Dynamicactionselector extends GUIDynamic {
             .setItem(Material.OAK_DOOR)
             .setLabel("Back")
             .onClick(() -> {
-                if (this.selectedStage == null || this.stageSelection != true) {
+                if (this.selectedStage == null || ! this.stageSelection) {
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                     this.finish(); // trigger onfinish logics
                 } else {
