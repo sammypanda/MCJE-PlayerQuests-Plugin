@@ -40,8 +40,7 @@ public class Dynamicactionconditionselector extends GUIDynamic {
     protected void execute_custom() {
         // style the GUIs
         this.gui.getFrame()
-            .setTitle(
-                String.format("Select A Condition"))
+            .setTitle("Select A Condition")
             .setSize(9);
 
         // create back button
