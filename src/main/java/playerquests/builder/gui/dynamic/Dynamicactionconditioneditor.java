@@ -79,7 +79,7 @@ public class Dynamicactionconditioneditor extends GUIDynamic {
                     // go to previous screen if removing condition was successful
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                     return;
-                };
+                }
 
                 // send the warning message
                 ChatUtils.message(removalErr.get())

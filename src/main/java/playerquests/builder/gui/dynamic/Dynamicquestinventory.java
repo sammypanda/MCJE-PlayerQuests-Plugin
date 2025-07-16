@@ -122,7 +122,7 @@ public class Dynamicquestinventory extends GUIDynamic {
 
                             // update inventory item
                             QuestRegistry.getInstance().updateInventoryItem(quest, Map.of(itemSerialisable, itemCount));
-                        };
+                        }
 
                         // go back
                         gui.clearSlots(); // blank the inner screen

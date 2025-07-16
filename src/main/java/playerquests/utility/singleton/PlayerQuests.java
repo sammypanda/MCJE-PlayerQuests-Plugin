@@ -209,7 +209,7 @@ public class PlayerQuests {
             if ( majorVersion > expectedMajorVersion ) {
                 dependencyIssue = DependencyIssue.TOO_NEW;
             }
-        };
+        }
 
         if ( ! isSupported ) {
             // send message about what is wrong with Citizens2

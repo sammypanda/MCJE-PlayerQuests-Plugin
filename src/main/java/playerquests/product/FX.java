@@ -41,7 +41,7 @@ public class FX {
                 5
             );
         }, 0, 20);
-    };
+    }
 
     /**
      * Stop this effect.

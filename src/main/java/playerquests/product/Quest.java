@@ -282,7 +282,7 @@ public class Quest {
         // set player if this quest has one
         if (this.creator != null) {
             player = Bukkit.getPlayer(this.creator);
-        };
+        }
 
         // create quest in fs, or update it
         try {
