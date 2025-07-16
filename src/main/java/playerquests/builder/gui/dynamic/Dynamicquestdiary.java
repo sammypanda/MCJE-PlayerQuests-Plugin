@@ -80,9 +80,6 @@ public class Dynamicquestdiary extends GUIDynamic {
             .setTitle("Quest Diary")
             .setSize(54);
 
-        // get the player
-        Player player = (Player) this.director.getPlayer();
-
         // add dividers
         IntStream.of(8, 17, 26, 35, 44, 53).forEach(position -> {
             this.createDivider(position);
