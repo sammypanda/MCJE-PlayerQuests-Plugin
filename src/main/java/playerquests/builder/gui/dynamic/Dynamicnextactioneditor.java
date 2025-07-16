@@ -223,7 +223,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             });
     }
 
-    private Boolean stageIsSelected() {
+    private boolean stageIsSelected() {
         String stageID = this.selectedStage.getID(); // find selected stage ID
 
         return this.nextActions.stream()
