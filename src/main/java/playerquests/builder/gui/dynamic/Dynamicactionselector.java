@@ -95,8 +95,8 @@ public class Dynamicactionselector extends GUIDynamic {
 
             // show actions
             List<QuestAction> actions = this.selectedStage.getOrderedActions();
-            actions.forEach((action) -> {
-                this.createActionButton(action);
+            actions.forEach((a) -> {
+                this.createActionButton(a);
             });
         }
     }
