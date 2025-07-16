@@ -103,7 +103,7 @@ public class GUIBuilder implements Builder {
             GUIBuilder oldGUI = (GUIBuilder) this.director.getCurrentInstance(GUIBuilder.class);
             if (oldGUI != null) {
                 oldGUI.getResult().minimise();
-            };
+            }
 
             // set as the current instance in the director
             director.setCurrentInstance(this);
