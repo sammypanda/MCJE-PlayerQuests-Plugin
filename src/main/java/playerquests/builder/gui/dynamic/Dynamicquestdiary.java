@@ -20,7 +20,6 @@ import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
-import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * A dynamic GUI screen for the diary showing questers their ongoing quests.
@@ -172,9 +171,6 @@ public class Dynamicquestdiary extends GUIDynamic {
      * @return a list of book pages (up to 100 pages : 1024 characters per page)
      */
     private List<Component> generateBookPages(Player player) {
-        // get the QuestClient that represents the player
-        QuestClient quester = QuestRegistry.getInstance().getQuester(player);
-
         // get the first tracked quest from the QuestClient to use as a sample page
         List<Component> bookEntries = quester.getTrackedActions().stream()
             .map(action -> this.formatBookEntry(action))
