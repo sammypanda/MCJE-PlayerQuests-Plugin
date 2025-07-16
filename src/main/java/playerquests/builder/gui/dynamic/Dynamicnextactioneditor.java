@@ -145,18 +145,18 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
         boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
             .stream()
-            .filter(path -> path.hasActions()) // isn't just a stage in the path
-            .filter(path -> path.getActions().contains(actionID)) // the action ID matches
-            .findFirst()
-            .isPresent();
+            .anyMatch(path -> 
+                path.hasActions() && 
+                path.getActions().contains(actionID)
+            );
 
         boolean isSelected = this.nextActions
             .stream()
-            .filter(path -> path.hasActions()) // isn't just a stage in the path
-            .filter(path -> path.getStage().contains(action.getStage().getID())) // the stage ID matches
-            .filter(path -> path.getActions().contains(actionID)) // the action ID matches
-            .findFirst()
-            .isPresent();
+            .anyMatch(path -> 
+                path.hasActions() && // isn't just a stage in the path
+                path.getStage().contains(action.getStage().getID()) && // and the stage ID matches
+                path.getActions().contains(actionID) // and the action ID matches
+            );
 
         return new GUISlot(gui, this.gui.getEmptySlot())
             // conditionals: if is selected, if is not selected, if is selected by being a start point

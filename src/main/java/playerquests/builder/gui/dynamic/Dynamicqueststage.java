@@ -143,10 +143,10 @@ public class Dynamicqueststage extends GUIDynamic {
 
                 // check if this action is a start point 
                 boolean isStartPoint = this.questStage.getStartPoints().stream()
-                    .filter(p -> p.getStage().equals(this.questStage.getID()))
-                    .filter(p -> p.getActions().contains(action.getID()))
-                    .findFirst()
-                    .isPresent();
+                    .anyMatch(p -> 
+                        p.getStage().equals(this.questStage.getID()) &&
+                        p.getActions().contains(action.getID())
+                    );
 
                 // set description
                 if (isStartPoint) {
