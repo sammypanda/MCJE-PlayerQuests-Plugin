@@ -90,7 +90,7 @@ public class CompletionCondition extends ActionCondition {
                         UpdateScreen function = (UpdateScreen) f;
                         Dynamicactionselector actionSelector = (Dynamicactionselector) function.getDynamicGUI();
                         
-                        actionSelector.onFinish((_gui) -> {
+                        actionSelector.onFinish((g) -> {
                             Quest quest = (Quest) director.getCurrentInstance(Quest.class);
 
                             // save selected actions to this CompletionCondition

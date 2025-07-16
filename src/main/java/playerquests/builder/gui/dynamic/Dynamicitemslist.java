@@ -164,7 +164,7 @@ public class Dynamicitemslist extends GUIDynamic {
                             this.goBack(function);
                         });
 
-                        editor.onFinish((_f) -> {
+                        editor.onFinish((f) -> {
                             // go back
                             this.goBack(function);
                         });

@@ -86,7 +86,7 @@ public class Dynamicactionselector extends GUIDynamic {
 
             // show stages
             Map<String, QuestStage> stages = this.quest.getStages();
-            stages.forEach((_stage_id, stage) -> {
+            stages.forEach((stage_id, stage) -> {
                 this.createStageButton(stage);
             });
         } else {

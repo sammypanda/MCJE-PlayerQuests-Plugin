@@ -272,7 +272,7 @@ public class Database {
 
             statement.executeUpdate(query.toString());
 
-        } catch (SQLException _e) {}
+        } catch (SQLException e) {}
 
         // Update plugin version in db
         setPluginVersion(version);
