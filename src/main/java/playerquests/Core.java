@@ -32,6 +32,11 @@ public class Core extends JavaPlugin {
      */
     private static QuestRegistry questRegistry = QuestRegistry.getInstance();
 
+    /**
+     * Where in the playerquests dir the quests are to be located.
+     */
+    private static String questsPath = "quests/";
+
     @Override
     public void onEnable() {
         Core.setPlugin(this);
@@ -90,7 +95,7 @@ public class Core extends JavaPlugin {
      * @return resource path for where quest JSON files are
      */
     public static String getQuestsPath() {
-        return "quests/";
+        return questsPath;
     }
 
     /**
