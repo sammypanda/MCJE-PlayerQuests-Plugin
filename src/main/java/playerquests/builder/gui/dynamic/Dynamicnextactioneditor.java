@@ -171,35 +171,39 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
             )
             .onClick(() -> {
-                StagePath stagePath = new StagePath(action.getStage(), List.of(action));
-
-                // unselect
-                if (isSelected) {
-                    this.nextActions.removeIf(path -> {
-                        if (!path.hasActions()) {
-                            return false;
-                        }
-
-                        return path.getActions().contains(action_id);
-                    });
-                }
-
-                // select
-                else if (!isStartPoint && !isSelected) {
-                    this.nextActions.add(stagePath);
-                }
-
-                // send message
-                else if (isStartPoint) {
-                    ChatUtils.message("Cannot unset start point action.")
-                        .player(this.director.getPlayer())
-                        .style(MessageStyle.PRETTY)
-                        .send();
-                }
-
-                this.actionData.setNextActions(nextActions);
-                this.refresh();
+                this.handleActionButtonClick(isSelected, action_id, isStartPoint);
             });
+    }
+
+    private void handleActionButtonClick(boolean isSelected, String action_id, boolean isStartPoint) {
+        StagePath stagePath = new StagePath(action.getStage(), List.of(action));
+
+        // unselect
+        if (isSelected) {
+            this.nextActions.removeIf(path -> {
+                if (!path.hasActions()) {
+                    return false;
+                }
+
+                return path.getActions().contains(action_id);
+            });
+        }
+
+        // select
+        else if (!isStartPoint && !isSelected) {
+            this.nextActions.add(stagePath);
+        }
+
+        // send message
+        else if (isStartPoint) {
+            ChatUtils.message("Cannot unset start point action.")
+                .player(this.director.getPlayer())
+                .style(MessageStyle.PRETTY)
+                .send();
+        }
+
+        this.actionData.setNextActions(nextActions);
+        this.refresh();
     }
 
     /**

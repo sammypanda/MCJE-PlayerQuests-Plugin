@@ -143,10 +143,10 @@ public class Dynamicactionselector extends GUIDynamic {
      * @return a GUI slot button
      */
     private GUISlot createActionButton(QuestAction action) {
-        // (p = stage path)
         String action_id = action.getID();
 
         boolean isPresent = this.selectedActions.stream()
+            // (p = stage path)
             .anyMatch(p -> p.getStage().equals(action.getStage().getID()) && p.getActions().contains(action_id));
 
         return new GUISlot(gui, this.gui.getEmptySlot())
