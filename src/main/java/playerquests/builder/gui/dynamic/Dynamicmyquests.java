@@ -94,8 +94,6 @@ public class Dynamicmyquests extends GUIDynamic {
                     this.execute();
                 });
             });
-
-            return;
         }
     }
 
