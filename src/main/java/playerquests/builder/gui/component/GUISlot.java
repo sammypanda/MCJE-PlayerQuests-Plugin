@@ -199,7 +199,7 @@ public class GUISlot {
      * Determines whether this slot has encountered a syntax error.
      * @return {@code true} if there is an error, {@code false} otherwise.
      */
-    public Boolean hasError() {
+    public boolean hasError() {
         return this.errored;
     }
 
