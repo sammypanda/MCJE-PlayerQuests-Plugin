@@ -130,7 +130,7 @@ public class Dynamicqueststages extends GUIDynamic {
                 new UpdateScreen(
                     Arrays.asList("queststage"),
                     director
-                ).execute();;
+                ).execute();
             });
 
             return false; // continue the loop

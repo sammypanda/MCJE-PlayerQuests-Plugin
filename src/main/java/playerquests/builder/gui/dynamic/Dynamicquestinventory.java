@@ -58,7 +58,7 @@ public class Dynamicquestinventory extends GUIDynamic {
     @Override
     protected void setUp_custom() {
         // quest we are setting the inventory of
-        this.quest = (Quest) this.director.getCurrentInstance(Quest.class);;
+        this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class Dynamicquestinventory extends GUIDynamic {
                     Arrays.asList(this.previousScreen),
                     director
                 ).execute();
-            });;
+            });
 
         // create restock button
         new GUISlot(gui, 52)
