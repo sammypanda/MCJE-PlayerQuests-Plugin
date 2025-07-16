@@ -119,7 +119,7 @@ public class Dynamicitemeditor extends GUIDynamic {
         new GUISlot(gui, 9)
             .setItem(Material.RED_DYE)
             .setLabel("Delete")
-            .onClick(() -> {;
+            .onClick(() -> {
                 // run consumable
                 this.onRemove.accept(this.item);
             });
