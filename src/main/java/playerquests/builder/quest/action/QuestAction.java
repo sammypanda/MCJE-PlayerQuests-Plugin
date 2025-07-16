@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -516,5 +517,29 @@ public abstract class QuestAction {
      */
     public boolean hasLabel() {
         return this.label != null;
+    }
+
+    public String getActionStateText(boolean isSelected, boolean isStartPoint) {
+        if (isSelected) {
+            return "Selected";
+        }
+
+        return (isStartPoint ? "Start Point" : "Select");
+    }
+
+    public String getActionStateText(boolean isStartPoint) {
+        return this.getActionStateText(false, isStartPoint);
+    }
+
+    public Material getActionStateItem(boolean isSelected, boolean isStartPoint) {
+        if (isSelected) {
+            return Material.POWERED_RAIL;
+        }
+
+        return isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL;
+    }
+
+    public Material getActionStateItem(boolean isStartPoint) {
+        return this.getActionStateItem(false, isStartPoint);
     }
 }

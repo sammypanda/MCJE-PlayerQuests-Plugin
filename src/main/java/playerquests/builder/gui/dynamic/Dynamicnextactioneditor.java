@@ -160,16 +160,9 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
         return new GUISlot(gui, this.gui.getEmptySlot())
             // conditionals: if is selected, if is not selected, if is selected by being a start point
-            .setLabel(String.format("%s (%s)",
-                action.getLabel(),
-                isSelected ? "Selected" : (isStartPoint ? "Start Point" : "Select")
-            ))
-            .setDescription(List.of(
-                String.format("Type: %s", action.getName())
-            ))
-            .setItem(
-                isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
-            )
+            .setLabel(String.format("%s (%s)", action.getLabel(), action.getActionStateText(isSelected, isStartPoint)))
+            .setDescription(List.of(String.format("Type: %s", action.getName())))
+            .setItem(action.getActionStateItem(isSelected, isStartPoint))
             .onClick(() -> {
                 this.handleActionButtonClick(isSelected, actionID, isStartPoint);
             });

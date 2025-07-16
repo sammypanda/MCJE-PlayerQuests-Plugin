@@ -156,10 +156,9 @@ public class Dynamicqueststage extends GUIDynamic {
                 }
 
                 actionSlot
-                    .setLabel(String.format(
-                        "%s", action.getLabel()))
+                    .setLabel(String.format("%s", action.getLabel()))
                     .setDescription(description)
-                    .setItem(isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL);
+                    .setItem(action.getActionStateItem(isStartPoint));
 
                 actionSlot.onClick(() -> {
                     if (!this.gui.getFrame().getMode().equals(GUIMode.CLICK)) {
