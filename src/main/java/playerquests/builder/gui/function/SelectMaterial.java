@@ -281,7 +281,7 @@ public class SelectMaterial extends GUIFunction {
 
         // due to java missing reified generics, stream loop to safely validate wildcarded list elements
         // return list of deniedBlocksed strings
-        return (List<Material>) castedList.stream()
+        return castedList.stream()
             .filter(item -> item instanceof String) // filter out non-String items
             .map(itemString -> { // transform each item to String
                 Material material = Material.matchMaterial((String) itemString);
@@ -312,7 +312,7 @@ public class SelectMaterial extends GUIFunction {
     private List<SelectMethod> castDeniedMethods(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<SelectMethod>) castedList.stream()
+        return castedList.stream()
             .filter(method -> method instanceof SelectMethod) // filter out non-method items
             .map(method -> (SelectMethod) method) // cast safely
             .toList(); // collect into final denylist

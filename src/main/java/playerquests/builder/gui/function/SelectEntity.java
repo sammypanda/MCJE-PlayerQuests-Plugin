@@ -239,7 +239,7 @@ public class SelectEntity extends GUIFunction {
     private List<EntityType> castDeniedEntities(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<EntityType>) castedList.stream()
+        return castedList.stream()
             .filter(entityType -> entityType instanceof EntityType) // filter out items that aren't entity
             .map(entityType -> (EntityType) entityType) // cast
             .toList(); // collect into final denylist
@@ -261,7 +261,7 @@ public class SelectEntity extends GUIFunction {
     private List<SelectMethod> castDeniedMethods(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<SelectMethod>) castedList.stream()
+        return castedList.stream()
             .filter(method -> method instanceof SelectMethod) // filter out non-method items
             .map(method -> (SelectMethod) method) // cast safely
             .toList(); // collect into final denylist
