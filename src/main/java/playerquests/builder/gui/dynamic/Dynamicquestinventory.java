@@ -195,9 +195,7 @@ public class Dynamicquestinventory extends GUIDynamic {
             .setItem(itemSerialisable)
             .setLabel(label.asComponent())
             .setDescription(List.of(itemSerialisable.getName()))
-            .setGlinting(
-                predictedAmount >= 0 ? false : true
-            );
+            .setGlinting(predictedAmount <= 0);
 
         return false; // continue
     }
