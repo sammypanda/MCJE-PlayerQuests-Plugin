@@ -103,7 +103,7 @@ public class UpdateScreen extends GUIFunction {
         this.director.setCurrentInstance(this.guiBuilder);
 
         // replace the predicted previous screen name with the tracked one (if available)
-        if (screenNamesPrevious.size() >= 1) {
+        if (! screenNamesPrevious.isEmpty()) {
             this.screenNamePrevious = screenNamesPrevious.get(screenNamesPrevious.size() - 1);
         }
 
