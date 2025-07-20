@@ -207,7 +207,7 @@ public abstract class QuestAction {
      */
     public void check(QuesterData questerData, boolean bypassClash) {
         // check if any conditions aren't met
-        boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
+        Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
             if (conditional.isMet(questerData)) {
                 return false; // don't do work if this condition already met
             }
@@ -250,7 +250,7 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      * @return if was successful
      */
-    protected abstract boolean isCompleted(QuesterData questerData);
+    protected abstract Boolean isCompleted(QuesterData questerData);
 
     /**
      * Completes the action.
@@ -265,7 +265,7 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      * @param halt if to halt continuation
      */
-    public void stop(QuesterData questerData, boolean halt) {
+    public void stop(QuesterData questerData, Boolean halt) {
         // close the listener
         questerData.stopListener(this);
 

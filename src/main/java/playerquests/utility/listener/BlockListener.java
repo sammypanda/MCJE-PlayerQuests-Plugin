@@ -70,7 +70,7 @@ public class BlockListener implements Listener {
         }
 
         // Get or create the refresh state for this player
-        boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
+        Boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
         
         // If refresh not allowed for this player, exit
         if ( ! state) {

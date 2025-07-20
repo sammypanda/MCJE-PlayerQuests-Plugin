@@ -266,7 +266,7 @@ public class QuestBuilder {
      * @return Whether the addition was successful.
      */
     @JsonIgnore
-    public boolean addNPC(QuestNPC npc) {
+    public Boolean addNPC(QuestNPC npc) {
         QuestClient quester = QuestRegistry.getInstance().getQuester(this.getDirector().getPlayer());
 
         // remove to replace if already exists
@@ -387,7 +387,7 @@ public class QuestBuilder {
      * @return Whether the stage can be removed.
      */
     public boolean removeStage(QuestStage questStage, boolean dryRun) {
-        boolean canRemove = true; // whether the stage is safe to remove
+        Boolean canRemove = true; // whether the stage is safe to remove
 
         // TODO: implement check
 
@@ -408,7 +408,7 @@ public class QuestBuilder {
      *
      * @return Whether the stage was successfully removed.
      */
-    public boolean removeStage(QuestStage questStage) {
+    public Boolean removeStage(QuestStage questStage) {
         return this.removeStage(questStage, false);
     }
 

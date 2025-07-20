@@ -95,7 +95,7 @@ public abstract class TestUtility {
 
             // attach test resolving for when test done
             futureResult.whenComplete((result, throwable) -> {
-                boolean didTestPass = throwable == null && result;
+                Boolean didTestPass = throwable == null && result;
                 TestResult testResult = new TestResult(
                     className, 
                     testName, 

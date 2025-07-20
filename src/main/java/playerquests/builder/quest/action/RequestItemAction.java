@@ -70,7 +70,7 @@ public class RequestItemAction extends QuestAction {
     }
 
     @Override
-    protected boolean isCompleted(QuesterData questerData) {
+    protected Boolean isCompleted(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
         return ItemSerialisable.hasRequiredItems(player, itemsOption.getItems());

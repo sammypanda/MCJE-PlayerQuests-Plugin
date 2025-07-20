@@ -43,7 +43,7 @@ public class CompletionCondition extends ActionCondition {
     }
 
     @Override
-    public boolean isMet(QuesterData questerData) {
+    public Boolean isMet(QuesterData questerData) {
         // check if all the required actions are completed
         return this.getRequiredActions().entrySet().stream().allMatch(entry -> { // if all required actions report complete
             Quest quest = Core.getQuestRegistry().getQuest(entry.getKey());

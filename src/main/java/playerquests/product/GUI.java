@@ -31,7 +31,7 @@ public class GUI {
     /**
      * if this gui is allowed to be deleted
      */
-    private boolean locked = false;
+    private Boolean locked = false;
 
     /**
      * the opened inventory window (GUI window view).
@@ -200,7 +200,7 @@ public class GUI {
      * </ul>
      * @return whether the gui can be deleted it or not
      */
-    public boolean isLocked() {
+    public Boolean isLocked() {
         return this.locked;
     }
 

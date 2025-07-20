@@ -69,7 +69,7 @@ public class RewardItemAction extends QuestAction {
     }
 
     @Override
-    protected boolean isCompleted(QuesterData questerData) {
+    protected Boolean isCompleted(QuesterData questerData) {
         return true;
     }
 

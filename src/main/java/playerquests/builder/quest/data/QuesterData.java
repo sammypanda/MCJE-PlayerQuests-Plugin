@@ -55,7 +55,7 @@ public class QuesterData {
     /**
      * Lock to wait for an ongoing action clash to be resolved.
      */
-    private boolean clashLock = false;
+    private Boolean clashLock = false;
 
     /**
      * Map if quester has consented to an action.
@@ -228,7 +228,7 @@ public class QuesterData {
      * @param action quest action to set consent for
      * @param consent state of consent to set
      */
-    public void setConsent(QuestAction action, boolean consent) {
+    public void setConsent(QuestAction action, Boolean consent) {
         this.actionConsent.put(action, consent);
     }
 

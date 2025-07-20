@@ -40,7 +40,7 @@ public class TimeCondition extends ActionCondition {
     }
 
     @Override
-    public boolean isMet(QuesterData questerData) {
+    public Boolean isMet(QuesterData questerData) {
         // get the in-game time of day
         long worldTime = questerData.getQuester().getPlayer().getWorld().getTime(); 
 

@@ -72,7 +72,7 @@ public class FileUtils {
      * @throws IOException when the file cannot be read
      * @return if the file exists
      */
-    public static boolean check(String filename) throws IOException {
+    public static Boolean check(String filename) throws IOException {
         Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
 
         return Files.exists(fullPath);

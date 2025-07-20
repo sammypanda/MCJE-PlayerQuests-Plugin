@@ -53,7 +53,7 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected boolean isCompleted(QuesterData questerData) {
+    protected Boolean isCompleted(QuesterData questerData) {
         return true;
     }
 
@@ -64,9 +64,7 @@ public class NoneAction extends QuestAction {
     }
 
     @Override
-    protected void failure(QuesterData questerData) {
-        // no failure case
-    }
+    protected void failure(QuesterData questerData) {}
 
     @Override
     protected ActionListener<?> startListener(QuesterData questerData) {

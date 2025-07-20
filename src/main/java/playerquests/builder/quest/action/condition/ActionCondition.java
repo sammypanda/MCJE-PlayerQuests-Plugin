@@ -64,7 +64,7 @@ public abstract class ActionCondition {
      * @param questerData the data used to check the conditional.
      * @return boolean of the condition
      */
-    public abstract boolean isMet(QuesterData questerData);
+    public abstract Boolean isMet(QuesterData questerData);
 
     /**
      * Creates the slots in a GUI that would be used

@@ -68,7 +68,7 @@ public class CraftAction extends QuestAction {
     }
 
     @Override
-    protected boolean isCompleted(QuesterData questerData) {
+    protected Boolean isCompleted(QuesterData questerData) {
         return true; // tracked by listener; maybe not the best idea
     }
 

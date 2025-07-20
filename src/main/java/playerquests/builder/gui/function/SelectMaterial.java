@@ -208,7 +208,7 @@ public class SelectMaterial extends GUIFunction {
     /**
      * If the material must be a block.
      */
-    private boolean blocksOnly;
+    private Boolean blocksOnly;
 
     /** 
      * Provides input as a user selected block.
@@ -236,7 +236,7 @@ public class SelectMaterial extends GUIFunction {
      */
     private void setup() {
         try {
-            PluginUtils.validateParams(this.params, String.class, List.class, List.class, boolean.class);
+            PluginUtils.validateParams(this.params, String.class, List.class, List.class, Boolean.class);
         } catch (IllegalArgumentException e) {
             this.errored = true;
             ChatUtils.message(e.getMessage())
@@ -249,7 +249,7 @@ public class SelectMaterial extends GUIFunction {
         this.prompt = (String) params.get(0);
         this.deniedBlocks = castDeniedBlocks(params.get(1));
         this.deniedMethods = castDeniedMethods(params.get(2));
-        this.blocksOnly = (boolean) params.get(3);
+        this.blocksOnly = (Boolean) params.get(3);
 
         // add basics to deniedBlocks
         this.deniedBlocks.add(Material.AIR);
@@ -431,7 +431,7 @@ public class SelectMaterial extends GUIFunction {
      *
      * @param cancelled {@code true} to cancel the selection, {@code false} otherwise
      */
-    private void setCancelled(boolean cancelled) {
+    private void setCancelled(Boolean cancelled) {
         this.cancelled = cancelled;
     }
 }

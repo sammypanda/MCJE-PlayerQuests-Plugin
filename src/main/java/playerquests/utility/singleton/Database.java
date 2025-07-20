@@ -65,7 +65,7 @@ public class Database {
     /**
      * If this is a fresh install.
      */
-    private boolean isFresh = false;
+    private Boolean isFresh = false;
 
     /**
      * Private constructor to prevent instantiation from outside the class.
@@ -559,19 +559,19 @@ public class Database {
      * Retrieves the toggle status of a quest.
      *
      * This method queries the `quests` table to find the toggle status of the quest identified by the specified
-     * quest ID. If the quest exists, it returns its toggle status as a {@link boolean}. If no such quest is found
+     * quest ID. If the quest exists, it returns its toggle status as a {@link Boolean}. If no such quest is found
      * or if an error occurs during the query, an error message is logged and null is returned.
      *
      * @param quest The {@link Quest} object whose toggle status is to be retrieved.
      * @return The toggle status of the quest if found, or null if no such quest exists or if an error occurs.
      */
-    public synchronized boolean getQuestToggled(Quest quest) {
+    public synchronized Boolean getQuestToggled(Quest quest) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT toggled FROM quests WHERE id = ?;")) {
 
             preparedStatement.setString(1, quest.getID());
             ResultSet results = preparedStatement.executeQuery();
-            boolean result = false;
+            Boolean result = false;
 
             if (results.next()) {
                 result = results.getBoolean("toggled");
@@ -583,7 +583,7 @@ public class Database {
                 .target(MessageTarget.CONSOLE)
                 .type(MessageType.ERROR)
                 .send();
-            return false;
+            return null;
         }
     }
 
@@ -597,7 +597,7 @@ public class Database {
      * @param quest The {@link Quest} object whose toggle status is to be updated.
      * @param state The new toggle status to set for the quest.
      */
-    public synchronized void setQuestToggled(Quest quest, boolean state) {
+    public synchronized void setQuestToggled(Quest quest, Boolean state) {
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("UPDATE quests SET toggled = ? WHERE id = ?;")) {
 

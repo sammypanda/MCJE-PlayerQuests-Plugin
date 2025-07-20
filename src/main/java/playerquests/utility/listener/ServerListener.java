@@ -192,7 +192,7 @@ public class ServerListener implements Listener {
      * @param quests the set of quest IDs to process
      * @param overwrite whether to save over an existing
      */
-    private void loadQuests(Set<String> quests, boolean overwrite) {
+    private void loadQuests(Set<String> quests, Boolean overwrite) {
         quests.forEach(id -> {
             boolean errorOccurred = true; // Assume an error occurred initially
             
