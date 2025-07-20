@@ -35,12 +35,12 @@ public class QuestBuilder {
     /**
      * Whether the quest is valid
      */
-    private Boolean isValid = true;
+    private boolean isValid = true;
 
     /**
      * Whether the plugin has a creator/is universal
      */
-    private Boolean universal = false;
+    private boolean universal = false;
 
     /**
      * Used to access plugin functionality.
