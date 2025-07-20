@@ -107,7 +107,7 @@ public class ChatPrompt extends GUIFunction {
     /**
      * Tracking if the user input has been confirmed by the user.
      */
-    private Boolean confirmedValue = false;
+    private boolean confirmedValue = false;
 
     /**
      * Instantiating Listener to pass values back into this function on events.
