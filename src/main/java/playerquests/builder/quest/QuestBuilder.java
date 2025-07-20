@@ -238,7 +238,7 @@ public class QuestBuilder {
     public Map<String, QuestNPC> getQuestNPCs() {
         // Remove invalid/out of bound NPC IDs
         return this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
-            .filter(entry -> entry.getKey() != "npc_-1") // filter out all IDs that are out of bounds
+            .filter(entry -> ! entry.getKey().equals("npc_-1")) // filter out all IDs that are out of bounds
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // set the result
     }
 
