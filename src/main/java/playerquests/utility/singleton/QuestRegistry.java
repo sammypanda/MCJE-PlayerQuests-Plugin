@@ -277,7 +277,10 @@ public class QuestRegistry {
 
         // search in filesystem
         if (result == null && searchFS) {
-            System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the quest files.");
+            ChatUtils.message("Quest registry could not find quest: " + questID + ". It'll now search for it in the quest files.")
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
 
             // attempt finding it in the files and uploading to database
             try {

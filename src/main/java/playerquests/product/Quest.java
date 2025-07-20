@@ -162,9 +162,15 @@ public class Quest {
         try {
             quest = jsonObjectMapper.readValue(questJSON, Quest.class);
         } catch (JsonMappingException e) {
-            System.err.println("Could not map a quest JSON string to a valid quest product. " + e);
+            ChatUtils.message("Could not map a quest JSON string to a valid quest product. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         } catch (JsonProcessingException e) {
-            System.err.println("Malformed JSON attempted as a quest string. " + e);
+            ChatUtils.message("Malformed JSON attempted as a quest string. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // if no quest, fail

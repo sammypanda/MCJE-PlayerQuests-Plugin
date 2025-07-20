@@ -31,6 +31,9 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.serialisable.EntitySerialisable;
 import playerquests.utility.singleton.PlayerQuests;
 
@@ -118,7 +121,10 @@ public class EntityNPC extends NPCType {
         try {
             entityData = new EntitySerialisable(this.value);
         } catch (IllegalArgumentException e) {
-            System.err.println("malformed entity data in a quest. " + e.getMessage());
+            ChatUtils.message("malformed entity data in a quest. " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             entityData = new EntitySerialisable("entity:VILLAGER");
             this.value = entityData.toString(); // replace invalid data
         }

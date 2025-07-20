@@ -25,6 +25,9 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.MaterialUtils;
 
 /**
@@ -72,7 +75,10 @@ public class BlockNPC extends NPCType {
         try {
             finalBlockData = Bukkit.getServer().createBlockData(value);
         } catch (IllegalArgumentException e) {
-            System.err.println("malformed block data in a quest.");
+            ChatUtils.message("malformed block data in a quest.")
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
 
             // try to get as a material (the old value type)
             Material fallbackMaterial = Material.getMaterial(value);

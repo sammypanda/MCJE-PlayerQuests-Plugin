@@ -18,6 +18,7 @@ import playerquests.Core;
 import playerquests.builder.quest.data.LocationData; // quest entity locations
 import playerquests.client.ClientDirector;
 import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.PluginUtils;
 
@@ -227,7 +228,10 @@ public class SelectLocation extends GUIFunction {
      */
     public BlockData getBlockData() {
         if (this.blockData == null) {
-            System.err.println("The block was requested from LocationData, without a block having been set.");
+            ChatUtils.message("The block was requested from LocationData, without a block having been set.")
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             
         }
         

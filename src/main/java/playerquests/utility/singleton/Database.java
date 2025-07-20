@@ -97,14 +97,20 @@ public class Database {
                 return connection;
             }
         } catch (SQLException e) {
-            System.err.println("Could not check if existing connection was closed: " + e.getMessage());
+            ChatUtils.message("Could not check if existing connection was closed: " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:plugins/PlayerQuests/playerquests.db");
             return connection;
         } catch (SQLException e) {
-            System.err.println("Could not connect to or create database: " + e.getMessage());
+            ChatUtils.message("Could not connect to or create database: " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             return null;
         }
     }
@@ -135,7 +141,10 @@ public class Database {
             props.load(input);
             version = props.getProperty("version");
         } catch (Exception e) {
-            System.err.println("Failed to read PlayerQuests version property from pom: " + e.getMessage());
+            ChatUtils.message("Failed to read PlayerQuests version property from pom: " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         try (Connection connection = getConnection();
@@ -180,7 +189,10 @@ public class Database {
             isFresh();
 
         } catch (SQLException e) {
-            System.err.println("Could not initialise the database: " + e.getMessage());
+            ChatUtils.message("Could not initialise the database: " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // recover the quest inventories as stored in the db
@@ -306,7 +318,10 @@ public class Database {
 
             return version;
         } catch (SQLException e) {
-            System.err.println("Could not find the quest version in the db " + e.getMessage());
+            ChatUtils.message("Could not find the quest version in the db " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             this.isFresh = true;
             return "0.0";
         }
@@ -334,7 +349,9 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not insert or set the quest version in the db " + e.getMessage());
+            ChatUtils.message("Could not insert or set the quest version in the db " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -361,7 +378,10 @@ public class Database {
             preparedStatement.executeQuery();
 
         } catch (SQLException e) {
-            System.err.println("Could not add the user " + Bukkit.getServer().getPlayer(uuid).getName() + ". " + e.getMessage());
+            ChatUtils.message("Could not add the user " + Bukkit.getServer().getPlayer(uuid).getName() + ". " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -387,7 +407,9 @@ public class Database {
 
             return results;
         } catch (SQLException e) {
-            System.err.println("Could not find a diary for db player ID: " + dbPlayerID + ": " + e.getMessage());
+            ChatUtils.message("Could not find a diary for db player ID: " + dbPlayerID + ": " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             return null;
         }
     }
@@ -416,7 +438,9 @@ public class Database {
 
             return result;
         } catch (SQLException e) {
-            System.err.println("Could not find quest in the diary: " + questID + ": " + e.getMessage());
+            ChatUtils.message("Could not find quest in the diary: " + questID + ": " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             return null;
         }
     }
@@ -459,7 +483,9 @@ public class Database {
             }
 
         } catch (SQLException e) {
-            System.err.println("Could not retrieve quests from database. " + e.getMessage());
+            ChatUtils.message("Could not retrieve quests from database. " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
         return ids;
     }
@@ -489,7 +515,9 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not add the quest " + id + ". " + e.getMessage());
+            ChatUtils.message("Could not add the quest " + id + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -520,7 +548,9 @@ public class Database {
 
             return quest;
         } catch (SQLException e) {
-            System.err.println("Could not get the quest " + id + ". " + e.getMessage());
+            ChatUtils.message("Could not get the quest " + id + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             return null;
         }
     }
@@ -549,7 +579,10 @@ public class Database {
 
             return result; // no result found
         } catch (SQLException e) {
-            System.err.println("Could not get the quest toggle status " + quest.toString() + ". " + e.getMessage());
+            ChatUtils.message("Could not get the quest toggle status " + quest.toString() + ". " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             return null;
         }
     }
@@ -573,7 +606,10 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
+            ChatUtils.message("Could not toggle the quest " + quest.toString() + ". " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -605,7 +641,9 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not remove the quest " + id + ". " + e.getMessage());
+            ChatUtils.message("Could not remove the quest " + id + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -630,7 +668,10 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not toggle the quest " + quest.toString() + ". " + e.getMessage());
+            ChatUtils.message("Could not toggle the quest " + quest.toString() + ". " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -670,7 +711,10 @@ public class Database {
                             quantity = Integer.parseInt(keyValue[1].trim());
                         } catch (NumberFormatException e) {
                             // Handle the case where the quantity is not a valid integer
-                            System.err.println("Invalid quantity format: " + keyValue[1]);
+                            ChatUtils.message("Invalid quantity format: " + keyValue[1])
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
                             continue;
                         }
 
@@ -684,7 +728,9 @@ public class Database {
             }
 
         } catch (SQLException e) {
-            System.err.println("Could not retrieve quests from database. " + e.getMessage());
+            ChatUtils.message("Could not retrieve quests from database. " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         return inventories;
@@ -708,7 +754,9 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
+            ChatUtils.message("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 
@@ -749,7 +797,9 @@ public class Database {
             }
 
         } catch (SQLException e) {
-            System.err.println("Could not retrieve diary entries from database for " + diaryID + ". " + e.getMessage());
+            ChatUtils.message("Could not retrieve diary entries from database for " + diaryID + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         return diaryEntries;
@@ -767,7 +817,9 @@ public class Database {
             preparedStatement.execute();
 
         } catch (SQLException e) {
-            System.err.println("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage());
+            ChatUtils.message("Could not add a quest diary to the database " + diaryID + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
     }
 

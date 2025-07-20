@@ -217,11 +217,20 @@ public class ServerListener implements Listener {
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {
-                System.err.println("Could not map JSON string for: " + id + " to the Quest object. " + e);
+                ChatUtils.message("Could not map JSON string for: " + id + " to the Quest object. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             } catch (JsonProcessingException e) {
-                System.err.println("JSON in quest: " + id + " is malformed. " + e);
+                ChatUtils.message("JSON in quest: " + id + " is malformed. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             } catch (IOException e) {
-                System.err.println("Could not read file: " + id + ".json. " + e);
+                ChatUtils.message("Could not read file: " + id + ".json. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             }
 
             // Remove the quest from the database if an error occurred
