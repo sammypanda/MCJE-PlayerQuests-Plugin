@@ -37,12 +37,12 @@ public class Dynamicqueststage extends GUIDynamic {
     /**
      * Staging to delete the stage
      */
-    private boolean confirm_delete = false;
+    private boolean confirmDelete = false;
 
     /**
      * Specify if actionKeys has already been looped through
      */
-    private boolean confirm_actionKeys = false;
+    private boolean confirmActionKeys = false;
 
     /**
      * The builder object for this quest
@@ -132,7 +132,7 @@ public class Dynamicqueststage extends GUIDynamic {
             .setItem(Material.BLACK_STAINED_GLASS_PANE);
 
         // produce slots listing current actions
-        if (!confirm_actionKeys) {
+        if (!confirmActionKeys) {
             IntStream.range(0, actionKeys.size()).anyMatch(index -> {
 
                 QuestAction action = actionKeys.get(index);
@@ -179,16 +179,16 @@ public class Dynamicqueststage extends GUIDynamic {
             });
 
             // set actionKeys as confirmed
-            this.confirm_actionKeys = true;
+            this.confirmActionKeys = true;
         }
 
         // add 'delete stage' button (with confirm)
-        if (!this.confirm_delete) { // if delete hasn't been confirmed
+        if (!this.confirmDelete) { // if delete hasn't been confirmed
             new GUISlot(this.gui, this.gui.getFrame().getSize() - 1)
                 .setItem(Material.RED_DYE)
                 .setLabel("Delete Stage")
                 .onClick(() -> {
-                    this.confirm_delete = true;
+                    this.confirmDelete = true;
                     this.execute();
                 });
         } else {
@@ -228,7 +228,7 @@ public class Dynamicqueststage extends GUIDynamic {
                 questStage.addAction(new NoneAction(questStage));
 
                 // refresh UI
-                this.confirm_actionKeys = false; // set actionKeys to be looped through again
+                this.confirmActionKeys = false; // set actionKeys to be looped through again
                 this.gui.clearSlots();
                 this.execute(); // re-run to see new action in list
             });
