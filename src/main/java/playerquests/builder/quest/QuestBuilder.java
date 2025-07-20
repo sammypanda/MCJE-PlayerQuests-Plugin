@@ -386,7 +386,7 @@ public class QuestBuilder {
      *
      * @return Whether the stage can be removed.
      */
-    public boolean removeStage(QuestStage questStage, Boolean dryRun) {
+    public boolean removeStage(QuestStage questStage, boolean dryRun) {
         Boolean canRemove = true; // whether the stage is safe to remove
 
         // TODO: implement check
