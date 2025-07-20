@@ -56,7 +56,7 @@ public class RequestItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Items requested")
+            String.format("%n<%s>", "Items requested")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
@@ -87,7 +87,7 @@ public class RequestItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Items successfully collected")
+            String.format("%n<%s>", "Items successfully collected")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {

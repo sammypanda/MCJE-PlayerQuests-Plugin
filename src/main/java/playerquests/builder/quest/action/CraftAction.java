@@ -55,7 +55,7 @@ public class CraftAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Craft these items to continue")
+            String.format("%n<%s>", "Craft these items to continue")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
@@ -78,7 +78,7 @@ public class CraftAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Items successfully crafted")
+            String.format("%n<%s>", "Items successfully crafted")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {

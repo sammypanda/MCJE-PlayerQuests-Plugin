@@ -189,7 +189,7 @@ public class QuesterData {
 
             message
                 .append(Component.text(
-                    String.format("> %s.%s\n",
+                    String.format("> %s.%s%n",
                         quest.getTitle(), // the quest title
                         path)) // the path to the action
                 )

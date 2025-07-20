@@ -134,7 +134,7 @@ public class TakeItemAction extends QuestAction {
         });
 
         player.sendMessage(
-            String.format("\n<%s>", "Taking item")
+            String.format("%n<%s>", "Taking item")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
