@@ -208,7 +208,7 @@ public class Dynamicquestdiary extends GUIDynamic {
 
         // return formatted page content
         return Component.text(
-            String.format("Quest: %s\n\nAction: %s (%s)\n\n%s",
+            String.format("Quest: %s%n%nAction: %s (%s)%n%n%s",
                 quest.getTitle(),
                 action.getLabel(),
                 action.getName(),
