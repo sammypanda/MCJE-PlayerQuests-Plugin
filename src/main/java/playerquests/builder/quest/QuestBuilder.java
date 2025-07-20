@@ -237,11 +237,9 @@ public class QuestBuilder {
     @JsonProperty("npcs")
     public Map<String, QuestNPC> getQuestNPCs() {
         // Remove invalid/out of bound NPC IDs
-        Map<String, QuestNPC> filteredNPCs = this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
+        return this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
             .filter(entry -> entry.getKey() != "npc_-1") // filter out all IDs that are out of bounds
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // set the result
-
-        return filteredNPCs;
     }
 
     /**
