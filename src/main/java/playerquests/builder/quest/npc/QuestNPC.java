@@ -179,7 +179,7 @@ public class QuestNPC {
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);
-        Boolean isValid = true; // assume is valid
+        boolean isValid = true; // assume is valid
 
         if (this.name == null) {
             response.content("The NPC name must be set");
