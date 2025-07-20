@@ -207,7 +207,7 @@ public class QuestBuilder {
      * @return A list of the stage IDs, ordered by stage number.
      */
     @JsonIgnore
-    public LinkedList<QuestStage> getStages() {
+    public List<QuestStage> getStages() {
         // create an ordered list of stages, ordered by stage_[this number]
         LinkedList<QuestStage> orderedList = this.questPlan.values().stream()
             .sorted(Comparator.comparingInt(stage -> {
