@@ -68,7 +68,9 @@ public class SpeakAction extends QuestAction {
     }
 
     @Override
-    protected void failure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {
+        // no failure case
+    }
 
     @Override
     protected ActionListener<?> startListener(QuesterData questerData) {        
