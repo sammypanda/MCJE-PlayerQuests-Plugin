@@ -234,7 +234,6 @@ public class ChatPrompt extends GUIFunction {
 
         if (this.value != null && !this.confirmedValue) {
             putPredefinedMessage(MessageType.CONFIRM);
-            return;
         }
     }
 
