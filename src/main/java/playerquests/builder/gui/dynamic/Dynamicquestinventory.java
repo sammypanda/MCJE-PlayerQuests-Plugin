@@ -76,6 +76,31 @@ public class Dynamicquestinventory extends GUIDynamic {
         frame.setTitle("Quest Inventory/Stock");
 
         // create a back button
+        this.createBackButton(frame);
+
+        // create restock button
+        this.createRestockButton(frame);
+
+        // create prev button
+        new GUISlot(gui, 53)
+            .setItem(Material.GRAY_STAINED_GLASS_PANE)
+            .setLabel("Prev");
+
+        // create next button
+        new GUISlot(gui, 54)
+            .setItem(Material.GRAY_STAINED_GLASS_PANE)
+            .setLabel("Next");
+
+        // create inventory of required (and out of stock) and stocked
+        Map<ItemSerialisable, Integer> predictiveInventory = PluginUtils.getPredictiveInventory(quest, this.inventory);
+
+        // create slot for each inventory material
+        predictiveInventory.entrySet().stream().anyMatch((entry) -> {
+            return this.createInventorySlot(entry);
+        });
+    }
+
+    private void createBackButton(GUIFrame frame) {
         new GUISlot(gui, 1)
             .setItem(Material.OAK_DOOR)
             .setLabel("Back")
@@ -85,8 +110,9 @@ public class Dynamicquestinventory extends GUIDynamic {
                     director
                 ).execute();
             });
+    }
 
-        // create restock button
+    private void createRestockButton(GUIFrame frame) {
         new GUISlot(gui, 52)
             .setItem(Material.CHEST)
             .setLabel("Restock")
@@ -132,61 +158,47 @@ public class Dynamicquestinventory extends GUIDynamic {
                 // show this restock inner screen
                 gui.getResult().draw();
             });
+    }
 
-        // create prev button
-        new GUISlot(gui, 53)
-            .setItem(Material.GRAY_STAINED_GLASS_PANE)
-            .setLabel("Prev");
+    private boolean createInventorySlot(Entry<ItemSerialisable, Integer> entry) {
+        Integer slot = gui.getEmptySlot();
 
-        // create next button
-        new GUISlot(gui, 54)
-            .setItem(Material.GRAY_STAINED_GLASS_PANE)
-            .setLabel("Next");
+        if (slot == 45) {
+            return true; // exit out early
+        }
 
-        // create inventory of required (and out of stock) and stocked
-        Map<ItemSerialisable, Integer> predictiveInventory = PluginUtils.getPredictiveInventory(quest, this.inventory);
+        ItemSerialisable itemSerialisable = entry.getKey();
+        Integer predictedAmount = entry.getValue();
+        Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
+        
+        // Create slot label
+        Builder label = Component.text()
+            .append(Component.text(realAmount.toString() + "x"))
+            .appendSpace()
+            .append(Component.text(itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName())))
+            .appendSpace()
+            .append(Component.text("("));
+        if (realAmount == 0) {
+            label
+                .append(Component.text("Out of Stock").color(NamedTextColor.RED));
+        } else if (predictedAmount >= 0) {
+            label
+                .append(Component.text("In Stock"));
+        } else {
+            label
+                .append(Component.text("Not Enough Stock").color(NamedTextColor.YELLOW));
+        }
+        label.append(Component.text(")"));
 
-        // create slot for each inventory material
-        predictiveInventory.entrySet().stream().anyMatch((entry) -> {
-            Integer slot = gui.getEmptySlot();
+        new GUISlot(gui, gui.getEmptySlot())
+            .setItem(itemSerialisable)
+            .setLabel(label.asComponent())
+            .setDescription(List.of(itemSerialisable.getName()))
+            .setGlinting(
+                predictedAmount >= 0 ? false : true
+            );
 
-            if (slot == 45) {
-                return true; // exit out early
-            }
-
-            ItemSerialisable itemSerialisable = entry.getKey();
-            Integer predictedAmount = entry.getValue();
-            Integer realAmount = Optional.ofNullable(QuestRegistry.getInstance().getInventory(quest).get(itemSerialisable)).orElse(0);
-            
-            // Create slot label
-            Builder label = Component.text()
-                .append(Component.text(realAmount.toString() + "x"))
-                .appendSpace()
-                .append(Component.text(itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName())))
-                .appendSpace()
-                .append(Component.text("("));
-            if (realAmount == 0) {
-                label
-                    .append(Component.text("Out of Stock").color(NamedTextColor.RED));
-            } else if (predictedAmount >= 0) {
-                label
-                    .append(Component.text("In Stock"));
-            } else {
-                label
-                    .append(Component.text("Not Enough Stock").color(NamedTextColor.YELLOW));
-            }
-            label.append(Component.text(")"));
-
-            new GUISlot(gui, gui.getEmptySlot())
-                .setItem(itemSerialisable)
-                .setLabel(label.asComponent())
-                .setDescription(List.of(itemSerialisable.getName()))
-                .setGlinting(
-                    predictedAmount >= 0 ? false : true
-                );
-
-            return false; // continue
-        });
+        return false; // continue
     }
 
     private void sortInventory() {
