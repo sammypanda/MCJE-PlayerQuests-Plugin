@@ -132,14 +132,13 @@ public class Dynamicquestinventory extends GUIDynamic {
                     .setLabel(displayName)
                     .onClick(() -> {
                         for (ItemStack item : inventoryView.getTopInventory().getContents()) {
-                            // if no item in the slot
-                            if (item == null) {
-                                continue;
-                            }
-
+                            // if no item in the slot, or
                             // if the item is the submit button (the button is the same text)
                             Component displayNameComponent = item.getItemMeta().displayName();
-                            if (displayNameComponent != null && PlainTextComponentSerializer.plainText().serialize(displayNameComponent).equals(displayName)) {
+                            if (
+                                item == null || 
+                                displayNameComponent != null && PlainTextComponentSerializer.plainText().serialize(displayNameComponent).equals(displayName)
+                            ) {
                                 continue;
                             }
 
