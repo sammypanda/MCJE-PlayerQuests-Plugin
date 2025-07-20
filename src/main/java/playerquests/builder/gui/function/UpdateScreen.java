@@ -29,7 +29,7 @@ public class UpdateScreen extends GUIFunction {
     /**
      * The previous GUI screen name
      */
-    private String screenName_previous;
+    private String screenNamePrevious;
 
     /**
      * The screen name we are updating to.
@@ -39,7 +39,7 @@ public class UpdateScreen extends GUIFunction {
     /**
      * The screen name if updating to a dynamic GUI.
      */
-    private Class<?> screenName_dynamic;
+    private Class<?> screenNameDynamic;
 
     /**
      * The error message to send
@@ -84,31 +84,31 @@ public class UpdateScreen extends GUIFunction {
         this.screenName = (String) params.get(0);
 
         // dynamic GUI path
-        List<String> screenNames_previous = this.director.getGUI().getPreviousScreens();
-        this.screenName_dynamic = this.getDynamicClassFromName(screenName.toLowerCase());
-        this.screenName_previous = this.director.getGUI().getScreenName(); // predicted previous screen
+        List<String> screenNamesPrevious = this.director.getGUI().getPreviousScreens();
+        this.screenNameDynamic = this.getDynamicClassFromName(screenName.toLowerCase());
+        this.screenNamePrevious = this.director.getGUI().getScreenName(); // predicted previous screen
 
         // if where we are heading is not the same as where we came from (not going back)
         // NOTE: using contains is the lazy way of doing so
-        if (screenNames_previous.contains(this.screenName)) {
-            screenNames_previous.remove(screenNames_previous.size() - 1); // if going backwards
-        } else if ( this.screenName_previous != null && ! this.screenName_previous.equals(this.screenName) ) { // as long as not doubling up
-            screenNames_previous.add(this.screenName_previous); // if going forwards
+        if (screenNamesPrevious.contains(this.screenName)) {
+            screenNamesPrevious.remove(screenNamesPrevious.size() - 1); // if going backwards
+        } else if ( this.screenNamePrevious != null && ! this.screenNamePrevious.equals(this.screenName) ) { // as long as not doubling up
+            screenNamesPrevious.add(this.screenNamePrevious); // if going forwards
         }
         
         // set the previous screens in next GUI
-        this.guiBuilder.setPreviousScreens(screenNames_previous);
+        this.guiBuilder.setPreviousScreens(screenNamesPrevious);
 
         // swap to new GUI
         this.director.setCurrentInstance(this.guiBuilder);
 
         // replace the predicted previous screen name with the tracked one (if available)
-        if (screenNames_previous.size() >= 1) {
-            this.screenName_previous = screenNames_previous.get(screenNames_previous.size() - 1);
+        if (screenNamesPrevious.size() >= 1) {
+            this.screenNamePrevious = screenNamesPrevious.get(screenNamesPrevious.size() - 1);
         }
 
         // try screenName as dynamic GUI, otherwise error
-        if (this.screenName_dynamic != null) { // if a dynamic screen of this name exists
+        if (this.screenNameDynamic != null) { // if a dynamic screen of this name exists
             this.fromDynamic();
         } else { // report could not load the GUI
             this.error = "Could not load dynamic GUI (static GUI's are deprecated)";
@@ -136,9 +136,9 @@ public class UpdateScreen extends GUIFunction {
     private void fromDynamic() {
         try {
             // instantiate the dynamic GUI class
-            GUIDynamic guiDynamic = (GUIDynamic) this.screenName_dynamic
+            GUIDynamic guiDynamic = (GUIDynamic) this.screenNameDynamic
                 .getDeclaredConstructor(ClientDirector.class, String.class)
-                .newInstance(this.director, this.screenName_previous);
+                .newInstance(this.director, this.screenNamePrevious);
             guiDynamic.execute(); // generate the dynamic GUI
             this.dynamicGUI = guiDynamic;
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -157,7 +157,7 @@ public class UpdateScreen extends GUIFunction {
             // get the class from the dynamic screen name
             return Class.forName("playerquests.builder.gui.dynamic.Dynamic" + name);
         } catch (ClassNotFoundException e) {
-            this.error = "The " + screenName + " dynamic screen requested in the " + screenName_previous + " screen, is not valid.";
+            this.error = "The " + screenName + " dynamic screen requested in the " + screenNamePrevious + " screen, is not valid.";
             this.exception = e;
         }
 
@@ -178,6 +178,6 @@ public class UpdateScreen extends GUIFunction {
      * @return The name of the previous screen.
      */
     public String getPreviousScreen() {
-        return this.screenName_previous;
+        return this.screenNamePrevious;
     }
 }
