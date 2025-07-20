@@ -291,7 +291,10 @@ public class QuestRegistry {
                 }
 
             } catch (IOException e) {
-                throw new RuntimeException("Could not find the quest with ID: " + questID, e);
+                ChatUtils.message("Could not find the quest with ID: " + questID + " | " + e.getMessage())
+                    .target(MessageTarget.CONSOLE)
+                    .type(MessageType.ERROR)
+                    .send();
             }
         }
 
@@ -476,7 +479,7 @@ public class QuestRegistry {
 
         // error on catastrophe
         if (quester.isEmpty()) {
-            throw new RuntimeException("Could not find a requested QuestClient, but all players should be assigned a QuestClient");
+            throw new IllegalStateException("Could not find a requested QuestClient, but all players should be assigned a QuestClient");
         }
 
         // return the quester

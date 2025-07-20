@@ -224,7 +224,7 @@ public class ChatPrompt extends GUIFunction {
 
         if (this.confirmedValue) {
             if (!this.key.equals("none")) {
-                throw new RuntimeException("KeyHandler removed.");
+                throw new IllegalArgumentException("KeyHandler removed.");
             }
 
             putPredefinedMessage(MessageType.CONFIRMED);

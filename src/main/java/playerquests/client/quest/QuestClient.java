@@ -79,7 +79,7 @@ public class QuestClient {
      */
 	public void start(QuestDiary diary) {
         if (this.diary != null) {
-            throw new RuntimeException("A diary was started twice!");
+            throw new IllegalStateException("A diary was started twice!");
         }
 
         this.diary = diary;

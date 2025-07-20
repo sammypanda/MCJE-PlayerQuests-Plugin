@@ -125,7 +125,7 @@ public class PlayerQuests {
     public NPCRegistry getCitizensRegistry() {
         // exit if not has citizens 2
         if ( ! this.hasCitizens2() ) {
-            throw new RuntimeException("Tried to access CitizensRegistry without Citizens");
+            throw new IllegalAccessError("Tried to access CitizensRegistry without Citizens");
         }
 
         // set if not set
@@ -137,7 +137,7 @@ public class PlayerQuests {
             }
             return this.citizensRegistry;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize Citizens registry", e);
+            throw new NoSuchMethodError("Failed to initialize Citizens registry");
         }
     }
 
