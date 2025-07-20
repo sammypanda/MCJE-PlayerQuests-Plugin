@@ -102,7 +102,7 @@ public class ChatPrompt extends GUIFunction {
     /**
      * Tracking if the setup process in execute() has already been done.
      */
-    private Boolean wasSetup = false;
+    private boolean wasSetup = false;
 
     /**
      * Tracking if the user input has been confirmed by the user.
