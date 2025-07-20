@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler; // handling spigot events
 import org.bukkit.event.HandlerList; // to unregister event listener (ChatPromptListener)
 import org.bukkit.event.Listener; // to register event listener (ChatPromptListener)
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.jetbrains.annotations.NotNull;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -272,8 +273,7 @@ public class ChatPrompt extends GUIFunction {
             ChatUtils.message(Component.empty()
                 .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
                 .appendNewline()
-                .append(Component.text("or type ").color(NamedTextColor.RED))
-                .append(Component.text("exit").color(NamedTextColor.GRAY))
+                .append(this.exitTextComponent())
             ).player(player).send();
             break;
 
@@ -283,11 +283,9 @@ public class ChatPrompt extends GUIFunction {
                 .appendNewline()
                 .append(Component.text("enter again").color(NamedTextColor.GRAY))
                 .appendNewline()
-                .append(Component.text("or type ").color(NamedTextColor.GREEN))
-                .append(Component.text("confirm").color(NamedTextColor.GRAY))
+                .append(this.confirmTextComponent())
                 .appendNewline()
-                .append(Component.text("or type ").color(NamedTextColor.RED))
-                .append(Component.text("exit").color(NamedTextColor.GRAY))
+                .append(this.exitTextComponent())
             ).player(player).send();
             break;
 
@@ -307,6 +305,20 @@ public class ChatPrompt extends GUIFunction {
             ).player(player).send();
             break;
         }
+    }
+
+    private @NotNull Component confirmTextComponent() {
+        return Component.text()
+            .append(Component.text("or type ").color(NamedTextColor.GREEN))
+            .append(Component.text("confirm").color(NamedTextColor.GRAY))
+            .asComponent();
+    }
+
+    private @NotNull Component exitTextComponent() {
+        return Component.text()
+            .append(Component.text("or type ").color(NamedTextColor.RED))
+            .append(Component.text("exit").color(NamedTextColor.GRAY))
+            .asComponent();
     }
 
     /**
