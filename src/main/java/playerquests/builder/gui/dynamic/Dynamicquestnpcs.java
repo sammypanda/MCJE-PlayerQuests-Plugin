@@ -76,7 +76,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
             GUISlot npcSlot = new GUISlot(this.gui, nextEmptySlot);
 
             // different visual representation for incomplete and complete NPCs
-            if (key == "npc_-1") { // if invalid or incomplete npc
+            if (key.equals("npc_-1")) { // if invalid or incomplete npc
                 npcSlot.setItem(Material.SPAWNER);
                 npcSlot.setLabel("<Unsaved NPC>");
             } else { // a valid npc
