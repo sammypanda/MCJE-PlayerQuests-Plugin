@@ -226,7 +226,7 @@ public class QuestClient {
         List<QuestAction> trackedActions_clone = new ArrayList<>(this.trackedActions);
 
         // filter through all the tracked actions
-        this.trackedActions = trackedActions_clone.stream().filter((action) -> {
+        this.trackedActions = (ArrayList<QuestAction>) trackedActions_clone.stream().filter((action) -> {
             // find the actions that match the quest
             Boolean match = action.getStage().getQuest().getID().equals(quest.getID());
 

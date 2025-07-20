@@ -1,5 +1,6 @@
 package playerquests.builder.gui.function;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit; // getting the plugin manager
@@ -173,7 +174,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * The methods of selecting entities to deny.
      */
-    private List<SelectMethod> deniedMethods; 
+    private List<SelectMethod> deniedMethods;
 
     /**
      * If the player has cancelled the selection.
@@ -261,7 +262,7 @@ public class SelectEntity extends GUIFunction {
     private List<SelectMethod> castDeniedMethods(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
-        return castedList.stream()
+        return (ArrayList<SelectMethod>) castedList.stream()
             .filter(method -> method instanceof SelectMethod) // filter out non-method items
             .map(method -> (SelectMethod) method) // cast safely
             .toList(); // collect into final denylist
