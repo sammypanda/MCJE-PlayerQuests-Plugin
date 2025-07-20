@@ -351,7 +351,7 @@ public class Quest {
      */
     public void toggle(boolean toEnable) {
         // check if able to be toggled
-        if (toEnable == true && !isAllowed()) {
+        if (toEnable && !isAllowed()) {
             toEnable = false;
         }
 

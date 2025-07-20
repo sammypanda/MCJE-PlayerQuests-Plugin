@@ -209,7 +209,7 @@ public class LocationData {
     @Override
     public boolean equals(Object obj) {
         // if the object is not an instance of LocationData
-        if (obj instanceof LocationData == false) {
+        if ( ! ( obj instanceof LocationData) ) {
             return false;
         }
 

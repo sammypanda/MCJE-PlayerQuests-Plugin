@@ -232,7 +232,7 @@ public class ChatPrompt extends GUIFunction {
             return;
         }
 
-        if (this.value != null && this.confirmedValue == false) {
+        if (this.value != null && !this.confirmedValue) {
             putPredefinedMessage(MessageType.CONFIRM);
             return;
         }
