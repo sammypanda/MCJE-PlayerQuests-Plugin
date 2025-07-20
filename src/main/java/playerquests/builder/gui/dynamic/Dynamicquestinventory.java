@@ -95,9 +95,11 @@ public class Dynamicquestinventory extends GUIDynamic {
         Map<ItemSerialisable, Integer> predictiveInventory = PluginUtils.getPredictiveInventory(quest, this.inventory);
 
         // create slot for each inventory material
-        predictiveInventory.entrySet().stream().anyMatch((entry) -> {
-            return this.createInventorySlot(entry);
-        });
+        for (var entry : predictiveInventory.entrySet()) {
+            if (createInventorySlot(entry)) {
+                break; // exit early if indicated to
+            }
+        }
     }
 
     private void createBackButton(GUIFrame frame) {
