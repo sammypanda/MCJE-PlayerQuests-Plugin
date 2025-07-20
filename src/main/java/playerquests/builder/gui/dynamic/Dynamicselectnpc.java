@@ -54,7 +54,7 @@ public class Dynamicselectnpc extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
         this.npcList = new ArrayList<>(this.quest.getQuestNPCs().values());

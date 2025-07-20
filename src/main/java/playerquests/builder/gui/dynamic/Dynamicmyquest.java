@@ -46,7 +46,7 @@ public class Dynamicmyquest extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // retrieve the current quest from the client director
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
     }

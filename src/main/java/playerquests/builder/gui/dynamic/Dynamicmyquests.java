@@ -75,7 +75,7 @@ public class Dynamicmyquests extends GUIDynamic {
      * <li>Instigates pagination/page generation
      * </ul>
      */
-    public void setUp_custom() {
+    public void setupCustom() {
         // get list of quests
         if (!this.myquestLoaded) {
             CompletableFuture.runAsync(() -> {

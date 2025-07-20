@@ -41,7 +41,7 @@ public class Dynamicqueststages extends GUIDynamic {
     /**
      * Create the GUI and set up.
      */
-    public void setUp_custom() {
+    public void setupCustom() {
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
         this.guiTitle = this.guiTitle + " (" + ChatUtils.shortenString(this.questBuilder.getTitle(), 18) + ")";

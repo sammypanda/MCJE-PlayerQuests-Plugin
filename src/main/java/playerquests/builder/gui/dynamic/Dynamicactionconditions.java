@@ -30,7 +30,7 @@ public class Dynamicactionconditions extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.actionData = (ActionData) this.director.getCurrentInstance(ActionData.class);
     }
 

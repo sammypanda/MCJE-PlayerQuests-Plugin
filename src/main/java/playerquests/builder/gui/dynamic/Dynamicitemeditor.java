@@ -50,7 +50,7 @@ public class Dynamicitemeditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         item = (ItemStack) this.director.getCurrentInstance(ItemStack.class);
     }
 

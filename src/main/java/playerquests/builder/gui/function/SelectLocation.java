@@ -97,7 +97,7 @@ public class SelectLocation extends GUIFunction {
     /**
      * If this function has been set up
      */
-    private boolean wasSetUp;
+    private boolean wasSetup;
 
     /**
      * The location chosen
@@ -136,7 +136,7 @@ public class SelectLocation extends GUIFunction {
      * for execution.
      * </p>
      */
-    private void setUp() {
+    private void setup() {
         try {
             PluginUtils.validateParams(this.params, String.class);
         } catch (IllegalArgumentException e) {
@@ -161,7 +161,7 @@ public class SelectLocation extends GUIFunction {
         Bukkit.getPluginManager().registerEvents(this.locationListener, Core.getPlugin());
 
         // mark this function class as setup
-        this.wasSetUp = true;
+        this.wasSetup = true;
 
         // loop back after setting up
         this.execute();
@@ -169,8 +169,8 @@ public class SelectLocation extends GUIFunction {
 
     @Override
     public void execute() {
-        if (!this.wasSetUp) {
-            this.setUp();
+        if (!this.wasSetup) {
+            this.setup();
             return;
         }
 

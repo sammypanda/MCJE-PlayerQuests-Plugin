@@ -39,7 +39,7 @@ public class Dynamicnpceditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // get the current quest npc for editing
         this.npc = (QuestNPC) this.director.getCurrentInstance(QuestNPC.class);
 

@@ -36,7 +36,7 @@ public class Dynamicnpctypes extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.npc = (QuestNPC) this.director.getCurrentInstance(QuestNPC.class);
     }
 

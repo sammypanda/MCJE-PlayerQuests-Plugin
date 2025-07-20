@@ -51,7 +51,7 @@ public class Dynamicactionselector extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 

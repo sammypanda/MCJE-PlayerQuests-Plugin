@@ -102,7 +102,7 @@ public class ChatPrompt extends GUIFunction {
     /**
      * Tracking if the setup process in execute() has already been done.
      */
-    private Boolean wasSetUp = false;
+    private Boolean wasSetup = false;
 
     /**
      * Tracking if the user input has been confirmed by the user.
@@ -139,7 +139,7 @@ public class ChatPrompt extends GUIFunction {
      * <li>Re-runs {@link #execute()}.
      * </ul>
      */
-    private void setUp() {
+    private void setup() {
         // set initial values
         this.prompt = (String) params.get(0);
         this.key = (String) params.get(1);
@@ -160,7 +160,7 @@ public class ChatPrompt extends GUIFunction {
         this.director.getGUI().getResult().minimise();
 
         // mark this function class as setup
-        this.wasSetUp = true;
+        this.wasSetup = true;
 
         // create a listener for checking if the user types in a value (and any other related chat events)
         Bukkit.getPluginManager().registerEvents(this.chatListener, Core.getPlugin());
@@ -201,8 +201,8 @@ public class ChatPrompt extends GUIFunction {
      */
     @Override
     public void execute() {
-        if (!this.wasSetUp) {
-            setUp();
+        if (!this.wasSetup) {
+            setup();
             return;
         }
 
@@ -328,7 +328,7 @@ public class ChatPrompt extends GUIFunction {
 
             // reset values
             this.value = null;
-            this.wasSetUp = false;
+            this.wasSetup = false;
             this.confirmedValue = false;
         });
     }

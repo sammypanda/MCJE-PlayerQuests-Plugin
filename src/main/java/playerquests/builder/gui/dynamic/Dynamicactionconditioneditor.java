@@ -40,7 +40,7 @@ public class Dynamicactionconditioneditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.actionData = (ActionData) this.director.getCurrentInstance(ActionData.class);
         this.condition = (ActionCondition) this.director.getCurrentInstance(ActionCondition.class);
     }

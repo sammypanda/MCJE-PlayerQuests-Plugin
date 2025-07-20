@@ -53,7 +53,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
         this.actionData = this.action.getData();

@@ -33,7 +33,7 @@ public class Dynamicmain extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // ?
     }
 

@@ -44,7 +44,7 @@ public class Dynamicitemslist extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // if list is in director, pull it in
         ArrayList<?> aList = (ArrayList<?>) this.director.getCurrentInstance(ArrayList.class);
 

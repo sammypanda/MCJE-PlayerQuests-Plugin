@@ -39,7 +39,7 @@ public class Dynamicquesteditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // get the current client quest builder
         questBuilder = (QuestBuilder) director.getCurrentInstance(QuestBuilder.class);
     }

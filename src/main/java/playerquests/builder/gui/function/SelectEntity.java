@@ -163,7 +163,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * If the function has been set up.
      */
-    private boolean wasSetUp;
+    private boolean wasSetup;
 
     /**
      * The entities to deny.
@@ -195,7 +195,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * Creating and validating values for the entity selector
      */
-    private void setUp() {
+    private void setup() {
         try {
             PluginUtils.validateParams(this.params, String.class, List.class, List.class);
         } catch (IllegalArgumentException e) {
@@ -225,7 +225,7 @@ public class SelectEntity extends GUIFunction {
         Bukkit.getPluginManager().registerEvents(this.entityListener, Core.getPlugin());
 
         // mark this function class as setup
-        this.wasSetUp = true;
+        this.wasSetup = true;
 
         // loop back after setting up
         this.execute();
@@ -277,8 +277,8 @@ public class SelectEntity extends GUIFunction {
 
     @Override
     public void execute() {
-        if (!this.wasSetUp) {
-            this.setUp();
+        if (!this.wasSetup) {
+            this.setup();
             return;
         }
 

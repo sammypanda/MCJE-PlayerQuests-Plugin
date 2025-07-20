@@ -59,7 +59,7 @@ public class Dynamicqueststage extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // set the quest stage instance
         this.questStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 

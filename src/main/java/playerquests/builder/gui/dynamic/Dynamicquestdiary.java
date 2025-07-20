@@ -51,7 +51,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.player = (Player) this.director.getPlayer();
         this.quester = Core.getQuestRegistry().getQuester(player);
 

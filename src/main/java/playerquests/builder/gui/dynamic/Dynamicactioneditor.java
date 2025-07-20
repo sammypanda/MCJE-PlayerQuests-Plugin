@@ -37,7 +37,7 @@ public class Dynamicactioneditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
     }
 

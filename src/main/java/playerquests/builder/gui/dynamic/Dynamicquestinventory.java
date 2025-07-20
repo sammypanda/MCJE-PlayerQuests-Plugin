@@ -56,7 +56,7 @@ public class Dynamicquestinventory extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // quest we are setting the inventory of
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
     }
