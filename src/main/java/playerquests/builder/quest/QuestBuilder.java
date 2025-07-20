@@ -250,7 +250,7 @@ public class QuestBuilder {
      * @return A map of quest NPCs, either filtered or unfiltered.
      */
     @JsonProperty("npcs")
-    public Map<String, QuestNPC> getQuestNPCs(Boolean all) {
+    public Map<String, QuestNPC> getQuestNPCs(boolean all) {
         if (!all) {
             return this.getQuestNPCs(); // return filtered
         } else {
