@@ -182,7 +182,7 @@ public class LocationData {
      * @param otherLocation the location to check this LocationData against
      * @return whether or not there is a collision
      */
-    public Boolean collidesWith(LocationData otherLocation) {
+    public boolean collidesWith(LocationData otherLocation) {
         // Check if each crucial property is equal
         return this.x == otherLocation.getX() &&
                this.y == otherLocation.getY() &&

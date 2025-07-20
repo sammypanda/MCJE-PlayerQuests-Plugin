@@ -60,8 +60,8 @@ public class QuestDiary {
             .filter(entry -> entry.getKey() != null)
             .collect(Collectors.toMap(
                 entry -> entry.getKey().getID(), // use the Quest ID as the key
-                entry -> entry.getValue().stream() // stream over the List<Map<StagePath, Boolean>> for each Quest
-                    .flatMap(map -> map.entrySet().stream()) // flatten the List of Maps into a stream of Map.Entry<StagePath, Boolean>
+                entry -> entry.getValue().stream() // stream over the list for each Quest
+                    .flatMap(map -> map.entrySet().stream()) // flatten the List of Maps into a stream
                     .filter(stageEntry -> !stageEntry.getValue()) // keep only entries with a true value
                     .map(Map.Entry::getKey) // extract the StagePath (the key)
                     .toList() // collect the filtered StagePaths into a List

@@ -57,7 +57,7 @@ public class GUISlot {
     /**
      * Indicates whether the slot has encountered a syntax error. Defaults to {@code false}.
      */
-    private Boolean errored = false;
+    private boolean errored = false;
 
     /**
      * The function to be executed when the slot is clicked.
@@ -72,7 +72,7 @@ public class GUISlot {
     /**
      * If the slot item is shiny.
      */
-    private Boolean glinting = false;
+    private boolean glinting = false;
 
     /**
      * Constructs a new {@code GUISlot} with the specified parent {@code GUIBuilder}.
@@ -190,7 +190,7 @@ public class GUISlot {
      * @param string a plain, unformatted label
      * @return the state of the GUI slot.
      */
-    public GUISlot setLabel(String string, Boolean italicSensitive) {
+    public GUISlot setLabel(String string, boolean italicSensitive) {
         this.setLabel(Component.text(string), italicSensitive);
         return this;
     }
@@ -321,7 +321,7 @@ public class GUISlot {
      * @param glinting if there is a glint.
      * @return the state of the GUI slot.
      */
-    public GUISlot setGlinting(Boolean glinting) {
+    public GUISlot setGlinting(boolean glinting) {
         this.glinting = glinting;
         return this;
     }

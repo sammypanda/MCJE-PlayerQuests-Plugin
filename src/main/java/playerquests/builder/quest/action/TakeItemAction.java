@@ -103,7 +103,7 @@ public class TakeItemAction extends QuestAction {
     }
 
     @Override
-    protected Boolean isCompleted(QuesterData questerData) {
+    protected boolean isCompleted(QuesterData questerData) {
         if ( ! questerData.getConsent(this)) {
             return false;
         }

@@ -396,7 +396,7 @@ public class ChatUtils {
      * @param keyword the string that might be a confirm keyword
      * @return whether the keyword is or isn't indicating a confirm
      */
-    public static Boolean isConfirmKeyword(String keyword) {
+    public static boolean isConfirmKeyword(String keyword) {
         return getConfirmKeywords().contains(keyword.toUpperCase());
     }
 

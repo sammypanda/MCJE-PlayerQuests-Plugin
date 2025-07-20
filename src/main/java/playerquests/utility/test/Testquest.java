@@ -100,8 +100,8 @@ public class Testquest extends TestUtility {
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             // test result
             Quest quest = QuestRegistry.getInstance().getQuest("testNoneActionNoNPC");
-            Boolean isNPCAir = npcLocation.getBlock().getType() == Material.AIR;
-            Boolean wasQuestSaved = QuestRegistry.getInstance().hasQuest("testNoneActionNoNPC", true);
+            boolean isNPCAir = npcLocation.getBlock().getType() == Material.AIR;
+            boolean wasQuestSaved = QuestRegistry.getInstance().hasQuest("testNoneActionNoNPC", true);
 
             // post-result clean-up
             player.teleport(originalLocation);
@@ -199,8 +199,8 @@ public class Testquest extends TestUtility {
             QuestNPC npc = action.getData().getOption(NPCOption.class).get().getNPC(quest);
 
             // test results
-            Boolean isNPCGrassBlock = quester.getData().getBlockNPC(action, npc).getMaterial() == Material.GRASS_BLOCK; // detect likelihood of ghost block success
-            Boolean wasQuestSaved = QuestRegistry.getInstance().hasQuest("testNoneActionWithNPC", true); // detect if quest was submitted
+            boolean isNPCGrassBlock = quester.getData().getBlockNPC(action, npc).getMaterial() == Material.GRASS_BLOCK; // detect likelihood of ghost block success
+            boolean wasQuestSaved = QuestRegistry.getInstance().hasQuest("testNoneActionWithNPC", true); // detect if quest was submitted
 
             // post-result clean-up
             player.teleport(originalLocation);

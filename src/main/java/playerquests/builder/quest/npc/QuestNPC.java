@@ -143,7 +143,7 @@ public class QuestNPC {
      * @return True if the NPC was successfully saved, otherwise false.
      */
     @JsonIgnore
-    public Boolean save(QuestBuilder quest, QuestNPC npc) {
+    public boolean save(QuestBuilder quest, QuestNPC npc) {
         // set the parent quest and director
         this.quest = quest.build();
         this.director = quest.getDirector();

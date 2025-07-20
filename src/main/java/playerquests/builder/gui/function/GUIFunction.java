@@ -36,7 +36,7 @@ public abstract class GUIFunction {
      * This boolean flag helps in tracking the success or failure of the function's execution.
      * </p>
      */
-    protected Boolean errored = false;
+    protected boolean errored = false;
 
     /**
      * Code that is set to run when this function is finished.

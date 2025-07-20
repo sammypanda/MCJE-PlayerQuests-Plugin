@@ -350,7 +350,7 @@ public class SelectEntity extends GUIFunction {
      *
      * @param cancelled {@code true} to cancel the selection, {@code false} otherwise
      */
-    private void setCancelled(Boolean cancelled) {
+    private void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
 }

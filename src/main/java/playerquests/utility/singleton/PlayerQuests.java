@@ -147,10 +147,10 @@ public class PlayerQuests {
      * @return if citizens2 plugin has been installed to the server environment.
      */
     public boolean hasCitizens2() {
-        final Boolean mappedSupport = this.dependencies.get("Citizens2");
+        final boolean mappedSupport = this.dependencies.get("Citizens2");
 
         // return instantiated support check
-        if (mappedSupport != null) {
+        if (mappedSupport) {
             return mappedSupport;
         }
 
@@ -160,7 +160,7 @@ public class PlayerQuests {
         // ---
 
         // verify support
-        Boolean isSupported = false;
+        boolean isSupported = false;
         DependencyIssue dependencyIssue = DependencyIssue.MISSING;
 
         if ( PlayerQuests.getCitizens2() != null ) {

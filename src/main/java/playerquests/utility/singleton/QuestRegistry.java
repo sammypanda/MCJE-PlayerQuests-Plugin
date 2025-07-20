@@ -131,7 +131,7 @@ public class QuestRegistry {
      * @param permanently if should also delete from database/filesystem
      * @return if the quest was successfully deleted
      */
-    public boolean delete(Quest quest, Boolean fromFS, Boolean withRefund, Boolean fromDB) {
+    public boolean delete(Quest quest, boolean fromFS, boolean withRefund, boolean fromDB) {
         String questID = quest.getID();
         UUID creator = quest.getCreator(); // get the creator if this quest has one
 
@@ -272,7 +272,7 @@ public class QuestRegistry {
      * @param searchFS whether to try searching the filesystem
      * @return the quest object
      */
-    public Quest getQuest(String questID, Boolean searchFS) {
+    public Quest getQuest(String questID, boolean searchFS) {
         Quest result = this.getAllQuests().get(questID);
 
         // search in filesystem
@@ -304,7 +304,7 @@ public class QuestRegistry {
         return result;
     }
 
-    public boolean hasQuest(String questID, Boolean searchFS) {
+    public boolean hasQuest(String questID, boolean searchFS) {
         boolean result = this.getAllQuests().get(questID) != null;
 
         // search in filesystem
@@ -371,7 +371,7 @@ public class QuestRegistry {
      * @param items a map of the ItemSerialisable and their amounts
      * @param invert whether to subtract item quantities instead of adding
      */
-    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, Boolean invert) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, boolean invert) {
         this.updateInventoryItem(quest, items, null, invert);
     }
 
@@ -384,7 +384,7 @@ public class QuestRegistry {
      * @param callback optional thing to run on each item
      * @param invert whether to subtract instead of add items
      */
-    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, BiConsumer<ItemSerialisable, Integer> callback, Boolean invert) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, BiConsumer<ItemSerialisable, Integer> callback, boolean invert) {
         Map<ItemSerialisable, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
 
         items.forEach((material, amount) -> {

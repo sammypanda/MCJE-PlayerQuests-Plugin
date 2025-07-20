@@ -73,7 +73,7 @@ public class Quest {
     /**
      * If the quest is toggled.
      */
-    private Boolean toggled;
+    private boolean toggled;
 
     /**
      * The ID of this quest.
@@ -336,7 +336,7 @@ public class Quest {
     public boolean isToggled() {
         // if value, uninitiated or unset
         // find truth in database
-        if (this.toggled == null) {
+        if ( ! this.toggled) {
             this.toggled = Database.getInstance().getQuestToggled(this);
         }
 

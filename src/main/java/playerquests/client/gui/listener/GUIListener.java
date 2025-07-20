@@ -50,7 +50,7 @@ public class GUIListener implements Listener {
      * Utility to check if the GUI is not null.
      * @return whether there is a GUI open or not.
      */
-    private Boolean isGUI(Player player) {
+    private boolean isGUI(Player player) {
         GUIBuilder builder = this.builders.get(player);
 
         if (builder != null) {
@@ -65,14 +65,14 @@ public class GUIListener implements Listener {
      * @param event details about the inventory click event.
      * @return if the inventory is a GUI
      */
-    private Boolean isGUIInventory(InventoryClickEvent event) {
+    private boolean isGUIInventory(InventoryClickEvent event) {
         return Optional.ofNullable(
             event.getClickedInventory()).map(inventory -> { // get the clicked inventory
                 return (inventory.getType() == InventoryType.CHEST); // check if the inventory type is a CHEST
             }).orElse(false);
     }
 
-    private Boolean isEmptySlot(Integer slotPosition, Player player) {
+    private boolean isEmptySlot(Integer slotPosition, Player player) {
         GUIBuilder builder = this.builders.get(player);
 
         return builder.getSlot(slotPosition) == null;
