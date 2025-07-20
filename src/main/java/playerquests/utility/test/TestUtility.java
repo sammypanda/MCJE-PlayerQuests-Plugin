@@ -42,7 +42,7 @@ public abstract class TestUtility {
         }
     }
 
-    public TestUtility(ClientDirector clientDirector) {
+    protected TestUtility(ClientDirector clientDirector) {
         this.clientDirector = clientDirector;
     }
 

@@ -54,14 +54,14 @@ public abstract class NPCType {
     /**
      * Default constructor for Jackson serialization.
      */
-    public NPCType() {}
+    protected NPCType() {}
 
     /**
      * Constructs an NPCType with the specified value and associated QuestNPC.
      * @param value the type-specific value used to customize the NPC
      * @param npc the QuestNPC instance
      */
-    public NPCType(String value, QuestNPC npc) {
+    protected NPCType(String value, QuestNPC npc) {
         this.value = value;
         this.npc = npc;
     }

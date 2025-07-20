@@ -90,7 +90,7 @@ public abstract class QuestAction {
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to
      */
-    public QuestAction(QuestStage stage) {
+    protected QuestAction(QuestStage stage) {
         this.stage = stage;
     }
 

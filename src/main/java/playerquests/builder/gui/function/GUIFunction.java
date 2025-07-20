@@ -55,7 +55,7 @@ public abstract class GUIFunction {
      * @param params The list of parameters to be used by the function.
      * @param director The client director used to control the plugin or application.
      */
-    public GUIFunction(List<Object> params, ClientDirector director) {
+    protected GUIFunction(List<Object> params, ClientDirector director) {
         this.params = params;
         this.director = director;
     }

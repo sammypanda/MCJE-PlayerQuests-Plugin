@@ -32,7 +32,7 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
      * @param action the quest action this listener is for.
      * @param questerData the quester the listener is for.
      */
-    public ActionListener(A action, QuesterData questerData) {
+    protected ActionListener(A action, QuesterData questerData) {
         this.action = action;
         this.questerData = questerData;
         questerData.addListener(action, this);

@@ -47,13 +47,13 @@ public abstract class ActionCondition {
     /** 
      * Default constructor for Jackson.
      */
-    public ActionCondition() {}
+    protected ActionCondition() {}
 
     /**
      * Constructor for creating action conditions.
      * @param actionData all relevant data for the condition to use
      */
-    public ActionCondition(ActionData actionData) {
+    protected ActionCondition(ActionData actionData) {
         this.actionData = actionData;
     }
 
@@ -128,7 +128,7 @@ public abstract class ActionCondition {
 
         protected final QuesterData questerData;
 
-        public ActionConditionListener(C actionCondition, QuesterData questerData) {
+        protected ActionConditionListener(C actionCondition, QuesterData questerData) {
             this.actionCondition = actionCondition;
             this.questerData = questerData;
 

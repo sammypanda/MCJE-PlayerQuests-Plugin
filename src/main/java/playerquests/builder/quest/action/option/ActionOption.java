@@ -36,13 +36,13 @@ public abstract class ActionOption {
     /**
      * Default constructor for Jackson.
      */
-    public ActionOption() {}
+    protected ActionOption() {}
 
     /**
      * Constructor including the QuestAction.
      * @param actionData the parent action
      */
-    public ActionOption(ActionData actionData) {
+    protected ActionOption(ActionData actionData) {
         this.actionData = actionData;
     }
     
