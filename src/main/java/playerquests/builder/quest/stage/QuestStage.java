@@ -137,15 +137,13 @@ public class QuestStage {
     @JsonIgnore
     public List<QuestAction> getOrderedActions() {
         // create an ordered list of stages, ordered by action_[this number]
-        LinkedList<QuestAction> orderedList = this.actions.values().stream()
+        return this.actions.values().stream()
             .sorted(Comparator.comparingInt(action -> {
                 String[] parts = action.getID().split("_");
 
                 return Integer.parseInt(parts[parts.length - 1]);
             }))
             .collect(Collectors.toCollection(LinkedList::new));
-
-        return orderedList;
     }
 
     /**
