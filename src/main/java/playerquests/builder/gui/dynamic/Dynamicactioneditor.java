@@ -25,7 +25,7 @@ public class Dynamicactioneditor extends GUIDynamic {
     /**
      * The action being edited.
      */
-    private QuestAction action;
+    private QuestAction<?,?> action;
 
     /**
      * Creates a dynamic GUI to edit a quest stage action.
@@ -38,7 +38,7 @@ public class Dynamicactioneditor extends GUIDynamic {
 
     @Override
     protected void setupCustom() {
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.action = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
     }
 
     @Override

@@ -21,14 +21,14 @@ public class ActionCompletionEvent extends Event {
     /**
      * The action.
      */
-    private final QuestAction action;
+    private final QuestAction<?,?> action;
 
     /**
      * Constructor for the when a player interacts with an NPC.
      * @param activeNPCs the action that was completed.
      * @param questerData the data of the quester who completed the action.
      */
-    public ActionCompletionEvent(QuestAction action, QuesterData questerData) {
+    public ActionCompletionEvent(QuestAction<?,?> action, QuesterData questerData) {
         this.action = action;
         this.questerData = questerData;
     }
@@ -50,7 +50,7 @@ public class ActionCompletionEvent extends Event {
      * Gets the action the quester completed.
      * @return the action
      */
-    public QuestAction getAction() {
+    public QuestAction<?,?> getAction() {
         return this.action;
     }
 

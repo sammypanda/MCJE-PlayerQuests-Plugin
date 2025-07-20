@@ -40,7 +40,7 @@ public class QuestStage {
      * The map of actions.
      */
     @JsonManagedReference
-    private Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
+    private Map<String, QuestAction<?,?>> actions = new HashMap<String, QuestAction<?,?>>();
 
     /**
      * List of starting points.
@@ -126,7 +126,7 @@ public class QuestStage {
      * Gets a map of actions in this stage.
      * @return the actions
      */
-    public Map<String, QuestAction> getActions() {
+    public Map<String, QuestAction<?,?>> getActions() {
         return this.actions;
     }
 
@@ -135,7 +135,7 @@ public class QuestStage {
      * @return linked list of actions
      */
     @JsonIgnore
-    public List<QuestAction> getOrderedActions() {
+    public List<QuestAction<?,?>> getOrderedActions() {
         // create an ordered list of stages, ordered by action_[this number]
         return this.actions.values().stream()
             .sorted(Comparator.comparingInt(action -> {
@@ -153,7 +153,7 @@ public class QuestStage {
      * @return the ID of the newly added action
      */
     @JsonIgnore
-    public String addAction(QuestAction action) {
+    public String addAction(QuestAction<?,?> action) {
         String actionID = "action_"+this.actions.size(); // get next ID
         action.setID(actionID); // set the ID local to the action
         this.actions.put(action.getID(), action); // add to the actions map
@@ -191,7 +191,7 @@ public class QuestStage {
      * @param newAction the action to replace the old one.
      * @return the completed new action after replacement.
      */
-    public QuestAction replaceAction(QuestAction oldAction, QuestAction newAction) {
+    public QuestAction<?,?> replaceAction(QuestAction<?,?> oldAction, QuestAction<?,?> newAction) {
         String id = oldAction.getID();
 
         // set inner action meta
@@ -210,9 +210,9 @@ public class QuestStage {
      * @param action the action to remove
      * @return empty if was successful
      */
-    public Optional<String> removeAction(QuestAction action) {
+    public Optional<String> removeAction(QuestAction<?,?> action) {
         // get all actions
-        List<QuestAction> allActions = this.quest.getStages().values().stream()
+        List<QuestAction<?,?>> allActions = this.quest.getStages().values().stream()
             .map(QuestStage::getActions)
             .map(Map::values)
             .flatMap(Collection::stream)

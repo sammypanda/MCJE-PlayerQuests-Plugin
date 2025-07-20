@@ -148,7 +148,7 @@ public abstract class NPCType {
      * @param action the action the NPC is a part of
      * @param quester the quest client to unregister the NPC from the {@link playerquests.builder.quest.data.QuesterData}
      */
-    protected abstract void unregister(QuestAction action, QuestClient quester);
+    protected abstract void unregister(QuestAction<?,?> action, QuestClient quester);
 
     /**
      * Despawns an NPC without unregistering.
@@ -156,7 +156,7 @@ public abstract class NPCType {
      * @param action the action the NPC is a part of
      * @param quester the quest client to despawn the NPC from the {@link playerquests.builder.quest.data.QuesterData} of
      */
-    protected abstract void despawn(QuestAction action, QuestClient quester);
+    protected abstract void despawn(QuestAction<?,?> action, QuestClient quester);
 
     /**
      * Registers an NPC unspawned.
@@ -165,7 +165,7 @@ public abstract class NPCType {
      * @param quester the quest client to register the NPC into the {@link playerquests.builder.quest.data.QuesterData} of
      * @param value the special value that identifies the NPC in the world
      */
-    protected abstract void register(QuestAction action, QuestClient quester, Object value);
+    protected abstract void register(QuestAction<?,?> action, QuestClient quester, Object value);
 
     /**
      * Spawns an NPC untracked/unregistered.
@@ -174,5 +174,5 @@ public abstract class NPCType {
      * @param quester the quest client to 'show' the NPC to
      * @return the value that identifies the NPC in the world
      */
-    protected abstract Object spawn(QuestAction action, QuestClient quester);
+    protected abstract Object spawn(QuestAction<?,?> action, QuestClient quester);
 }

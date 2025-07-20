@@ -238,12 +238,12 @@ public class BlockNPC extends NPCType {
     }
 
     @Override
-    public void unregister(QuestAction action, QuestClient quester) {
+    public void unregister(QuestAction<?,?> action, QuestClient quester) {
         quester.getData().removeBlockNPC(action, this.getNPC());
     }
 
     @Override
-    public void despawn(QuestAction action, QuestClient quester) {
+    public void despawn(QuestAction<?,?> action, QuestClient quester) {
         Player player = quester.getPlayer();
 
         // send block update to nothing
@@ -254,12 +254,12 @@ public class BlockNPC extends NPCType {
     }
 
     @Override
-    public void register(QuestAction action, QuestClient quester, Object value) {
+    public void register(QuestAction<?,?> action, QuestClient quester, Object value) {
         quester.getData().addBlockNPC(action, this.getNPC(), (BlockData) value);
     }
 
     @Override
-    public Object spawn(QuestAction action, QuestClient quester) {
+    public Object spawn(QuestAction<?,?> action, QuestClient quester) {
         Player player = quester.getPlayer();
 
         // set ghost block

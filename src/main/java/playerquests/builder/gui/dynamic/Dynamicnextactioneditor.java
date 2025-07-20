@@ -25,7 +25,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     /**
      * The action itself.
      */
-    QuestAction action;
+    QuestAction<?,?> action;
 
     /**
      * The context of the action to get next
@@ -54,7 +54,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
     @Override
     protected void setupCustom() {
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.action = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
         this.actionData = this.action.getData();
         this.nextActions = new ArrayList<>(this.actionData.getNextActions());
@@ -109,7 +109,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 });
 
             // show actions
-            List<QuestAction> actions = this.selectedStage.getOrderedActions();
+            List<QuestAction<?,?>> actions = this.selectedStage.getOrderedActions();
             actions.forEach((a) -> {
                 this.createActionButton(a);
             });
@@ -140,7 +140,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * @param action the stage action object
      * @return a GUI slot button
      */
-    private GUISlot createActionButton(QuestAction action) {
+    private GUISlot createActionButton(QuestAction<?,?> action) {
         String actionID = action.getID();
 
         boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()

@@ -190,12 +190,12 @@ public class EntityNPC extends NPCType {
     }
 
     @Override
-    protected void unregister(QuestAction action, QuestClient quester) {
+    protected void unregister(QuestAction<?,?> action, QuestClient quester) {
         quester.getData().removeEntityNPC(action, this.getNPC());
     }
 
     @Override
-    protected void despawn(QuestAction action, QuestClient quester) {
+    protected void despawn(QuestAction<?,?> action, QuestClient quester) {
         NPC citizen = quester.getData().getCitizenNPC(action, this.getNPC());
 
         if (citizen == null) {
@@ -206,12 +206,12 @@ public class EntityNPC extends NPCType {
     }
 
     @Override
-    protected void register(QuestAction action, QuestClient quester, Object value) {
+    protected void register(QuestAction<?,?> action, QuestClient quester, Object value) {
         quester.getData().addCitizenNPC(action, this.getNPC(), (NPC) value);
     }
 
     @Override
-    protected Object spawn(QuestAction action, QuestClient quester) {
+    protected Object spawn(QuestAction<?,?> action, QuestClient quester) {
         QuestNPC questNPC = this.getNPC();
         Location location = questNPC.getLocation().toBukkitLocation();
         Player player = quester.getPlayer();

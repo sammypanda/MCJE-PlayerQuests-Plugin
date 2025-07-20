@@ -194,7 +194,7 @@ public class Testquest extends TestUtility {
             // prep test
             Quest quest = QuestRegistry.getInstance().getQuest("testNoneActionWithNPC");
             QuestStage stage = (QuestStage) quest.getStages().values().toArray()[0];
-            QuestAction action = (QuestAction) stage.getActions().values().toArray()[0];
+            QuestAction<?,?> action = (QuestAction<?,?>) stage.getActions().values().toArray()[0];
             QuestClient quester = QuestRegistry.getInstance().getQuester(clientDirector.getPlayer());
             QuestNPC npc = action.getData().getOption(NPCOption.class).get().getNPC(quest);
 

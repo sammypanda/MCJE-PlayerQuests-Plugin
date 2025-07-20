@@ -12,7 +12,6 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.CraftListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -24,7 +23,7 @@ import playerquests.builder.quest.stage.QuestStage;
 /**
  * An action that waits until something is crafted. :D      
  */
-public class CraftAction extends QuestAction {
+public class CraftAction extends QuestAction<CraftAction, CraftListener> {
 
     /**
      * the NPC added into the world.
@@ -96,7 +95,7 @@ public class CraftAction extends QuestAction {
     }
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected CraftListener startListener(QuesterData questerData) {
         return new CraftListener(this, questerData);
     }
 

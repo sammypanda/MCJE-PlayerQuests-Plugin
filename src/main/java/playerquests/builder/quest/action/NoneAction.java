@@ -10,7 +10,6 @@ import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.NoneListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.NPCOption;
@@ -22,7 +21,7 @@ import playerquests.builder.quest.stage.QuestStage;
 /**
  * An action that does nothing. :D      
  */
-public class NoneAction extends QuestAction {
+public class NoneAction extends QuestAction<NoneAction, NoneListener> {
 
     /**
      * the NPC added into the world.
@@ -67,7 +66,7 @@ public class NoneAction extends QuestAction {
     protected void failure(QuesterData questerData) {}
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected NoneListener startListener(QuesterData questerData) {
         return new NoneListener(this, questerData);
     }
 

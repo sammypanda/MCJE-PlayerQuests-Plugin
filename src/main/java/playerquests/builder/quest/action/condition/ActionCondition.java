@@ -140,7 +140,7 @@ public abstract class ActionCondition {
          * Trigger a re-start of the action.
          */
         public void trigger() {
-            QuestAction action = this.actionCondition.getActionData().getAction();
+            QuestAction<?,?> action = this.actionCondition.getActionData().getAction();
 
             // start the action
             questerData.getQuester().start(

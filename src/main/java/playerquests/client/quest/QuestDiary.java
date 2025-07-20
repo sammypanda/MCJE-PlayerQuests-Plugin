@@ -188,7 +188,7 @@ public class QuestDiary {
      * @param path
      * @return
      */
-    public Integer getActionCompletionState(Quest quest, QuestAction action) {
+    public Integer getActionCompletionState(Quest quest, QuestAction<?,?> action) {
         // retrieve all entries from the database
         Map<Quest, List<Map<StagePath, Boolean>>> rawEntries = Database.getInstance().getDiaryEntries(this);
 

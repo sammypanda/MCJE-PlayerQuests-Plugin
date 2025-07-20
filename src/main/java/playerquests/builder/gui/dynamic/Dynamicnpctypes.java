@@ -73,7 +73,7 @@ public class Dynamicnpctypes extends GUIDynamic {
             .stream()
             .map(typeClass -> {
                 try {
-                    // create QuestAction instance from class type
+                    // create QuestAction<?,?> instance from class type
                     return typeClass.getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
                     e.printStackTrace();

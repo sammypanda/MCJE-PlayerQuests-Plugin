@@ -59,7 +59,7 @@ import playerquests.utility.singleton.Database;
     @JsonSubTypes.Type(value = TakeItemAction.class, name = "TakeItemAction"),
     @JsonSubTypes.Type(value = CraftAction.class, name = "CraftAction")
 })
-public abstract class QuestAction {
+public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionListener<A>> {
 
     /**
      * The quest stage that this action belongs to.
@@ -86,7 +86,7 @@ public abstract class QuestAction {
     public QuestAction() {}
 
     /**
-     * Constructs a new QuestAction with the specified stage.
+     * Constructs a new QuestAction<?,?> with the specified stage.
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to
      */
@@ -319,7 +319,7 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      * @return the listener for the action
      */
-    protected abstract ActionListener<?> startListener(QuesterData questerData);
+    protected abstract L startListener(QuesterData questerData);
 
     /**
      * Starts the FX that will indicate the action.
@@ -384,17 +384,17 @@ public abstract class QuestAction {
 	}
 
     /**
-     * Gets all the existing QuestAction types annotated.
+     * Gets all the existing QuestAction<?,?> types annotated.
      * @return all known quest action class types
      */
     @SuppressWarnings("unchecked") // it is checked :)
-    public static List<Class<? extends QuestAction>> getAllTypes() {
+    public static List<Class<? extends QuestAction<?, ?>>> getAllTypes() {
         JsonSubTypes jsonSubTypes = QuestAction.class.getDeclaredAnnotation(JsonSubTypes.class);
 
         return Arrays.stream(jsonSubTypes.value())
             .map(type -> type.value())
             .filter(clazz -> QuestAction.class.isAssignableFrom(clazz)) // Type check
-            .<Class<? extends QuestAction>>map(clazz -> (Class<? extends QuestAction>) clazz) // Safe cast
+            .<Class<? extends QuestAction<?, ?>>>map(clazz -> (Class<? extends QuestAction<?, ?>>) clazz) // Safe cast
             .toList();
     }
 

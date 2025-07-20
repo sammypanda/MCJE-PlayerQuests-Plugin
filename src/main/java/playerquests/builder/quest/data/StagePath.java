@@ -74,7 +74,7 @@ public class StagePath {
      * @param stage the {@code QuestStage} object representing the stage
      * @param action the {@code QuestAction} object representing the action
      */
-    public StagePath(QuestStage stage, @Nullable List<QuestAction> action) {
+    public StagePath(QuestStage stage, @Nullable List<QuestAction<?,?>> action) {
         // store stage ID
         this.stage = stage.getID();
 
@@ -168,11 +168,11 @@ public class StagePath {
      * @param quest the {@code Quest} object containing the actions
      * @return the {@code QuestAction} list based on the action IDs in the path
      */
-    public List<QuestAction> getActions(Quest quest) {
-        List<QuestAction> actions = new ArrayList<QuestAction>();
+    public List<QuestAction<?,?>> getActions(Quest quest) {
+        List<QuestAction<?,?>> actions = new ArrayList<QuestAction<?,?>>();
 
         this.actions.forEach(actionID -> {
-            QuestAction action = this.getStage(quest).getActions().get(actionID);
+            QuestAction<?,?> action = this.getStage(quest).getActions().get(actionID);
 
             // check the action exists in the actions map
             if (action == null) {

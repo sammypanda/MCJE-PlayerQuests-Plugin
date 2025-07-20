@@ -12,7 +12,6 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.RequestItemListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -23,7 +22,7 @@ import playerquests.utility.serialisable.ItemSerialisable;
 /**
  * Action for an NPC requesting an item from the quester.
  */
-public class RequestItemAction extends QuestAction {
+public class RequestItemAction extends QuestAction<RequestItemAction, RequestItemListener> {
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
@@ -105,7 +104,7 @@ public class RequestItemAction extends QuestAction {
     }
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected RequestItemListener startListener(QuesterData questerData) {
         return new RequestItemListener(this, questerData);
     }
 

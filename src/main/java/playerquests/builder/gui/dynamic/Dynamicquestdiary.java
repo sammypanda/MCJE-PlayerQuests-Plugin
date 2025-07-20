@@ -39,7 +39,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     /**
      * The tracked and untracked quest actions
      */
-    Map<QuestAction, Boolean> actionState = new HashMap<>();
+    Map<QuestAction<?,?>, Boolean> actionState = new HashMap<>();
 
     /**
      * Constructs a new {@code Dynamicquestdiary} instance.
@@ -201,7 +201,7 @@ public class Dynamicquestdiary extends GUIDynamic {
      * @param action the action to format the page for
      * @return a formatted page explaining a quest action
      */
-    private Component formatBookEntry(QuestAction action) {
+    private Component formatBookEntry(QuestAction<?,?> action) {
         // get the attached quest
         Quest quest = action.getStage().getQuest();
         LocationData location = action.getLocation();

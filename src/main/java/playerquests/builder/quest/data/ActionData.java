@@ -24,7 +24,7 @@ public class ActionData {
      * The action this data belongs to.
      */
     @JsonBackReference
-    private QuestAction action;
+    private QuestAction<?,?> action;
 
     /**
      * The unique identifier of this action.
@@ -67,7 +67,7 @@ public class ActionData {
      * @param conditions the conditionals to allow the action to complete
      */
     public ActionData( 
-        QuestAction action,
+        QuestAction<?,?> action,
         String id,
         List<StagePath> nextActions,
         List<ActionCondition> conditions
@@ -184,7 +184,7 @@ public class ActionData {
      * Get the action this data belongs to.
      * @return a quest action.
      */
-    public QuestAction getAction() {
+    public QuestAction<?,?> getAction() {
         return this.action;
     }
 

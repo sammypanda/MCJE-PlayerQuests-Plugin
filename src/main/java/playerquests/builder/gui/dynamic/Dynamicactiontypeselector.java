@@ -26,12 +26,12 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     /**
      * The action to change the type of.
      */
-    QuestAction action;
+    QuestAction<?,?> action;
 
     /**
      * All the quest action types.
      */
-    List<QuestAction> actionTypes;
+    List<QuestAction<?,?>> actionTypes;
 
     /**
      * The stage the action belongs to.
@@ -49,7 +49,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
 
     @Override
     protected void setupCustom() {
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+        this.action = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
         this.stage = this.action.getStage();
 
         // hmm actions should always have stages!
@@ -63,10 +63,10 @@ public class Dynamicactiontypeselector extends GUIDynamic {
         // get all annotated action types
         this.actionTypes = QuestAction.getAllTypes()
             .stream()
-            .flatMap(actionClass -> {
+            .<QuestAction<?, ?>>flatMap(actionClass -> {  // explicit type hint
                 try {
                     // create QuestAction instance from class type
-                    return Stream.of((QuestAction) actionClass.getDeclaredConstructor().newInstance());
+                    return Stream.of(actionClass.getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     ChatUtils.message(e.getMessage())
                         .target(MessageTarget.CONSOLE)
@@ -123,7 +123,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
      * @param oldAction the action being edited.
      * @param newAction the action to replace it with, that has the new type.
      */
-    private void changeType(QuestAction oldAction, QuestAction newAction) {
+    private void changeType(QuestAction<?,?> oldAction, QuestAction<?,?> newAction) {
         // replace the action in the stage
         this.action = this.stage.replaceAction(oldAction, newAction);
 

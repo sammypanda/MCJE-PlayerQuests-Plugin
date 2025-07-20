@@ -32,7 +32,7 @@ public class Dynamicqueststage extends GUIDynamic {
     /**
      * The action IDs
      */
-    private List<QuestAction> actionKeys;
+    private List<QuestAction<?,?>> actionKeys;
 
     /**
      * Staging to delete the stage
@@ -70,7 +70,7 @@ public class Dynamicqueststage extends GUIDynamic {
     @Override
     protected void executeCustom() {
         // set actionKeys
-        this.actionKeys = new ArrayList<QuestAction>(this.questStage.getOrderedActions());
+        this.actionKeys = new ArrayList<QuestAction<?,?>>(this.questStage.getOrderedActions());
 
         // set frame title/style
         this.gui.getFrame().setTitle(String.format("%s Editor", questStage.getLabel()));
@@ -169,7 +169,7 @@ public class Dynamicqueststage extends GUIDynamic {
     }
 
     private boolean createActionButton(int index) {
-        QuestAction action = actionKeys.get(index);
+        QuestAction<?,?> action = actionKeys.get(index);
         Integer nextEmptySlot = this.gui.getEmptySlot();
         GUISlot actionSlot = new GUISlot(this.gui, nextEmptySlot);
         String typeString = String.format("Type: %s", action.getName());
