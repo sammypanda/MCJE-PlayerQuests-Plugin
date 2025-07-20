@@ -50,7 +50,7 @@ public abstract class GUIDynamic {
      * @param director how the dynamic gui controls the plugin
      * @param previousScreen the screen to go back to
     */
-    public GUIDynamic(ClientDirector director, String previousScreen) {
+    protected GUIDynamic(ClientDirector director, String previousScreen) {
         this.director = director;
         this.previousScreen = previousScreen;
         
