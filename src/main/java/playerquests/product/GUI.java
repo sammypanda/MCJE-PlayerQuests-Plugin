@@ -76,7 +76,7 @@ public class GUI {
      * Checks if the GUI is open by checking if the inventory view is set.
      * @return if the GUI is open
      */
-    public Boolean isOpen() {
+    public boolean isOpen() {
         return (this.view != null); // if the inventory view is not null
     }
 
