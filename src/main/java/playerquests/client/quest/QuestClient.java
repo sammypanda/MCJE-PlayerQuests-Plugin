@@ -2,6 +2,7 @@ package playerquests.client.quest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
@@ -226,7 +227,7 @@ public class QuestClient {
         List<QuestAction> trackedActions_clone = new ArrayList<>(this.trackedActions);
 
         // filter through all the tracked actions
-        this.trackedActions = (ArrayList<QuestAction>) trackedActions_clone.stream().filter((action) -> {
+        this.trackedActions = trackedActions_clone.stream().filter((action) -> {
             // find the actions that match the quest
             Boolean match = action.getStage().getQuest().getID().equals(quest.getID());
 
@@ -239,7 +240,7 @@ public class QuestClient {
             // only return predicates that don't match 
             // (aka: clear out trackedActions of this quest)
             return !match;
-        }).toList(); // get the filtered elements as a list
+        }).collect(Collectors.toCollection(ArrayList::new)); // collect to a new ArrayList; // get the filtered elements as a list
     }
 
     /**
