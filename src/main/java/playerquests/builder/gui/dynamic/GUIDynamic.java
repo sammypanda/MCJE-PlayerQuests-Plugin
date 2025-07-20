@@ -31,7 +31,7 @@ public abstract class GUIDynamic {
     /**
      * If the setup has been ran.
      */
-    protected Boolean wasSetUp = false;
+    protected boolean wasSetUp = false;
 
     /**
      * the GUI instance.
