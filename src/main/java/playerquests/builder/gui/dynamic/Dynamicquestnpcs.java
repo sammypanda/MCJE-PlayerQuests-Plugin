@@ -48,7 +48,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         this.generatePages();
     }
 

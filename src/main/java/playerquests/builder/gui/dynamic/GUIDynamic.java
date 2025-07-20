@@ -85,7 +85,7 @@ public abstract class GUIDynamic {
         }
 
         // to-be implemented execute processes
-        execute_custom();
+        executeCustom();
 
         // show the results
         if (!this.gui.getResult().isOpen()) {
@@ -103,7 +103,7 @@ public abstract class GUIDynamic {
     /**
      * For creating the GUI/functionality.
      */
-    protected abstract void execute_custom();
+    protected abstract void executeCustom();
 
     /**
      * For when everything is done in the GUI.

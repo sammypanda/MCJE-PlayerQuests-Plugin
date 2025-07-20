@@ -68,7 +68,7 @@ public class Dynamicqueststage extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // set actionKeys
         this.actionKeys = new ArrayList<QuestAction>(this.questStage.getOrderedActions());
 

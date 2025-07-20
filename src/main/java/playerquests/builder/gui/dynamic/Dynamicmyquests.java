@@ -105,7 +105,7 @@ public class Dynamicmyquests extends GUIDynamic {
      * </ul>
      */
     @Override
-    public void execute_custom() {
+    public void executeCustom() {
         // determine the page number
         Integer pageNumber = this.lastBuiltSlot/this.slotsPerPage + 1;
 

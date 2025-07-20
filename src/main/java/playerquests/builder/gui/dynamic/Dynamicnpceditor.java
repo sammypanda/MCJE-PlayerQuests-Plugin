@@ -48,7 +48,7 @@ public class Dynamicnpceditor extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         this.generatePage();
     }
 

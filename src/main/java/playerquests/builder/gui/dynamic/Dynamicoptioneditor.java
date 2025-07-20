@@ -37,7 +37,7 @@ public class Dynamicoptioneditor extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         this.gui.getFrame()
             .setTitle(
                 String.format("%s Option Editor", this.actionData.getID()))

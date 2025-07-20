@@ -62,7 +62,7 @@ public class Dynamicquestinventory extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // retrieve the items
         this.inventory = QuestRegistry.getInstance().getInventory(quest);
         this.requiredInventory = this.quest.getRequiredInventory();

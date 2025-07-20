@@ -61,7 +61,7 @@ public class Dynamicselectnpc extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // set GUI size according to amount of NPCs
         gui.getFrame().setSize(
             Math.clamp(

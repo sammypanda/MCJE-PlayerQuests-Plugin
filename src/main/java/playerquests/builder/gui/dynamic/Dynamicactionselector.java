@@ -74,7 +74,7 @@ public class Dynamicactionselector extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // set outer frame style
         this.gui.getFrame()
             .setTitle("Select Actions");

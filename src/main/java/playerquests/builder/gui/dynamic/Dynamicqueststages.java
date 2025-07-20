@@ -51,7 +51,7 @@ public class Dynamicqueststages extends GUIDynamic {
      * Main quest stages GUI loop
      */
     @Override
-    public void execute_custom() {
+    public void executeCustom() {
         this.generatePages();
     }
 

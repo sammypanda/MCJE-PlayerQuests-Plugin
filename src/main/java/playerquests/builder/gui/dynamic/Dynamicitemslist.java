@@ -59,7 +59,7 @@ public class Dynamicitemslist extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         Integer listSize = this.items.size(); // the amount of items in the list is often checked
         gui.getFrame().setTitle("Item List"); // set the GUI title
 

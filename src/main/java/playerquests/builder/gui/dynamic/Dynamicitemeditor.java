@@ -55,7 +55,7 @@ public class Dynamicitemeditor extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         Integer itemAmount = this.item.getAmount();
         this.gui.getFrame().setTitle("Edit " + item.getType().toString());
         

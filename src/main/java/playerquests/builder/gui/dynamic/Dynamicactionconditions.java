@@ -35,7 +35,7 @@ public class Dynamicactionconditions extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // style the GUIs
         this.gui.getFrame()
             .setTitle(

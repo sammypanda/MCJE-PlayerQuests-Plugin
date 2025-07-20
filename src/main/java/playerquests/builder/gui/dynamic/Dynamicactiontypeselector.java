@@ -79,7 +79,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         int minimumSize = Math.clamp(
             (Integer.valueOf(this.actionTypes.size()) / 9) * 9, 
             9, 

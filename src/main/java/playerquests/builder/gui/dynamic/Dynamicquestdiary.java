@@ -73,7 +73,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // get and set the outer GUI frame
         this.gui.getFrame()
             .setTitle("Quest Diary")

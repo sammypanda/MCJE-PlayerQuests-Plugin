@@ -38,7 +38,7 @@ public class Dynamicmain extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         GUIFrame guiFrame = this.gui.getFrame();
 
         guiFrame.setTitle("PlayerQuests");
