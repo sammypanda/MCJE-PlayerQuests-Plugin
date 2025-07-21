@@ -50,7 +50,7 @@ public class ItemsOption extends ActionOption {
         ).toList();
 
         return new GUISlot(gui, slot)
-            .setLabel(this.getItems().isEmpty() ? "Set items" : String.format("Change the items"))
+            .setLabel(this.getItems().isEmpty() ? "Set items" : "Change the items")
             .setDescription(itemStrings)
             .setItem(Material.CHEST)
             .onClick(() -> {
