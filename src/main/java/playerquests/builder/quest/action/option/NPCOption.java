@@ -49,10 +49,10 @@ public class NPCOption extends ActionOption {
     @Override
     public GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director) {
         // get a map of NPCs in the quest (helps find the current NPC object from the NPC ID)
-        Map<String, QuestNPC> NPCMap = this.getActionData().getAction().getStage().getQuest().getNPCs();
+        Map<String, QuestNPC> npcMap = this.getActionData().getAction().getStage().getQuest().getNPCs();
 
         return new GUISlot(gui, slot)
-            .setLabel(this.npcID == null ? "Set the NPC" : String.format("Change the NPC (%s)", NPCMap.get(this.npcID).getName()))
+            .setLabel(this.npcID == null ? "Set the NPC" : String.format("Change the NPC (%s)", npcMap.get(this.npcID).getName()))
             .setItem(Material.VILLAGER_SPAWN_EGG)
             .onClick(() -> {
                 new UpdateScreen(List.of("selectnpc"), director)
