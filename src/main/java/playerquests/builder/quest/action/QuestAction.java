@@ -425,13 +425,10 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
         // get next actions
         List<StagePath> nextActions = this.getData().getNextActions();
 
-        // get the stage this action belongs to
-        QuestStage stage = this.getStage();
-
         // designate this action as completed in the database
         String diaryID = questerData.getQuester().getDiary().getID();
-        String questID = stage.getQuest().getID();
-        StagePath actionPath = new StagePath(stage, List.of(this));
+        String questID = this.getStage().getQuest().getID();
+        StagePath actionPath = new StagePath(this.getStage(), List.of(this));
         Database.getInstance().setDiaryEntryCompletion(diaryID, questID, actionPath, true);
 
         // trigger next actions
