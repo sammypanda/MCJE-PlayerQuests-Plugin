@@ -53,11 +53,7 @@ public class GUIListener implements Listener {
     private Boolean isGUI(Player player) {
         GUIBuilder builder = this.builders.get(player);
 
-        if (builder != null) {
-            return true;
-        }
-        
-        return false;
+        return builder != null;
     }
 
     /**

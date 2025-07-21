@@ -47,12 +47,7 @@ public class TimeCondition extends ActionCondition {
         long worldTime = questerData.getQuester().getPlayer().getWorld().getTime(); 
 
         // if within the time brackets set, the condition passes
-        if (worldTime >= this.getStartTime() && worldTime <= this.getEndTime()) {
-            return true;
-        }
-
-        // otherwise it does not pass
-        return false;
+        return worldTime >= this.getStartTime() && worldTime <= this.getEndTime();
     }
 
     @Override
