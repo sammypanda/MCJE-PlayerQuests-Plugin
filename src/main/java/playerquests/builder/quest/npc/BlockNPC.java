@@ -40,7 +40,9 @@ public class BlockNPC extends NPCType {
     /**
      * Defaut constructor (for Jackson)
     */
-    public BlockNPC() {}
+    public BlockNPC() {
+        // Nothing here
+    }
 
     /**
      * Constructs a BlockNPC with a specified block data and associated quest NPC.

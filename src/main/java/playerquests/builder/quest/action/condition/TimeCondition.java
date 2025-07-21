@@ -33,7 +33,9 @@ public class TimeCondition extends ActionCondition {
     /**
      * Default constructor for Jackson.
      */
-    public TimeCondition() {}
+    public TimeCondition() {
+        // Nothing here
+    }
 
     public TimeCondition(ActionData actionData) {
         super(actionData);

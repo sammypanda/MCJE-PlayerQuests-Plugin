@@ -76,7 +76,9 @@ public class QuestNPC {
     /**
      * Constructs a new empty QuestNPC.
      */
-    public QuestNPC() {}
+    public QuestNPC() {
+        // Nothing here
+    }
 
     /**
      * Constructs a new QuestNPC with the specified ID.

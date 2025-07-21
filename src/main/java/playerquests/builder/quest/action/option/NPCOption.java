@@ -34,7 +34,9 @@ public class NPCOption extends ActionOption {
     /**
      * Default constructor for Jackson.
      */
-    public NPCOption() {}
+    public NPCOption() {
+        // Nothing here
+    }
 
     /**
      * Constructor including the QuestAction.

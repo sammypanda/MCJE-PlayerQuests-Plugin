@@ -31,7 +31,9 @@ public class NoneAction extends QuestAction<NoneAction, NoneListener> {
     /**
      * Constructor for jackson.
      */
-    public NoneAction() {}
+    public NoneAction() {
+        // Nothing here
+    }
 
     /**
      * Skips the currently tasked quest action.

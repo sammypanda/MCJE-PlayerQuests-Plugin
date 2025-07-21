@@ -56,7 +56,9 @@ public class ActionData {
     /**
      * Default constructor for Jackson
      */
-    public ActionData() {}
+    public ActionData() {
+        // Nothing here
+    }
 
     /**
      * Constructor for providing action context.

@@ -8,6 +8,8 @@ public class ChatClient {
     /**
      * Constructs a new client for controlling plugin via the chatbox.
      */
-    public ChatClient() {}
+    public ChatClient() {
+        // Nothing here
+    }
 
 }

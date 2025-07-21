@@ -33,7 +33,9 @@ public class SpeakAction extends QuestAction<SpeakAction, SpeakListener> {
     /**
      * Default constructor for Jackson.
      */
-    public SpeakAction() {}
+    public SpeakAction() {
+        // Nothing here
+    }
 
     @Override
     public String getName() {

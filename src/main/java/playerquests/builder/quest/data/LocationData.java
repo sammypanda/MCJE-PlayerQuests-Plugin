@@ -17,7 +17,9 @@ public class LocationData {
     /**
      * Defaut constructor (for Jackson)
      */
-    public LocationData() {}
+    public LocationData() {
+        // Nothing here
+    }
 
     /**
      * Constructs a new Location with the specified parameters.

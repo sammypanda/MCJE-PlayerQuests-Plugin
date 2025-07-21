@@ -31,7 +31,9 @@ public class ItemsOption extends ActionOption {
     /**
      * Default constructor for Jackson.
      */
-    public ItemsOption() {}
+    public ItemsOption() {
+        // Nothing here
+    }
 
     /**
      * Constructor including the QuestAction.

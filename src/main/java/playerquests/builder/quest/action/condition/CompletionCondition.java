@@ -36,7 +36,9 @@ public class CompletionCondition extends ActionCondition {
     /**
      * Default constructor for Jackson.
      */
-    public CompletionCondition() {}
+    public CompletionCondition() {
+        // Nothing here
+    }
 
     public CompletionCondition(ActionData actionData) {
         super(actionData);

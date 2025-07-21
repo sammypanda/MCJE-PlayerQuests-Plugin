@@ -83,7 +83,9 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
     /**
      * Constructor for jackson.
      */
-    public QuestAction() {}
+    public QuestAction() {
+        // Nothing here
+    }
 
     /**
      * Constructs a new QuestAction<?,?> with the specified stage.

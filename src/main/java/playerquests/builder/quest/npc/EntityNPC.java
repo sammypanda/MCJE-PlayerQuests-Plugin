@@ -42,7 +42,9 @@ public class EntityNPC extends NPCType {
     /**
      * Defaut constructor (for Jackson)
     */
-    public EntityNPC() {}
+    public EntityNPC() {
+        // Nothing here
+    }
 
     /**
      * Constructs an EntityNPC with specified entity data and associated quest NPC.
