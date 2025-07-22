@@ -221,10 +221,10 @@ public class QuestStage {
         // check if any action of all actions, contains the passed in one as
         // a dependency (a 'next action').
         List<String> dependencies = allActions.stream()
-            .filter(actions -> actions.getData().getNextActions().stream()
+            .filter(actionsList -> actionsList.getData().getNextActions().stream()
                 .flatMap(path -> path.getActions(quest).stream())
                 .anyMatch(actionMatch -> actionMatch.equals(action)))
-            .map(actions -> actions.getID())
+            .map(actionsList -> actionsList.getID())
             .toList();
 
 
