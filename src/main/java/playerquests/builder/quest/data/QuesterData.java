@@ -148,11 +148,9 @@ public class QuesterData {
             return false;
         }
 
-        QuestClient quester = this.getQuester();
-
         // if there are more than one actions
         // left after this filtration, that means there is a clash
-        ArrayList<QuestAction<?,?>> clashingActions = new ArrayList<>(quester.getTrackedActions().stream()
+        ArrayList<QuestAction<?,?>> clashingActions = new ArrayList<>(this.getQuester().getTrackedActions().stream()
             // filter out exact matches
             .filter(trackedAction -> !trackedAction.equals(action))
             // filter out any 'None' action
@@ -172,7 +170,7 @@ public class QuesterData {
 
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
-        Player player = quester.getPlayer(); // get the player
+        Player player = this.getQuester().getPlayer(); // get the player
         Builder message = Component.text()
             .appendNewline()
             .append(Component.text("This area offers more than one action\n"))
