@@ -169,21 +169,21 @@ public class StagePath {
      * @return the {@code QuestAction} list based on the action IDs in the path
      */
     public List<QuestAction<?,?>> getActions(Quest quest) {
-        List<QuestAction<?,?>> actions = new ArrayList<QuestAction<?,?>>();
+        List<QuestAction<?,?>> actionsList = new ArrayList<QuestAction<?,?>>();
 
         this.actions.forEach(actionID -> {
-            QuestAction<?,?> action = this.getStage(quest).getActions().get(actionID);
+            QuestAction<?,?> actionObject = this.getStage(quest).getActions().get(actionID);
 
             // check the action exists in the actions map
-            if (action == null) {
+            if (actionObject == null) {
                 return; // exit if it's not in the actions map
             }
 
             // add it to the list
-            actions.add(action);
+            actionsList.add(actionObject);
         });
 
-        return actions;
+        return actionsList;
     }
 
     /**
