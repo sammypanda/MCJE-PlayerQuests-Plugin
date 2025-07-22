@@ -161,7 +161,7 @@ public class QuesterData {
             .toList());
 
         // exit if no clashing to resolve
-        if (clashingActions.size() == 0) {
+        if (clashingActions.isEmpty()) {
             return true;
         }
 
