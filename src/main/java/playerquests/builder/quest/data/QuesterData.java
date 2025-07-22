@@ -103,9 +103,8 @@ public class QuesterData {
      * @param actionListener the listener that will trigger action checking
      * @return the passed in listener
      */
-    public ActionListener<?> addListener(QuestAction<?,?> action, ActionListener<?> actionListener) {
+    public void addListener(QuestAction<?,?> action, ActionListener<?> actionListener) {
         this.listeners.put(action, actionListener);
-        return actionListener;
     }
 
     /**
