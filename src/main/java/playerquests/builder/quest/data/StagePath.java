@@ -151,7 +151,7 @@ public class StagePath {
         }
 
         // Retrieve the stage associated with the stored ID
-        QuestStage stage = quest.getStages().get(this.stage);
+        QuestStage stageObject = quest.getStages().get(this.stage);
         if (stage == null) {
             throw new MissingStageException(
                 String.format("No stage found for ID: %s in quest: %s.", this.stage, quest.getID()),
@@ -159,7 +159,7 @@ public class StagePath {
             );
         }
 
-        return stage;
+        return stageObject;
     }
 
     /**
