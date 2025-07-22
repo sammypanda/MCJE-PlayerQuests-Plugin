@@ -55,7 +55,7 @@ public class QuesterData {
     /**
      * Lock to wait for an ongoing action clash to be resolved.
      */
-    private Boolean clashLock = false;
+    private boolean clashLock = false;
 
     /**
      * Map if quester has consented to an action.
