@@ -209,14 +209,12 @@ public class QuestBuilder {
     @JsonIgnore
     public List<QuestStage> getStages() {
         // create an ordered list of stages, ordered by stage_[this number]
-        LinkedList<QuestStage> orderedList = this.questPlan.values().stream()
+        return this.questPlan.values().stream()
             .sorted(Comparator.comparingInt(stage -> {
                 String[] parts = stage.getID().split("_");
                 return Integer.parseInt(parts[1]);
             }))
             .collect(Collectors.toCollection(LinkedList::new));
-
-        return orderedList;
     }
 
     /**
