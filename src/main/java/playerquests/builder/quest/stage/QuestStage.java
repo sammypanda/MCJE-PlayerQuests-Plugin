@@ -192,14 +192,14 @@ public class QuestStage {
      * @return the completed new action after replacement.
      */
     public QuestAction<?,?> replaceAction(QuestAction<?,?> oldAction, QuestAction<?,?> newAction) {
-        String id = oldAction.getID();
+        String oldId = oldAction.getID();
 
         // set inner action meta
         newAction.setStage(this);
-        newAction.setID(id);
+        newAction.setID(oldId);
 
         // replace the old action
-        this.actions.replace(id, newAction);
+        this.actions.replace(oldId, newAction);
 
         // return the completed action
         return newAction;
