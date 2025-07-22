@@ -251,8 +251,7 @@ public class QuestNPC {
      */
     @JsonIgnore
     public BlockData getBlock() {
-        if (this.assigned instanceof BlockNPC) {
-            BlockNPC npc = (BlockNPC) this.assigned;
+        if (this.assigned instanceof BlockNPC npc) {
             return npc.getBlock();
         }
 
