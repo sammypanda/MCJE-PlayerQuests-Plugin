@@ -55,7 +55,9 @@ public class QuestRegistry {
     /**
      * Private constructor to prevent instantiation.
      */
-    private QuestRegistry() {}
+    private QuestRegistry() {
+        // Unused, is a Singleton
+    }
 
     /**
      * Read and parse quest inventories from the database.
