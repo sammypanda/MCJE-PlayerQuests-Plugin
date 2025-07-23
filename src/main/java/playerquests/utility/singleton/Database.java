@@ -401,11 +401,10 @@ public class Database {
 
             preparedStatement.setInt(1, dbPlayerID);
 
-            ResultSet results = preparedStatement.executeQuery();
-
-            return results;
+            return preparedStatement.executeQuery(); // provides ResultSet
         } catch (SQLException e) {
-            ChatUtils.message("Could not find a diary for db player ID: " + dbPlayerID + ": " + e.getMessage())                .target(MessageTarget.CONSOLE)
+            ChatUtils.message("Could not find a diary for db player ID: " + dbPlayerID + ": " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
                 .type(MessageType.ERROR)
                 .send();
             return null;
