@@ -106,13 +106,13 @@ public class ServerListener implements Listener {
      * Creates necessary directories for the plugin if they do not already exist.
      */
     private void createDirectories() {
-        File dataFolder = new File(Core.getPlugin().getDataFolder() + "/");
+        File dataFolder = Core.getPlugin().getDataFolder();
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
             sendWelcomeMessage();
         }
 
-        File questsFolder = new File(Core.getPlugin().getDataFolder() + "/" + Core.getQuestsPath());
+        File questsFolder = new File(Core.getPlugin().getDataFolder(), Core.getQuestsPath());
         if (!questsFolder.exists()) {
             questsFolder.mkdirs();
         }
@@ -141,7 +141,7 @@ public class ServerListener implements Listener {
      * Processes quests from both the database and file system, and submits them to the quest registry.
      */
     private void processQuests() {
-        File questsDir = new File(Core.getPlugin().getDataFolder(), "/" + Core.getQuestsPath());
+        File questsDir = new File(Core.getPlugin().getDataFolder(), Core.getQuestsPath());
         Set<String> allQuests = new HashSet<>();
         
         // add from db
@@ -247,7 +247,7 @@ public class ServerListener implements Listener {
     private void startWatchService() {
         try {
             watchService = FileSystems.getDefault().newWatchService();
-            Path questFilesPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + Core.getQuestsPath());
+            Path questFilesPath = new File(Core.getPlugin().getDataFolder(), Core.getQuestsPath()).toPath();
             questFilesPath.register(watchService, 
                 StandardWatchEventKinds.ENTRY_CREATE, 
                 StandardWatchEventKinds.ENTRY_DELETE, 

@@ -42,7 +42,7 @@ public class FileUtils {
      * @throws IOException when the file cannot be read
      */
     public static String get(String filename) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         try {
             return Files.readString(fullPath);
@@ -57,7 +57,7 @@ public class FileUtils {
      * @throws IOException when the file cannot be deleted
      */
     public static void delete(String filename) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         try {
             Files.delete(fullPath);
@@ -73,13 +73,13 @@ public class FileUtils {
      * @return if the file exists
      */
     public static Boolean check(String filename) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         return Files.exists(fullPath);
     }
 
     public static void append(String filename, byte[] content) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         byte[] oldContent;
         try {
