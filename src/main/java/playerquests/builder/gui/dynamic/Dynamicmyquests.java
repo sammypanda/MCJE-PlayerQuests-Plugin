@@ -190,7 +190,7 @@ public class Dynamicmyquests extends GUIDynamic {
         }
 
         // ---- If the quest is considered invalid ---- //
-        if (quest == null || !quest.isValid()) {
+        if (quest == null || ( ! quest.isValid() )) {
             questSlot.setLabel(
                 String.format("%s (Invalid)",
                     quest.getTitle() != null ? quest.getTitle() : "Quest"

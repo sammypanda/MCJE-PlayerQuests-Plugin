@@ -86,7 +86,7 @@ public class QuestRegistry {
         String questID = quest.getID();
 
         // stop if quest is invalid
-        if (!quest.isValid()) {
+        if ( ! quest.isValid()) {
             ChatUtils.message("Not installing an invalid quest: " + questID)
                 .target(MessageTarget.CONSOLE)
                 .style(MessageStyle.PLAIN)
@@ -103,7 +103,7 @@ public class QuestRegistry {
         this.add(questID, quest);
 
         // untoggle and don't continue if quest is not toggled on
-        if (!quest.isToggled()) {
+        if ( ! quest.isToggled()) {
             this.untoggle(quest);
             return;
         }
@@ -133,7 +133,7 @@ public class QuestRegistry {
      * @param permanently if should also delete from database/filesystem
      * @return if the quest was successfully deleted
      */
-    public boolean delete(Quest quest, Boolean fromFS, Boolean withRefund, Boolean fromDB) {
+    public boolean delete(Quest quest, boolean fromFS, boolean withRefund, boolean fromDB) {
         String questID = quest.getID();
         UUID creator = quest.getCreator(); // get the creator if this quest has one
 
