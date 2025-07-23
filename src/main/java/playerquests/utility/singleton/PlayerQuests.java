@@ -162,7 +162,7 @@ public class PlayerQuests {
         // ---
 
         // verify support
-        Boolean isSupported = false;
+        boolean isSupported = false;
         DependencyIssue dependencyIssue = DependencyIssue.MISSING;
 
         if ( PlayerQuests.getCitizens2() != null ) {
