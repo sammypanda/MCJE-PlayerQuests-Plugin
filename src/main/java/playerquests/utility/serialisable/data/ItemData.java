@@ -57,6 +57,11 @@ public enum ItemData {
         public String getName(Map<String, String> properties) {
             return formatText(properties.get(ItemData.getMaterialKey()));
         }
+
+        @Override
+        protected boolean includes(Material m) {
+            return true; // all* materials valid to apply
+        }
     },
 
     POTION {
@@ -103,20 +108,26 @@ public enum ItemData {
             PotionType type = PotionType.valueOf(properties.get("type"));
             return formatText(type.toString() + " Potion");
         }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.equals(Material.POTION);
+        }
     },
 
     WOOL {
         private static String colorKey = "color";
+        private static String woolSuffix = "_WOOL";
 
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             String color = properties.getOrDefault(colorKey, "WHITE");
-            return basicItem(new ItemStack(Material.valueOf(color + "_WOOL")), properties);
+            return basicItem(new ItemStack(Material.valueOf(color + woolSuffix)), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            String color = item.getType().name().replace("_WOOL", "");
+            String color = item.getType().name().replace(woolSuffix, "");
             return basicProperties(item, Map.of(colorKey, color));
         }
 
@@ -127,6 +138,11 @@ public enum ItemData {
             }
 
             return formatText(properties.get(colorKey) + " Wool");
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.name().endsWith("_WOOL");
         }
     },
 
@@ -166,6 +182,11 @@ public enum ItemData {
 
             return formatText(properties.get("player") + " Head");
         }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.equals(Material.PLAYER_HEAD);
+        }
     },
 
     SOUP {
@@ -189,6 +210,11 @@ public enum ItemData {
 
             return formatText(properties.get("flavour") + " Soup");
         }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.name().endsWith("_SOUP");
+        }
     },
 
     AIR {
@@ -205,6 +231,11 @@ public enum ItemData {
         @Override
         public String getName(Map<String, String> properties) {
             return "Air";
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.equals(Material.AIR);
         }
 	};
 
@@ -1304,9 +1335,9 @@ public enum ItemData {
         SPECIAL_MAPPINGS.put(Material.POTION, POTION);
         SPECIAL_MAPPINGS.put(Material.SPLASH_POTION, POTION);
         SPECIAL_MAPPINGS.put(Material.LINGERING_POTION, POTION);
-        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_WOOL")).forEach(m -> SPECIAL_MAPPINGS.put(m, WOOL));
+        Arrays.stream(Material.values()).filter(m -> WOOL.includes(m)).forEach(m -> SPECIAL_MAPPINGS.put(m, WOOL));
         SPECIAL_MAPPINGS.put(Material.PLAYER_HEAD, PLAYER_HEAD);
-        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_SOUP")).forEach(m -> SPECIAL_MAPPINGS.put(m, SOUP));
+        Arrays.stream(Material.values()).filter(m -> SOUP.includes(m)).forEach(m -> SPECIAL_MAPPINGS.put(m, SOUP));
     }
 
     // Add these new members at the bottom of the class
@@ -1323,6 +1354,8 @@ public enum ItemData {
                 .send();
         }
     }
+
+    protected abstract boolean includes(Material m);
 
     public static ItemData fromMaterial(Material material) {
         // 1. Return special handler if exists
