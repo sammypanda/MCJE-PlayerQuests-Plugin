@@ -279,7 +279,12 @@ public class Database {
                 default:
                     statement.executeUpdate(query.toString()); // no break means all fall through to execution
             }
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+            ChatUtils.message("No database found, creating one. If you know you already have a database, try restarting.")
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.NOTIF)
+                .send();
+        }
 
         // Update plugin version in db
         setPluginVersion(version);
