@@ -284,10 +284,9 @@ public class Database {
                 case "0.5":
                 case "0.4":
                     query.append(MigrationUtils.getMigration("0.4"));
+                default:
+                    statement.executeUpdate(query.toString()); // no break means all fall through to execution
             }
-
-            statement.executeUpdate(query.toString());
-
         } catch (SQLException e) {}
 
         // Update plugin version in db
