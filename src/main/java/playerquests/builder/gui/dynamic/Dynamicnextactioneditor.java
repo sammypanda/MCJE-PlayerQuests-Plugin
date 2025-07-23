@@ -120,7 +120,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * Create a stage button.
      * These buttons show a list of actions that
      * belong to it.
-     * @param stage_id the id of the stage
+     * @param stageID the id of the stage
      * @param stage the quest stage object
      * @return a GUI slot button
      */

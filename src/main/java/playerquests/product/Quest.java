@@ -120,12 +120,12 @@ public class Quest {
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (this.stages != null) {
-            stages.forEach((stage_id, stage) -> {
+            stages.forEach((stageID, stage) -> {
                 stage.setQuest(this);
 
                 // set stage ID if it's missing
-                if (stage_id != stage.getID()) {
-                    stage.setID(stage_id);
+                if (stageID != stage.getID()) {
+                    stage.setID(stageID);
                 }
             });
         }
