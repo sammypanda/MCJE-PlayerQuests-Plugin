@@ -264,26 +264,17 @@ public class Database {
             switch (version) {
                 case "0.10.4":
                     query.append(MigrationUtils.getMigration("0.10.4"));
-                case "0.10.3":
-                case "0.10.2":
-                case "0.10.1":
+                case "0.10.3", "0.10.2", "0.10.1":
                     query.append(MigrationUtils.getMigration("0.10.1"));
                 case "0.10":
                     query.append(MigrationUtils.getMigration("0.10"));
-                case "0.9.2":
-                case "0.9.1":
-                case "0.9":
-                case "0.8.1":
-                case "0.8":
+                case "0.9.2", "0.9.1", "0.9", "0.8.1", "0.8":
                     query.append(MigrationUtils.getMigration("0.8"));
                 case "0.7":
                     query.append(MigrationUtils.getMigration("0.7"));
-                case "0.6":
-                case "0.5.2":
-                case "0.5.1":
+                case "0.6", "0.5.2", "0.5.1":
                     query.append(MigrationUtils.getMigration("0.5.1"));
-                case "0.5":
-                case "0.4":
+                case "0.5", "0.4":
                     query.append(MigrationUtils.getMigration("0.4"));
                 default:
                     statement.executeUpdate(query.toString()); // no break means all fall through to execution
