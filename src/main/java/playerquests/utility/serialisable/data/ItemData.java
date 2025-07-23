@@ -142,7 +142,7 @@ public enum ItemData {
 
         @Override
         protected boolean includes(Material m) {
-            return m.name().endsWith("_WOOL");
+            return m.name().endsWith(woolSuffix);
         }
     },
 
@@ -190,15 +190,17 @@ public enum ItemData {
     },
 
     SOUP {
+        private static String soupSuffix = "_SOUP";
+
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             String flavour = properties.getOrDefault("flavour", "BEETROOT");
-            return basicItem(new ItemStack(Material.valueOf(flavour + "_SOUP")), properties);
+            return basicItem(new ItemStack(Material.valueOf(flavour + soupSuffix)), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            String flavour = item.getType().name().replace("_SOUP", "");
+            String flavour = item.getType().name().replace(soupSuffix, "");
             return basicProperties(item, Map.of("flavour", flavour));
         }
 
@@ -213,7 +215,7 @@ public enum ItemData {
 
         @Override
         protected boolean includes(Material m) {
-            return m.name().endsWith("_SOUP");
+            return m.name().endsWith(soupSuffix);
         }
     },
 
