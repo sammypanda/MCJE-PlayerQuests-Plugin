@@ -440,7 +440,7 @@ public class Quest {
         }
 
         // Validate quest title
-        isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
+        isAllowed = PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().noneMatch(entry -> {
             Integer amount = entry.getValue();
 
             if (amount < 0) {
