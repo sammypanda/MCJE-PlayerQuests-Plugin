@@ -106,25 +106,27 @@ public enum ItemData {
     },
 
     WOOL {
+        private static String colorKey = "color";
+
         @Override
         public ItemStack createItem(Map<String, String> properties) {
-            String color = properties.getOrDefault("color", "WHITE");
+            String color = properties.getOrDefault(colorKey, "WHITE");
             return basicItem(new ItemStack(Material.valueOf(color + "_WOOL")), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
             String color = item.getType().name().replace("_WOOL", "");
-            return basicProperties(item, Map.of("color", color));
+            return basicProperties(item, Map.of(colorKey, color));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            if ( ! properties.containsKey("color")) {
+            if ( ! properties.containsKey(colorKey)) {
                 return "Wool";   
             }
 
-            return formatText(properties.get("color") + " Wool");
+            return formatText(properties.get(colorKey) + " Wool");
         }
     },
 
