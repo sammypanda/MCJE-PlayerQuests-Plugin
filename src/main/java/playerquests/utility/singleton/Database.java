@@ -648,55 +648,59 @@ public class Database {
         Map<String, Map<ItemSerialisable, Integer>> inventories = new HashMap<>();
 
         try (Connection c = getConnection();
-        Statement statement = c.createStatement()) {
-
+            Statement statement = c.createStatement()) {
+            
             String allQuestsSQL = "SELECT id, inventory FROM quests;";
             ResultSet result = statement.executeQuery(allQuestsSQL);
 
             while (result.next()) {
-                String[] pairs = result.getString("inventory").split("\\|"); // escape for raw "|"
-                Map<ItemSerialisable, Integer> inventoryMap = new HashMap<>();
-
-                pairs = result.getString("inventory").replaceAll("[{}]", "").split(",");
-                for (String pair : pairs) {
-                    String[] keyValue = pair.split("=");
-                    if (keyValue.length == 2) {
-                        String itemString = keyValue[0].trim().replace("{", "").replace("}", "");
-                        ItemSerialisable itemSerialisable = new ItemSerialisable(itemString);
-
-                        // skip if invalid itemSerialisable
-                        if ( ! itemSerialisable.getItemData().equals(ItemData.AIR)) {
-                            // resolve item quantity
-                            Integer quantity;
-                            try {
-                                quantity = Integer.parseInt(keyValue[1].trim());
-                            } catch (NumberFormatException e) {
-                                // Handle the case where the quantity is not a valid integer
-                                ChatUtils.message("Invalid quantity format: " + keyValue[1])
-                                    .target(MessageTarget.CONSOLE)
-                                    .type(MessageType.ERROR)
-                                    .send();
-                                continue;
-                            }
-
-                            // prepare to be shipped
-                            inventoryMap.put(itemSerialisable, quantity);
-                        }
-                    }
-                }
-
-                // put quest id and retrieved inventory for returning
+                Map<ItemSerialisable, Integer> inventoryMap = parseInventoryString(result.getString("inventory"));
                 inventories.put(result.getString("id"), inventoryMap);
             }
 
         } catch (SQLException e) {
-            ChatUtils.message("Could not retrieve quests from database. " + e.getMessage())                .target(MessageTarget.CONSOLE)
+            ChatUtils.message("Could not retrieve quests from database. " + e.getMessage())
+                .target(MessageTarget.CONSOLE)
                 .type(MessageType.ERROR)
                 .send();
         }
 
         return inventories;
     }
+
+    private Map<ItemSerialisable, Integer> parseInventoryString(String inventoryString) {
+        Map<ItemSerialisable, Integer> inventoryMap = new HashMap<>();
+        String[] pairs = inventoryString.replaceAll("[{}]", "").split(",");
+
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length != 2) {
+                continue; // skip malformed pairs
+            }
+
+            String itemString = keyValue[0].trim();
+            ItemSerialisable itemSerialisable = new ItemSerialisable(itemString);
+
+            // skip if invalid itemSerialisable
+            if (itemSerialisable.getItemData().equals(ItemData.AIR)) {
+                continue;
+            }
+
+            // resolve item quantity
+            try {
+                Integer quantity = Integer.parseInt(keyValue[1].trim());
+                inventoryMap.put(itemSerialisable, quantity);
+            } catch (NumberFormatException e) {
+                ChatUtils.message("Invalid quantity format: " + keyValue[1])
+                    .target(MessageTarget.CONSOLE)
+                    .type(MessageType.ERROR)
+                    .send();
+            }
+        }
+
+        return inventoryMap;
+    }
+
 
     /**
      * Add a quest diary to the diaries table.
