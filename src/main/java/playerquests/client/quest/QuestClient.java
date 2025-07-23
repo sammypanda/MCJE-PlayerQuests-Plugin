@@ -224,10 +224,10 @@ public class QuestClient {
      */
     public void stop(Quest quest) {
         // avoid concurrent modification issues by creating a clone of state
-        List<QuestAction<?,?>> trackedActions_clone = new ArrayList<>(this.trackedActions);
+        List<QuestAction<?,?>> trackedActionsCloned = new ArrayList<>(this.trackedActions);
 
         // filter through all the tracked actions
-        this.trackedActions = trackedActions_clone.stream().filter((action) -> {
+        this.trackedActions = trackedActionsCloned.stream().filter((action) -> {
             // find the actions that match the quest
             Boolean match = action.getStage().getQuest().getID().equals(quest.getID());
 
