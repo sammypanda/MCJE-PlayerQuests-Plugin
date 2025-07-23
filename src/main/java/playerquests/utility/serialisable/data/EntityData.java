@@ -165,16 +165,16 @@ public enum EntityData {
 
     public static EntityData getEnum(String string) {
         // First try to find matching ItemData (excluding GENERIC)
-        Optional<EntityData> itemDataMatch = Arrays.stream(values())
+        Optional<EntityData> entityDataMatch = Arrays.stream(values())
             .filter(e -> !e.equals(GENERIC))
             .filter(e -> e.name().equalsIgnoreCase(string))
             .findFirst();
-        if (itemDataMatch.isPresent()) {
-            return itemDataMatch.get();
+        if (entityDataMatch.isPresent()) {
+            return entityDataMatch.get();
         }
 
         // No matches found - complain and return VILLAGER
-        ChatUtils.message("Unknown item type: " + string + ". Defaulting to VILLAGER. 💔")
+        ChatUtils.message("Unknown entity type: " + string + ". Defaulting to VILLAGER. 💔")
             .target(MessageTarget.CONSOLE)
             .type(MessageType.ERROR)
             .style(MessageStyle.PRETTY)
