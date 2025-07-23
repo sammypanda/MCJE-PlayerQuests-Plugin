@@ -92,8 +92,7 @@ public enum EntityData {
     VILLAGER {
         @Override
         public NPC createEntity(Map<String, String> properties, Location location) {
-            NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(this.getEntityType(properties), "", location);
-            return citizen;
+            return PlayerQuests.getInstance().getCitizensRegistry().createNPC(this.getEntityType(properties), "", location);
         }
 
         @Override
