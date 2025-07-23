@@ -127,7 +127,12 @@ public class Commandtest extends ChatCommand {
     private void runAllTests(ClientDirector clientDirector) {
         // prep test log
         this.testLogFilename = "test.log";
-        try {FileUtils.delete(testLogFilename); } catch (IOException e) {} // delete old if exists
+        try {
+            // delete old if exists
+            FileUtils.delete(testLogFilename);
+        } catch (IOException e) {
+            // Not a problem
+        } 
 
         // run tests
         this.tests.keySet().forEach(testKeyword -> {
