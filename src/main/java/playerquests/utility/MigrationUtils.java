@@ -28,7 +28,7 @@ public class MigrationUtils {
      *
      * @return The SQL query string for migrating to version 0.4.
      */
-    public static String dbV0_4() {
+    public static String dbVersion0Dot4() {
         return "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;";
     }
 
@@ -42,7 +42,7 @@ public class MigrationUtils {
      * @return This method does not return a query; it always throws an exception.
      * @throws IllegalArgumentException if called.
      */
-    public static String dbV0_5() {
+    public static String dbVersion0Dot5() {
         throw new IllegalArgumentException("No migration query for version v0.5.1");
     }
 
@@ -64,7 +64,7 @@ public class MigrationUtils {
      *
      * @return The SQL script string for migrating to version 0.5.1.
      */
-    public static String dbV0_5_1() {
+    public static String dbVersion0Dot5Dot1() {
         return """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
@@ -150,7 +150,7 @@ public class MigrationUtils {
      *
      * @return The SQL script string for migrating to version 0.7.
      */
-    public static String dbV0_7() {
+    public static String dbVersion0Dot7() {
         return """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
@@ -170,7 +170,7 @@ public class MigrationUtils {
      *
      * @return The SQL script string for migrating to version 0.8.
      */
-    public static String dbV0_8() {
+    public static String dbVersion0Dot8() {
         return """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
@@ -182,7 +182,7 @@ public class MigrationUtils {
         """;
     }
 
-    public static String dbV0_10() {
+    public static String dbVersion0Dot10() {
         return """
             BEGIN TRANSACTION;
 
@@ -192,7 +192,7 @@ public class MigrationUtils {
         """;
     }
 
-    public static String dbV0_10_1() {
+    public static String dbVersion0Dot10Dot1() {
         return """
             BEGIN TRANSACTION;
 
@@ -202,7 +202,7 @@ public class MigrationUtils {
         """;
     }
 
-    public static String dbV0_10_4() {
+    public static String dbVersion0Dot10Dot4() {
         ChatUtils.message("Entities changed in this update, for all your quest files you need to change entity values from 'type:CHICKEN,color:black' to 'CHICKEN'; meaning, remove everything except the name of the entity.")
             .style(MessageStyle.PRETTY)
             .type(MessageType.WARN)

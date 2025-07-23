@@ -258,28 +258,28 @@ public class Database {
 
             switch (version) {
                 case "0.10.4":
-                    query.append(MigrationUtils.dbV0_10_4());
+                    query.append(MigrationUtils.dbVersion0Dot10Dot4());
                 case "0.10.3":
                 case "0.10.2":
                 case "0.10.1":
-                    query.append(MigrationUtils.dbV0_10_1());
+                    query.append(MigrationUtils.dbVersion0Dot10Dot1());
                 case "0.10":
-                    query.append(MigrationUtils.dbV0_10());
+                    query.append(MigrationUtils.dbVersion0Dot10());
                 case "0.9.2":
                 case "0.9.1":
                 case "0.9":
                 case "0.8.1":
                 case "0.8":
-                    query.append(MigrationUtils.dbV0_8());
+                    query.append(MigrationUtils.dbVersion0Dot8());
                 case "0.7":
-                    query.append(MigrationUtils.dbV0_7());
+                    query.append(MigrationUtils.dbVersion0Dot7());
                 case "0.6":
                 case "0.5.2":
                 case "0.5.1":
-                    query.append(MigrationUtils.dbV0_5_1());
+                    query.append(MigrationUtils.dbVersion0Dot5Dot1());
                 case "0.5":
                 case "0.4":
-                    query.append(MigrationUtils.dbV0_4());
+                    query.append(MigrationUtils.dbVersion0Dot4());
             }
 
             statement.executeUpdate(query.toString());
