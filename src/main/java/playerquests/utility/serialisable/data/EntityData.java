@@ -31,7 +31,7 @@ public enum EntityData {
         @Override
         public NPC createEntity(Map<String, String> properties, Location location) {
             EntityType entityType = EntityType.valueOf(properties.get(EntityData.getEntityKey()));
-            NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(entityType, "", location);
+            NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(this.getEntityType(properties), "", location);
             if (!isAllowedGeneric(entityType)) {
                 warnUnimplemented(entityType);
             }
@@ -112,7 +112,8 @@ public enum EntityData {
     };
 
     private static final Set<EntityType> ALLOWED_GENERIC_ENTITIES = new HashSet<>(Arrays.asList(
-        EntityType.RABBIT
+        EntityType.RABBIT,
+        EntityType.WOLF
     ));
 
     // Bukkit EntityType mappings
