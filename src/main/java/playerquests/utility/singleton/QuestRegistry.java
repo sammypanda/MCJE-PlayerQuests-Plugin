@@ -274,7 +274,7 @@ public class QuestRegistry {
      * @param searchFS whether to try searching the filesystem
      * @return the quest object
      */
-    public Quest getQuest(String questID, Boolean searchFS) {
+    public Quest getQuest(String questID, boolean searchFS) {
         Quest result = this.getAllQuests().get(questID);
 
         // search in filesystem
