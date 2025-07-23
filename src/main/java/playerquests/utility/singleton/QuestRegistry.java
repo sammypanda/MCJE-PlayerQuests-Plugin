@@ -144,7 +144,7 @@ public class QuestRegistry {
             PlayerQuests.remove(quest);
 
             if (fromFS) {
-                FileUtils.delete(Core.getQuestsPath() + quest.getID() + ".json");
+                FileUtils.delete(Core.getQuestsPath() + quest.getID() + Core.getQuestFileExtension());
             }
 
             if (withRefund) {
@@ -284,7 +284,7 @@ public class QuestRegistry {
 
             // attempt finding it in the files and uploading to database
             try {
-                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json"));
+                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + Core.getQuestFileExtension()));
 
                 // if everything is okay, submit the quest to the database
                 // to avoid having to search for it again like this.
@@ -311,7 +311,7 @@ public class QuestRegistry {
         if (!result && searchFS) {
             // attempt finding it in the files
             try {
-                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json")).isValid();
+                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + Core.getQuestFileExtension())).isValid();
             } catch (IOException e) {
                 return false;
             }

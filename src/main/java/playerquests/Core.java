@@ -37,6 +37,11 @@ public class Core extends JavaPlugin {
      */
     private static String questsPath = "quests/";
 
+    /**
+     * What file extension serialised quests use.
+     */
+    private static String questsExtension = Core.getQuestFileExtension();
+
     @Override
     public void onEnable() {
         Core.setPlugin(this);
@@ -96,6 +101,14 @@ public class Core extends JavaPlugin {
      */
     public static String getQuestsPath() {
         return questsPath;
+    }
+
+    /**
+     * Gets the .? file extension used for serialised quests.
+     * @return the file extension for quests
+     */
+    public static String getQuestFileExtension() {
+        return questsExtension;
     }
 
     /**

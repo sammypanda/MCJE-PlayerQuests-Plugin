@@ -150,7 +150,7 @@ public class ServerListener implements Listener {
         // add from fs
         try (Stream<Path> paths = Files.walk(questsDir.toPath())) {
             paths.filter(Files::isRegularFile) // Filter to include only files
-                .filter(path -> path.toString().endsWith(".json")) // Include only JSON files
+                .filter(path -> path.toString().endsWith(Core.getQuestFileExtension())) // Include only JSON files
                 .forEach(path -> {
                     String questName = getQuestName(path);
                     allQuests.add(questName);
@@ -176,7 +176,7 @@ public class ServerListener implements Listener {
 
     private String getQuestName(Path path) {
         String[] questNameParts = path.toString()
-            .replace(".json", "")
+            .replace(Core.getQuestFileExtension(), "")
             .split("/" + Core.getQuestsPath());
 
         if (questNameParts.length < 1) {
@@ -197,7 +197,7 @@ public class ServerListener implements Listener {
             boolean errorOccurred = true; // Assume an error occurred initially
             
             try {
-                Quest newQuest = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + id + ".json"));
+                Quest newQuest = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + id + Core.getQuestFileExtension()));
 
                 // if creates invalid object, exit
                 if (newQuest == null) {
@@ -299,8 +299,8 @@ public class ServerListener implements Listener {
                         }
                     
                         // Handle changes to quest files
-                        if (filename.toString().endsWith(".json")) {
-                            String questName = filename.toString().replace(".json", ""); // strip '.json' from the quest ID/filename
+                        if (filename.toString().endsWith(Core.getQuestFileExtension())) {
+                            String questName = filename.toString().replace(Core.getQuestFileExtension(), ""); // strip '.json' from the quest ID/filename
                             QuestRegistry questRegistry = Core.getQuestRegistry(); // get the tracking of instances of the quests in the plugin
 
                             if (questName == null) {

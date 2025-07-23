@@ -282,7 +282,7 @@ public class Quest {
      * @return A message indicating the result of the save operation.
      */
     public String save() {
-        String questName = Core.getQuestsPath() + this.getID() + ".json"; // name pattern
+        String questName = Core.getQuestsPath() + this.getID() + Core.getQuestFileExtension(); // name pattern
         Player player = null;
 
         // set player if this quest has one
