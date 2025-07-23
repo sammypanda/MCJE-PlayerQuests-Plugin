@@ -85,7 +85,6 @@ public class GUIListener implements Listener {
         // if is in a GUI, then cancel (see onDropItem)
         if (this.isGUI(player)) {
             event.setCancelled(true);
-            return;
         }
     }
 
@@ -158,7 +157,6 @@ public class GUIListener implements Listener {
             ) == "true"
         ) {
             event.setCancelled(true);
-            return;
         }
     }
     
