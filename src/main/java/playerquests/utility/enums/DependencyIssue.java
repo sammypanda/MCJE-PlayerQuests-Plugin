@@ -9,15 +9,11 @@ public enum DependencyIssue {
     MISSING("install", "installing") {
         @Override
         public void sendMessage(String dependencyExplainer, String dependencyLink) {
-            ChatUtils.message("""
-                Soft Dependency Reminder! ✨\n """ + dependencyExplainer + """
-
-                🔗 """ + dependencyLink
-            .strip())
-            .target(MessageTarget.WORLD)
-            .style(MessageStyle.PRETTY)
-            .type(MessageType.NOTIF)
-            .send();
+            ChatUtils.message("Soft Dependency Reminder! ✨\n " + dependencyExplainer + " 🔗 " + dependencyLink.strip())
+                .target(MessageTarget.WORLD)
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.NOTIF)
+                .send();
         }
 
         @Override
@@ -28,25 +24,17 @@ public enum DependencyIssue {
     OUT_OF_DATE("update", "updating") {
         @Override
         public void sendMessage(String dependencyExplainer, String dependencyLink) {
-            ChatUtils.message("""
-                A Dependency Requires Updating! ✨\n """ + dependencyExplainer + """
-
-                🔗 """ + dependencyLink
-            .strip())
-            .target(MessageTarget.WORLD)
-            .style(MessageStyle.PRETTY)
-            .type(MessageType.ERROR)
-            .send();
+            ChatUtils.message("A Dependency Requires Updating! ✨\n " + dependencyExplainer + " 🔗 " + dependencyLink.strip())
+                .target(MessageTarget.WORLD)
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.ERROR)
+                .send();
         }
     }, 
     TOO_NEW("downgrade", "downgrading") {
         @Override
         public void sendMessage(String dependencyExplainer, String dependencyLink) {
-            ChatUtils.message("""
-                A Dependency Is Too New! ✨\n """ + dependencyExplainer + """
-
-                🔗 """ + dependencyLink
-            .strip())
+            ChatUtils.message("A Dependency Is Too New! ✨\n " + dependencyExplainer + " 🔗 " + dependencyLink.strip())
             .target(MessageTarget.WORLD)
             .style(MessageStyle.PRETTY)
             .type(MessageType.ERROR)
