@@ -247,7 +247,12 @@ public class Database {
                     .send();
             }
         } catch (URISyntaxException | IOException e) {
-            alert.send();
+            alert.send(); // send UX alert
+            ChatUtils.message(e.toString()) // send error message
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .style(MessageStyle.SIMPLE)
+                .send();
         }
 
         // don't migrate if no version change

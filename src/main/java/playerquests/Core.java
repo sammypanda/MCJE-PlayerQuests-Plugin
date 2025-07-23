@@ -40,7 +40,7 @@ public class Core extends JavaPlugin {
     /**
      * What file extension serialised quests use.
      */
-    private static String questsExtension = Core.getQuestFileExtension();
+    private static String questsExtension = ".json";
 
     @Override
     public void onEnable() {
