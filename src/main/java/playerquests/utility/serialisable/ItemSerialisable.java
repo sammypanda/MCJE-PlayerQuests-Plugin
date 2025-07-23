@@ -28,7 +28,7 @@ public final class ItemSerialisable implements Serialisable {
         }
 
         // get ItemData base and key-value pairs
-        String[] parts = string.split("\\[|\\]");
+        String[] parts = string.split("[\\[\\]]");
         Map<String, String> keyValues = Arrays.stream(parts[1].split(";"))
             .map(pair -> pair.split(":"))
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));

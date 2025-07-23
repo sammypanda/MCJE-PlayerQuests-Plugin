@@ -37,12 +37,12 @@ public class EntitySerialisable implements Serialisable {
         }
 
         // get EntityData base and key-value pairs
-        String[] parts = string.split("\\[|\\]");
+        String[] parts = string.split("[\\[\\]]");
         Map<String, String> keyValues = Arrays.stream(parts[1].split(";"))
             .map(pair -> pair.split(":"))
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         String baseString = parts[0];
-        String typeString = keyValues.get("entity");
+        String typeString = keyValues.get(EntityData.getEntityKey());
 
         EntityData entityData;
         // convert from GENERIC (GENERIC[entity:HERE]), otherwise use special EntityData base string (HERE[key:value])
