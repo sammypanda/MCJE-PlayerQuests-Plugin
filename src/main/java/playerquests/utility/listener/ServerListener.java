@@ -177,7 +177,7 @@ public class ServerListener implements Listener {
     private String getQuestName(Path path) {
         String[] questNameParts = path.toString()
             .replace(".json", "")
-            .split("/quests/");
+            .split("/ " + Core.getQuestsPath());
 
         if (questNameParts.length < 1) {
             return null;
