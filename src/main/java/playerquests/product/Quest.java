@@ -124,7 +124,7 @@ public class Quest {
                 stage.setQuest(this);
 
                 // set stage ID if it's missing
-                if (stageID != stage.getID()) {
+                if (stageID.equals(stage.getID())) {
                     stage.setID(stageID);
                 }
             });
@@ -136,7 +136,7 @@ public class Quest {
                 npc.setQuest(this);
 
                 // set npc ID if it's missing
-                if (npc_id != npc.getID()) {
+                if (npc_id.equals(npc.getID())) {
                     npc.setID(npc_id);
                 }
             });
