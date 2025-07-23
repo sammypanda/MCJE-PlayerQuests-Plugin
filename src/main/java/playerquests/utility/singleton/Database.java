@@ -174,7 +174,7 @@ public class Database {
             + "FOREIGN KEY (player) REFERENCES players(uuid));";
             statement.execute(diariesTableSQL);
 
-            String diary_entriesTableSQL = "CREATE TABLE IF NOT EXISTS diary_entries ("
+            String diaryEntriesTableSQL = "CREATE TABLE IF NOT EXISTS diary_entries ("
             + "diary TEXT NOT NULL,"
             + "quest TEXT NOT NULL,"
             + "action TEXT NOT NULL,"
@@ -182,7 +182,7 @@ public class Database {
             + "FOREIGN KEY (quest) REFERENCES quests(id),"
             + "FOREIGN KEY (diary) REFERENCES diaries(id),"
             + "UNIQUE(diary, quest, action));";
-            statement.execute(diary_entriesTableSQL);
+            statement.execute(diaryEntriesTableSQL);
 
             // Migrate to new versions if applicable
             migrate(version, dbVersion);
