@@ -4,7 +4,6 @@ import java.io.File; // to manipulate files
 import java.io.IOException; // thrown if a file cannot be created or written to
 import java.nio.file.Files; // create/modify files
 import java.nio.file.Path; // used to locate files on the filesystem
-import java.nio.file.Paths; // for getting path type
 import java.nio.file.StandardOpenOption;
 
 import playerquests.Core; // to retrieve Singletons

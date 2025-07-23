@@ -3,69 +3,30 @@ package playerquests.utility;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
 import playerquests.utility.ChatUtils.MessageType;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Provides SQL migration queries for updating the database schema to X from the last real version.
  * <p>
- * Each method in this class returns a SQL query or script that applies the necessary changes for
- * a specific version of the database schema. These migrations ensure that the database structure
- * is consistent with the application's requirements for different versions.
+ * This class maintains a registry of migration queries keyed by version numbers.
+ * These migrations ensure that the database structure is consistent with the 
+ * application's requirements for different versions.
  * </p>
  */
 public class MigrationUtils {
 
     /**
-     * Should be accessed statically.
+     * Registry of migration queries keyed by version strings.
      */
-    private MigrationUtils() {}
+    private static final Map<String, String> MIGRATIONS = new HashMap<>();
 
-    /**
-     * Gets the migration query for version 0.4.
-     * <p>
-     * This query adds a new column to the `quests` table. The column `toggled` is added with a
-     * default value of `true`. This might be used to indicate whether a quest is active or not.
-     * </p>
-     *
-     * @return The SQL query string for migrating to version 0.4.
-     */
-    public static String dbVersion0Dot4() {
-        return "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;";
-    }
-
-    /**
-     * Gets the migration query for version 0.5.
-     * <p>
-     * This version does not have a migration query defined. Calling this method will throw an
-     * {@link IllegalArgumentException} to indicate that no migration is available for this version.
-     * </p>
-     *
-     * @return This method does not return a query; it always throws an exception.
-     * @throws IllegalArgumentException if called.
-     */
-    public static String dbVersion0Dot5() {
-        throw new IllegalArgumentException("No migration query for version v0.5.1");
-    }
-
-    /**
-     * Gets the migration query for version 0.5.1.
-     *
-     * This query script performs a series of operations to migrate data from old tables to new
-     * tables and update the schema:
-     * <ul>
-     *     <li>Begins a transaction to ensure atomicity of the operations.</li>
-     *     <li>Drops temporary tables if they exist.</li>
-     *     <li>Creates new temporary tables for storing migrated data.</li>
-     *     <li>Migrates data from old tables to the newly created temporary tables.</li>
-     *     <li>Drops old tables that are being replaced.</li>
-     *     <li>Renames temporary tables to match the new schema.</li>
-     *     <li>Removes unused sequences related to the old schema.</li>
-     *     <li>Commits the transaction if all operations are successful.</li>
-     * </ul>
-     *
-     * @return The SQL script string for migrating to version 0.5.1.
-     */
-    public static String dbVersion0Dot5Dot1() {
-        return """
+    static {
+        // Initialize all migrations
+        MIGRATIONS.put("0.4", 
+            "ALTER TABLE quests ADD COLUMN toggled TEXT DEFAULT true;");
+            
+        MIGRATIONS.put("0.5.1", """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
 
@@ -136,22 +97,9 @@ public class MigrationUtils {
 
             -- Commit the transaction if everything is successful
             COMMIT;
-        """;
-    }
-
-    /**
-     * Gets the migration query for version 0.7.
-     *
-     * This query script adds the capability for quest inventories.
-     * <ul>
-     *     <li>Begins a transaction to ensure atomicity of the operations.</li>
-     *     <li>Adds the inventory column to the quests table.</li>
-     * </ul>
-     *
-     * @return The SQL script string for migrating to version 0.7.
-     */
-    public static String dbVersion0Dot7() {
-        return """
+        """);
+        
+        MIGRATIONS.put("0.7", """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
 
@@ -159,19 +107,9 @@ public class MigrationUtils {
 
             -- Commit the transaction if everything is successful
             COMMIT;
-        """;
-    }
-
-    /**
-     * Gets the migration query for version 0.8.
-     *
-     * This query removes db relics of the old way quest actions
-     * were implemented.
-     *
-     * @return The SQL script string for migrating to version 0.8.
-     */
-    public static String dbVersion0Dot8() {
-        return """
+        """);
+        
+        MIGRATIONS.put("0.8", """
             -- Begin a transaction to ensure all operations are atomic
             BEGIN TRANSACTION;
 
@@ -179,37 +117,25 @@ public class MigrationUtils {
 
             -- Commit the transaction if everything is successful
             COMMIT;
-        """;
-    }
-
-    public static String dbVersion0Dot10() {
-        return """
+        """);
+        
+        MIGRATIONS.put("0.10", """
             BEGIN TRANSACTION;
 
             ALTER TABLE plugin ADD COLUMN citizens2 BOOLEAN NOT NULL DEFAULT FALSE;
 
             COMMIT;
-        """;
-    }
-
-    public static String dbVersion0Dot10Dot1() {
-        return """
+        """);
+        
+        MIGRATIONS.put("0.10.1", """
             BEGIN TRANSACTION;
 
             ALTER TABLE quests ADD COLUMN inventory TEXT NOT NULL DEFAULT "";
 
             COMMIT;
-        """;
-    }
-
-    public static String dbVersion0Dot10Dot4() {
-        ChatUtils.message("Entities changed in this update, for all your quest files you need to change entity values from 'type:CHICKEN,color:black' to 'CHICKEN'; meaning, remove everything except the name of the entity.")
-            .style(MessageStyle.PRETTY)
-            .type(MessageType.WARN)
-            .target(MessageTarget.WORLD)
-            .send();
-
-        return """
+        """);
+        
+        MIGRATIONS.put("0.10.4", """
             BEGIN TRANSACTION;
             
             -- Create replacement plugin table
@@ -232,6 +158,35 @@ public class MigrationUtils {
 
             -- Commit the transaction if everything is successful
             COMMIT;
-        """;
+        """);
+    }
+
+    /**
+     * Should be accessed statically.
+     */
+    private MigrationUtils() {}
+
+    /**
+     * Gets the migration query for the specified version.
+     *
+     * @param version the database version to get the migration for
+     * @return The SQL query string for the specified version
+     * @throws IllegalArgumentException if no migration exists for the version
+     */
+    public static String getMigration(String version) {
+        if (!MIGRATIONS.containsKey(version)) {
+            throw new IllegalArgumentException("No migration query for version v" + version);
+        }
+        
+        // Special case for 0.10.4 that requires a notification
+        if ("0.10.4".equals(version)) {
+            ChatUtils.message("Entities changed in this update, for all your quest files you need to change entity values from 'type:CHICKEN,color:black' to 'CHICKEN'; meaning, remove everything except the name of the entity.")
+                .style(MessageStyle.PRETTY)
+                .type(MessageType.WARN)
+                .target(MessageTarget.WORLD)
+                .send();
+        }
+        
+        return MIGRATIONS.get(version);
     }
 }
