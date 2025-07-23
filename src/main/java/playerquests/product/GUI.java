@@ -85,7 +85,7 @@ public class GUI {
      * @see #minimise() for non-destructive GUI window close.
      */
     public void close() {
-        Optional.ofNullable(this.view).ifPresent(view -> view.close()); // close GUI if open
+        Optional.ofNullable(this.view).ifPresent(v -> v.close()); // close GUI if open
 
         this.builder.dispose();
     }
@@ -190,7 +190,7 @@ public class GUI {
     public void minimise() {
         this.locked = true; // lock gui from deletion
 
-        Optional.ofNullable(this.view).ifPresent(view -> view.close()); // hide the GUI window if open
+        Optional.ofNullable(this.view).ifPresent(v -> v.close()); // hide the GUI window if open
     }
 
     /**

@@ -93,7 +93,7 @@ public class ChatUtils {
 
                 player.sendMessage(formattedMessage);
             }
-        };   
+        };
     
         /**
          * Sends a formatted message to the target.
