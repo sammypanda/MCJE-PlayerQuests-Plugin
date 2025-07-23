@@ -1,5 +1,7 @@
 package playerquests.utility.enums;
 
+import java.util.List;
+
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
@@ -9,7 +11,7 @@ public enum DependencyIssue {
     MISSING("install", "installing") {
         @Override
         public void sendMessage(String dependencyExplainer, String dependencyLink) {
-            ChatUtils.message("Soft Dependency Reminder! ✨\n " + dependencyExplainer + " 🔗 " + dependencyLink.strip())
+            ChatUtils.message(String.join(" ", "Soft Dependency Reminder! ✨\n", dependencyExplainer, this.linkSymbol, dependencyLink.strip()))
                 .target(MessageTarget.WORLD)
                 .style(MessageStyle.PRETTY)
                 .type(MessageType.NOTIF)
@@ -24,7 +26,7 @@ public enum DependencyIssue {
     OUT_OF_DATE("update", "updating") {
         @Override
         public void sendMessage(String dependencyExplainer, String dependencyLink) {
-            ChatUtils.message("A Dependency Requires Updating! ✨\n " + dependencyExplainer + " 🔗 " + dependencyLink.strip())
+            ChatUtils.message(String.join(" ", "A Dependency Requires Updating! ✨\n", dependencyExplainer, this.linkSymbol, dependencyLink.strip()))
                 .target(MessageTarget.WORLD)
                 .style(MessageStyle.PRETTY)
                 .type(MessageType.ERROR)
@@ -34,7 +36,7 @@ public enum DependencyIssue {
     TOO_NEW("downgrade", "downgrading") {
         @Override
         public void sendMessage(String dependencyExplainer, String dependencyLink) {
-            ChatUtils.message("A Dependency Is Too New! ✨\n " + dependencyExplainer + " 🔗 " + dependencyLink.strip())
+            ChatUtils.message(String.join(" ", "A Dependency Is Too New! ✨\n", dependencyExplainer, this.linkSymbol, dependencyLink.strip()))
             .target(MessageTarget.WORLD)
             .style(MessageStyle.PRETTY)
             .type(MessageType.ERROR)
@@ -42,6 +44,7 @@ public enum DependencyIssue {
         }
     };
 
+    protected final String linkSymbol = "🔗";
     private final String remedyVerb;
     private final String remedyPresentPrinciple;
 
