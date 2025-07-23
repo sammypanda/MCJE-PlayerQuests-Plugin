@@ -53,10 +53,10 @@ public class Commandaction extends ChatCommand {
             case "start":
                 return this.startAction(args, quester);
             case "consent":
-                return this.setConsent(args, quester); 
+                return this.setConsent(args, quester);
+            default:
+                return false;
         }
-
-        return false;
     }
 
     private boolean startAction(String[] args, QuestClient quester) {
