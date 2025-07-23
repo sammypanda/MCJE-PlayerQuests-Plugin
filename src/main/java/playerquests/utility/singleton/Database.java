@@ -55,7 +55,7 @@ public class Database {
     /**
      * The singleton instance of this Database class.
      */
-    private static Database instance = new Database();
+    private static final Database instance = new Database();
 
     /**
      * The connection to the database.
@@ -71,7 +71,9 @@ public class Database {
      * Private constructor to prevent instantiation from outside the class.
      * Use {@link #getInstance()} to get the singleton instance.
      */
-    private Database() {}
+    private Database() {
+        // Unused, is a Singleton
+    }
 
     /**
      * Returns the singleton instance of the Database class.
