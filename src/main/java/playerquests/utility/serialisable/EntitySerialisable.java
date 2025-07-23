@@ -44,22 +44,20 @@ public class EntitySerialisable implements Serialisable {
         String baseString = parts[0];
         String typeString = keyValues.get(EntityData.getEntityKey());
 
-        EntityData entityData;
         // convert from GENERIC (GENERIC[entity:HERE]), otherwise use special EntityData base string (HERE[key:value])
         if (typeString != null && ( ! typeString.isEmpty())) {
-            entityData = EntityData.getEnum(typeString);
+            this.entityData = EntityData.getEnum(typeString);
         } else {
-            entityData = EntityData.getEnum(baseString);
+            this.entityData = EntityData.getEnum(baseString);
         }
 
         // spawn entity to wash properties (wash properties meaning cycle them to remove fake/unused ones)
         World world = Bukkit.getServer().getWorlds().getFirst();
         Location location = new Location(world, 0, -100, 0); // hidden location, requires spawning in world
-        NPC citizen = entityData.createEntity(keyValues, location);
+        NPC citizen = this.entityData.createEntity(keyValues, location);
         citizen.getEntity().setInvisible(true); // hide the entity
 
         // set final EntitySerialisable data
-        this.entityData = entityData;
         this.properties = entityData.extractProperties(citizen.getEntity());
         
         // remove data collection entity
