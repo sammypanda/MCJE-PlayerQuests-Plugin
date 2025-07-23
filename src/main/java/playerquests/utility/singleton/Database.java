@@ -212,9 +212,9 @@ public class Database {
      * </p>
      *
      * @param version the current version of the plugin
-     * @param version_db the version of the database schema
+     * @param versionDB the version of the database schema
      */
-    private synchronized void migrate(String version, String version_db) {
+    private synchronized void migrate(String version, String versionDB) {
         // Check if there is a new version
         MessageBuilder alert = ChatUtils.message("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
             .style(MessageStyle.PRETTY)
@@ -249,7 +249,7 @@ public class Database {
 
         // don't migrate if no version change
         // (pom version same as db version)
-        if (version_db.equals(version)) {
+        if (versionDB.equals(version)) {
             return;
         }
 
