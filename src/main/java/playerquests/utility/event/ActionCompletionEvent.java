@@ -58,7 +58,7 @@ public class ActionCompletionEvent extends Event {
      * Get the hander list for this event.
      * @return the event handler list
      */
-    static public HandlerList getHandlerList() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

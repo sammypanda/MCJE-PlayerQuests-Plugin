@@ -1,7 +1,5 @@
 package playerquests.utility.enums;
 
-import java.util.List;
-
 import playerquests.utility.ChatUtils;
 import playerquests.utility.ChatUtils.MessageStyle;
 import playerquests.utility.ChatUtils.MessageTarget;
