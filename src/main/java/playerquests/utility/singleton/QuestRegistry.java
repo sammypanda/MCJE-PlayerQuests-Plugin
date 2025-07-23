@@ -386,7 +386,7 @@ public class QuestRegistry {
      * @param callback optional thing to run on each item
      * @param invert whether to subtract instead of add items
      */
-    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, ObjIntConsumer<ItemSerialisable> callback, Boolean invert) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, ObjIntConsumer<ItemSerialisable> callback, boolean invert) {
         Map<ItemSerialisable, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
 
         items.forEach((material, amount) -> {
