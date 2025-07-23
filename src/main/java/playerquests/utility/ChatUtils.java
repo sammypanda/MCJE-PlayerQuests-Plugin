@@ -93,7 +93,7 @@ public class ChatUtils {
 
                 player.sendMessage(formattedMessage);
             }
-        };        
+        };
     
         /**
          * Sends a formatted message to the target.
@@ -386,7 +386,7 @@ public class ChatUtils {
      * @param keyword the string that might be an exit keyword
      * @return whether the keyword is or isn't indicating an exit
      */
-    public static Boolean isExitKeyword(String keyword) {
+    public static boolean isExitKeyword(String keyword) {
         return getExitKeywords().contains(keyword.toUpperCase());
     }
 

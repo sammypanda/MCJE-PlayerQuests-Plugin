@@ -38,7 +38,7 @@ public class QuestClient {
     /**
      * Tracked actions.
      */
-    private List<QuestAction> trackedActions = new ArrayList<>();
+    private List<QuestAction<?,?>> trackedActions = new ArrayList<>();
 
     /**
      * Constructs a new client on behalf of a quester (quest player).
@@ -80,7 +80,7 @@ public class QuestClient {
      */
 	public void start(QuestDiary diary) {
         if (this.diary != null) {
-            throw new RuntimeException("A diary was started twice!");
+            throw new IllegalStateException("A diary was started twice!");
         }
 
         this.diary = diary;
@@ -121,7 +121,7 @@ public class QuestClient {
             }
     
             // get actions
-            List<QuestAction> actions = path.getActions(quest);
+            List<QuestAction<?,?>> actions = path.getActions(quest);
     
             // for each action, start
             actions.forEach(action -> {
@@ -135,7 +135,7 @@ public class QuestClient {
      * @param action the action to start
      * @param force the action to start even if it has already been completed
      */
-    public void start(QuestAction action, boolean force) {
+    public void start(QuestAction<?,?> action, boolean force) {
         Quest quest = action.getStage().getQuest(); // get the quest the action belongs to
 
         Integer completionState = this.getDiary().getActionCompletionState(quest, action);
@@ -181,7 +181,7 @@ public class QuestClient {
      * else, it's just an indication.
      * @param action the quest action to track
      */
-    private void trackAction(QuestAction action) {
+    private void trackAction(QuestAction<?,?> action) {
         this.trackedActions.add(action);
     }
 
@@ -192,7 +192,7 @@ public class QuestClient {
      * @param action the quest action to untrack
      * @return if the action was untracked
      */
-    public boolean untrackAction(QuestAction action) {
+    public boolean untrackAction(QuestAction<?,?> action) {
         return this.trackedActions.removeIf(theAction -> theAction.equals(action));
     }
 
@@ -213,7 +213,7 @@ public class QuestClient {
      * Get the actions currently ongoing.
      * @return list of ongoing quest actions
      */
-    public List<QuestAction> getTrackedActions() {
+    public List<QuestAction<?,?>> getTrackedActions() {
         return this.trackedActions;
     }
 
@@ -224,12 +224,12 @@ public class QuestClient {
      */
     public void stop(Quest quest) {
         // avoid concurrent modification issues by creating a clone of state
-        List<QuestAction> trackedActions_clone = new ArrayList<>(this.trackedActions);
+        List<QuestAction<?,?>> trackedActionsCloned = new ArrayList<>(this.trackedActions);
 
         // filter through all the tracked actions
-        this.trackedActions = trackedActions_clone.stream().filter((action) -> {
+        this.trackedActions = trackedActionsCloned.stream().filter((action) -> {
             // find the actions that match the quest
-            Boolean match = action.getStage().getQuest().getID().equals(quest.getID());
+            boolean match = action.getStage().getQuest().getID().equals(quest.getID());
 
             // if they do match the passed in quest
             if (match) {
@@ -240,7 +240,7 @@ public class QuestClient {
             // only return predicates that don't match 
             // (aka: clear out trackedActions of this quest)
             return !match;
-        }).collect(Collectors.toList()); // get the filtered elements as a list
+        }).collect(Collectors.toCollection(ArrayList::new)); // collect to a new ArrayList; // get the filtered elements as a list
     }
 
     /**

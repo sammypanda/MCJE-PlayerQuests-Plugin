@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set; // generic set type
 import java.util.UUID; // for working with in-game player IDs
 import java.util.concurrent.CompletableFuture; // async methods
-import java.util.stream.Collectors; // used to turn a stream to a list
 import java.util.stream.IntStream; // fills slots procedually
 
 import org.bukkit.Bukkit;
@@ -54,7 +53,7 @@ public class Dynamicmyquests extends GUIDynamic {
     /**
      * indicate when the quests can start to load in
      */
-    private Boolean myquestLoaded = false;
+    private boolean myquestLoaded = false;
 
     /**
      * Creates a dynamic GUI with a list of 'my quests'.
@@ -76,7 +75,7 @@ public class Dynamicmyquests extends GUIDynamic {
      * <li>Instigates pagination/page generation
      * </ul>
      */
-    public void setUp_custom() {
+    public void setupCustom() {
         // get list of quests
         if (!this.myquestLoaded) {
             CompletableFuture.runAsync(() -> {
@@ -94,8 +93,6 @@ public class Dynamicmyquests extends GUIDynamic {
                     this.execute();
                 });
             });
-
-            return;
         }
     }
 
@@ -108,7 +105,7 @@ public class Dynamicmyquests extends GUIDynamic {
      * </ul>
      */
     @Override
-    public void execute_custom() {
+    public void executeCustom() {
         // determine the page number
         Integer pageNumber = this.lastBuiltSlot/this.slotsPerPage + 1;
 
@@ -134,10 +131,10 @@ public class Dynamicmyquests extends GUIDynamic {
         // automatically create the page of slots/options (when ready)
         if (this.myquestLoaded) {
             // filter out the quests (pagination)
-            ArrayList<String> remainingQuests = (ArrayList<String>) this.myQuests
+            ArrayList<String> remainingQuests = new ArrayList<String>(this.myQuests
                 .stream()
                 .filter(i -> new ArrayList<String>(this.myQuests).indexOf(i) > this.lastBuiltSlot - 1)
-                .collect(Collectors.toList());
+                .toList());
 
             // generate the paginated slots
             this.generatePage(remainingQuests);
@@ -149,30 +146,90 @@ public class Dynamicmyquests extends GUIDynamic {
      * @param remainingQuests the quests to insert
      */
     private void generatePage(ArrayList<String> remainingQuests) {
-        UUID playerUUID = this.director.getPlayer().getUniqueId();
-
         // when the exit button is pressed
-        GUISlot exitButton = new GUISlot(this.gui, 37);
-        exitButton.setLabel("Back");
-        exitButton.setItem(Material.OAK_DOOR);
-        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
-            Arrays.asList(this.previousScreen), // set the previous screen 
-            director // set the client director
-        ));
+        this.generateExitButton();
 
         // when the back button is pressed
-        GUISlot backButton = new GUISlot(this.gui, 44);
-        if (this.myQuests.size() != remainingQuests.size()) { // if the remaining is the same as all 
-            backButton.setLabel("Back");
-            backButton.setItem(Material.ORANGE_STAINED_GLASS_PANE);
-            backButton.onClick(() -> {
-                this.gui.clearSlots(); // unset the old slots
-                this.lastBuiltSlot = this.lastBuiltSlot - this.slotsPerPage; // put slots for the remainingSlots
-                this.execute();
-            });
-        }
+        this.generateBackButton(remainingQuests);
 
         // when the next button is pressed
+        this.generateNextButton(remainingQuests);
+
+        // load quest buttons
+        UUID playerUUID = this.director.getPlayer().getUniqueId();
+        Integer slotCount = remainingQuests.size() >= this.slotsPerPage // if there are more remaining quests than the default slot limit
+        ? this.slotsPerPage // use the default slot limit
+        : remainingQuests.size(); // otherwise use the number of remaining quests
+        IntStream.range(0, slotCount).anyMatch(index -> { // only built 42 slots
+            return this.generateQuestButton(playerUUID, index, remainingQuests);
+        });
+    }
+
+    private boolean generateQuestButton(UUID playerUUID, int index, ArrayList<String> remainingQuests) {
+        if (remainingQuests.isEmpty() || remainingQuests.get(index) == null) {
+            return true; // exit the loop (marked as 'found match' to exit)
+        }
+
+        String questID = remainingQuests.get(index);
+        Integer nextEmptySlot = this.gui.getEmptySlot();
+        GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
+        List<Object> screen;
+
+        Quest quest = QuestRegistry.getInstance().getQuest(questID);
+
+        if (quest == null) { // cannot parse quest at all
+            this.gui.removeSlot(nextEmptySlot);
+            this.invalidQuests+= 1;
+            return false;
+        }
+
+        // Don't show if user is not the creator (unless it's null, then it's probably a global quest).
+        if (!playerUUID.equals(quest.getCreator()) && quest.getCreator() != null) {
+            this.gui.removeSlot(nextEmptySlot); // remove slot, no need to show in this case
+            return false;
+        }
+
+        // ---- If the quest is considered invalid ---- //
+        if (quest == null || ( ! quest.isValid() )) {
+            questSlot.setLabel(
+                String.format("%s (Invalid)",
+                    quest.getTitle() != null ? quest.getTitle() : "Quest"
+                )
+            );
+
+            questSlot.setItem(Material.RED_STAINED_GLASS_PANE);
+
+            return false; // return if this quest is broken (false for match not found, continue to check next)
+        }
+        // --------
+
+        questSlot.setLabel(questID.split("_")[0]);
+
+        if (playerUUID.equals(quest.getCreator())) {
+            screen = Arrays.asList("myquest");
+            questSlot.setItem(Material.BOOK);
+        } else {
+            screen = Arrays.asList("theirquest");
+            questSlot.setItem(Material.ENCHANTED_BOOK);
+            questSlot.setLabel(questSlot.getLabel()
+                .append(Component.text(" (Shared)"))
+            );
+        }
+
+        questSlot.onClick(() -> {
+            this.director.setCurrentInstance(quest);
+
+            // update the GUI screen
+            new UpdateScreen(
+                screen, 
+                director
+            ).execute();
+        });
+        
+        return false;
+    }
+
+    private void generateNextButton(ArrayList<String> remainingQuests) {
         GUISlot nextButton = new GUISlot(this.gui, 45);
         if (this.slotsPerPage <= remainingQuests.size()) { // if the remaining is bigger or the same as the default slots per page
             nextButton.setLabel("Next");
@@ -183,73 +240,28 @@ public class Dynamicmyquests extends GUIDynamic {
                 this.execute();
             });
         }
+    }
 
-        Integer slotCount = remainingQuests.size() >= this.slotsPerPage // if there are more remaining quests than the default slot limit
-        ? this.slotsPerPage // use the default slot limit
-        : remainingQuests.size(); // otherwise use the number of remaining quests
-
-        IntStream.range(0, slotCount).anyMatch(index -> { // only built 42 slots
-            if (remainingQuests.isEmpty() || remainingQuests.get(index) == null) {
-                return true; // exit the loop (marked as 'found match' to exit)
-            }
-
-            String questID = remainingQuests.get(index);
-            Integer nextEmptySlot = this.gui.getEmptySlot();
-            GUISlot questSlot = new GUISlot(this.gui, nextEmptySlot);
-            List<Object> screen;
-
-            Quest quest = QuestRegistry.getInstance().getQuest(questID);
-
-            if (quest == null) { // cannot parse quest at all
-                this.gui.removeSlot(nextEmptySlot);
-                this.invalidQuests+= 1;
-                return false;
-            }
-
-            // Don't show if user is not the creator (unless it's null, then it's probably a global quest).
-            if (!playerUUID.equals(quest.getCreator()) && quest.getCreator() != null) {
-                this.gui.removeSlot(nextEmptySlot); // remove slot, no need to show in this case
-                return false;
-            }
-
-            // ---- If the quest is considered invalid ---- //
-            if (quest == null || !quest.isValid()) {
-                questSlot.setLabel(
-                    String.format("%s (Invalid)",
-                        quest.getTitle() != null ? quest.getTitle() : "Quest"
-                    )
-                );
-
-                questSlot.setItem(Material.RED_STAINED_GLASS_PANE);
-
-                return false; // return if this quest is broken (false for match not found, continue to check next)
-            }
-            // --------;
-
-            questSlot.setLabel(questID.split("_")[0]);
-
-            if (playerUUID.equals(quest.getCreator())) {
-                screen = Arrays.asList("myquest");
-                questSlot.setItem(Material.BOOK);
-            } else {
-                screen = Arrays.asList("theirquest");
-                questSlot.setItem(Material.ENCHANTED_BOOK);
-                questSlot.setLabel(questSlot.getLabel()
-                    .append(Component.text(" (Shared)"))
-                );
-            }
-
-            questSlot.onClick(() -> {
-                this.director.setCurrentInstance(quest);
-
-                // update the GUI screen
-                new UpdateScreen(
-                    screen, 
-                    director
-                ).execute();;
+    private void generateBackButton(ArrayList<String> remainingQuests) {
+        GUISlot backButton = new GUISlot(this.gui, 44);
+        if (this.myQuests.size() != remainingQuests.size()) { // if the remaining is the same as all 
+            backButton.setLabel("Back");
+            backButton.setItem(Material.ORANGE_STAINED_GLASS_PANE);
+            backButton.onClick(() -> {
+                this.gui.clearSlots(); // unset the old slots
+                this.lastBuiltSlot = this.lastBuiltSlot - this.slotsPerPage; // put slots for the remainingSlots
+                this.execute();
             });
+        }
+    }
 
-            return false; // continue the loop (as in match not found, continue)
-        });
+    private void generateExitButton() {
+        GUISlot exitButton = new GUISlot(this.gui, 37);
+        exitButton.setLabel("Back");
+        exitButton.setItem(Material.OAK_DOOR);
+        exitButton.addFunction(new UpdateScreen( // set function as 'UpdateScreen'
+            Arrays.asList(this.previousScreen), // set the previous screen 
+            director // set the client director
+        ));
     }
 }

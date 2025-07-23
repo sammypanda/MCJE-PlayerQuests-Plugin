@@ -3,7 +3,6 @@ package playerquests.builder.gui.dynamic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.bukkit.Material;
@@ -45,7 +44,7 @@ public class Dynamicitemslist extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // if list is in director, pull it in
         ArrayList<?> aList = (ArrayList<?>) this.director.getCurrentInstance(ArrayList.class);
 
@@ -55,12 +54,12 @@ public class Dynamicitemslist extends GUIDynamic {
             this.setItems(aList.stream()
                 .filter(ItemStack.class::isInstance) // just a list of items
                 .map(ItemStack.class::cast)
-                .collect(Collectors.toList()));
+                .toList());
         }
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         Integer listSize = this.items.size(); // the amount of items in the list is often checked
         gui.getFrame().setTitle("Item List"); // set the GUI title
 
@@ -164,7 +163,7 @@ public class Dynamicitemslist extends GUIDynamic {
                             this.goBack(function);
                         });
 
-                        editor.onFinish((_f) -> {
+                        editor.onFinish((f) -> {
                             // go back
                             this.goBack(function);
                         });

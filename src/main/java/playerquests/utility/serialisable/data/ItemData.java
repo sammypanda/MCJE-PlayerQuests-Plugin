@@ -41,7 +41,7 @@ public enum ItemData {
     GENERIC {
         @Override
         public ItemStack createItem(Map<String, String> properties) {
-            Material material = Material.valueOf(properties.get("material"));
+            Material material = Material.valueOf(properties.get(ItemData.getMaterialKey()));
             if (!isAllowedGeneric(material)) {
                 warnUnimplemented(material);
             }
@@ -50,12 +50,17 @@ public enum ItemData {
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            return basicProperties(item, Map.of("material", item.getType().name()));
+            return basicProperties(item, Map.of(ItemData.getMaterialKey(), item.getType().name()));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            return formatText(properties.get("material"));
+            return formatText(properties.get(ItemData.getMaterialKey()));
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return true; // all* materials valid to apply
         }
     },
 
@@ -103,37 +108,52 @@ public enum ItemData {
             PotionType type = PotionType.valueOf(properties.get("type"));
             return formatText(type.toString() + " Potion");
         }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.equals(Material.POTION);
+        }
     },
 
     WOOL {
+        private static String colorKey = "color";
+        private static String woolSuffix = "_WOOL";
+
         @Override
         public ItemStack createItem(Map<String, String> properties) {
-            String color = properties.getOrDefault("color", "WHITE");
-            return basicItem(new ItemStack(Material.valueOf(color + "_WOOL")), properties);
+            String color = properties.getOrDefault(colorKey, "WHITE");
+            return basicItem(new ItemStack(Material.valueOf(color + woolSuffix)), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            String color = item.getType().name().replace("_WOOL", "");
-            return basicProperties(item, Map.of("color", color));
+            String color = item.getType().name().replace(woolSuffix, "");
+            return basicProperties(item, Map.of(colorKey, color));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            if ( ! properties.containsKey("color")) {
+            if ( ! properties.containsKey(colorKey)) {
                 return "Wool";   
             }
 
-            return formatText(properties.get("color") + " Wool");
+            return formatText(properties.get(colorKey) + " Wool");
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.name().endsWith(woolSuffix);
         }
     },
 
     PLAYER_HEAD {
+        private static String playerKey = "player";
+
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
-            meta.setOwningPlayer(Bukkit.getOfflinePlayer(properties.get("player")));
+            meta.setOwningPlayer(Bukkit.getOfflinePlayer(properties.get(playerKey)));
             item.setItemMeta(meta);
             return basicItem(item, properties);
         }
@@ -152,40 +172,53 @@ public enum ItemData {
                 ? meta.getOwningPlayer().getName()
                 : "UNKNOWN";
 
-            props.put("player", playerName);
+            props.put(playerKey, playerName);
             return basicProperties(item, props);
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            if ( ! properties.containsKey("player")) {
+            if ( ! properties.containsKey(playerKey)) {
                 return "Player Head";
             }
 
-            return formatText(properties.get("player") + " Head");
+            return formatText(properties.get(playerKey) + " Head");
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.equals(Material.PLAYER_HEAD);
         }
     },
 
     SOUP {
+        private static String soupSuffix = "_SOUP";
+        private static String flavourKey = "flavour";
+
         @Override
         public ItemStack createItem(Map<String, String> properties) {
-            String flavour = properties.getOrDefault("flavour", "BEETROOT");
-            return basicItem(new ItemStack(Material.valueOf(flavour + "_SOUP")), properties);
+            String flavour = properties.getOrDefault(flavourKey, "BEETROOT");
+            return basicItem(new ItemStack(Material.valueOf(flavour + soupSuffix)), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            String flavour = item.getType().name().replace("_SOUP", "");
-            return basicProperties(item, Map.of("flavour", flavour));
+            String flavour = item.getType().name().replace(soupSuffix, "");
+            return basicProperties(item, Map.of(flavourKey, flavour));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            if ( ! properties.containsKey("flavour")) {
+            if ( ! properties.containsKey(flavourKey)) {
                 return "Soup";
             }
 
-            return formatText(properties.get("flavour") + " Soup");
+            return formatText(properties.get(flavourKey) + " Soup");
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.name().endsWith(soupSuffix);
         }
     },
 
@@ -203,6 +236,11 @@ public enum ItemData {
         @Override
         public String getName(Map<String, String> properties) {
             return "Air";
+        }
+
+        @Override
+        protected boolean includes(Material m) {
+            return m.equals(Material.AIR);
         }
 	};
 
@@ -1290,6 +1328,14 @@ public enum ItemData {
         Material.NAME_TAG
     ));
 
+    private static String materialTypeKey = "material";
+    
+    // basic (common between all) keys 
+    private static String enchantmentKey = "enchantment";
+    private static String nametagKey = "nametag";
+    private static String trimPatternKey = "trimPattern";
+    private static String trimMaterialKey = "trimMaterial";
+
     private static boolean isAllowedGeneric(Material material) {
         return ALLOWED_GENERIC_MATERIALS.contains(material);
     }
@@ -1300,9 +1346,9 @@ public enum ItemData {
         SPECIAL_MAPPINGS.put(Material.POTION, POTION);
         SPECIAL_MAPPINGS.put(Material.SPLASH_POTION, POTION);
         SPECIAL_MAPPINGS.put(Material.LINGERING_POTION, POTION);
-        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_WOOL")).forEach(m -> SPECIAL_MAPPINGS.put(m, WOOL));
+        Arrays.stream(Material.values()).filter(m -> WOOL.includes(m)).forEach(m -> SPECIAL_MAPPINGS.put(m, WOOL));
         SPECIAL_MAPPINGS.put(Material.PLAYER_HEAD, PLAYER_HEAD);
-        Arrays.stream(Material.values()).filter(m -> m.name().endsWith("_SOUP")).forEach(m -> SPECIAL_MAPPINGS.put(m, SOUP));
+        Arrays.stream(Material.values()).filter(m -> SOUP.includes(m)).forEach(m -> SPECIAL_MAPPINGS.put(m, SOUP));
     }
 
     // Add these new members at the bottom of the class
@@ -1319,6 +1365,8 @@ public enum ItemData {
                 .send();
         }
     }
+
+    protected abstract boolean includes(Material m);
 
     public static ItemData fromMaterial(Material material) {
         // 1. Return special handler if exists
@@ -1363,8 +1411,8 @@ public enum ItemData {
      */
     private static ItemStack basicItem(ItemStack itemStack, Map<String, String> properties) {
         // set enchantments
-        if (properties.containsKey("enchantment")) { // TODO: also fix only supporting one enchantment datum
-            String enchantmentString = properties.get("enchantment");
+        if (properties.containsKey(enchantmentKey)) { // TODO: also fix only supporting one enchantment datum
+            String enchantmentString = properties.get(enchantmentKey);
             List<String> enchantmentStringParts = List.of(enchantmentString.split("_"));
             
             // resolve enchantment level
@@ -1380,8 +1428,8 @@ public enum ItemData {
 
         // set nametag
         ItemMeta itemMeta = itemStack.getItemMeta();
-        if (properties.containsKey("nametag")) {
-            String nametagString = properties.get("nametag");
+        if (properties.containsKey(nametagKey)) {
+            String nametagString = properties.get(nametagKey);
 
             // apply nametag
             itemMeta.displayName(Component.text(nametagString));
@@ -1389,9 +1437,9 @@ public enum ItemData {
         }
 
         // set trim
-        if (properties.containsKey("trimPattern") && properties.containsKey("trimMaterial")) {
-            String trimPatternString = properties.get("trimPattern").toLowerCase();
-            String trimMaterialString = properties.get("trimMaterial").toLowerCase();
+        if (properties.containsKey(trimPatternKey) && properties.containsKey(trimMaterialKey)) {
+            String trimPatternString = properties.get(trimPatternKey).toLowerCase();
+            String trimMaterialString = properties.get(trimMaterialKey).toLowerCase();
             ArmorMeta armorMeta = (ArmorMeta) itemMeta;
 
             // resolve trim
@@ -1418,13 +1466,13 @@ public enum ItemData {
         // add enchantment as properties
         Map<Enchantment, Integer> enchantments = itemStack.getEnchantments();
         enchantments.forEach((enchantment, level) -> {
-            newProperties.put("enchantment", enchantment.getKey().asString()+"_"+String.valueOf(level)); // TODO: fix only supporting one enchantment datum
+            newProperties.put(enchantmentKey, enchantment.getKey().asString()+"_"+String.valueOf(level)); // TODO: fix only supporting one enchantment datum
         });
 
         // add nametag as property
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta.hasDisplayName()) {
-            newProperties.put("nametag", PlainTextComponentSerializer.plainText().serialize(itemStack.getItemMeta().displayName()));
+            newProperties.put(nametagKey, PlainTextComponentSerializer.plainText().serialize(itemStack.getItemMeta().displayName()));
         }
 
         // add trims as property
@@ -1435,8 +1483,8 @@ public enum ItemData {
                 ArmorTrim armorTrim = armorMeta.getTrim();
                 String trimPatternString = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).getKey(armorTrim.getPattern()).getKey();
                 String trimMaterialString = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).getKey(armorTrim.getMaterial()).getKey();
-                newProperties.put("trimPattern", trimPatternString);
-                newProperties.put("trimMaterial", trimMaterialString);
+                newProperties.put(trimPatternKey, trimPatternString);
+                newProperties.put(trimMaterialKey, trimMaterialString);
             }
         }
 
@@ -1444,8 +1492,21 @@ public enum ItemData {
 
     }
 
+    public static String getMaterialKey() {
+        return materialTypeKey;
+    }
+
     // Core interface methods
     public abstract ItemStack createItem(Map<String, String> properties);
     public abstract Map<String, String> extractProperties(ItemStack item);
     public abstract String getName(Map<String, String> properties);
+
+    // Key getters
+    public static String getNametagKey() {
+        return nametagKey;
+    }
+
+    public static String getEnchantmentKey() {
+        return enchantmentKey;
+    }
 }

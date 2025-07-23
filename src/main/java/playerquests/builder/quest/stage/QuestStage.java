@@ -40,7 +40,7 @@ public class QuestStage {
      * The map of actions.
      */
     @JsonManagedReference
-    private Map<String, QuestAction> actions = new HashMap<String, QuestAction>();
+    private Map<String, QuestAction<?,?>> actions = new HashMap<String, QuestAction<?,?>>();
 
     /**
      * List of starting points.
@@ -126,7 +126,7 @@ public class QuestStage {
      * Gets a map of actions in this stage.
      * @return the actions
      */
-    public Map<String, QuestAction> getActions() {
+    public Map<String, QuestAction<?,?>> getActions() {
         return this.actions;
     }
 
@@ -135,17 +135,15 @@ public class QuestStage {
      * @return linked list of actions
      */
     @JsonIgnore
-    public List<QuestAction> getOrderedActions() {
+    public List<QuestAction<?,?>> getOrderedActions() {
         // create an ordered list of stages, ordered by action_[this number]
-        LinkedList<QuestAction> orderedList = this.actions.values().stream()
+        return this.actions.values().stream()
             .sorted(Comparator.comparingInt(action -> {
                 String[] parts = action.getID().split("_");
 
                 return Integer.parseInt(parts[parts.length - 1]);
             }))
             .collect(Collectors.toCollection(LinkedList::new));
-
-        return orderedList;
     }
 
     /**
@@ -155,7 +153,7 @@ public class QuestStage {
      * @return the ID of the newly added action
      */
     @JsonIgnore
-    public String addAction(QuestAction action) {
+    public String addAction(QuestAction<?,?> action) {
         String actionID = "action_"+this.actions.size(); // get next ID
         action.setID(actionID); // set the ID local to the action
         this.actions.put(action.getID(), action); // add to the actions map
@@ -193,15 +191,15 @@ public class QuestStage {
      * @param newAction the action to replace the old one.
      * @return the completed new action after replacement.
      */
-    public QuestAction replaceAction(QuestAction oldAction, QuestAction newAction) {
-        String id = oldAction.getID();
+    public QuestAction<?,?> replaceAction(QuestAction<?,?> oldAction, QuestAction<?,?> newAction) {
+        String oldId = oldAction.getID();
 
         // set inner action meta
         newAction.setStage(this);
-        newAction.setID(id);
+        newAction.setID(oldId);
 
         // replace the old action
-        this.actions.replace(id, newAction);
+        this.actions.replace(oldId, newAction);
 
         // return the completed action
         return newAction;
@@ -212,22 +210,22 @@ public class QuestStage {
      * @param action the action to remove
      * @return empty if was successful
      */
-    public Optional<String> removeAction(QuestAction action) {
+    public Optional<String> removeAction(QuestAction<?,?> action) {
         // get all actions
-        List<QuestAction> allActions = this.quest.getStages().values().stream()
+        List<QuestAction<?,?>> allActions = this.quest.getStages().values().stream()
             .map(QuestStage::getActions)
             .map(Map::values)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
 
         // check if any action of all actions, contains the passed in one as
         // a dependency (a 'next action').
         List<String> dependencies = allActions.stream()
-            .filter(actions -> actions.getData().getNextActions().stream()
+            .filter(actionsList -> actionsList.getData().getNextActions().stream()
                 .flatMap(path -> path.getActions(quest).stream())
                 .anyMatch(actionMatch -> actionMatch.equals(action)))
-            .map(actions -> actions.getID())
-            .collect(Collectors.toList());
+            .map(actionsList -> actionsList.getID())
+            .toList();
 
 
         // if it's depended, then return error message early

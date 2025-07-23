@@ -1,7 +1,7 @@
 package playerquests.builder.gui.function;
 
 import java.util.List;
-import java.util.stream.Collectors; // transforming stream to data type
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.entity.Entity;
@@ -164,7 +164,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * If the function has been set up.
      */
-    private boolean wasSetUp;
+    private boolean wasSetup;
 
     /**
      * The entities to deny.
@@ -172,9 +172,9 @@ public class SelectEntity extends GUIFunction {
     private List<EntityType> deniedEntities;
 
     /**
-     * The methods of selecting entities to deny.
+     * The methods of selecting entities to deny. Starting with defaults, replaced with default + injected.
      */
-    private List<SelectMethod> deniedMethods; 
+    private List<SelectMethod> deniedMethods = List.of(SelectMethod.CHAT, SelectMethod.HIT, SelectMethod.SELECT);
 
     /**
      * If the player has cancelled the selection.
@@ -196,7 +196,7 @@ public class SelectEntity extends GUIFunction {
     /**
      * Creating and validating values for the entity selector
      */
-    private void setUp() {
+    private void setup() {
         try {
             PluginUtils.validateParams(this.params, String.class, List.class, List.class);
         } catch (IllegalArgumentException e) {
@@ -212,9 +212,6 @@ public class SelectEntity extends GUIFunction {
         this.deniedEntities = castDeniedEntities(params.get(1));
         this.deniedMethods = castDeniedMethods(params.get(2));
 
-        // set default denied methods
-        this.deniedMethods.addAll(List.of(SelectMethod.CHAT, SelectMethod.HIT, SelectMethod.SELECT));
-
         // get and set the player who is selecting the entity
         this.player = this.director.getPlayer();
 
@@ -226,7 +223,7 @@ public class SelectEntity extends GUIFunction {
         Bukkit.getPluginManager().registerEvents(this.entityListener, Core.getPlugin());
 
         // mark this function class as setup
-        this.wasSetUp = true;
+        this.wasSetup = true;
 
         // loop back after setting up
         this.execute();
@@ -240,10 +237,10 @@ public class SelectEntity extends GUIFunction {
     private List<EntityType> castDeniedEntities(Object object) {
         List<?> castedList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<EntityType>) castedList.stream()
+        return castedList.stream()
             .filter(entityType -> entityType instanceof EntityType) // filter out items that aren't entity
             .map(entityType -> (EntityType) entityType) // cast
-            .collect(Collectors.toList()); // collect into final denylist
+            .toList(); // collect into final denylist
     }
 
     /**
@@ -260,12 +257,14 @@ public class SelectEntity extends GUIFunction {
      * @return list of methods to deny
      */
     private List<SelectMethod> castDeniedMethods(Object object) {
-        List<?> castedList = (List<?>) object; // wildcard generics for cast checking
+        List<?> castedDenyList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<SelectMethod>) castedList.stream()
-            .filter(method -> method instanceof SelectMethod) // filter out non-method items
-            .map(method -> (SelectMethod) method) // cast safely
-            .collect(Collectors.toList()); // collect into final denylist
+        return Stream.concat( // join default and injected list
+            this.deniedMethods.stream(),
+            castedDenyList.stream() 
+                .filter(method -> method instanceof SelectMethod) // filter out non-method items
+                .map(method -> (SelectMethod) method) // cast safely
+            ).toList(); // collect into final denylist
     }
 
     /**
@@ -278,8 +277,8 @@ public class SelectEntity extends GUIFunction {
 
     @Override
     public void execute() {
-        if (!this.wasSetUp) {
-            this.setUp();
+        if (!this.wasSetup) {
+            this.setup();
             return;
         }
 

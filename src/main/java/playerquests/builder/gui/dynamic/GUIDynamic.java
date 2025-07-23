@@ -31,7 +31,7 @@ public abstract class GUIDynamic {
     /**
      * If the setup has been ran.
      */
-    protected Boolean wasSetUp = false;
+    protected boolean wasSetup = false;
 
     /**
      * the GUI instance.
@@ -50,7 +50,7 @@ public abstract class GUIDynamic {
      * @param director how the dynamic gui controls the plugin
      * @param previousScreen the screen to go back to
     */
-    public GUIDynamic(ClientDirector director, String previousScreen) {
+    protected GUIDynamic(ClientDirector director, String previousScreen) {
         this.director = director;
         this.previousScreen = previousScreen;
         
@@ -61,14 +61,14 @@ public abstract class GUIDynamic {
     /**
      * Setting important values for the GUI.
      */
-    public void setUp() {
-        this.wasSetUp = true;
+    public void setup() {
+        this.wasSetup = true;
 
         // set the screen name on the builder
         this.gui.setScreenName(this.getClass().getSimpleName().split("Dynamic")[1]);
 
         // to-be implemented set up processes
-        setUp_custom();
+        setupCustom();
 
         // send back to the execute() body to continue
         this.execute();
@@ -79,13 +79,13 @@ public abstract class GUIDynamic {
      */
     public void execute() {
         // run setup on first time
-        if (!this.wasSetUp) {
-            this.setUp();
+        if (!this.wasSetup) {
+            this.setup();
             return;
         }
 
         // to-be implemented execute processes
-        execute_custom();
+        executeCustom();
 
         // show the results
         if (!this.gui.getResult().isOpen()) {
@@ -98,12 +98,12 @@ public abstract class GUIDynamic {
     /**
      * For declaring values/variables.
      */
-    protected abstract void setUp_custom();
+    protected abstract void setupCustom();
 
     /**
      * For creating the GUI/functionality.
      */
-    protected abstract void execute_custom();
+    protected abstract void executeCustom();
 
     /**
      * For when everything is done in the GUI.

@@ -51,7 +51,7 @@ public class Dynamicactionselector extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
 
@@ -74,7 +74,7 @@ public class Dynamicactionselector extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // set outer frame style
         this.gui.getFrame()
             .setTitle("Select Actions");
@@ -86,7 +86,7 @@ public class Dynamicactionselector extends GUIDynamic {
 
             // show stages
             Map<String, QuestStage> stages = this.quest.getStages();
-            stages.forEach((_stage_id, stage) -> {
+            stages.forEach((stageID, stage) -> {
                 this.createStageButton(stage);
             });
         } else {
@@ -94,9 +94,9 @@ public class Dynamicactionselector extends GUIDynamic {
             this.createBackButton();
 
             // show actions
-            List<QuestAction> actions = this.selectedStage.getOrderedActions();
-            actions.forEach((action) -> {
-                this.createActionButton(action);
+            List<QuestAction<?,?>> actions = this.selectedStage.getOrderedActions();
+            actions.forEach((a) -> {
+                this.createActionButton(a);
             });
         }
     }
@@ -110,7 +110,7 @@ public class Dynamicactionselector extends GUIDynamic {
             .setItem(Material.OAK_DOOR)
             .setLabel("Back")
             .onClick(() -> {
-                if (this.selectedStage == null || this.stageSelection != true) {
+                if (this.selectedStage == null || ! this.stageSelection) {
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                     this.finish(); // trigger onfinish logics
                 } else {
@@ -142,15 +142,12 @@ public class Dynamicactionselector extends GUIDynamic {
      * @param action the quest action object
      * @return a GUI slot button
      */
-    private GUISlot createActionButton(QuestAction action) {
-        // (p = stage path)
-        String action_id = action.getID();
+    private GUISlot createActionButton(QuestAction<?,?> action) {
+        String actionID = action.getID();
 
-        Boolean isPresent = this.selectedActions.stream()
-            .filter(p -> p.getStage().equals(action.getStage().getID()))
-            .filter(p -> p.getActions().contains(action_id))
-            .findFirst()
-            .isPresent();
+        boolean isPresent = this.selectedActions.stream()
+            // (p = stage path)
+            .anyMatch(p -> p.getStage().equals(action.getStage().getID()) && p.getActions().contains(actionID));
 
         return new GUISlot(gui, this.gui.getEmptySlot())
             .setLabel(String.format("%s%s",
@@ -168,7 +165,7 @@ public class Dynamicactionselector extends GUIDynamic {
                 // if already in list
                 if (isPresent) {
                     // then remove
-                    this.selectedActions.removeIf(p -> p.getActions().contains(action_id));
+                    this.selectedActions.removeIf(p -> p.getActions().contains(actionID));
                 } else {
                     // otherwise, add to the list
                     this.selectedActions.add(stagePath);

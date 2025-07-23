@@ -54,14 +54,14 @@ public class Dynamicselectnpc extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.quest = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
         this.npcList = new ArrayList<>(this.quest.getQuestNPCs().values());
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // set GUI size according to amount of NPCs
         gui.getFrame().setSize(
             Math.clamp(

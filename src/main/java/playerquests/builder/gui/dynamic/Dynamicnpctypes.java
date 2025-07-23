@@ -36,12 +36,12 @@ public class Dynamicnpctypes extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.npc = (QuestNPC) this.director.getCurrentInstance(QuestNPC.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         GUIFrame frame = this.gui.getFrame();
         
         frame.setTitle( // set the GUI title
@@ -73,7 +73,7 @@ public class Dynamicnpctypes extends GUIDynamic {
             .stream()
             .map(typeClass -> {
                 try {
-                    // create QuestAction instance from class type
+                    // create QuestAction<?,?> instance from class type
                     return typeClass.getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
                     e.printStackTrace();

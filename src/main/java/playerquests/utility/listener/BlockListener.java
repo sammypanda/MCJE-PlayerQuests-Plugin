@@ -70,7 +70,7 @@ public class BlockListener implements Listener {
         }
 
         // Get or create the refresh state for this player
-        Boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
+        boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
         
         // If refresh not allowed for this player, exit
         if ( ! state) {
@@ -82,7 +82,7 @@ public class BlockListener implements Listener {
         
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             // get NPCs
-            List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+            List<Entry<QuestAction<?,?>, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
                 .filter(npc -> npc.getValue().getAssigned() instanceof BlockNPC)
                 .filter(npc -> npc.getValue().getLocation().toBukkitLocation().getChunk().isLoaded())
                 .toList();
@@ -110,7 +110,7 @@ public class BlockListener implements Listener {
 
         Location eventBlockLocation = block.getLocation();
         QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
-        List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+        List<Entry<QuestAction<?,?>, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
             .filter(npc -> npc.getValue().getAssigned() instanceof BlockNPC)
             .filter(npc -> npc.getValue().getLocation().toBukkitLocation().equals(eventBlockLocation))
             .toList();

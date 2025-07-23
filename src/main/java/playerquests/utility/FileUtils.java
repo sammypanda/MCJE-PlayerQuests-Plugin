@@ -4,7 +4,6 @@ import java.io.File; // to manipulate files
 import java.io.IOException; // thrown if a file cannot be created or written to
 import java.nio.file.Files; // create/modify files
 import java.nio.file.Path; // used to locate files on the filesystem
-import java.nio.file.Paths; // for getting path type
 import java.nio.file.StandardOpenOption;
 
 import playerquests.Core; // to retrieve Singletons
@@ -42,7 +41,7 @@ public class FileUtils {
      * @throws IOException when the file cannot be read
      */
     public static String get(String filename) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         try {
             return Files.readString(fullPath);
@@ -57,7 +56,7 @@ public class FileUtils {
      * @throws IOException when the file cannot be deleted
      */
     public static void delete(String filename) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         try {
             Files.delete(fullPath);
@@ -73,13 +72,13 @@ public class FileUtils {
      * @return if the file exists
      */
     public static Boolean check(String filename) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         return Files.exists(fullPath);
     }
 
     public static void append(String filename, byte[] content) throws IOException {
-        Path fullPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + filename);
+        Path fullPath = new File(Core.getPlugin().getDataFolder(), filename).toPath();
 
         byte[] oldContent;
         try {

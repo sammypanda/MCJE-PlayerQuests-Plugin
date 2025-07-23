@@ -25,6 +25,9 @@ import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
 import playerquests.utility.MaterialUtils;
 
 /**
@@ -37,7 +40,9 @@ public class BlockNPC extends NPCType {
     /**
      * Defaut constructor (for Jackson)
     */
-    public BlockNPC() {}
+    public BlockNPC() {
+        // Nothing here
+    }
 
     /**
      * Constructs a BlockNPC with a specified block data and associated quest NPC.
@@ -72,7 +77,10 @@ public class BlockNPC extends NPCType {
         try {
             finalBlockData = Bukkit.getServer().createBlockData(value);
         } catch (IllegalArgumentException e) {
-            System.err.println("malformed block data in a quest.");
+            ChatUtils.message("malformed block data in a quest.")
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
 
             // try to get as a material (the old value type)
             Material fallbackMaterial = Material.getMaterial(value);
@@ -232,12 +240,12 @@ public class BlockNPC extends NPCType {
     }
 
     @Override
-    public void unregister(QuestAction action, QuestClient quester) {
+    public void unregister(QuestAction<?,?> action, QuestClient quester) {
         quester.getData().removeBlockNPC(action, this.getNPC());
     }
 
     @Override
-    public void despawn(QuestAction action, QuestClient quester) {
+    public void despawn(QuestAction<?,?> action, QuestClient quester) {
         Player player = quester.getPlayer();
 
         // send block update to nothing
@@ -248,12 +256,12 @@ public class BlockNPC extends NPCType {
     }
 
     @Override
-    public void register(QuestAction action, QuestClient quester, Object value) {
+    public void register(QuestAction<?,?> action, QuestClient quester, Object value) {
         quester.getData().addBlockNPC(action, this.getNPC(), (BlockData) value);
     }
 
     @Override
-    public Object spawn(QuestAction action, QuestClient quester) {
+    public Object spawn(QuestAction<?,?> action, QuestClient quester) {
         Player player = quester.getPlayer();
 
         // set ghost block

@@ -14,7 +14,7 @@ public abstract class ChatCommand implements TabExecutor {
      * To allow the command classes to construct themselves as the command executor.
      * @param commandName the key for the command as defined in the plugin.yml
      */
-    public ChatCommand(String commandName) {
+    protected ChatCommand(String commandName) {
         Bukkit.getServer().getPluginCommand(commandName).setExecutor(this);
     }
 

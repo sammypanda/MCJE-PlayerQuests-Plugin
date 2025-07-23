@@ -31,7 +31,7 @@ public class SpeakListener extends ActionListener<SpeakAction> {
     @EventHandler
     private void onNPCInteract(NPCInteractEvent event) {
         // exit if an NPC does not exist for this action
-        Optional<NPCOption> npc = (Optional<NPCOption>) this.action.getData().getOption(NPCOption.class);
+        Optional<NPCOption> npc = this.action.getData().getOption(NPCOption.class);
         if (npc.isEmpty()) {
             return;
         }

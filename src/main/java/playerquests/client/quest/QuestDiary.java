@@ -64,7 +64,7 @@ public class QuestDiary {
                     .flatMap(map -> map.entrySet().stream()) // flatten the List of Maps into a stream of Map.Entry<StagePath, Boolean>
                     .filter(stageEntry -> !stageEntry.getValue()) // keep only entries with a true value
                     .map(Map.Entry::getKey) // extract the StagePath (the key)
-                    .collect(Collectors.toList()) // collect the filtered StagePaths into a List
+                    .toList() // collect the filtered StagePaths into a List
             ));
 
         // if no current progress, quest diary might never have been added
@@ -188,7 +188,7 @@ public class QuestDiary {
      * @param path
      * @return
      */
-    public Integer getActionCompletionState(Quest quest, QuestAction action) {
+    public Integer getActionCompletionState(Quest quest, QuestAction<?,?> action) {
         // retrieve all entries from the database
         Map<Quest, List<Map<StagePath, Boolean>>> rawEntries = Database.getInstance().getDiaryEntries(this);
 

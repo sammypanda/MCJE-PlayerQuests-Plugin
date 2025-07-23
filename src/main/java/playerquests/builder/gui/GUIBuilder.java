@@ -85,7 +85,7 @@ public class GUIBuilder implements Builder {
      * @param director director for the gui to utilise.
      * @param current if to set the builder as the current builder instance.
      */
-    public GUIBuilder(ClientDirector director, Boolean current) {
+    public GUIBuilder(ClientDirector director, boolean current) {
         // set which director instance created this GUIBuilder
         this.director = director;
 
@@ -103,7 +103,7 @@ public class GUIBuilder implements Builder {
             GUIBuilder oldGUI = (GUIBuilder) this.director.getCurrentInstance(GUIBuilder.class);
             if (oldGUI != null) {
                 oldGUI.getResult().minimise();
-            };
+            }
 
             // set as the current instance in the director
             director.setCurrentInstance(this);
@@ -156,12 +156,11 @@ public class GUIBuilder implements Builder {
     public Integer getEmptySlot() {
         Set<Integer> filledSlots = this.guiSlots.keySet(); // get the positions of all currently stored slots
 
-        Integer lowestEmptySlot = IntStream.iterate(1, i -> i + 1) // counter stream, starting at 1
+        // return lowest empty slot
+        return IntStream.iterate(1, i -> i + 1) // counter stream, starting at 1
             .filter(slot -> !filledSlots.contains(slot)) // conditional for adding to stream
             .findFirst() // terminate if there is a value in the stream
             .orElse(1); // default value
-
-        return lowestEmptySlot; // the next empty slot
     }
 
     /**

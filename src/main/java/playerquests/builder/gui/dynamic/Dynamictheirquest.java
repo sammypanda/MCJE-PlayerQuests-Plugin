@@ -40,13 +40,13 @@ public class Dynamictheirquest extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // retrieve the current quest from the client director
         this.questProduct = (Quest) this.director.getCurrentInstance(Quest.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         GUIFrame guiFrame = this.gui.getFrame();
 
         // set the GUI window title

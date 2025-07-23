@@ -12,7 +12,6 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.RequestItemListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -23,7 +22,7 @@ import playerquests.utility.serialisable.ItemSerialisable;
 /**
  * Action for an NPC requesting an item from the quester.
  */
-public class RequestItemAction extends QuestAction {
+public class RequestItemAction extends QuestAction<RequestItemAction, RequestItemListener> {
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
@@ -56,7 +55,7 @@ public class RequestItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Items requested")
+            String.format("%n<%s>", "Items requested")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
@@ -87,7 +86,7 @@ public class RequestItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Items successfully collected")
+            String.format("%n<%s>", "Items successfully collected")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
@@ -100,10 +99,12 @@ public class RequestItemAction extends QuestAction {
     }
 
     @Override
-    protected void failure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {
+        // no failure case
+    }
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected RequestItemListener startListener(QuesterData questerData) {
         return new RequestItemListener(this, questerData);
     }
 

@@ -50,12 +50,12 @@ public class Dynamicitemeditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         item = (ItemStack) this.director.getCurrentInstance(ItemStack.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         Integer itemAmount = this.item.getAmount();
         this.gui.getFrame().setTitle("Edit " + item.getType().toString());
         
@@ -119,7 +119,7 @@ public class Dynamicitemeditor extends GUIDynamic {
         new GUISlot(gui, 9)
             .setItem(Material.RED_DYE)
             .setLabel("Delete")
-            .onClick(() -> {;
+            .onClick(() -> {
                 // run consumable
                 this.onRemove.accept(this.item);
             });

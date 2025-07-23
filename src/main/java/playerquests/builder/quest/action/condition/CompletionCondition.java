@@ -36,14 +36,16 @@ public class CompletionCondition extends ActionCondition {
     /**
      * Default constructor for Jackson.
      */
-    public CompletionCondition() {}
+    public CompletionCondition() {
+        // Nothing here
+    }
 
     public CompletionCondition(ActionData actionData) {
         super(actionData);
     }
 
     @Override
-    public Boolean isMet(QuesterData questerData) {
+    public boolean isMet(QuesterData questerData) {
         // check if all the required actions are completed
         return this.getRequiredActions().entrySet().stream().allMatch(entry -> { // if all required actions report complete
             Quest quest = Core.getQuestRegistry().getQuest(entry.getKey());
@@ -90,7 +92,7 @@ public class CompletionCondition extends ActionCondition {
                         UpdateScreen function = (UpdateScreen) f;
                         Dynamicactionselector actionSelector = (Dynamicactionselector) function.getDynamicGUI();
                         
-                        actionSelector.onFinish((_gui) -> {
+                        actionSelector.onFinish((g) -> {
                             Quest quest = (Quest) director.getCurrentInstance(Quest.class);
 
                             // save selected actions to this CompletionCondition

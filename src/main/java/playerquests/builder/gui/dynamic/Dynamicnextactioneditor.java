@@ -25,7 +25,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     /**
      * The action itself.
      */
-    QuestAction action;
+    QuestAction<?,?> action;
 
     /**
      * The context of the action to get next
@@ -53,15 +53,15 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+    protected void setupCustom() {
+        this.action = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
         this.actionData = this.action.getData();
         this.nextActions = new ArrayList<>(this.actionData.getNextActions());
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // set outer frame style
         this.gui.getFrame()
                 .setTitle("Select Next Actions")
@@ -109,9 +109,9 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                 });
 
             // show actions
-            List<QuestAction> actions = this.selectedStage.getOrderedActions();
-            actions.forEach((action) -> {
-                this.createActionButton(action);
+            List<QuestAction<?,?>> actions = this.selectedStage.getOrderedActions();
+            actions.forEach((a) -> {
+                this.createActionButton(a);
             });
         }
     }
@@ -120,7 +120,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * Create a stage button.
      * These buttons show a list of actions that
      * belong to it.
-     * @param stage_id the id of the stage
+     * @param stageID the id of the stage
      * @param stage the quest stage object
      * @return a GUI slot button
      */
@@ -140,66 +140,63 @@ public class Dynamicnextactioneditor extends GUIDynamic {
      * @param action the stage action object
      * @return a GUI slot button
      */
-    private GUISlot createActionButton(QuestAction action) {
-        String action_id = action.getID();
+    private GUISlot createActionButton(QuestAction<?,?> action) {
+        String actionID = action.getID();
 
         boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
             .stream()
-            .filter(path -> path.hasActions()) // isn't just a stage in the path
-            .filter(path -> path.getActions().contains(action_id)) // the action ID matches
-            .findFirst()
-            .isPresent();
+            .anyMatch(path -> 
+                path.hasActions() && 
+                path.getActions().contains(actionID)
+            );
 
         boolean isSelected = this.nextActions
             .stream()
-            .filter(path -> path.hasActions()) // isn't just a stage in the path
-            .filter(path -> path.getStage().contains(action.getStage().getID())) // the stage ID matches
-            .filter(path -> path.getActions().contains(action_id)) // the action ID matches
-            .findFirst()
-            .isPresent();
+            .anyMatch(path -> 
+                path.hasActions() && // isn't just a stage in the path
+                path.getStage().contains(action.getStage().getID()) && // and the stage ID matches
+                path.getActions().contains(actionID) // and the action ID matches
+            );
 
         return new GUISlot(gui, this.gui.getEmptySlot())
             // conditionals: if is selected, if is not selected, if is selected by being a start point
-            .setLabel(String.format("%s (%s)",
-                action.getLabel(),
-                isSelected ? "Selected" : (isStartPoint ? "Start Point" : "Select")
-            ))
-            .setDescription(List.of(
-                String.format("Type: %s", action.getName())
-            ))
-            .setItem(
-                isSelected ? Material.POWERED_RAIL : (isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL)
-            )
+            .setLabel(String.format("%s (%s)", action.getLabel(), action.getActionStateText(isSelected, isStartPoint)))
+            .setDescription(List.of(String.format("Type: %s", action.getName())))
+            .setItem(action.getActionStateItem(isSelected, isStartPoint))
             .onClick(() -> {
-                StagePath stagePath = new StagePath(action.getStage(), List.of(action));
-
-                // unselect
-                if (isSelected) {
-                    this.nextActions.removeIf(path -> {
-                        if (!path.hasActions()) {
-                            return false;
-                        }
-
-                        return path.getActions().contains(action_id);
-                    });
-                }
-
-                // select
-                else if (!isStartPoint && !isSelected) {
-                    this.nextActions.add(stagePath);
-                }
-
-                // send message
-                else if (isStartPoint) {
-                    ChatUtils.message("Cannot unset start point action.")
-                        .player(this.director.getPlayer())
-                        .style(MessageStyle.PRETTY)
-                        .send();
-                }
-
-                this.actionData.setNextActions(nextActions);
-                this.refresh();
+                this.handleActionButtonClick(isSelected, actionID, isStartPoint);
             });
+    }
+
+    private void handleActionButtonClick(boolean isSelected, String actionID, boolean isStartPoint) {
+        StagePath stagePath = new StagePath(action.getStage(), List.of(action));
+
+        // unselect
+        if (isSelected) {
+            this.nextActions.removeIf(path -> {
+                if (!path.hasActions()) {
+                    return false;
+                }
+
+                return path.getActions().contains(actionID);
+            });
+        }
+
+        // select
+        else if (!isStartPoint && !isSelected) {
+            this.nextActions.add(stagePath);
+        }
+
+        // send message
+        else if (isStartPoint) {
+            ChatUtils.message("Cannot unset start point action.")
+                .player(this.director.getPlayer())
+                .style(MessageStyle.PRETTY)
+                .send();
+        }
+
+        this.actionData.setNextActions(nextActions);
+        this.refresh();
     }
 
     /**
@@ -223,7 +220,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             });
     }
 
-    private Boolean stageIsSelected() {
+    private boolean stageIsSelected() {
         String stageID = this.selectedStage.getID(); // find selected stage ID
 
         return this.nextActions.stream()

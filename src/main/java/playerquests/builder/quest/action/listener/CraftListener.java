@@ -45,7 +45,7 @@ public class CraftListener extends ActionListener<CraftAction> {
         Player craftPlayer = (Player) inventoryHolder; // person who crafted the item
 
         // determine if questPlayer and craftPlayer are the same player
-        if ( ! (craftPlayer.getUniqueId() == questPlayer.getUniqueId()) ) {
+        if (craftPlayer.getUniqueId() != questPlayer.getUniqueId()) {
             return; // if not the current quester, exit
         }
 

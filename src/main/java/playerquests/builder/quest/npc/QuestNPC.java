@@ -76,7 +76,9 @@ public class QuestNPC {
     /**
      * Constructs a new empty QuestNPC.
      */
-    public QuestNPC() {}
+    public QuestNPC() {
+        // Nothing here
+    }
 
     /**
      * Constructs a new QuestNPC with the specified ID.
@@ -179,7 +181,7 @@ public class QuestNPC {
             .type(MessageType.ERROR)
             .target(MessageTarget.CONSOLE)
             .style(MessageStyle.PLAIN);
-        Boolean isValid = true; // assume is valid
+        boolean isValid = true; // assume is valid
 
         if (this.name == null) {
             response.content("The NPC name must be set");
@@ -249,8 +251,7 @@ public class QuestNPC {
      */
     @JsonIgnore
     public BlockData getBlock() {
-        if (this.assigned instanceof BlockNPC) {
-            BlockNPC npc = (BlockNPC) this.assigned;
+        if (this.assigned instanceof BlockNPC npc) {
             return npc.getBlock();
         }
 
@@ -282,7 +283,7 @@ public class QuestNPC {
      * @param quester the quest client who should see the NPC
      */
     @JsonIgnore
-    public void spawn(QuestAction action, QuestClient quester) {
+    public void spawn(QuestAction<?,?> action, QuestClient quester) {
         this.assigned.register(action, quester, // keep reference to the NPC 
             this.assigned.spawn(action, quester) // spawn the NPC into the world
         );
@@ -293,7 +294,7 @@ public class QuestNPC {
      * @param quester the quest client that should no longer see the NPC
      */
     @JsonIgnore
-    public void despawn(QuestAction action, QuestClient quester) {
+    public void despawn(QuestAction<?,?> action, QuestClient quester) {
         this.assigned.despawn(action, quester); // remove the NPC from the world
         this.assigned.unregister(action, quester); // remove reference to the NPC
     }

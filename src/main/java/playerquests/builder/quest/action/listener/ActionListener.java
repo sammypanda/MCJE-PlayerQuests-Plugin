@@ -15,7 +15,7 @@ import playerquests.builder.quest.data.QuesterData;
  * @param <A> the type of action this listener is handling, must be a subclass of {@link QuestAction}
  * @see playerquests.builder.quest.action.QuestAction
  */
-public abstract class ActionListener<A extends QuestAction> implements Listener {
+public abstract class ActionListener<A extends QuestAction<A, ?>> implements Listener {
 
     /**
      * The action that owns this listener.
@@ -32,7 +32,7 @@ public abstract class ActionListener<A extends QuestAction> implements Listener 
      * @param action the quest action this listener is for.
      * @param questerData the quester the listener is for.
      */
-    public ActionListener(A action, QuesterData questerData) {
+    protected ActionListener(A action, QuesterData questerData) {
         this.action = action;
         this.questerData = questerData;
         questerData.addListener(action, this);

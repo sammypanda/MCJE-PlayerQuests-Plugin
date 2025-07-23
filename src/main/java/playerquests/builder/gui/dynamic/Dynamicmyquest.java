@@ -34,7 +34,7 @@ public class Dynamicmyquest extends GUIDynamic {
      * If {@code false}, the button will initiate the delete confirmation process.
      * </p>
      */
-    Boolean confirm_delete = false;
+    Boolean confirmDeletion = false;
 
     /**
      * Constructs a new {@code Dynamicmyquest} instance.
@@ -46,13 +46,13 @@ public class Dynamicmyquest extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // retrieve the current quest from the client director
         this.quest = (Quest) this.director.getCurrentInstance(Quest.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         GUIFrame guiFrame = this.gui.getFrame();
 
         // set the GUI window title
@@ -101,12 +101,12 @@ public class Dynamicmyquest extends GUIDynamic {
             });
 
         // create remove quest button (with confirmation check)
-        if (confirm_delete.equals(false)) {
+        if (confirmDeletion.equals(false)) {
             new GUISlot(gui, 8)
                 .setItem(Material.RED_DYE)
                 .setLabel("Delete")
                 .onClick(() -> {
-                    this.confirm_delete = true;
+                    this.confirmDeletion = true;
                     this.execute();
                 });
         } else {
@@ -131,7 +131,7 @@ public class Dynamicmyquest extends GUIDynamic {
         }
 
         // create quest toggle button
-        Boolean isToggled = quest.isToggled();
+        boolean isToggled = quest.isToggled();
         
         new GUISlot(gui, 9)
             .setItem(isToggled ? Material.GREEN_STAINED_GLASS_PANE : Material.GRAY_STAINED_GLASS_PANE)

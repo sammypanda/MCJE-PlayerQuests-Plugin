@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -75,7 +74,7 @@ public class StagePath {
      * @param stage the {@code QuestStage} object representing the stage
      * @param action the {@code QuestAction} object representing the action
      */
-    public StagePath(QuestStage stage, @Nullable List<QuestAction> action) {
+    public StagePath(QuestStage stage, @Nullable List<QuestAction<?,?>> action) {
         // store stage ID
         this.stage = stage.getID();
 
@@ -83,7 +82,7 @@ public class StagePath {
             // store action IDs
             this.actions = action.stream()
                 .map(QuestAction::getID)
-                .collect(Collectors.toList());
+                .toList();
         }
     }
 
@@ -152,7 +151,7 @@ public class StagePath {
         }
 
         // Retrieve the stage associated with the stored ID
-        QuestStage stage = quest.getStages().get(this.stage);
+        QuestStage stageObject = quest.getStages().get(this.stage);
         if (stage == null) {
             throw new MissingStageException(
                 String.format("No stage found for ID: %s in quest: %s.", this.stage, quest.getID()),
@@ -160,7 +159,7 @@ public class StagePath {
             );
         }
 
-        return stage;
+        return stageObject;
     }
 
     /**
@@ -169,22 +168,22 @@ public class StagePath {
      * @param quest the {@code Quest} object containing the actions
      * @return the {@code QuestAction} list based on the action IDs in the path
      */
-    public List<QuestAction> getActions(Quest quest) {
-        List<QuestAction> actions = new ArrayList<QuestAction>();
+    public List<QuestAction<?,?>> getActions(Quest quest) {
+        List<QuestAction<?,?>> actionsList = new ArrayList<QuestAction<?,?>>();
 
-        this.actions.forEach(action_id -> {
-            QuestAction action = this.getStage(quest).getActions().get(action_id);
+        this.actions.forEach(actionID -> {
+            QuestAction<?,?> actionObject = this.getStage(quest).getActions().get(actionID);
 
             // check the action exists in the actions map
-            if (action == null) {
+            if (actionObject == null) {
                 return; // exit if it's not in the actions map
             }
 
             // add it to the list
-            actions.add(action);
+            actionsList.add(actionObject);
         });
 
-        return actions;
+        return actionsList;
     }
 
     /**

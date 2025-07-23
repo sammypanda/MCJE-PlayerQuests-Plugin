@@ -30,7 +30,7 @@ public enum EntityData {
     GENERIC {
         @Override
         public NPC createEntity(Map<String, String> properties, Location location) {
-            EntityType entityType = EntityType.valueOf(properties.get("entity"));
+            EntityType entityType = EntityType.valueOf(properties.get(EntityData.getEntityKey()));
             NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(entityType, "", location);
             if (!isAllowedGeneric(entityType)) {
                 warnUnimplemented(entityType);
@@ -40,17 +40,17 @@ public enum EntityData {
 
         @Override
         public Map<String, String> extractProperties(Entity entity) {
-            return basicProperties(entity, Map.of("entity", entity.getType().name()));
+            return basicProperties(entity, Map.of(EntityData.getEntityKey(), entity.getType().name()));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            return formatText(properties.get("entity"));
+            return formatText(properties.get(EntityData.getEntityKey()));
         }
 
         @Override
         public EntityType getEntityType(Map<String, String> properties) {
-            return EntityType.fromName(properties.get("entity"));
+            return EntityType.fromName(properties.get(EntityData.getEntityKey()));
         }
     },
     CHICKEN {
@@ -92,8 +92,7 @@ public enum EntityData {
     VILLAGER {
         @Override
         public NPC createEntity(Map<String, String> properties, Location location) {
-            NPC citizen = PlayerQuests.getInstance().getCitizensRegistry().createNPC(this.getEntityType(properties), "", location);
-            return citizen;
+            return PlayerQuests.getInstance().getCitizensRegistry().createNPC(this.getEntityType(properties), "", location);
         }
 
         @Override
@@ -135,6 +134,8 @@ public enum EntityData {
             string.replaceAll("_+", " ")
         );
     }
+
+    private static final String entityTypeKey = "entity";
 
     /**
      * Adds basic entity properties to an entity.
@@ -188,6 +189,10 @@ public enum EntityData {
 
         // 2. Return GENERIC (will warn if not allowed)
         return GENERIC;
+    }
+
+    public static String getEntityKey() {
+        return entityTypeKey;
     }
 
     // Core interface methods

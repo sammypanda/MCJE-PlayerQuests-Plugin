@@ -3,7 +3,6 @@ package playerquests.builder.gui.dynamic;
 import java.util.Arrays; // generic array type
 import java.util.List; // generic list type
 import java.util.Map; // generic map type
-import java.util.stream.Collectors; // turning stream results into java objects
 
 import org.bukkit.Material;
 
@@ -40,7 +39,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // set the quest builder instance
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
@@ -49,7 +48,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         this.generatePages();
     }
 
@@ -64,7 +63,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
             int intValue2 = Integer.parseInt(key2.split("_")[1]);
             return Integer.compare(intValue2, intValue1); // compare in descending order
         })
-        .collect(Collectors.toList());
+        .toList();
         
         // set frame options
         guiFrame.setTitle("Quest NPCs (" + ChatUtils.shortenString(this.questBuilder.getTitle(), 18) + ")");
@@ -77,7 +76,7 @@ public class Dynamicquestnpcs extends GUIDynamic {
             GUISlot npcSlot = new GUISlot(this.gui, nextEmptySlot);
 
             // different visual representation for incomplete and complete NPCs
-            if (key == "npc_-1") { // if invalid or incomplete npc
+            if (key.equals("npc_-1")) { // if invalid or incomplete npc
                 npcSlot.setItem(Material.SPAWNER);
                 npcSlot.setLabel("<Unsaved NPC>");
             } else { // a valid npc

@@ -35,13 +35,11 @@ public class FXBuilder {
      * @return
      */
     public List<FX> run(Player player) {
-        List<FX> effects = this.getEffects();
-
-        effects.forEach(effect -> {
+        this.getEffects().forEach(effect -> {
             effect.applyEffect(player);
         });
 
-        return effects;
+        return this.getEffects();
     }
     
 }
