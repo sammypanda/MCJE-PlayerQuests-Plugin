@@ -193,26 +193,27 @@ public enum ItemData {
 
     SOUP {
         private static String soupSuffix = "_SOUP";
+        private static String flavourKey = "flavour";
 
         @Override
         public ItemStack createItem(Map<String, String> properties) {
-            String flavour = properties.getOrDefault("flavour", "BEETROOT");
+            String flavour = properties.getOrDefault(flavourKey, "BEETROOT");
             return basicItem(new ItemStack(Material.valueOf(flavour + soupSuffix)), properties);
         }
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
             String flavour = item.getType().name().replace(soupSuffix, "");
-            return basicProperties(item, Map.of("flavour", flavour));
+            return basicProperties(item, Map.of(flavourKey, flavour));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            if ( ! properties.containsKey("flavour")) {
+            if ( ! properties.containsKey(flavourKey)) {
                 return "Soup";
             }
 
-            return formatText(properties.get("flavour") + " Soup");
+            return formatText(properties.get(flavourKey) + " Soup");
         }
 
         @Override
@@ -1328,6 +1329,12 @@ public enum ItemData {
     ));
 
     private static String materialTypeKey = "material";
+    
+    // basic (common between all) keys 
+    private static String enchantmentKey = "enchantment";
+    private static String nametagKey = "nametag";
+    private static String trimPatternKey = "trimPattern";
+    private static String trimMaterialKey = "trimMaterial";
 
     private static boolean isAllowedGeneric(Material material) {
         return ALLOWED_GENERIC_MATERIALS.contains(material);
@@ -1404,8 +1411,8 @@ public enum ItemData {
      */
     private static ItemStack basicItem(ItemStack itemStack, Map<String, String> properties) {
         // set enchantments
-        if (properties.containsKey("enchantment")) { // TODO: also fix only supporting one enchantment datum
-            String enchantmentString = properties.get("enchantment");
+        if (properties.containsKey(enchantmentKey)) { // TODO: also fix only supporting one enchantment datum
+            String enchantmentString = properties.get(enchantmentKey);
             List<String> enchantmentStringParts = List.of(enchantmentString.split("_"));
             
             // resolve enchantment level
@@ -1421,8 +1428,8 @@ public enum ItemData {
 
         // set nametag
         ItemMeta itemMeta = itemStack.getItemMeta();
-        if (properties.containsKey("nametag")) {
-            String nametagString = properties.get("nametag");
+        if (properties.containsKey(nametagKey)) {
+            String nametagString = properties.get(nametagKey);
 
             // apply nametag
             itemMeta.displayName(Component.text(nametagString));
@@ -1430,9 +1437,9 @@ public enum ItemData {
         }
 
         // set trim
-        if (properties.containsKey("trimPattern") && properties.containsKey("trimMaterial")) {
-            String trimPatternString = properties.get("trimPattern").toLowerCase();
-            String trimMaterialString = properties.get("trimMaterial").toLowerCase();
+        if (properties.containsKey(trimPatternKey) && properties.containsKey(trimMaterialKey)) {
+            String trimPatternString = properties.get(trimPatternKey).toLowerCase();
+            String trimMaterialString = properties.get(trimMaterialKey).toLowerCase();
             ArmorMeta armorMeta = (ArmorMeta) itemMeta;
 
             // resolve trim
@@ -1459,13 +1466,13 @@ public enum ItemData {
         // add enchantment as properties
         Map<Enchantment, Integer> enchantments = itemStack.getEnchantments();
         enchantments.forEach((enchantment, level) -> {
-            newProperties.put("enchantment", enchantment.getKey().asString()+"_"+String.valueOf(level)); // TODO: fix only supporting one enchantment datum
+            newProperties.put(enchantmentKey, enchantment.getKey().asString()+"_"+String.valueOf(level)); // TODO: fix only supporting one enchantment datum
         });
 
         // add nametag as property
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta.hasDisplayName()) {
-            newProperties.put("nametag", PlainTextComponentSerializer.plainText().serialize(itemStack.getItemMeta().displayName()));
+            newProperties.put(nametagKey, PlainTextComponentSerializer.plainText().serialize(itemStack.getItemMeta().displayName()));
         }
 
         // add trims as property
@@ -1476,8 +1483,8 @@ public enum ItemData {
                 ArmorTrim armorTrim = armorMeta.getTrim();
                 String trimPatternString = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN).getKey(armorTrim.getPattern()).getKey();
                 String trimMaterialString = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL).getKey(armorTrim.getMaterial()).getKey();
-                newProperties.put("trimPattern", trimPatternString);
-                newProperties.put("trimMaterial", trimMaterialString);
+                newProperties.put(trimPatternKey, trimPatternString);
+                newProperties.put(trimMaterialKey, trimMaterialString);
             }
         }
 
@@ -1493,4 +1500,13 @@ public enum ItemData {
     public abstract ItemStack createItem(Map<String, String> properties);
     public abstract Map<String, String> extractProperties(ItemStack item);
     public abstract String getName(Map<String, String> properties);
+
+    // Key getters
+    public static String getNametagKey() {
+        return nametagKey;
+    }
+
+    public static String getEnchantmentKey() {
+        return enchantmentKey;
+    }
 }
