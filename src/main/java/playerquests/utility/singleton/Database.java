@@ -510,9 +510,7 @@ public class Database {
             preparedStatement.setString(1, id);
 
             ResultSet results = preparedStatement.executeQuery();
-            String quest = results.getString("id");
-
-            return quest;
+            return results.getString("id");
         } catch (SQLException e) {
             ChatUtils.message("Could not get the quest " + id + ". " + e.getMessage())                .target(MessageTarget.CONSOLE)
                 .type(MessageType.ERROR)
