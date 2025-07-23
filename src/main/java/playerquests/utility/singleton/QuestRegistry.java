@@ -199,7 +199,7 @@ public class QuestRegistry {
      */
     public boolean toggle(Quest quest) {
         // check + error for if any NPCs can't be placed
-        if (!this.canPlaceNPCs(quest)) {
+        if ( ! this.canPlaceNPCs(quest)) {
             return false;
         }
 
@@ -220,7 +220,7 @@ public class QuestRegistry {
      * @return false if any NPCs are not placeable
      */
     private boolean canPlaceNPCs(Quest quest) {
-        return true;
+        return quest != null; // TODO: calculate and return more accurate result
     }
 
     /**
