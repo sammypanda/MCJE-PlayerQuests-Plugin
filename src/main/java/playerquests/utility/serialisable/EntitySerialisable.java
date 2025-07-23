@@ -28,11 +28,11 @@ public class EntitySerialisable implements Serialisable {
             // TODO: remove me vvv
             // Convert old format to curr
             if (string.contains("type:")) {
-                this.properties = Map.of("entity", string.split(":")[1].split(",")[0]);
+                this.properties = Map.of(EntityData.getEntityKey(), string.split(":")[1].split(",")[0]);
                 return;
             }
 
-            this.properties = Map.of("entity", string);
+            this.properties = Map.of(EntityData.getEntityKey(), string);
             return;
         }
 
