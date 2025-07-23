@@ -214,6 +214,7 @@ public class Database {
      * @param version the current version of the plugin
      * @param versionDB the version of the database schema
      */
+    @SuppressWarnings("java:S128") // switch-case fall-through intended
     private synchronized void migrate(String version, String versionDB) {
         // Check if there is a new version
         MessageBuilder alert = ChatUtils.message("Could not retrieve latest version. Maybe you're offline or GitHub is unavailable?")
