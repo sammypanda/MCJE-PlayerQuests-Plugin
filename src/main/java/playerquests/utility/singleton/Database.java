@@ -314,9 +314,7 @@ public class Database {
             PreparedStatement statement = c.prepareStatement("SELECT version FROM plugin WHERE plugin = 'PlayerQuests';")) {
 
             ResultSet results = statement.executeQuery();
-            String version = results.getString("version");
-
-            return version;
+            return results.getString("version");
         } catch (SQLException e) {
             ChatUtils.message("Could not find the quest version in the db " + e.getMessage())
                 .target(MessageTarget.CONSOLE)
