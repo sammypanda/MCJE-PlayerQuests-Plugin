@@ -412,37 +412,6 @@ public class Database {
     }
 
     /**
-     * Retrieves the quest record from a diary for a specified quest ID and diary ID.
-     *
-     * This method queries the `diary_quests` table to retrieve the quest information associated with
-     * the given quest ID and diary ID. If no matching record is found, this method will return an empty result set.
-     *
-     * <p>Note: The caller is responsible for closing the {@link ResultSet} after use.</p>
-     *
-     * @param questID The ID of the quest.
-     * @param dbDiaryID The ID of the diary.
-     * @return A {@link ResultSet} containing the quest records for the specified quest ID and diary ID,
-     *         or null if an error occurs.
-     */
-    public synchronized ResultSet getDiaryQuest(String questID, Integer dbDiaryID) {
-        try (Connection c = getConnection();
-        PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM diary_quests WHERE quest = ? AND diary = ?")) {
-
-            preparedStatement.setString(1, questID);
-            preparedStatement.setInt(2, dbDiaryID);
-
-            ResultSet result = preparedStatement.executeQuery();
-
-            return result;
-        } catch (SQLException e) {
-            ChatUtils.message("Could not find quest in the diary: " + questID + ": " + e.getMessage())                .target(MessageTarget.CONSOLE)
-                .type(MessageType.ERROR)
-                .send();
-            return null;
-        }
-    }
-
-    /**
      * Adds multiple new players to the database.
      *
      * This method iterates over a list of UUIDs and adds each one to the `players` table by calling
