@@ -547,7 +547,7 @@ public class Database {
                 .target(MessageTarget.CONSOLE)
                 .type(MessageType.ERROR)
                 .send();
-            return null;
+            return false;
         }
     }
 
