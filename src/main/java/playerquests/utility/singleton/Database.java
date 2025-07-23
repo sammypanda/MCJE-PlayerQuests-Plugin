@@ -65,7 +65,7 @@ public class Database {
     /**
      * If this is a fresh install.
      */
-    private Boolean isFresh = false;
+    private boolean isFresh = false;
 
     /**
      * Private constructor to prevent instantiation from outside the class.
