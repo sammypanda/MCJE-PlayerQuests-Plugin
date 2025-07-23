@@ -1,7 +1,7 @@
 package playerquests.builder.gui.function;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.entity.Entity;
@@ -172,9 +172,9 @@ public class SelectEntity extends GUIFunction {
     private List<EntityType> deniedEntities;
 
     /**
-     * The methods of selecting entities to deny.
+     * The methods of selecting entities to deny. Starting with defaults, replaced with default + injected.
      */
-    private List<SelectMethod> deniedMethods;
+    private List<SelectMethod> deniedMethods = List.of(SelectMethod.CHAT, SelectMethod.HIT, SelectMethod.SELECT);
 
     /**
      * If the player has cancelled the selection.
@@ -211,9 +211,6 @@ public class SelectEntity extends GUIFunction {
         this.prompt = (String) params.get(0);
         this.deniedEntities = castDeniedEntities(params.get(1));
         this.deniedMethods = castDeniedMethods(params.get(2));
-
-        // set default denied methods
-        this.deniedMethods.addAll(List.of(SelectMethod.CHAT, SelectMethod.HIT, SelectMethod.SELECT));
 
         // get and set the player who is selecting the entity
         this.player = this.director.getPlayer();
@@ -260,12 +257,14 @@ public class SelectEntity extends GUIFunction {
      * @return list of methods to deny
      */
     private List<SelectMethod> castDeniedMethods(Object object) {
-        List<?> castedList = (List<?>) object; // wildcard generics for cast checking
+        List<?> castedDenyList = (List<?>) object; // wildcard generics for cast checking
 
-        return (ArrayList<SelectMethod>) castedList.stream()
-            .filter(method -> method instanceof SelectMethod) // filter out non-method items
-            .map(method -> (SelectMethod) method) // cast safely
-            .toList(); // collect into final denylist
+        return Stream.concat( // join default and injected list
+            this.deniedMethods.stream(),
+            castedDenyList.stream() 
+                .filter(method -> method instanceof SelectMethod) // filter out non-method items
+                .map(method -> (SelectMethod) method) // cast safely
+            ).toList(); // collect into final denylist
     }
 
     /**
