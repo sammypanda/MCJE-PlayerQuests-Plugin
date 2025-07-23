@@ -24,6 +24,7 @@ import playerquests.client.ClientDirector;
 import playerquests.product.Quest;
 import playerquests.utility.PluginUtils;
 import playerquests.utility.serialisable.ItemSerialisable;
+import playerquests.utility.serialisable.data.ItemData;
 import playerquests.utility.singleton.QuestRegistry;
 
 /**
@@ -176,7 +177,7 @@ public class Dynamicquestinventory extends GUIDynamic {
         Builder label = Component.text()
             .append(Component.text(realAmount.toString() + "x"))
             .appendSpace()
-            .append(Component.text(itemSerialisable.getProperties().getOrDefault("nametag", itemSerialisable.getName())))
+            .append(Component.text(itemSerialisable.getProperties().getOrDefault(ItemData.getNametagKey(), itemSerialisable.getName())))
             .appendSpace()
             .append(Component.text("("));
         if (realAmount == 0) {

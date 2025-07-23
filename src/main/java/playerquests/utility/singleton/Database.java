@@ -149,8 +149,8 @@ public class Database {
                 .send();
         }
 
-        try (Connection connection = getConnection();
-            Statement statement = connection.createStatement()) {
+        try (Connection c = getConnection();
+            Statement statement = c.createStatement()) {
 
             String pluginTableSQL = "CREATE TABLE IF NOT EXISTS plugin ("
             + "plugin TEXT PRIMARY KEY,"
@@ -253,8 +253,8 @@ public class Database {
             return;
         }
 
-        try (Connection connection = getConnection();
-            Statement statement = connection.createStatement()) {
+        try (Connection c = getConnection();
+            Statement statement = c.createStatement()) {
 
             StringBuilder query = new StringBuilder();
 
@@ -312,8 +312,8 @@ public class Database {
             return "0.0";
         }
 
-        try (Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT version FROM plugin WHERE plugin = 'PlayerQuests';")) {
+        try (Connection c = getConnection();
+            PreparedStatement statement = c.prepareStatement("SELECT version FROM plugin WHERE plugin = 'PlayerQuests';")) {
 
             ResultSet results = statement.executeQuery();
             String version = results.getString("version");
@@ -338,8 +338,8 @@ public class Database {
      * @param version the new version of the plugin
      */
     private synchronized void setPluginVersion(String version) {
-        try (Connection connection = getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("""
+        try (Connection c = getConnection();
+            PreparedStatement preparedStatement = c.prepareStatement("""
                 INSERT INTO plugin (plugin, version)
                 VALUES ('PlayerQuests', ?)
                 ON CONFLICT(plugin)
@@ -373,8 +373,8 @@ public class Database {
      *             used to insert a new record into the `players` table in the database.
      */
     public synchronized void addPlayer(UUID uuid) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO players (uuid) VALUES (?) RETURNING *;")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("INSERT OR IGNORE INTO players (uuid) VALUES (?) RETURNING *;")) {
 
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.executeQuery();
@@ -400,8 +400,8 @@ public class Database {
      *         or null if an error occurs.
      */
     public synchronized ResultSet getDiary(Integer dbPlayerID) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM diaries WHERE player = ?")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("SELECT id FROM diaries WHERE player = ?")) {
 
             preparedStatement.setInt(1, dbPlayerID);
 
@@ -430,8 +430,8 @@ public class Database {
      *         or null if an error occurs.
      */
     public synchronized ResultSet getDiaryQuest(String questID, Integer dbDiaryID) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM diary_quests WHERE quest = ? AND diary = ?")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("SELECT * FROM diary_quests WHERE quest = ? AND diary = ?")) {
 
             preparedStatement.setString(1, questID);
             preparedStatement.setInt(2, dbDiaryID);
@@ -474,8 +474,8 @@ public class Database {
      */
     public synchronized List<String> getAllQuests() {
         List<String> ids = new ArrayList<>();
-        try (Connection connection = getConnection();
-        Statement statement = connection.createStatement()) {
+        try (Connection c = getConnection();
+        Statement statement = c.createStatement()) {
 
             String allQuestsSQL = "SELECT id FROM quests;";
             ResultSet result = statement.executeQuery(allQuestsSQL);
@@ -510,8 +510,8 @@ public class Database {
         if (existingId != null) {
             return;
         }
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id) VALUES (?);")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("INSERT INTO quests (id) VALUES (?);")) {
 
             preparedStatement.setString(1, id);
             preparedStatement.execute();
@@ -540,8 +540,8 @@ public class Database {
             return null;
         }
 
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM quests WHERE id = ?;")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("SELECT id FROM quests WHERE id = ?;")) {
 
             preparedStatement.setString(1, id);
 
@@ -568,8 +568,8 @@ public class Database {
      * @return The toggle status of the quest if found, or null if no such quest exists or if an error occurs.
      */
     public synchronized Boolean getQuestToggled(Quest quest) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT toggled FROM quests WHERE id = ?;")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("SELECT toggled FROM quests WHERE id = ?;")) {
 
             preparedStatement.setString(1, quest.getID());
             ResultSet results = preparedStatement.executeQuery();
@@ -600,8 +600,8 @@ public class Database {
      * @param state The new toggle status to set for the quest.
      */
     public synchronized void setQuestToggled(Quest quest, Boolean state) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE quests SET toggled = ? WHERE id = ?;")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("UPDATE quests SET toggled = ? WHERE id = ?;")) {
 
             preparedStatement.setBoolean(1, state);
             preparedStatement.setString(2, quest.getID());
@@ -629,16 +629,16 @@ public class Database {
             return;
         }
 
-        try (Connection connection = getConnection()) {
+        try (Connection c = getConnection()) {
             PreparedStatement preparedStatement;
 
             String removeQuestSQL = "DELETE FROM quests WHERE id = ?;";
-            preparedStatement = connection.prepareStatement(removeQuestSQL);
+            preparedStatement = c.prepareStatement(removeQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
 
             String removeDiaryQuestSQL = "DELETE FROM diary_entries WHERE quest = ?;";
-            preparedStatement = connection.prepareStatement(removeDiaryQuestSQL);
+            preparedStatement = c.prepareStatement(removeDiaryQuestSQL);
             preparedStatement.setString(1, id);
             preparedStatement.execute();
 
@@ -661,8 +661,8 @@ public class Database {
      *                  and values are {@link Integer} representing the quantities of those items.
      */
     public void setQuestInventory(Quest quest, Map<ItemSerialisable, Integer> inventory) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO quests (id, inventory) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET inventory = EXCLUDED.inventory")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("INSERT INTO quests (id, inventory) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET inventory = EXCLUDED.inventory")) {
 
             // preparedStatement
             preparedStatement.setString(1, quest.getID());
@@ -685,8 +685,8 @@ public class Database {
     public synchronized Map<String, Map<ItemSerialisable, Integer>> getAllQuestInventories() {
         Map<String, Map<ItemSerialisable, Integer>> inventories = new HashMap<>();
 
-        try (Connection connection = getConnection();
-        Statement statement = connection.createStatement()) {
+        try (Connection c = getConnection();
+        Statement statement = c.createStatement()) {
 
             String allQuestsSQL = "SELECT id, inventory FROM quests;";
             ResultSet result = statement.executeQuery(allQuestsSQL);
@@ -747,8 +747,8 @@ public class Database {
         String playerUUIDString = player.getUniqueId().toString();
         String diaryID = diary.getID();
 
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT OR IGNORE INTO diaries (id, player) VALUES (?, ?)")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("INSERT OR IGNORE INTO diaries (id, player) VALUES (?, ?)")) {
 
             // preparedStatement
             preparedStatement.setString(1, diaryID);
@@ -772,8 +772,8 @@ public class Database {
         Map<Quest, List<Map<StagePath, Boolean>>> diaryEntries = new HashMap<>();
         String diaryID = diary.getID();
 
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT diary, quest, action, completion FROM diary_entries WHERE diary = ?;")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("SELECT diary, quest, action, completion FROM diary_entries WHERE diary = ?;")) {
 
             preparedStatement.setString(1, diaryID);
             ResultSet result = preparedStatement.executeQuery();
@@ -808,8 +808,8 @@ public class Database {
     }
 
     public synchronized void setDiaryEntryCompletion(String diaryID, String questID, StagePath actionPath, boolean completionState) {
-        try (Connection connection = getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("REPLACE INTO diary_entries (diary, quest, action, completion) VALUES (?, ?, ?, ?)")) {
+        try (Connection c = getConnection();
+        PreparedStatement preparedStatement = c.prepareStatement("REPLACE INTO diary_entries (diary, quest, action, completion) VALUES (?, ?, ?, ?)")) {
 
             // preparedStatement
             preparedStatement.setString(1, diaryID);
