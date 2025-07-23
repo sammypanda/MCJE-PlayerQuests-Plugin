@@ -23,7 +23,7 @@ public final class ItemSerialisable implements Serialisable {
         // Convert Spigot Material to our GENERIC
         if (!string.contains("[")) {
             this.itemData = ItemData.GENERIC;
-            this.properties = Map.of("material", string);
+            this.properties = Map.of(ItemData.getMaterialKey(), string);
             return;
         }
 
@@ -34,7 +34,7 @@ public final class ItemSerialisable implements Serialisable {
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         ItemStack itemStack;
         String baseString = parts[0];
-        String materialString = keyValues.get("material");
+        String materialString = keyValues.get(ItemData.getMaterialKey());
 
         // convert from GENERIC (GENERIC[material:HERE]), otherwise use special ItemData base string (HERE[key:value])
         if (materialString != null && ( ! materialString.isEmpty())) {

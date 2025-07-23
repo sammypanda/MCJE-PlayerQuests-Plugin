@@ -41,7 +41,7 @@ public enum ItemData {
     GENERIC {
         @Override
         public ItemStack createItem(Map<String, String> properties) {
-            Material material = Material.valueOf(properties.get("material"));
+            Material material = Material.valueOf(properties.get(ItemData.getMaterialKey()));
             if (!isAllowedGeneric(material)) {
                 warnUnimplemented(material);
             }
@@ -50,12 +50,12 @@ public enum ItemData {
 
         @Override
         public Map<String, String> extractProperties(ItemStack item) {
-            return basicProperties(item, Map.of("material", item.getType().name()));
+            return basicProperties(item, Map.of(ItemData.getMaterialKey(), item.getType().name()));
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            return formatText(properties.get("material"));
+            return formatText(properties.get(ItemData.getMaterialKey()));
         }
     },
 
@@ -1290,6 +1290,8 @@ public enum ItemData {
         Material.NAME_TAG
     ));
 
+    private static String materialTypeKey = "material";
+
     private static boolean isAllowedGeneric(Material material) {
         return ALLOWED_GENERIC_MATERIALS.contains(material);
     }
@@ -1442,6 +1444,10 @@ public enum ItemData {
 
         return newProperties;
 
+    }
+
+    public static String getMaterialKey() {
+        return materialTypeKey;
     }
 
     // Core interface methods
