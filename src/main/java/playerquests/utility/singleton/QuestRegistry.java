@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiConsumer;
+import java.util.function.ObjIntConsumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player; // representing players
@@ -386,7 +386,7 @@ public class QuestRegistry {
      * @param callback optional thing to run on each item
      * @param invert whether to subtract instead of add items
      */
-    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, BiConsumer<ItemSerialisable, Integer> callback, Boolean invert) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, ObjIntConsumer<ItemSerialisable> callback, Boolean invert) {
         Map<ItemSerialisable, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
 
         items.forEach((material, amount) -> {
