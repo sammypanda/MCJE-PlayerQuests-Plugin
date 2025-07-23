@@ -665,25 +665,23 @@ public class Database {
                         ItemSerialisable itemSerialisable = new ItemSerialisable(itemString);
 
                         // skip if invalid itemSerialisable
-                        if (itemSerialisable.getItemData().equals(ItemData.AIR)) {
-                            continue;
-                        }
+                        if ( ! itemSerialisable.getItemData().equals(ItemData.AIR)) {
+                            // resolve item quantity
+                            Integer quantity;
+                            try {
+                                quantity = Integer.parseInt(keyValue[1].trim());
+                            } catch (NumberFormatException e) {
+                                // Handle the case where the quantity is not a valid integer
+                                ChatUtils.message("Invalid quantity format: " + keyValue[1])
+                                    .target(MessageTarget.CONSOLE)
+                                    .type(MessageType.ERROR)
+                                    .send();
+                                continue;
+                            }
 
-                        // resolve item quantity
-                        Integer quantity;
-                        try {
-                            quantity = Integer.parseInt(keyValue[1].trim());
-                        } catch (NumberFormatException e) {
-                            // Handle the case where the quantity is not a valid integer
-                            ChatUtils.message("Invalid quantity format: " + keyValue[1])
-                .target(MessageTarget.CONSOLE)
-                .type(MessageType.ERROR)
-                .send();
-                            continue;
+                            // prepare to be shipped
+                            inventoryMap.put(itemSerialisable, quantity);
                         }
-
-                        // prepare to be shipped
-                        inventoryMap.put(itemSerialisable, quantity);
                     }
                 }
 
