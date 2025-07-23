@@ -147,11 +147,13 @@ public enum ItemData {
     },
 
     PLAYER_HEAD {
+        private static String playerKey = "player";
+
         @Override
         public ItemStack createItem(Map<String, String> properties) {
             ItemStack item = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) item.getItemMeta();
-            meta.setOwningPlayer(Bukkit.getOfflinePlayer(properties.get("player")));
+            meta.setOwningPlayer(Bukkit.getOfflinePlayer(properties.get(playerKey)));
             item.setItemMeta(meta);
             return basicItem(item, properties);
         }
@@ -170,17 +172,17 @@ public enum ItemData {
                 ? meta.getOwningPlayer().getName()
                 : "UNKNOWN";
 
-            props.put("player", playerName);
+            props.put(playerKey, playerName);
             return basicProperties(item, props);
         }
 
         @Override
         public String getName(Map<String, String> properties) {
-            if ( ! properties.containsKey("player")) {
+            if ( ! properties.containsKey(playerKey)) {
                 return "Player Head";
             }
 
-            return formatText(properties.get("player") + " Head");
+            return formatText(properties.get(playerKey) + " Head");
         }
 
         @Override
