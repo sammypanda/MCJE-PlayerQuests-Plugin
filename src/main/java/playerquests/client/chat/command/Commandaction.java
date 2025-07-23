@@ -117,7 +117,6 @@ public class Commandaction extends ChatCommand {
         switch (args.length) {
             case 1:
                 return List.of("start", "consent");
-
             case 2:
                 if (!isPlayer) {
                     return List.of();
@@ -128,10 +127,10 @@ public class Commandaction extends ChatCommand {
                     .flatMap(entry -> entry.getValue().stream()
                         .map(path -> String.format("%s.%s", entry.getKey().getID(), path.toString())))
                     .toList();
+            default:
+                // no tab complete
+                return List.of();
         }
-
-        // no tab complete
-        return List.of();
     }
     
 }
