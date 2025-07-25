@@ -53,7 +53,7 @@ public class PlayerListener implements Listener {
                     .append(Component.text("Thank you for trying PlayerQuests, use ").color(NamedTextColor.GRAY))
                     .append(Component.text("/playerquests ").color(NamedTextColor.AQUA))
                     .append(Component.text("to get started. You can also find a tutorial here! ").color(NamedTextColor.GRAY))
-                    .append(Component.text("%shttps://sammypanda.moe/docs/playerquests/v" + Database.getInstance().getPluginVersion()).decorate(TextDecoration.UNDERLINED))
+                    .append(Component.text("https://sammypanda.moe/docs/playerquests/v" + Database.getInstance().getPluginVersion()).decorate(TextDecoration.UNDERLINED))
                 ).player(player)
                  .style(MessageStyle.PRETTY)
                  .type(MessageType.NOTIF)
