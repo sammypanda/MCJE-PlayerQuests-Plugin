@@ -94,8 +94,8 @@ public class BlockListener implements Listener {
             });
             
             // clean up
-            this.canQuesterRefreshNPCs.put(event.getPlayer(), true);
-        }, 30 * 20); // 30 seconds (20 ticks per second)
+            this.canQuesterRefreshNPCs.put(player, true);
+        }, (int) (30.00 * 20.00)); // 30 seconds (20 ticks per second)
     }
     
     /**
