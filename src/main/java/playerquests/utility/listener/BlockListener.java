@@ -128,7 +128,6 @@ public class BlockListener implements Listener {
 
         // conditions to not continue the event:
         if (
-            block == null || // if block doesn't exist
             npcs.isEmpty() || // if block is not an active NPC
             event.getHand().equals(EquipmentSlot.OFF_HAND) || // no duplicating interaction
             !event.getAction().equals(Action.RIGHT_CLICK_BLOCK) // if the interaction is not a right click
