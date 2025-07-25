@@ -121,12 +121,10 @@ public class BlockListener implements Listener {
         }
 
         // persist client-side blocks
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            npcs.forEach(npc -> {
-                BlockNPC blockNPC = (BlockNPC) npc.getValue().getAssigned();
-                blockNPC.spawn(npc.getKey(), quester);
-            });
-        });
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> npcs.forEach(npc -> {
+            BlockNPC blockNPC = (BlockNPC) npc.getValue().getAssigned();
+            blockNPC.spawn(npc.getKey(), quester);
+        }));
 
         // conditions to not continue the event:
         if (

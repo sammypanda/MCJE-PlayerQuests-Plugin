@@ -305,9 +305,7 @@ public class QuestNPC {
      */
     @JsonIgnore 
     public void despawn(QuestClient quester) {
-        quester.getTrackedActions().forEach(action -> {
-            this.despawn(action, quester);
-        });
+        quester.getTrackedActions().forEach(action -> this.despawn(action, quester));
     }
 
     /**
