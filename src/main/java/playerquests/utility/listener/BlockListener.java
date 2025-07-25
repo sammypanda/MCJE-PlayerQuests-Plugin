@@ -65,20 +65,29 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onChunkLoad(PlayerChunkLoadEvent event) { 
         // Ensure at least one QuestClient exists before continuing
-        if ( QuestRegistry.getInstance().getAllQuesters().isEmpty() ) {
+        List<QuestClient> allQuesters = QuestRegistry.getInstance().getAllQuesters();
+        if ( allQuesters.isEmpty() ) {
+            return;
+        }
+
+        // Get player chunk loaded for
+        Player player = event.getPlayer();
+
+        // Safety check; does the player have a QuestClient
+        if ( allQuesters.stream().noneMatch(quester -> quester.getPlayer().equals(player)) ) {
             return;
         }
 
         // Get or create the refresh state for this player
-        boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
+        boolean state = this.canQuesterRefreshNPCs.getOrDefault(player, true);
         
         // If refresh not allowed for this player, exit
         if ( ! state) {
             return;
         }
 
-        QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
-        this.canQuesterRefreshNPCs.put(event.getPlayer(), false); // block refresh for period
+        QuestClient quester = Core.getQuestRegistry().getQuester(player);
+        this.canQuesterRefreshNPCs.put(player, false); // block refresh for period
         
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             // get NPCs
