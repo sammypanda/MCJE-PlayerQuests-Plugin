@@ -206,7 +206,7 @@ public class Dynamicitemslist extends GUIDynamic {
      * @param items the items (up to maxItems)
      */
     private void setItems(List<ItemStack> items) {
-        this.items = items;
+        this.items = new ArrayList<>(items);
     }
 
     /**
