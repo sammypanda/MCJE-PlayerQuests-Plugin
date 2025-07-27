@@ -107,6 +107,11 @@ public class Dynamicitemslist extends GUIDynamic {
                             return;
                         }
 
+                        // skip if already in the map
+                        if (this.getItems().contains(result)) {
+                            return;
+                        }
+
                         // add the selected item to the list
                         this.addItem(result);
 
