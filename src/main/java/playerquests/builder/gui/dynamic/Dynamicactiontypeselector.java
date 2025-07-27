@@ -105,7 +105,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
         this.actionTypes.forEach(actionType -> {
             GUISlot slot = actionType.createSlot(this.gui, this.gui.getEmptySlot());
 
-            if (action.getClass().isAssignableFrom(this.action.getClass())) {
+            if (actionType.getClass().isAssignableFrom(this.action.getClass())) {
                 slot
                     .setLabel(Component.join(JoinConfiguration.spaces(), slot.getLabel(), Component.text("(Selected)")))
                     .setItem(Material.FIREWORK_ROCKET);
