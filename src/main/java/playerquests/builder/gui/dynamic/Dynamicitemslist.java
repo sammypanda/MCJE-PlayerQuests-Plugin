@@ -86,7 +86,7 @@ public class Dynamicitemslist extends GUIDynamic {
             new GUISlot(gui, (this.items.size() + 2))
                 .setItem(Material.LIME_DYE)
                 .setLabel("Add an item")
-                .onClick(() -> {
+                .onClick(() ->
                     new SelectMaterial(
                         Arrays.asList(
                             "Select or type a block", // the prompt message
@@ -95,7 +95,7 @@ public class Dynamicitemslist extends GUIDynamic {
                             false // doesn't have to be a block
                         ), 
                         director
-                    ).onFinish((func) -> {
+                    ).onFinish(func -> {
                         SelectMaterial function = (SelectMaterial) func;
                         ItemStack result = function.getResult();
 
@@ -117,8 +117,8 @@ public class Dynamicitemslist extends GUIDynamic {
 
                         // show it added
                         this.execute();
-                    }).execute(); // run the function
-                });
+                    }).execute() // run the function
+                );
         }
 
         // show the items
@@ -160,7 +160,7 @@ public class Dynamicitemslist extends GUIDynamic {
                         Dynamicitemeditor editor = (Dynamicitemeditor) function.getDynamicGUI();
 
                         // delete
-                        editor.onRemove((i) -> {
+                        editor.onRemove(i -> {
                             // remove the item from our list
                             this.removeItem(i);
 
@@ -168,10 +168,10 @@ public class Dynamicitemslist extends GUIDynamic {
                             this.goBack(function);
                         });
 
-                        editor.onFinish((f) -> {
+                        editor.onFinish(f ->
                             // go back
-                            this.goBack(function);
-                        });
+                            this.goBack(function)
+                        );
                     }).execute();
                 });
 
@@ -186,7 +186,7 @@ public class Dynamicitemslist extends GUIDynamic {
     private void goBack(UpdateScreen function) {
         new UpdateScreen(
             new ArrayList<>(Arrays.asList(function.getPreviousScreen())), director
-        ).onFinish((f) -> {
+        ).onFinish(f -> {
             // find the new/next instance
             UpdateScreen nextfunction = (UpdateScreen) f;
             Dynamicitemslist list = (Dynamicitemslist) nextfunction.getDynamicGUI();
