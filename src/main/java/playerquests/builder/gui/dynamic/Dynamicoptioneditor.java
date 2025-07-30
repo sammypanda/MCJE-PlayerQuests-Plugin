@@ -68,10 +68,10 @@ public class Dynamicoptioneditor extends GUIDynamic {
             });
 
         // summon option buttons
-        this.actionData.getOptions().forEach(option -> {
+        this.actionData.getOptions().forEach(option ->
             // create the slot to edit options
-            option.createSlot(this, this.gui, this.gui.getEmptySlot(), this.director);
-        });
+            option.createSlot(this, this.gui, this.gui.getEmptySlot(), this.director)
+        );
     }
     
 }

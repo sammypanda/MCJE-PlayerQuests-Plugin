@@ -63,8 +63,9 @@ public class ItemsOption extends ActionOption {
                     UpdateScreen updateScreen = (UpdateScreen) f;
                     Dynamicitemslist itemsList = (Dynamicitemslist) updateScreen.getDynamicGUI();
 
-                    itemsList.onFinish(g -> {
-                        this.setItems(this.toMap(itemsList.getItems())); // translate to serialisable
+                    itemsList.onFinish(portableDynamicGUI -> {
+                        Dynamicitemslist portableItemsList = (Dynamicitemslist) portableDynamicGUI;
+                        this.setItems(this.toMap(portableItemsList.getItems())); // translate to serialisable
                         this.actionData.setOption(this); // set the option
                         screen.refresh();
                         director.removeCurrentInstance(ArrayList.class); // tidy up
