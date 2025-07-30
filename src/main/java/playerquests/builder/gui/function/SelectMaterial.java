@@ -107,7 +107,7 @@ public class SelectMaterial extends GUIFunction {
                 }
                 
                 event.getView().close();
-                parentClass.setResponse(event.getCurrentItem());
+                parentClass.setResponse(new ItemStack(event.getCurrentItem()));
             });
         }
 
