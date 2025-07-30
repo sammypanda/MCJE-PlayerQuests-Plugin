@@ -2,7 +2,9 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.bukkit.Material;
@@ -28,6 +30,11 @@ public class Dynamicitemslist extends GUIDynamic {
      * The list of items.
      */
     List<ItemStack> items = new ArrayList<>();
+
+    /**
+     * A reference map of the items for de-duping.
+     */
+    private Map<ItemSerialisable, Integer> itemsDeDupe = new HashMap<>();
 
     /**
      * The maximum number of items.
@@ -104,11 +111,6 @@ public class Dynamicitemslist extends GUIDynamic {
 
                         // if no result just exit
                         if (result == null) {
-                            return;
-                        }
-
-                        // skip if already in the map
-                        if (this.getItems().contains(result)) {
                             return;
                         }
 
@@ -207,7 +209,12 @@ public class Dynamicitemslist extends GUIDynamic {
      * @param items the items (up to maxItems)
      */
     private void setItems(List<ItemStack> items) {
-        this.items = new ArrayList<>(items);
+        // overwrite existing lists
+        this.items = new ArrayList<>();
+        this.itemsDeDupe = new HashMap<>();
+
+        // set, but with de-duping
+        items.forEach(this::addItem);
     }
 
     /**
@@ -215,7 +222,20 @@ public class Dynamicitemslist extends GUIDynamic {
      * @param item the item to add
      */
     private void addItem(ItemStack item) {
+        // get type of item
+        ItemSerialisable itemSerialiable = ItemSerialisable.fromItemStack(item);
+
+        // check if an item of this type is already in de-dupe map
+        if (this.itemsDeDupe.containsKey(itemSerialiable)) {
+            int index = this.itemsDeDupe.get(itemSerialiable); // get index of item in main list
+            ItemStack existingItem = this.items.get(index); // get the item would've duplicated on
+            existingItem.add(item.getAmount()); // add together..
+            return;
+        }
+
+        // add item to main list and de-dupe map
         this.items.add(item);
+        this.itemsDeDupe.put(itemSerialiable, this.items.indexOf(item));
     }
 
     /**
