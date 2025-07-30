@@ -191,7 +191,8 @@ public class Dynamicitemslist extends GUIDynamic {
             UpdateScreen nextfunction = (UpdateScreen) f;
             Dynamicitemslist list = (Dynamicitemslist) nextfunction.getDynamicGUI();
 
-            // migrate the onFinish code to the new instance
+            // migrate data to the new instance
+            list.setItems(this.getItems());
             list.onFinish(this.onFinish);
         }).execute();
         // ^ this works (despite being a completely fresh instance of the gui), because at the top
