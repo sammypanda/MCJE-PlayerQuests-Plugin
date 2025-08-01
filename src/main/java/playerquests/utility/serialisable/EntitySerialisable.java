@@ -28,38 +28,36 @@ public class EntitySerialisable implements Serialisable {
             // TODO: remove me vvv
             // Convert old format to curr
             if (string.contains("type:")) {
-                this.properties = Map.of("entity", string.split(":")[1].split(",")[0]);
+                this.properties = Map.of(EntityData.getEntityKey(), string.split(":")[1].split(",")[0]);
                 return;
             }
 
-            this.properties = Map.of("entity", string);
+            this.properties = Map.of(EntityData.getEntityKey(), string);
             return;
         }
 
         // get EntityData base and key-value pairs
-        String[] parts = string.split("\\[|\\]");
+        String[] parts = string.split("[\\[\\]]");
         Map<String, String> keyValues = Arrays.stream(parts[1].split(";"))
             .map(pair -> pair.split(":"))
             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         String baseString = parts[0];
-        String typeString = keyValues.get("entity");
+        String typeString = keyValues.get(EntityData.getEntityKey());
 
-        EntityData entityData;
         // convert from GENERIC (GENERIC[entity:HERE]), otherwise use special EntityData base string (HERE[key:value])
         if (typeString != null && ( ! typeString.isEmpty())) {
-            entityData = EntityData.getEnum(typeString);
+            this.entityData = EntityData.GENERIC;
         } else {
-            entityData = EntityData.getEnum(baseString);
+            this.entityData = EntityData.getEnum(baseString);
         }
 
         // spawn entity to wash properties (wash properties meaning cycle them to remove fake/unused ones)
         World world = Bukkit.getServer().getWorlds().getFirst();
-        Location location = new Location(world, 0, -100, 0); // hidden location, requires spawning in world
-        NPC citizen = entityData.createEntity(keyValues, location);
+        Location location = new Location(world, 0, 0, 0); // hidden location, requires spawning in world
+        NPC citizen = this.entityData.createEntity(keyValues, location);
         citizen.getEntity().setInvisible(true); // hide the entity
 
         // set final EntitySerialisable data
-        this.entityData = entityData;
         this.properties = entityData.extractProperties(citizen.getEntity());
         
         // remove data collection entity

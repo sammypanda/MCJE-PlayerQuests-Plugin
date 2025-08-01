@@ -31,7 +31,9 @@ public class ItemsOption extends ActionOption {
     /**
      * Default constructor for Jackson.
      */
-    public ItemsOption() {}
+    public ItemsOption() {
+        // Nothing here
+    }
 
     /**
      * Constructor including the QuestAction.
@@ -43,11 +45,13 @@ public class ItemsOption extends ActionOption {
 
     @Override
     public GUISlot createSlot(GUIDynamic screen, GUIBuilder gui, Integer slot, ClientDirector director) {
-        List<String> items = this.items.entrySet().stream().map(entry -> String.format("%s (%d)", entry.getKey().getName(), entry.getValue())).toList();
+        List<String> itemStrings = this.items.entrySet().stream().map(entry -> 
+            String.format("%s (%d)", entry.getKey().getName(), entry.getValue())
+        ).toList();
 
         return new GUISlot(gui, slot)
-            .setLabel(this.getItems().isEmpty() ? "Set items" : String.format("Change the items"))
-            .setDescription(items)
+            .setLabel(this.getItems().isEmpty() ? "Set items" : "Change the items")
+            .setDescription(itemStrings)
             .setItem(Material.CHEST)
             .onClick(() -> {
                 director.setCurrentInstance(new ArrayList<>(this.toList(this.getItems()))); // translate out of serialisable
@@ -59,8 +63,9 @@ public class ItemsOption extends ActionOption {
                     UpdateScreen updateScreen = (UpdateScreen) f;
                     Dynamicitemslist itemsList = (Dynamicitemslist) updateScreen.getDynamicGUI();
 
-                    itemsList.onFinish(_gui -> {
-                        this.setItems(this.toMap(itemsList.getItems())); // translate to serialisable
+                    itemsList.onFinish(portableDynamicGUI -> {
+                        Dynamicitemslist portableItemsList = (Dynamicitemslist) portableDynamicGUI;
+                        this.setItems(this.toMap(portableItemsList.getItems())); // translate to serialisable
                         this.actionData.setOption(this); // set the option
                         screen.refresh();
                         director.removeCurrentInstance(ArrayList.class); // tidy up

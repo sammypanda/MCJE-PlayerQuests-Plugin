@@ -45,32 +45,32 @@ public class QuesterData {
     /**
      * Useful for stopping listening to an action that has been completed.
      */
-    private HashMap<QuestAction, ActionListener<?>> listeners = new HashMap<>();
+    private HashMap<QuestAction<?,?>, ActionListener<?>> listeners = new HashMap<>();
 
     /**
      * Useful for stopping FXs from cycling.
      */
-    private HashMap<QuestAction, List<FX>> effects = new HashMap<>();
+    private HashMap<QuestAction<?,?>, List<FX>> effects = new HashMap<>();
 
     /**
      * Lock to wait for an ongoing action clash to be resolved.
      */
-    private Boolean clashLock = false;
+    private boolean clashLock = false;
 
     /**
      * Map if quester has consented to an action.
      */
-    private Map<QuestAction, Boolean> actionConsent = new HashMap<>();
+    private Map<QuestAction<?,?>, Boolean> actionConsent = new HashMap<>();
 
     /**
      * Map of registered QuestNPCs that are BlockNPC.
      */
-    private Map<Entry<QuestAction, QuestNPC>, BlockData> blockNPCs = new HashMap<>();
+    private Map<Entry<QuestAction<?,?>, QuestNPC>, BlockData> blockNPCs = new HashMap<>();
 
     /**
      * Map of registered QuestNPCs that are EntityNPC.
      */
-    private Map<Entry<QuestAction, QuestNPC>, NPC> entityNPCs = new HashMap<>();
+    private Map<Entry<QuestAction<?,?>, QuestNPC>, NPC> entityNPCs = new HashMap<>();
 
     /**
      * The context of data useful for working with a QuestClient.
@@ -103,9 +103,8 @@ public class QuesterData {
      * @param actionListener the listener that will trigger action checking
      * @return the passed in listener
      */
-    public ActionListener<?> addListener(QuestAction action, ActionListener<?> actionListener) {
+    public void addListener(QuestAction<?,?> action, ActionListener<?> actionListener) {
         this.listeners.put(action, actionListener);
-        return actionListener;
     }
 
     /**
@@ -113,7 +112,7 @@ public class QuesterData {
      * @param listenerType
      * @return
      */
-    public ActionListener<?> getListener(QuestAction action) {
+    public ActionListener<?> getListener(QuestAction<?,?> action) {
         return this.listeners.get(action);
     }
 
@@ -123,7 +122,7 @@ public class QuesterData {
      * @param effectList the list of FX to add
      * @return the passed in list of FX
      */
-    public List<FX> addFX(QuestAction action, List<FX> effectList) {
+    public List<FX> addFX(QuestAction<?,?> action, List<FX> effectList) {
         this.effects.put(action, effectList);
         return effectList;
     }
@@ -133,7 +132,7 @@ public class QuesterData {
      * @param questAction the quest action the FX is for
      * @return a list of effects that are currently in the world
      */
-    public List<FX> getFX(QuestAction action) {
+    public List<FX> getFX(QuestAction<?,?> action) {
         return this.effects.getOrDefault(action, List.of());
     }
 
@@ -143,17 +142,15 @@ public class QuesterData {
      * @param action the quest action to check against
      * @return whether the clash has been resolved
      */
-    public boolean resolveClashes(QuestAction action) {
+    public boolean resolveClashes(QuestAction<?,?> action) {
         // if waiting to resolve a clash, don't continue
         if (clashLock) {
             return false;
         }
 
-        QuestClient quester = this.getQuester();
-
         // if there are more than one actions
         // left after this filtration, that means there is a clash
-        ArrayList<QuestAction> clashingActions = new ArrayList<>(quester.getTrackedActions().stream()
+        ArrayList<QuestAction<?,?>> clashingActions = new ArrayList<>(this.getQuester().getTrackedActions().stream()
             // filter out exact matches
             .filter(trackedAction -> !trackedAction.equals(action))
             // filter out any 'None' action
@@ -164,7 +161,7 @@ public class QuesterData {
             .toList());
 
         // exit if no clashing to resolve
-        if (clashingActions.size() == 0) {
+        if (clashingActions.isEmpty()) {
             return true;
         }
 
@@ -173,7 +170,7 @@ public class QuesterData {
 
         // resolve clashing
         clashingActions.add(action); // add the reference action in as an option
-        Player player = quester.getPlayer(); // get the player
+        Player player = this.getQuester().getPlayer(); // get the player
         Builder message = Component.text()
             .appendNewline()
             .append(Component.text("This area offers more than one action\n"))
@@ -189,7 +186,7 @@ public class QuesterData {
 
             message
                 .append(Component.text(
-                    String.format("> %s.%s\n",
+                    String.format("> %s.%s%n",
                         quest.getTitle(), // the quest title
                         path)) // the path to the action
                 )
@@ -212,7 +209,7 @@ public class QuesterData {
      * Stop an action listener and unset it.
      * @param action the action the listener is paired with
      */
-    public void stopListener(QuestAction action) {
+    public void stopListener(QuestAction<?,?> action) {
         ActionListener<?> listener = this.getListener(action);
 
         if (listener == null) {
@@ -228,7 +225,7 @@ public class QuesterData {
      * @param action quest action to set consent for
      * @param consent state of consent to set
      */
-    public void setConsent(QuestAction action, Boolean consent) {
+    public void setConsent(QuestAction<?,?> action, boolean consent) {
         this.actionConsent.put(action, consent);
     }
 
@@ -237,36 +234,36 @@ public class QuesterData {
      * @param action quest action to check consent of
      * @return consent state; defaulting to false
      */
-    public boolean getConsent(QuestAction action) {
+    public boolean getConsent(QuestAction<?,?> action) {
         return this.actionConsent.getOrDefault(action, false);
     }
 
-    public BlockData getBlockNPC(QuestAction action, QuestNPC npc) {
+    public BlockData getBlockNPC(QuestAction<?,?> action, QuestNPC npc) {
         return this.blockNPCs.get(Map.entry(action, npc));
     }
 
-    public void addBlockNPC(QuestAction action, QuestNPC npc, BlockData value) {
+    public void addBlockNPC(QuestAction<?,?> action, QuestNPC npc, BlockData value) {
         this.blockNPCs.put(Map.entry(action, npc), value);
     }
 
-    public void removeBlockNPC(QuestAction action, QuestNPC npc) {
+    public void removeBlockNPC(QuestAction<?,?> action, QuestNPC npc) {
         this.blockNPCs.remove(Map.entry(action, npc));
     }
 
-    public NPC getCitizenNPC(QuestAction action, QuestNPC npc) {
+    public NPC getCitizenNPC(QuestAction<?,?> action, QuestNPC npc) {
         return this.entityNPCs.get(Map.entry(action, npc));
     }
 
-    public void addCitizenNPC(QuestAction action, QuestNPC npc, NPC value) {
+    public void addCitizenNPC(QuestAction<?,?> action, QuestNPC npc, NPC value) {
         this.entityNPCs.put(Map.entry(action, npc), value);
     }
 
-    public void removeEntityNPC(QuestAction action, QuestNPC npc) {
+    public void removeEntityNPC(QuestAction<?,?> action, QuestNPC npc) {
         this.entityNPCs.remove(Map.entry(action, npc));
     }
 
-    public List<Entry<QuestAction, QuestNPC>> getNPCs() {
-        ArrayList<Entry<QuestAction, QuestNPC>> npcs = new ArrayList<>();
+    public List<Entry<QuestAction<?,?>, QuestNPC>> getNPCs() {
+        ArrayList<Entry<QuestAction<?,?>, QuestNPC>> npcs = new ArrayList<>();
 
         npcs.addAll(this.blockNPCs.keySet());
         npcs.addAll(this.entityNPCs.keySet());

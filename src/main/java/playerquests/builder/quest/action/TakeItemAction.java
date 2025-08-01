@@ -20,7 +20,6 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.TakeItemListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -33,7 +32,7 @@ import playerquests.utility.ChatUtils;
 import playerquests.utility.serialisable.ItemSerialisable;
 import playerquests.utility.singleton.QuestRegistry;
 
-public class TakeItemAction extends QuestAction {
+public class TakeItemAction extends QuestAction<TakeItemAction, TakeItemListener> {
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
@@ -134,7 +133,7 @@ public class TakeItemAction extends QuestAction {
         });
 
         player.sendMessage(
-            String.format("\n<%s>", "Taking item")
+            String.format("%n<%s>", "Taking item")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
@@ -155,7 +154,7 @@ public class TakeItemAction extends QuestAction {
     }
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected TakeItemListener startListener(QuesterData questerData) {
         return new TakeItemListener(this, questerData);
     }
 

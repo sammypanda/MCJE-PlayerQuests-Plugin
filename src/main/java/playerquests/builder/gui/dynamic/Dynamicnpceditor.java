@@ -39,7 +39,7 @@ public class Dynamicnpceditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // get the current quest npc for editing
         this.npc = (QuestNPC) this.director.getCurrentInstance(QuestNPC.class);
 
@@ -48,7 +48,7 @@ public class Dynamicnpceditor extends GUIDynamic {
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         this.generatePage();
     }
 
@@ -128,7 +128,7 @@ public class Dynamicnpceditor extends GUIDynamic {
                 this.quest.addNPC(npc);
             }
 
-            Boolean success = npc.save(this.quest, this.npc);
+            boolean success = npc.save(this.quest, this.npc);
 
             if (success) { // if the npc was successfully saved..
                 // update the quest

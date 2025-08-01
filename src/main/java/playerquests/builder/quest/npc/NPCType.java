@@ -2,7 +2,6 @@ package playerquests.builder.quest.npc;
 
 import java.util.Arrays;
 import java.util.List; // generic list type
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -55,14 +54,14 @@ public abstract class NPCType {
     /**
      * Default constructor for Jackson serialization.
      */
-    public NPCType() {}
+    protected NPCType() {}
 
     /**
      * Constructs an NPCType with the specified value and associated QuestNPC.
      * @param value the type-specific value used to customize the NPC
      * @param npc the QuestNPC instance
      */
-    public NPCType(String value, QuestNPC npc) {
+    protected NPCType(String value, QuestNPC npc) {
         this.value = value;
         this.npc = npc;
     }
@@ -78,8 +77,8 @@ public abstract class NPCType {
         return Arrays.stream(jsonSubTypes.value())
             .map(type -> type.value())
             .filter(clazz -> NPCType.class.isAssignableFrom(clazz)) // Type check
-            .map(clazz -> (Class<? extends NPCType>) clazz) // Safe cast
-            .collect(Collectors.toList());
+            .<Class<? extends NPCType>>map(clazz -> (Class<? extends NPCType>) clazz) // Safe cast
+            .toList();
     }
 
     /**
@@ -149,7 +148,7 @@ public abstract class NPCType {
      * @param action the action the NPC is a part of
      * @param quester the quest client to unregister the NPC from the {@link playerquests.builder.quest.data.QuesterData}
      */
-    protected abstract void unregister(QuestAction action, QuestClient quester);
+    protected abstract void unregister(QuestAction<?,?> action, QuestClient quester);
 
     /**
      * Despawns an NPC without unregistering.
@@ -157,7 +156,7 @@ public abstract class NPCType {
      * @param action the action the NPC is a part of
      * @param quester the quest client to despawn the NPC from the {@link playerquests.builder.quest.data.QuesterData} of
      */
-    protected abstract void despawn(QuestAction action, QuestClient quester);
+    protected abstract void despawn(QuestAction<?,?> action, QuestClient quester);
 
     /**
      * Registers an NPC unspawned.
@@ -166,7 +165,7 @@ public abstract class NPCType {
      * @param quester the quest client to register the NPC into the {@link playerquests.builder.quest.data.QuesterData} of
      * @param value the special value that identifies the NPC in the world
      */
-    protected abstract void register(QuestAction action, QuestClient quester, Object value);
+    protected abstract void register(QuestAction<?,?> action, QuestClient quester, Object value);
 
     /**
      * Spawns an NPC untracked/unregistered.
@@ -175,5 +174,5 @@ public abstract class NPCType {
      * @param quester the quest client to 'show' the NPC to
      * @return the value that identifies the NPC in the world
      */
-    protected abstract Object spawn(QuestAction action, QuestClient quester);
+    protected abstract Object spawn(QuestAction<?,?> action, QuestClient quester);
 }

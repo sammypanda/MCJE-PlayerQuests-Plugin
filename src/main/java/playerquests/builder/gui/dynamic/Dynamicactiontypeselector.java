@@ -2,8 +2,7 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bukkit.Material;
 
@@ -14,6 +13,10 @@ import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.QuestAction;
 import playerquests.builder.quest.stage.QuestStage;
 import playerquests.client.ClientDirector;
+import playerquests.utility.ChatUtils;
+import playerquests.utility.ChatUtils.MessageTarget;
+import playerquests.utility.ChatUtils.MessageType;
+import playerquests.utility.exception.MissingStageException;
 
 /**
  * GUI for selecting action types.
@@ -23,12 +26,12 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     /**
      * The action to change the type of.
      */
-    QuestAction action;
+    QuestAction<?,?> action;
 
     /**
      * All the quest action types.
      */
-    List<QuestAction> actionTypes;
+    List<QuestAction<?,?>> actionTypes;
 
     /**
      * The stage the action belongs to.
@@ -45,38 +48,43 @@ public class Dynamicactiontypeselector extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
-        this.action = (QuestAction) this.director.getCurrentInstance(QuestAction.class);
+    protected void setupCustom() {
+        this.action = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
         this.stage = this.action.getStage();
 
         // hmm actions should always have stages!
         if (this.stage == null) {
-            throw new RuntimeException("When changing action types, an action had a null stage.");
+            throw new MissingStageException(
+                "When changing action types, an action had a null stage.", 
+                new IllegalStateException("An action is missing a stage. All actions should belong to a stage.")
+            );
         }
 
         // get all annotated action types
         this.actionTypes = QuestAction.getAllTypes()
             .stream()
-            .map(actionClass -> {
+            .<QuestAction<?, ?>>flatMap(actionClass -> {  // explicit type hint
                 try {
                     // create QuestAction instance from class type
-                    return actionClass.getDeclaredConstructor().newInstance();
+                    return Stream.of(actionClass.getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+                    ChatUtils.message(e.getMessage())
+                        .target(MessageTarget.CONSOLE)
+                        .type(MessageType.ERROR)
+                        .send();
+                    return Stream.empty();
                 }
             })
-            .filter(Objects::nonNull) // Filter out any nulls resulting from exceptions
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         int minimumSize = Math.clamp(
-            Math.round(
-                (Integer.valueOf(this.actionTypes.size()) / 9) * 9), 
+            (Integer.valueOf(this.actionTypes.size()) / 9) * 9, 
             9, 
-            54);
+            54
+        );
 
         // set the GUI title
         this.gui.getFrame()
@@ -94,10 +102,10 @@ public class Dynamicactiontypeselector extends GUIDynamic {
             ));
 
         // create the action selection buttons
-        this.actionTypes.forEach(action -> {
-            GUISlot slot = action.createSlot(this.gui, this.gui.getEmptySlot());
+        this.actionTypes.forEach(actionType -> {
+            GUISlot slot = actionType.createSlot(this.gui, this.gui.getEmptySlot());
 
-            if (action.getClass().isAssignableFrom(this.action.getClass())) {
+            if (actionType.getClass().isAssignableFrom(this.action.getClass())) {
                 slot
                     .setLabel(Component.join(JoinConfiguration.spaces(), slot.getLabel(), Component.text("(Selected)")))
                     .setItem(Material.FIREWORK_ROCKET);
@@ -105,7 +113,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
 
             // functionality for changing the action type
             slot.onClick(() -> {
-                this.changeType(this.action, action);
+                this.changeType(this.action, actionType);
             });
         });                
     }
@@ -115,7 +123,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
      * @param oldAction the action being edited.
      * @param newAction the action to replace it with, that has the new type.
      */
-    private void changeType(QuestAction oldAction, QuestAction newAction) {
+    private void changeType(QuestAction<?,?> oldAction, QuestAction<?,?> newAction) {
         // replace the action in the stage
         this.action = this.stage.replaceAction(oldAction, newAction);
 

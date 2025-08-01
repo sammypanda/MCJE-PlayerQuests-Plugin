@@ -47,13 +47,13 @@ public abstract class ActionCondition {
     /** 
      * Default constructor for Jackson.
      */
-    public ActionCondition() {}
+    protected ActionCondition() {}
 
     /**
      * Constructor for creating action conditions.
      * @param actionData all relevant data for the condition to use
      */
-    public ActionCondition(ActionData actionData) {
+    protected ActionCondition(ActionData actionData) {
         this.actionData = actionData;
     }
 
@@ -64,7 +64,7 @@ public abstract class ActionCondition {
      * @param questerData the data used to check the conditional.
      * @return boolean of the condition
      */
-    public abstract Boolean isMet(QuesterData questerData);
+    public abstract boolean isMet(QuesterData questerData);
 
     /**
      * Creates the slots in a GUI that would be used
@@ -128,7 +128,7 @@ public abstract class ActionCondition {
 
         protected final QuesterData questerData;
 
-        public ActionConditionListener(C actionCondition, QuesterData questerData) {
+        protected ActionConditionListener(C actionCondition, QuesterData questerData) {
             this.actionCondition = actionCondition;
             this.questerData = questerData;
 
@@ -140,7 +140,7 @@ public abstract class ActionCondition {
          * Trigger a re-start of the action.
          */
         public void trigger() {
-            QuestAction action = this.actionCondition.getActionData().getAction();
+            QuestAction<?,?> action = this.actionCondition.getActionData().getAction();
 
             // start the action
             questerData.getQuester().start(

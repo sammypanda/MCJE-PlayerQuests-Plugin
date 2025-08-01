@@ -14,7 +14,6 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.RewardItemListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.ItemsOption;
@@ -23,7 +22,7 @@ import playerquests.builder.quest.data.QuesterData;
 import playerquests.product.Quest;
 import playerquests.utility.singleton.QuestRegistry;
 
-public class RewardItemAction extends QuestAction {
+public class RewardItemAction extends QuestAction<RewardItemAction, RewardItemListener> {
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
@@ -56,7 +55,7 @@ public class RewardItemAction extends QuestAction {
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
 
         player.sendMessage(
-            String.format("\n<%s>", "Dropping reward")
+            String.format("%n<%s>", "Dropping reward")
         );
 
         itemsOption.getItems().forEach((item, amount) -> {
@@ -94,10 +93,12 @@ public class RewardItemAction extends QuestAction {
     }
 
     @Override
-    protected void failure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {
+        // no failure case
+    }
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {
+    protected RewardItemListener startListener(QuesterData questerData) {
         return new RewardItemListener(this, questerData);
     }
 

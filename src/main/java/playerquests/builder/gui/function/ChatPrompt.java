@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler; // handling spigot events
 import org.bukkit.event.HandlerList; // to unregister event listener (ChatPromptListener)
 import org.bukkit.event.Listener; // to register event listener (ChatPromptListener)
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.jetbrains.annotations.NotNull;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -102,12 +103,12 @@ public class ChatPrompt extends GUIFunction {
     /**
      * Tracking if the setup process in execute() has already been done.
      */
-    private Boolean wasSetUp = false;
+    private boolean wasSetup = false;
 
     /**
      * Tracking if the user input has been confirmed by the user.
      */
-    private Boolean confirmedValue = false;
+    private boolean confirmedValue = false;
 
     /**
      * Instantiating Listener to pass values back into this function on events.
@@ -139,7 +140,7 @@ public class ChatPrompt extends GUIFunction {
      * <li>Re-runs {@link #execute()}.
      * </ul>
      */
-    private void setUp() {
+    private void setup() {
         // set initial values
         this.prompt = (String) params.get(0);
         this.key = (String) params.get(1);
@@ -160,7 +161,7 @@ public class ChatPrompt extends GUIFunction {
         this.director.getGUI().getResult().minimise();
 
         // mark this function class as setup
-        this.wasSetUp = true;
+        this.wasSetup = true;
 
         // create a listener for checking if the user types in a value (and any other related chat events)
         Bukkit.getPluginManager().registerEvents(this.chatListener, Core.getPlugin());
@@ -201,8 +202,8 @@ public class ChatPrompt extends GUIFunction {
      */
     @Override
     public void execute() {
-        if (!this.wasSetUp) {
-            setUp();
+        if (!this.wasSetup) {
+            setup();
             return;
         }
 
@@ -224,7 +225,7 @@ public class ChatPrompt extends GUIFunction {
 
         if (this.confirmedValue) {
             if (!this.key.equals("none")) {
-                throw new RuntimeException("KeyHandler removed.");
+                throw new IllegalArgumentException("KeyHandler removed.");
             }
 
             putPredefinedMessage(MessageType.CONFIRMED);
@@ -232,9 +233,8 @@ public class ChatPrompt extends GUIFunction {
             return;
         }
 
-        if (this.value != null && this.confirmedValue == false) {
+        if (this.value != null && !this.confirmedValue) {
             putPredefinedMessage(MessageType.CONFIRM);
-            return;
         }
     }
 
@@ -273,8 +273,7 @@ public class ChatPrompt extends GUIFunction {
             ChatUtils.message(Component.empty()
                 .append(Component.text(this.prompt).decorate(TextDecoration.UNDERLINED))
                 .appendNewline()
-                .append(Component.text("or type ").color(NamedTextColor.RED))
-                .append(Component.text("exit").color(NamedTextColor.GRAY))
+                .append(this.exitTextComponent())
             ).player(player).send();
             break;
 
@@ -284,11 +283,9 @@ public class ChatPrompt extends GUIFunction {
                 .appendNewline()
                 .append(Component.text("enter again").color(NamedTextColor.GRAY))
                 .appendNewline()
-                .append(Component.text("or type ").color(NamedTextColor.GREEN))
-                .append(Component.text("confirm").color(NamedTextColor.GRAY))
+                .append(this.confirmTextComponent())
                 .appendNewline()
-                .append(Component.text("or type ").color(NamedTextColor.RED))
-                .append(Component.text("exit").color(NamedTextColor.GRAY))
+                .append(this.exitTextComponent())
             ).player(player).send();
             break;
 
@@ -310,6 +307,20 @@ public class ChatPrompt extends GUIFunction {
         }
     }
 
+    private @NotNull Component confirmTextComponent() {
+        return Component.text()
+            .append(Component.text("or type ").color(NamedTextColor.GREEN))
+            .append(Component.text("confirm").color(NamedTextColor.GRAY))
+            .asComponent();
+    }
+
+    private @NotNull Component exitTextComponent() {
+        return Component.text()
+            .append(Component.text("or type ").color(NamedTextColor.RED))
+            .append(Component.text("exit").color(NamedTextColor.GRAY))
+            .asComponent();
+    }
+
     /**
      * Called when everything is done.
      * <ul>
@@ -328,7 +339,7 @@ public class ChatPrompt extends GUIFunction {
 
             // reset values
             this.value = null;
-            this.wasSetUp = false;
+            this.wasSetup = false;
             this.confirmedValue = false;
         });
     }

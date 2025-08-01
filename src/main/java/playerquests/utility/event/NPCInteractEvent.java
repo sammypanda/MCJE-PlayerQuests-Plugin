@@ -23,7 +23,7 @@ public class NPCInteractEvent extends Event {
     /**
      * The NPCs interacted with.
      */
-    private final List<Entry<QuestAction, QuestNPC>> npcs;
+    private final List<Entry<QuestAction<?,?>, QuestNPC>> npcs;
 
     /**
      * The player who interacted with the NPC.
@@ -35,7 +35,7 @@ public class NPCInteractEvent extends Event {
      * @param activeNPCs the npc interacted with
      * @param player the player who interacted with the npc
      */
-    public NPCInteractEvent(List<Entry<QuestAction, QuestNPC>> activeNPCs, Player player) {
+    public NPCInteractEvent(List<Entry<QuestAction<?,?>, QuestNPC>> activeNPCs, Player player) {
         this.npcs = activeNPCs;
         this.player = player;
     }
@@ -49,7 +49,7 @@ public class NPCInteractEvent extends Event {
      * Gets the NPC interacted with.
      * @return a quest npc
      */
-    public List<Entry<QuestAction, QuestNPC>> getNPCs() {
+    public List<Entry<QuestAction<?,?>, QuestNPC>> getNPCs() {
         return this.npcs;
     }
 
@@ -65,7 +65,7 @@ public class NPCInteractEvent extends Event {
      * Get the hander list for this event.
      * @return the event handler list
      */
-    static public HandlerList getHandlerList() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

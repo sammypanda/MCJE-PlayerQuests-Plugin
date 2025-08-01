@@ -53,11 +53,7 @@ public class GUIListener implements Listener {
     private Boolean isGUI(Player player) {
         GUIBuilder builder = this.builders.get(player);
 
-        if (builder != null) {
-            return true;
-        }
-        
-        return false;
+        return builder != null;
     }
 
     /**
@@ -89,7 +85,6 @@ public class GUIListener implements Listener {
         // if is in a GUI, then cancel (see onDropItem)
         if (this.isGUI(player)) {
             event.setCancelled(true);
-            return;
         }
     }
 
@@ -162,7 +157,6 @@ public class GUIListener implements Listener {
             ) == "true"
         ) {
             event.setCancelled(true);
-            return;
         }
     }
     

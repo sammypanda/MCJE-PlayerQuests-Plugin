@@ -30,12 +30,12 @@ public class Dynamicactionconditionviewer extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.actionData = (ActionData) this.director.getCurrentInstance(ActionData.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // style the GUIs
         this.gui.getFrame()
             .setTitle(

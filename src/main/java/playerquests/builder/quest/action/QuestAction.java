@@ -3,9 +3,9 @@ package playerquests.builder.quest.action;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -59,7 +59,7 @@ import playerquests.utility.singleton.Database;
     @JsonSubTypes.Type(value = TakeItemAction.class, name = "TakeItemAction"),
     @JsonSubTypes.Type(value = CraftAction.class, name = "CraftAction")
 })
-public abstract class QuestAction {
+public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionListener<A>> {
 
     /**
      * The quest stage that this action belongs to.
@@ -83,14 +83,16 @@ public abstract class QuestAction {
     /**
      * Constructor for jackson.
      */
-    public QuestAction() {}
+    public QuestAction() {
+        // Nothing here
+    }
 
     /**
-     * Constructs a new QuestAction with the specified stage.
+     * Constructs a new QuestAction<?,?> with the specified stage.
      * This constructor initializes the action ID and action options.
      * @param stage the stage this action belongs to
      */
-    public QuestAction(QuestStage stage) {
+    protected QuestAction(QuestStage stage) {
         this.stage = stage;
     }
 
@@ -319,7 +321,7 @@ public abstract class QuestAction {
      * @param questerData the data about the quester playing the action.
      * @return the listener for the action
      */
-    protected abstract ActionListener<?> startListener(QuesterData questerData);
+    protected abstract L startListener(QuesterData questerData);
 
     /**
      * Starts the FX that will indicate the action.
@@ -384,18 +386,18 @@ public abstract class QuestAction {
 	}
 
     /**
-     * Gets all the existing QuestAction types annotated.
+     * Gets all the existing QuestAction<?,?> types annotated.
      * @return all known quest action class types
      */
     @SuppressWarnings("unchecked") // it is checked :)
-    public static List<Class<? extends QuestAction>> getAllTypes() {
+    public static List<Class<? extends QuestAction<?, ?>>> getAllTypes() {
         JsonSubTypes jsonSubTypes = QuestAction.class.getDeclaredAnnotation(JsonSubTypes.class);
 
         return Arrays.stream(jsonSubTypes.value())
             .map(type -> type.value())
             .filter(clazz -> QuestAction.class.isAssignableFrom(clazz)) // Type check
-            .map(clazz -> (Class<? extends QuestAction>) clazz) // Safe cast
-            .collect(Collectors.toList());
+            .<Class<? extends QuestAction<?, ?>>>map(clazz -> (Class<? extends QuestAction<?, ?>>) clazz) // Safe cast
+            .toList();
     }
 
     /**
@@ -425,13 +427,10 @@ public abstract class QuestAction {
         // get next actions
         List<StagePath> nextActions = this.getData().getNextActions();
 
-        // get the stage this action belongs to
-        QuestStage stage = this.getStage();
-
         // designate this action as completed in the database
         String diaryID = questerData.getQuester().getDiary().getID();
-        String questID = stage.getQuest().getID();
-        StagePath actionPath = new StagePath(stage, List.of(this));
+        String questID = this.getStage().getQuest().getID();
+        StagePath actionPath = new StagePath(this.getStage(), List.of(this));
         Database.getInstance().setDiaryEntryCompletion(diaryID, questID, actionPath, true);
 
         // trigger next actions
@@ -517,5 +516,29 @@ public abstract class QuestAction {
      */
     public boolean hasLabel() {
         return this.label != null;
+    }
+
+    public String getActionStateText(boolean isSelected, boolean isStartPoint) {
+        if (isSelected) {
+            return "Selected";
+        }
+
+        return (isStartPoint ? "Start Point" : "Select");
+    }
+
+    public String getActionStateText(boolean isStartPoint) {
+        return this.getActionStateText(false, isStartPoint);
+    }
+
+    public Material getActionStateItem(boolean isSelected, boolean isStartPoint) {
+        if (isSelected) {
+            return Material.POWERED_RAIL;
+        }
+
+        return isStartPoint ? Material.DETECTOR_RAIL : Material.RAIL;
+    }
+
+    public Material getActionStateItem(boolean isStartPoint) {
+        return this.getActionStateItem(false, isStartPoint);
     }
 }

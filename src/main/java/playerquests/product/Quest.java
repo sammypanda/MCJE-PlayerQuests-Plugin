@@ -120,12 +120,12 @@ public class Quest {
 
         // Set Quest dependency for each QuestStage instead of custom deserialize
         if (this.stages != null) {
-            stages.forEach((stage_id, stage) -> {
+            stages.forEach((stageID, stage) -> {
                 stage.setQuest(this);
 
                 // set stage ID if it's missing
-                if (stage_id != stage.getID()) {
-                    stage.setID(stage_id);
+                if (stageID.equals(stage.getID())) {
+                    stage.setID(stageID);
                 }
             });
         }
@@ -136,7 +136,7 @@ public class Quest {
                 npc.setQuest(this);
 
                 // set npc ID if it's missing
-                if (npc_id != npc.getID()) {
+                if (npc_id.equals(npc.getID())) {
                     npc.setID(npc_id);
                 }
             });
@@ -162,9 +162,15 @@ public class Quest {
         try {
             quest = jsonObjectMapper.readValue(questJSON, Quest.class);
         } catch (JsonMappingException e) {
-            System.err.println("Could not map a quest JSON string to a valid quest product. " + e);
+            ChatUtils.message("Could not map a quest JSON string to a valid quest product. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         } catch (JsonProcessingException e) {
-            System.err.println("Malformed JSON attempted as a quest string. " + e);
+            ChatUtils.message("Malformed JSON attempted as a quest string. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
         }
 
         // if no quest, fail
@@ -276,13 +282,13 @@ public class Quest {
      * @return A message indicating the result of the save operation.
      */
     public String save() {
-        String questName = Core.getQuestsPath() + this.getID() + ".json"; // name pattern
+        String questName = Core.getQuestsPath() + this.getID() + Core.getQuestFileExtension(); // name pattern
         Player player = null;
 
         // set player if this quest has one
         if (this.creator != null) {
             player = Bukkit.getPlayer(this.creator);
-        };
+        }
 
         // create quest in fs, or update it
         try {
@@ -327,7 +333,7 @@ public class Quest {
      * @return Whether the quest is enabled.
      */
     @JsonIgnore
-    public Boolean isToggled() {
+    public boolean isToggled() {
         // if value, uninitiated or unset
         // find truth in database
         if (this.toggled == null) {
@@ -351,7 +357,7 @@ public class Quest {
      */
     public void toggle(boolean toEnable) {
         // check if able to be toggled
-        if (toEnable == true && !isAllowed()) {
+        if (toEnable && !isAllowed()) {
             toEnable = false;
         }
 
@@ -434,7 +440,7 @@ public class Quest {
         }
 
         // Validate quest title
-        isAllowed = !PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().anyMatch(entry -> {
+        isAllowed = PluginUtils.getPredictiveInventory(this, QuestRegistry.getInstance().getInventory(this)).entrySet().stream().noneMatch(entry -> {
             Integer amount = entry.getValue();
 
             if (amount < 0) {

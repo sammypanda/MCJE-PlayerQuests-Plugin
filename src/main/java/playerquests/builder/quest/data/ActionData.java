@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -25,7 +24,7 @@ public class ActionData {
      * The action this data belongs to.
      */
     @JsonBackReference
-    private QuestAction action;
+    private QuestAction<?,?> action;
 
     /**
      * The unique identifier of this action.
@@ -57,7 +56,9 @@ public class ActionData {
     /**
      * Default constructor for Jackson
      */
-    public ActionData() {}
+    public ActionData() {
+        // Nothing here
+    }
 
     /**
      * Constructor for providing action context.
@@ -68,7 +69,7 @@ public class ActionData {
      * @param conditions the conditionals to allow the action to complete
      */
     public ActionData( 
-        QuestAction action,
+        QuestAction<?,?> action,
         String id,
         List<StagePath> nextActions,
         List<ActionCondition> conditions
@@ -165,7 +166,7 @@ public class ActionData {
                 }
             })
             .filter(option -> option != null) // filter out any null values
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -185,7 +186,7 @@ public class ActionData {
      * Get the action this data belongs to.
      * @return a quest action.
      */
-    public QuestAction getAction() {
+    public QuestAction<?,?> getAction() {
         return this.action;
     }
 

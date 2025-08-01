@@ -41,7 +41,7 @@ public class Dynamicqueststages extends GUIDynamic {
     /**
      * Create the GUI and set up.
      */
-    public void setUp_custom() {
+    public void setupCustom() {
         this.questBuilder = (QuestBuilder) this.director.getCurrentInstance(QuestBuilder.class);
 
         this.guiTitle = this.guiTitle + " (" + ChatUtils.shortenString(this.questBuilder.getTitle(), 18) + ")";
@@ -51,7 +51,7 @@ public class Dynamicqueststages extends GUIDynamic {
      * Main quest stages GUI loop
      */
     @Override
-    public void execute_custom() {
+    public void executeCustom() {
         this.generatePages();
     }
 
@@ -130,7 +130,7 @@ public class Dynamicqueststages extends GUIDynamic {
                 new UpdateScreen(
                     Arrays.asList("queststage"),
                     director
-                ).execute();;
+                ).execute();
             });
 
             return false; // continue the loop

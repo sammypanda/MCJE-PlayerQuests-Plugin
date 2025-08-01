@@ -1,9 +1,10 @@
 ![Player Quests Under Development Banner](https://cdn.modrinth.com/data/N5NJr7y3/images/ca3ac817e9d55bd24238766c4f746291b5d2c9ae.png)
 
 # (Under Development) PlayerQuests ☼
+- Install [Citizens2](https://ci.citizensnpcs.co/job/citizens2/) to use entities as NPCs!
 - Where survival players without cheats can create quests! (with inventories as adorable GUIs).
 - This plugin is still being improved, [see the plan](https://github.com/users/sammypanda/projects/2/views/1?layout=board)!
-- Help with the code [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)!
+- Help with the code [here](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/main/branding/docs/developers#readme)!
 
 <div align="center">
   <a href="#add">How to add</a> |
@@ -46,7 +47,7 @@
 
 <h1 id="add">To add to your server, follow these steps ✿</h1>
 
-<ul>
+<ol>
   <li><ins>Make sure you're on Java 21 at least.</ins></li>
   <li>Download the latest .jar file.</li>
   <li>Drag and drop the .jar file into the server 'plugins' folder.
@@ -54,7 +55,8 @@
       <li>Note: Create the plugins folder if it doesn't exist.</li>
     </ul>
   </li>
-</ul>
+  <li>(Optional) Do the same with the <a href="https://ci.citizensnpcs.co/job/citizens2">Citizens2</a> plugin to be able to use entities as NPCs!</li>
+</ol>
 
 <br>
 
@@ -108,7 +110,7 @@
 
 - [Join our little Discord community](http://discord.gg/EvWVSn9URf)
 - [Let me help you on GitHub](http://github.com/sammypanda/MCJE-PlayerQuests-Plugin/issues/)
-- [Contribute to the code](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/dev/main/docs/branding/docs/developers#readme)
+- [Contribute to the code](https://github.com/sammypanda/MCJE-PlayerQuests-Plugin/tree/main/branding/docs/developers#readme)
 
 <br>
 

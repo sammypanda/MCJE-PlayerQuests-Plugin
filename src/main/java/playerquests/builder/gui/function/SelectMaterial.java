@@ -1,7 +1,7 @@
 package playerquests.builder.gui.function;
 
 import java.util.List; // used for creating deniedBlocks list
-import java.util.stream.Collectors; // transforming stream to data type
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit; // getting the plugin manager
 import org.bukkit.Material; // the resulting material (block)
@@ -107,7 +107,7 @@ public class SelectMaterial extends GUIFunction {
                 }
                 
                 event.getView().close();
-                parentClass.setResponse(event.getCurrentItem());
+                parentClass.setResponse(new ItemStack(event.getCurrentItem()));
             });
         }
 
@@ -189,12 +189,12 @@ public class SelectMaterial extends GUIFunction {
     /**
      * If the function has been set up.
      */
-    private boolean wasSetUp;
+    private boolean wasSetup;
 
     /**
      * The blocks to deniedBlocks.
      */
-    private List<Material> deniedBlocks;
+    private List<Material> deniedBlocks = List.of(Material.AIR);;
 
     /**
      * The methods of selecting blocks to deny.
@@ -235,7 +235,7 @@ public class SelectMaterial extends GUIFunction {
      * <li>Re-runs {@link #execute()}.
      * </ul>
      */
-    private void setUp() {
+    private void setup() {
         try {
             PluginUtils.validateParams(this.params, String.class, List.class, List.class, Boolean.class);
         } catch (IllegalArgumentException e) {
@@ -252,9 +252,6 @@ public class SelectMaterial extends GUIFunction {
         this.deniedMethods = castDeniedMethods(params.get(2));
         this.blocksOnly = (Boolean) params.get(3);
 
-        // add basics to deniedBlocks
-        this.deniedBlocks.add(Material.AIR);
-
         // get and set the player who is selecting the block
         this.player = this.director.getPlayer();
 
@@ -266,7 +263,7 @@ public class SelectMaterial extends GUIFunction {
         Bukkit.getPluginManager().registerEvents(this.blockListener, Core.getPlugin());
 
         // mark this function class as setup
-        this.wasSetUp = true;
+        this.wasSetup = true;
 
         // loop back after setting up
         this.execute();
@@ -278,23 +275,25 @@ public class SelectMaterial extends GUIFunction {
      * @return list of materials to deny
      */
     private List<Material> castDeniedBlocks(Object object) {
-        List<?> castedList = (List<?>) object; // wildcard generics for cast checking
+        List<?> castedDenyList = (List<?>) object; // wildcard generics for cast checking
 
         // due to java missing reified generics, stream loop to safely validate wildcarded list elements
-        // return list of deniedBlocksed strings
-        return (List<Material>) castedList.stream()
-            .filter(item -> item instanceof String) // filter out non-String items
-            .map(itemString -> { // transform each item to String
-                Material material = Material.matchMaterial((String) itemString);
-                if (material == null) { // if material string couldn't be matched
-                ChatUtils.message(String.format("Invalid item in deniedBlocks: %s", itemString))
-                    .player(this.player)
-                    .type(MessageType.ERROR)
-                    .send();
-                }
-                return material;
-            }) 
-            .collect(Collectors.toList()); // collect into final denylist
+        // return list of deniedBlocks strings
+        return Stream.concat(
+            this.deniedBlocks.stream(), 
+            castedDenyList.stream()
+                .filter(item -> item instanceof String) // filter out non-String items
+                .map(itemString -> { // transform each item to String
+                    Material material = Material.matchMaterial((String) itemString);
+                    if (material == null) { // if material string couldn't be matched
+                    ChatUtils.message(String.format("Invalid item in deniedBlocks: %s", itemString))
+                        .player(this.player)
+                        .type(MessageType.ERROR)
+                        .send();
+                    }
+                    return material;
+                }) 
+            ).toList(); // collect into final denylist
     }
 
     /**
@@ -311,12 +310,12 @@ public class SelectMaterial extends GUIFunction {
      * @return list of methods to deny
      */
     private List<SelectMethod> castDeniedMethods(Object object) {
-        List<?> castedList = (List<?>) object; // wildcard generics for cast checking
+        List<?> castedDenyList = (List<?>) object; // wildcard generics for cast checking
 
-        return (List<SelectMethod>) castedList.stream()
+        return castedDenyList.stream()
             .filter(method -> method instanceof SelectMethod) // filter out non-method items
             .map(method -> (SelectMethod) method) // cast safely
-            .collect(Collectors.toList()); // collect into final denylist
+            .toList();
     }
 
     /**
@@ -329,8 +328,8 @@ public class SelectMaterial extends GUIFunction {
 
     @Override
     public void execute() {
-        if (!this.wasSetUp) {
-            this.setUp();
+        if (!this.wasSetup) {
+            this.setup();
             return;
         }
 

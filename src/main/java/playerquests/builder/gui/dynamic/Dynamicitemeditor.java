@@ -50,12 +50,12 @@ public class Dynamicitemeditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         item = (ItemStack) this.director.getCurrentInstance(ItemStack.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         Integer itemAmount = this.item.getAmount();
         this.gui.getFrame().setTitle("Edit " + item.getType().toString());
         
@@ -63,9 +63,7 @@ public class Dynamicitemeditor extends GUIDynamic {
         new GUISlot(gui, 1)
             .setItem(Material.OAK_DOOR)
             .setLabel("Back")
-            .onClick(() -> {
-                this.finish();
-            });
+            .onClick(this::finish);
 
         // edit quantity/amount/count button
         new GUISlot(gui, 2)
@@ -74,11 +72,11 @@ public class Dynamicitemeditor extends GUIDynamic {
                 "%s", 
                 itemAmount.equals(1) ? "Set amount" : "Change amount (" + itemAmount.toString() + ")"
             ))
-            .onClick(() -> {
+            .onClick(() -> 
                 new ChatPrompt(
                     Arrays.asList("Type a number under 65", "none"), 
                     director
-                ).onFinish((func) -> {
+                ).onFinish(func -> {
                     ChatPrompt function = (ChatPrompt) func;
                     String response = function.getResponse();
                     Integer responseAsInteger;
@@ -112,17 +110,17 @@ public class Dynamicitemeditor extends GUIDynamic {
                     if (this.onUpdate != null) {
                         this.onUpdate.accept(this.item);
                     }
-                }).execute(); // run chat prompt function
-            });
+                }).execute() // run chat prompt function
+            );
 
         // edit quantity/amount/count button
         new GUISlot(gui, 9)
             .setItem(Material.RED_DYE)
             .setLabel("Delete")
-            .onClick(() -> {;
+            .onClick(() ->
                 // run consumable
-                this.onRemove.accept(this.item);
-            });
+                this.onRemove.accept(this.item)
+            );
     }
 
     /**

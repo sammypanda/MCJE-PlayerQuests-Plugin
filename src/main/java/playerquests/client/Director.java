@@ -13,7 +13,7 @@ public abstract class Director {
     /**
      * Abstract constructor should not be used directly, use the subclasses.
      */
-    public Director() {}
+    protected Director() {}
 
     /**
      * Closes the director and performs any necessary cleanup.

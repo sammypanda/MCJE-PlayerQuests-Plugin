@@ -29,7 +29,9 @@ public class DialogueOption extends ActionOption {
     /**
      * Default constructor for Jackson.
      */
-    public DialogueOption() {}
+    public DialogueOption() {
+        // Nothing here
+    }
 
     /**
      * Constructor including the QuestAction.

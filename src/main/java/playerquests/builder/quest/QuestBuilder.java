@@ -35,12 +35,12 @@ public class QuestBuilder {
     /**
      * Whether the quest is valid
      */
-    private Boolean isValid = true;
+    private boolean isValid = true;
 
     /**
      * Whether the plugin has a creator/is universal
      */
-    private Boolean universal = false;
+    private boolean universal = false;
 
     /**
      * Used to access plugin functionality.
@@ -207,16 +207,14 @@ public class QuestBuilder {
      * @return A list of the stage IDs, ordered by stage number.
      */
     @JsonIgnore
-    public LinkedList<QuestStage> getStages() {
+    public List<QuestStage> getStages() {
         // create an ordered list of stages, ordered by stage_[this number]
-        LinkedList<QuestStage> orderedList = this.questPlan.values().stream()
+        return this.questPlan.values().stream()
             .sorted(Comparator.comparingInt(stage -> {
                 String[] parts = stage.getID().split("_");
                 return Integer.parseInt(parts[1]);
             }))
             .collect(Collectors.toCollection(LinkedList::new));
-
-        return orderedList;
     }
 
     /**
@@ -237,11 +235,9 @@ public class QuestBuilder {
     @JsonProperty("npcs")
     public Map<String, QuestNPC> getQuestNPCs() {
         // Remove invalid/out of bound NPC IDs
-        Map<String, QuestNPC> filteredNPCs = this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
-            .filter(entry -> entry.getKey() != "npc_-1") // filter out all IDs that are out of bounds
+        return this.questNPCs.entrySet().stream() // get questnpcs map as set stream (loop)
+            .filter(entry -> ! entry.getKey().equals("npc_-1")) // filter out all IDs that are out of bounds
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)); // set the result
-
-        return filteredNPCs;
     }
 
     /**
@@ -252,7 +248,7 @@ public class QuestBuilder {
      * @return A map of quest NPCs, either filtered or unfiltered.
      */
     @JsonProperty("npcs")
-    public Map<String, QuestNPC> getQuestNPCs(Boolean all) {
+    public Map<String, QuestNPC> getQuestNPCs(boolean all) {
         if (!all) {
             return this.getQuestNPCs(); // return filtered
         } else {
@@ -388,8 +384,10 @@ public class QuestBuilder {
      *
      * @return Whether the stage can be removed.
      */
-    public Boolean removeStage(QuestStage questStage, Boolean dryRun) {
+    public boolean removeStage(QuestStage questStage, boolean dryRun) {
         Boolean canRemove = true; // whether the stage is safe to remove
+
+        // TODO: implement check
 
         if (dryRun) { // if just to test if removable
             return canRemove; // don't continue

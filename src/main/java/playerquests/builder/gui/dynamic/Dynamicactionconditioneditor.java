@@ -40,13 +40,13 @@ public class Dynamicactionconditioneditor extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.actionData = (ActionData) this.director.getCurrentInstance(ActionData.class);
         this.condition = (ActionCondition) this.director.getCurrentInstance(ActionCondition.class);
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // style the GUIs
         this.gui.getFrame()
             .setTitle(
@@ -79,7 +79,7 @@ public class Dynamicactionconditioneditor extends GUIDynamic {
                     // go to previous screen if removing condition was successful
                     new UpdateScreen(List.of(this.previousScreen), director).execute();
                     return;
-                };
+                }
 
                 // send the warning message
                 ChatUtils.message(removalErr.get())

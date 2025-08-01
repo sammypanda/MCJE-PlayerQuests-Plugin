@@ -20,7 +20,6 @@ import playerquests.builder.quest.data.LocationData;
 import playerquests.client.ClientDirector;
 import playerquests.client.quest.QuestClient;
 import playerquests.product.Quest;
-import playerquests.utility.singleton.QuestRegistry;
 
 /**
  * A dynamic GUI screen for the diary showing questers their ongoing quests.
@@ -40,7 +39,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     /**
      * The tracked and untracked quest actions
      */
-    Map<QuestAction, Boolean> actionState = new HashMap<>();
+    Map<QuestAction<?,?>, Boolean> actionState = new HashMap<>();
 
     /**
      * Constructs a new {@code Dynamicquestdiary} instance.
@@ -52,7 +51,7 @@ public class Dynamicquestdiary extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         this.player = (Player) this.director.getPlayer();
         this.quester = Core.getQuestRegistry().getQuester(player);
 
@@ -68,20 +67,17 @@ public class Dynamicquestdiary extends GUIDynamic {
                 .stream()
                 .flatMap(entry -> entry.getValue().stream()
                     .flatMap(path -> path.getActions(entry.getKey()).stream()))
-                .filter(action -> !this.actionState.containsKey((QuestAction) action))
-                .collect(Collectors.toMap(action -> (QuestAction) action, action -> false, (prev, curr) -> curr))
+                .filter(action -> !this.actionState.containsKey(action))
+                .collect(Collectors.toMap(action -> action, action -> false, (prev, curr) -> curr))
         );
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         // get and set the outer GUI frame
         this.gui.getFrame()
             .setTitle("Quest Diary")
             .setSize(54);
-
-        // get the player
-        Player player = (Player) this.director.getPlayer();
 
         // add dividers
         IntStream.of(8, 17, 26, 35, 44, 53).forEach(position -> {
@@ -126,11 +122,11 @@ public class Dynamicquestdiary extends GUIDynamic {
                 .setDescription(List.of(
                     String.format("%s (%s)",
                         action.getID(),
-                        state ? "Tracking" : "Untracked"
+                        Boolean.TRUE.equals(state) ? "Tracking" : "Untracked"
                     ))
                 )
                 .setItem(
-                    state ? Material.GREEN_WOOL : Material.RED_WOOL
+                    Boolean.TRUE.equals(state) ? Material.GREEN_WOOL : Material.RED_WOOL
                 );
         });
     }
@@ -175,9 +171,6 @@ public class Dynamicquestdiary extends GUIDynamic {
      * @return a list of book pages (up to 100 pages : 1024 characters per page)
      */
     private List<Component> generateBookPages(Player player) {
-        // get the QuestClient that represents the player
-        QuestClient quester = QuestRegistry.getInstance().getQuester(player);
-
         // get the first tracked quest from the QuestClient to use as a sample page
         List<Component> bookEntries = quester.getTrackedActions().stream()
             .map(action -> this.formatBookEntry(action))
@@ -208,14 +201,14 @@ public class Dynamicquestdiary extends GUIDynamic {
      * @param action the action to format the page for
      * @return a formatted page explaining a quest action
      */
-    private Component formatBookEntry(QuestAction action) {
+    private Component formatBookEntry(QuestAction<?,?> action) {
         // get the attached quest
         Quest quest = action.getStage().getQuest();
         LocationData location = action.getLocation();
 
         // return formatted page content
         return Component.text(
-            String.format("Quest: %s\n\nAction: %s (%s)\n\n%s",
+            String.format("Quest: %s%n%nAction: %s (%s)%n%n%s",
                 quest.getTitle(),
                 action.getLabel(),
                 action.getName(),

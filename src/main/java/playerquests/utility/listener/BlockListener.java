@@ -65,24 +65,33 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onChunkLoad(PlayerChunkLoadEvent event) { 
         // Ensure at least one QuestClient exists before continuing
-        if ( QuestRegistry.getInstance().getAllQuesters().isEmpty() ) {
+        List<QuestClient> allQuesters = QuestRegistry.getInstance().getAllQuesters();
+        if ( allQuesters.isEmpty() ) {
+            return;
+        }
+
+        // Get player chunk loaded for
+        Player player = event.getPlayer();
+
+        // Safety check; does the player have a QuestClient
+        if ( allQuesters.stream().noneMatch(quester -> quester.getPlayer().equals(player)) ) {
             return;
         }
 
         // Get or create the refresh state for this player
-        Boolean state = this.canQuesterRefreshNPCs.getOrDefault(event.getPlayer(), true);
+        boolean state = this.canQuesterRefreshNPCs.getOrDefault(player, true);
         
         // If refresh not allowed for this player, exit
         if ( ! state) {
             return;
         }
 
-        QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
-        this.canQuesterRefreshNPCs.put(event.getPlayer(), false); // block refresh for period
+        QuestClient quester = Core.getQuestRegistry().getQuester(player);
+        this.canQuesterRefreshNPCs.put(player, false); // block refresh for period
         
         Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
             // get NPCs
-            List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+            List<Entry<QuestAction<?,?>, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
                 .filter(npc -> npc.getValue().getAssigned() instanceof BlockNPC)
                 .filter(npc -> npc.getValue().getLocation().toBukkitLocation().getChunk().isLoaded())
                 .toList();
@@ -94,8 +103,8 @@ public class BlockListener implements Listener {
             });
             
             // clean up
-            this.canQuesterRefreshNPCs.put(event.getPlayer(), true);
-        }, 30 * 20); // 30 seconds (20 ticks per second)
+            this.canQuesterRefreshNPCs.put(player, true);
+        }, (int) (30.00 * 20.00)); // 30 seconds (20 ticks per second)
     }
     
     /**
@@ -110,7 +119,7 @@ public class BlockListener implements Listener {
 
         Location eventBlockLocation = block.getLocation();
         QuestClient quester = Core.getQuestRegistry().getQuester(event.getPlayer());
-        List<Entry<QuestAction, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
+        List<Entry<QuestAction<?,?>, QuestNPC>> npcs = quester.getData().getNPCs().stream() // get list of matching npcs
             .filter(npc -> npc.getValue().getAssigned() instanceof BlockNPC)
             .filter(npc -> npc.getValue().getLocation().toBukkitLocation().equals(eventBlockLocation))
             .toList();
@@ -121,16 +130,13 @@ public class BlockListener implements Listener {
         }
 
         // persist client-side blocks
-        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> {
-            npcs.forEach(npc -> {
-                BlockNPC blockNPC = (BlockNPC) npc.getValue().getAssigned();
-                blockNPC.spawn(npc.getKey(), quester);
-            });
-        });
+        Bukkit.getScheduler().runTask(Core.getPlugin(), () -> npcs.forEach(npc -> {
+            BlockNPC blockNPC = (BlockNPC) npc.getValue().getAssigned();
+            blockNPC.spawn(npc.getKey(), quester);
+        }));
 
         // conditions to not continue the event:
         if (
-            block == null || // if block doesn't exist
             npcs.isEmpty() || // if block is not an active NPC
             event.getHand().equals(EquipmentSlot.OFF_HAND) || // no duplicating interaction
             !event.getAction().equals(Action.RIGHT_CLICK_BLOCK) // if the interaction is not a right click

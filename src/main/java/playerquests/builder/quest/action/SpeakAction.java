@@ -12,7 +12,6 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
-import playerquests.builder.quest.action.listener.ActionListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.DialogueOption;
@@ -24,7 +23,7 @@ import playerquests.builder.quest.npc.QuestNPC;
 /**
  * Action for an NPC speaking.
  */
-public class SpeakAction extends QuestAction {
+public class SpeakAction extends QuestAction<SpeakAction, SpeakListener> {
 
     /**
      * the NPC added into the world.
@@ -34,7 +33,9 @@ public class SpeakAction extends QuestAction {
     /**
      * Default constructor for Jackson.
      */
-    public SpeakAction() {}
+    public SpeakAction() {
+        // Nothing here
+    }
 
     @Override
     public String getName() {
@@ -68,10 +69,12 @@ public class SpeakAction extends QuestAction {
     }
 
     @Override
-    protected void failure(QuesterData questerData) {}
+    protected void failure(QuesterData questerData) {
+        // no failure case
+    }
 
     @Override
-    protected ActionListener<?> startListener(QuesterData questerData) {        
+    protected SpeakListener startListener(QuesterData questerData) {        
         return new SpeakListener(this, questerData);
     }
 

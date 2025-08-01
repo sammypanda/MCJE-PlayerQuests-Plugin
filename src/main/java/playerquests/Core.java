@@ -33,13 +33,18 @@ public class Core extends JavaPlugin {
     private static QuestRegistry questRegistry = QuestRegistry.getInstance();
 
     /**
-     * Core class, to be instantiated by server.
+     * Where in the playerquests dir the quests are to be located.
      */
-    public Core() {}
+    private static String questsPath = "quests/";
+
+    /**
+     * What file extension serialised quests use.
+     */
+    private static String questsExtension = ".json";
 
     @Override
     public void onEnable() {
-        plugin = this;
+        Core.setPlugin(this);
 
         // call the playerquests game class
         PlayerQuests.getInstance();
@@ -57,6 +62,14 @@ public class Core extends JavaPlugin {
 
         // mount bStats for some minimal usage info
         new Metrics(this, 22692);
+    }
+
+    /**
+     * Set the singleton of the plugin for future access.
+     * @param core this class.
+     */
+    private static void setPlugin(Core core) {
+        plugin = core;
     }
 
     @Override
@@ -87,7 +100,15 @@ public class Core extends JavaPlugin {
      * @return resource path for where quest JSON files are
      */
     public static String getQuestsPath() {
-        return "quests/";
+        return questsPath;
+    }
+
+    /**
+     * Gets the .? file extension used for serialised quests.
+     * @return the file extension for quests
+     */
+    public static String getQuestFileExtension() {
+        return questsExtension;
     }
 
     /**

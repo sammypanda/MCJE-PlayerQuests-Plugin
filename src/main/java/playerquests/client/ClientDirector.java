@@ -1,6 +1,7 @@
 package playerquests.client;
 
 import java.util.HashMap; // holds the current instances
+import java.util.Map;
 
 import org.bukkit.entity.Player;
 
@@ -93,7 +94,7 @@ public class ClientDirector extends Director {
      * Get all the current/working instance of classes.
      * @return list of current classes for this client
      */
-    public HashMap<Class<?>, Object> getCurrentInstances() {
+    public Map<Class<?>, Object> getCurrentInstances() {
         return this.currentInstances;
     }
 

@@ -40,7 +40,7 @@ public class PlayerQuests {
     /**
      * Singleton instance of the database used for persistent data storage.
      */
-    private static Database database = Database.getInstance();
+    private static final Database database = Database.getInstance();
 
     /**
      * Singleton instance of the PlayerQuests class.
@@ -49,7 +49,7 @@ public class PlayerQuests {
      * utility class managing the plugin's core functionality.
      * </p>
      */
-    private static PlayerQuests instance = new PlayerQuests();
+    private static final PlayerQuests instance = new PlayerQuests();
 
     /**
      * Singleton instance of the block event listener.
@@ -57,7 +57,7 @@ public class PlayerQuests {
      * This instance handles all block-related events for the plugin.
      * </p>
      */
-    private static BlockListener blockListener = new BlockListener();
+    private static final BlockListener blockListener = new BlockListener();
 
     /**
      * Singleton instance of the entity event listener.
@@ -65,7 +65,7 @@ public class PlayerQuests {
      * This instance handles all entity-related events for the plugin.
      * </p>
      */
-    private static EntityListener entityListener = new EntityListener();
+    private static final EntityListener entityListener = new EntityListener();
 
     /**
      * Singleton instance of the player event listener.
@@ -73,7 +73,7 @@ public class PlayerQuests {
      * This instance handles all player-related events for the plugin.
      * </p>
      */
-    private static PlayerListener playerListener = new PlayerListener();
+    private static final PlayerListener playerListener = new PlayerListener();
 
     /**
      * Singleton instance of the server event listener.
@@ -81,7 +81,7 @@ public class PlayerQuests {
      * This instance handles all server-related events for the plugin.
      * </p>
      */
-    private static ServerListener serverListener = new ServerListener();
+    private static final ServerListener serverListener = new ServerListener();
 
     /**
      * Map of plugin dependencies.
@@ -96,7 +96,9 @@ public class PlayerQuests {
     /**
      * Should be accessed statically.
      */
-    private PlayerQuests() {}
+    private PlayerQuests() {
+        // Unused, is a Singleton
+    }
 
     /**
      * Gets the singleton instance of the PlayerQuests class.
@@ -125,7 +127,7 @@ public class PlayerQuests {
     public NPCRegistry getCitizensRegistry() {
         // exit if not has citizens 2
         if ( ! this.hasCitizens2() ) {
-            throw new RuntimeException("Tried to access CitizensRegistry without Citizens");
+            throw new IllegalAccessError("Tried to access CitizensRegistry without Citizens");
         }
 
         // set if not set
@@ -137,7 +139,7 @@ public class PlayerQuests {
             }
             return this.citizensRegistry;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize Citizens registry", e);
+            throw new NoSuchMethodError("Failed to initialize Citizens registry");
         }
     }
 
@@ -160,7 +162,7 @@ public class PlayerQuests {
         // ---
 
         // verify support
-        Boolean isSupported = false;
+        boolean isSupported = false;
         DependencyIssue dependencyIssue = DependencyIssue.MISSING;
 
         if ( PlayerQuests.getCitizens2() != null ) {
@@ -209,7 +211,7 @@ public class PlayerQuests {
             if ( majorVersion > expectedMajorVersion ) {
                 dependencyIssue = DependencyIssue.TOO_NEW;
             }
-        };
+        }
 
         if ( ! isSupported ) {
             // send message about what is wrong with Citizens2

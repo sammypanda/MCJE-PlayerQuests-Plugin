@@ -2,8 +2,9 @@ package playerquests.builder.gui.dynamic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import org.bukkit.Material;
@@ -31,6 +32,11 @@ public class Dynamicitemslist extends GUIDynamic {
     List<ItemStack> items = new ArrayList<>();
 
     /**
+     * A reference map of the items for de-duping.
+     */
+    private Map<ItemSerialisable, Integer> itemsDeDupe = new HashMap<>();
+
+    /**
      * The maximum number of items.
      */
     Integer maxItems = 8;
@@ -45,7 +51,7 @@ public class Dynamicitemslist extends GUIDynamic {
     }
 
     @Override
-    protected void setUp_custom() {
+    protected void setupCustom() {
         // if list is in director, pull it in
         ArrayList<?> aList = (ArrayList<?>) this.director.getCurrentInstance(ArrayList.class);
 
@@ -55,12 +61,12 @@ public class Dynamicitemslist extends GUIDynamic {
             this.setItems(aList.stream()
                 .filter(ItemStack.class::isInstance) // just a list of items
                 .map(ItemStack.class::cast)
-                .collect(Collectors.toList()));
+                .toList());
         }
     }
 
     @Override
-    protected void execute_custom() {
+    protected void executeCustom() {
         Integer listSize = this.items.size(); // the amount of items in the list is often checked
         gui.getFrame().setTitle("Item List"); // set the GUI title
 
@@ -87,7 +93,7 @@ public class Dynamicitemslist extends GUIDynamic {
             new GUISlot(gui, (this.items.size() + 2))
                 .setItem(Material.LIME_DYE)
                 .setLabel("Add an item")
-                .onClick(() -> {
+                .onClick(() ->
                     new SelectMaterial(
                         Arrays.asList(
                             "Select or type a block", // the prompt message
@@ -96,7 +102,7 @@ public class Dynamicitemslist extends GUIDynamic {
                             false // doesn't have to be a block
                         ), 
                         director
-                    ).onFinish((func) -> {
+                    ).onFinish(func -> {
                         SelectMaterial function = (SelectMaterial) func;
                         ItemStack result = function.getResult();
 
@@ -113,8 +119,8 @@ public class Dynamicitemslist extends GUIDynamic {
 
                         // show it added
                         this.execute();
-                    }).execute(); // run the function
-                });
+                    }).execute() // run the function
+                );
         }
 
         // show the items
@@ -156,7 +162,7 @@ public class Dynamicitemslist extends GUIDynamic {
                         Dynamicitemeditor editor = (Dynamicitemeditor) function.getDynamicGUI();
 
                         // delete
-                        editor.onRemove((i) -> {
+                        editor.onRemove(i -> {
                             // remove the item from our list
                             this.removeItem(i);
 
@@ -164,10 +170,10 @@ public class Dynamicitemslist extends GUIDynamic {
                             this.goBack(function);
                         });
 
-                        editor.onFinish((_f) -> {
+                        editor.onFinish(f ->
                             // go back
-                            this.goBack(function);
-                        });
+                            this.goBack(function)
+                        );
                     }).execute();
                 });
 
@@ -182,12 +188,13 @@ public class Dynamicitemslist extends GUIDynamic {
     private void goBack(UpdateScreen function) {
         new UpdateScreen(
             new ArrayList<>(Arrays.asList(function.getPreviousScreen())), director
-        ).onFinish((f) -> {
+        ).onFinish(f -> {
             // find the new/next instance
             UpdateScreen nextfunction = (UpdateScreen) f;
             Dynamicitemslist list = (Dynamicitemslist) nextfunction.getDynamicGUI();
 
-            // migrate the onFinish code to the new instance
+            // migrate data to the new instance
+            list.setItems(this.getItems());
             list.onFinish(this.onFinish);
         }).execute();
         // ^ this works (despite being a completely fresh instance of the gui), because at the top
@@ -202,7 +209,12 @@ public class Dynamicitemslist extends GUIDynamic {
      * @param items the items (up to maxItems)
      */
     private void setItems(List<ItemStack> items) {
-        this.items = items;
+        // overwrite existing lists
+        this.items = new ArrayList<>();
+        this.itemsDeDupe = new HashMap<>();
+
+        // set, but with de-duping
+        items.forEach(this::addItem);
     }
 
     /**
@@ -210,7 +222,20 @@ public class Dynamicitemslist extends GUIDynamic {
      * @param item the item to add
      */
     private void addItem(ItemStack item) {
+        // get type of item
+        ItemSerialisable itemSerialiable = ItemSerialisable.fromItemStack(item);
+
+        // check if an item of this type is already in de-dupe map
+        if (this.itemsDeDupe.containsKey(itemSerialiable)) {
+            int index = this.itemsDeDupe.get(itemSerialiable); // get index of item in main list
+            ItemStack existingItem = this.items.get(index); // get the item would've duplicated on
+            existingItem.add(item.getAmount()); // add together..
+            return;
+        }
+
+        // add item to main list and de-dupe map
         this.items.add(item);
+        this.itemsDeDupe.put(itemSerialiable, this.items.indexOf(item));
     }
 
     /**

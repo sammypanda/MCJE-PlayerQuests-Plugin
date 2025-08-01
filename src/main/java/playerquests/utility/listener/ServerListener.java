@@ -3,6 +3,7 @@ package playerquests.utility.listener;
 import java.io.File; // Represents a file in the filesystem
 import java.io.IOException; // Thrown when a file operation fails, such as reading
 import java.nio.file.*; // Provides classes and methods for file I/O operations
+import java.nio.file.WatchEvent.Kind;
 import java.util.HashSet; // Implements a set that does not allow duplicate elements
 import java.util.Set; // Interface for collections that do not allow duplicate elements
 import java.util.stream.Stream; // Provides a sequence of elements supporting sequential and parallel aggregate operations
@@ -106,13 +107,13 @@ public class ServerListener implements Listener {
      * Creates necessary directories for the plugin if they do not already exist.
      */
     private void createDirectories() {
-        File dataFolder = new File(Core.getPlugin().getDataFolder() + "/");
+        File dataFolder = Core.getPlugin().getDataFolder();
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
             sendWelcomeMessage();
         }
 
-        File questsFolder = new File(Core.getPlugin().getDataFolder() + "/" + Core.getQuestsPath());
+        File questsFolder = new File(Core.getPlugin().getDataFolder(), Core.getQuestsPath());
         if (!questsFolder.exists()) {
             questsFolder.mkdirs();
         }
@@ -141,7 +142,7 @@ public class ServerListener implements Listener {
      * Processes quests from both the database and file system, and submits them to the quest registry.
      */
     private void processQuests() {
-        File questsDir = new File(Core.getPlugin().getDataFolder(), "/" + Core.getQuestsPath());
+        File questsDir = new File(Core.getPlugin().getDataFolder(), Core.getQuestsPath());
         Set<String> allQuests = new HashSet<>();
         
         // add from db
@@ -150,7 +151,7 @@ public class ServerListener implements Listener {
         // add from fs
         try (Stream<Path> paths = Files.walk(questsDir.toPath())) {
             paths.filter(Files::isRegularFile) // Filter to include only files
-                .filter(path -> path.toString().endsWith(".json")) // Include only JSON files
+                .filter(path -> path.toString().endsWith(Core.getQuestFileExtension())) // Include only JSON files
                 .forEach(path -> {
                     String questName = getQuestName(path);
                     allQuests.add(questName);
@@ -176,8 +177,8 @@ public class ServerListener implements Listener {
 
     private String getQuestName(Path path) {
         String[] questNameParts = path.toString()
-            .replace(".json", "")
-            .split("/quests/");
+            .replace(Core.getQuestFileExtension(), "")
+            .split("/" + Core.getQuestsPath());
 
         if (questNameParts.length < 1) {
             return null;
@@ -192,12 +193,12 @@ public class ServerListener implements Listener {
      * @param quests the set of quest IDs to process
      * @param overwrite whether to save over an existing
      */
-    private void loadQuests(Set<String> quests, Boolean overwrite) {
+    private void loadQuests(Set<String> quests, boolean overwrite) {
         quests.forEach(id -> {
             boolean errorOccurred = true; // Assume an error occurred initially
             
             try {
-                Quest newQuest = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + id + ".json"));
+                Quest newQuest = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + id + Core.getQuestFileExtension()));
 
                 // if creates invalid object, exit
                 if (newQuest == null) {
@@ -217,11 +218,20 @@ public class ServerListener implements Listener {
                 errorOccurred = false;
 
             } catch (JsonMappingException e) {
-                System.err.println("Could not map JSON string for: " + id + " to the Quest object. " + e);
+                ChatUtils.message("Could not map JSON string for: " + id + " to the Quest object. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             } catch (JsonProcessingException e) {
-                System.err.println("JSON in quest: " + id + " is malformed. " + e);
+                ChatUtils.message("JSON in quest: " + id + " is malformed. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             } catch (IOException e) {
-                System.err.println("Could not read file: " + id + ".json. " + e);
+                ChatUtils.message("Could not read file: " + id + ".json. " + e)
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
             }
 
             // Remove the quest from the database if an error occurred
@@ -238,7 +248,7 @@ public class ServerListener implements Listener {
     private void startWatchService() {
         try {
             watchService = FileSystems.getDefault().newWatchService();
-            Path questFilesPath = Paths.get(Core.getPlugin().getDataFolder() + "/" + Core.getQuestsPath());
+            Path questFilesPath = new File(Core.getPlugin().getDataFolder(), Core.getQuestsPath()).toPath();
             questFilesPath.register(watchService, 
                 StandardWatchEventKinds.ENTRY_CREATE, 
                 StandardWatchEventKinds.ENTRY_DELETE, 
@@ -246,93 +256,118 @@ public class ServerListener implements Listener {
             );
 
             watchThread = new Thread(() -> {
-                // let the server know
-                ChatUtils.message("Started watching for changes to plugin files.")
-                    .style(MessageStyle.PLAIN)
-                    .type(MessageType.NOTIF)
-                    .target(MessageTarget.CONSOLE)
-                    .send();
-                
-                while (!Thread.currentThread().isInterrupted()) {
-                    WatchKey key;
-                    try {
-                        key = watchService.take();
-                    } catch (InterruptedException | ClosedWatchServiceException e) {
-                        Thread.currentThread().interrupt();
-                        
-                        // let the server know
-                        ChatUtils.message("Stopped watching for changes to plugin files.")
-                            .style(MessageStyle.PLAIN)
-                            .type(MessageType.NOTIF)
-                            .target(MessageTarget.CONSOLE)
-                            .send();
-
-                        // don't continue
-                        return;
-                    }   
-
-                    for (WatchEvent<?> event : key.pollEvents()) {
-                        WatchEvent.Kind<?> kind = event.kind();
-                    
-                        // This key is no longer valid, break out of the loop
-                        if (kind == StandardWatchEventKinds.OVERFLOW) {
-                            continue;
-                        }
-                    
-                        // Ensure the event is of type WatchEvent<Path>
-                        @SuppressWarnings("unchecked")
-                        WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                        Path filename = ev.context();
-
-                        // Don't panic, let's handle deletion
-                        if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                            System.out.println("figure out if an important file was deleted here");
-                        }
-                    
-                        // Handle changes to quest files
-                        if (filename.toString().endsWith(".json")) {
-                            String questName = filename.toString().replace(".json", ""); // strip '.json' from the quest ID/filename
-                            QuestRegistry questRegistry = Core.getQuestRegistry(); // get the tracking of instances of the quests in the plugin
-
-                            if (questName == null) {
-                                return;
-                            }
-
-                            switch (kind.name()) {
-                                case "ENTRY_CREATE":
-                                    // submit the quest systematically
-                                    loadQuests(new HashSet<>(Set.of(questName)), false);
-                                    break;
-                                case "ENTRY_DELETE":
-                                    // find the quest object
-                                    Quest questToDelete = questRegistry.getQuest(questName);
-
-                                    // exit if not found
-                                    if (questToDelete == null) {
-                                        return;
-                                    }
-
-                                    // delete it systematically (but non-permanent)
-                                    questRegistry.delete(questToDelete, false, false, false);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-
-                    // Reset the key -- this step is critical if you want to receive further watch events.
-                    boolean valid = key.reset();
-                    if (!valid) {
-                        break;
-                    }
-                }
+                this.watchServiceRuntime();
             });
             watchThread.start();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void watchServiceRuntime() {
+        // let the server know
+        ChatUtils.message("Started watching for changes to plugin files.")
+            .style(MessageStyle.PLAIN)
+            .type(MessageType.NOTIF)
+            .target(MessageTarget.CONSOLE)
+            .send();
+        
+        while ( ! Thread.currentThread().isInterrupted()) { // while the current thread is continuing
+            WatchKey key = this.getWatchServiceKey();
+
+            if (key == null) {
+                return; // end
+            }
+
+            this.watchServiceDelegation(key);
+
+            // Reset the key -- this step is critical for receiving further watch events
+            boolean valid = key.reset();
+            if (!valid) {
+                break;
+            }
+        }
+    }
+
+    private void watchServiceDelegation(WatchKey key) {
+        for (WatchEvent<?> event : key.pollEvents()) {
+            WatchEvent.Kind<?> kind = event.kind();
+        
+            // if key is no longer valid, break out of the loop
+            if (kind == StandardWatchEventKinds.OVERFLOW) {
+                continue;
+            }
+        
+            // ensure the event is of type WatchEvent<Path>
+            @SuppressWarnings("unchecked")
+            WatchEvent<Path> ev = (WatchEvent<Path>) event;
+            Path filename = ev.context();
+
+            // handle deletion
+            if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                this.handleFileDeletion();
+            }
+        
+            // handle changes to quest files
+            if (filename.toString().endsWith(Core.getQuestFileExtension())) {
+                this.handleFileChange(filename, kind);
+            }
+        }
+    }
+
+    private void handleFileChange(Path filename, Kind<?> kind) {
+        String questName = filename.toString().replace(Core.getQuestFileExtension(), ""); // strip '.json' from the quest ID/filename
+        QuestRegistry questRegistry = Core.getQuestRegistry(); // get the tracking of instances of the quests in the plugin
+
+        if (questName == null) {
+            return;
+        }
+
+        switch (kind.name()) {
+            case "ENTRY_CREATE":
+                // submit the quest systematically
+                loadQuests(new HashSet<>(Set.of(questName)), false);
+                break;
+            case "ENTRY_DELETE":
+                // find the quest object
+                Quest questToDelete = questRegistry.getQuest(questName);
+
+                // exit if not found
+                if (questToDelete == null) {
+                    return;
+                }
+
+                // delete it systematically (but non-permanent)
+                questRegistry.delete(questToDelete, false, false, false);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void handleFileDeletion() {
+        ChatUtils.message("TODO: Figure out if an important file was deleted just now.")
+            .target(MessageTarget.CONSOLE)
+            .type(MessageType.NOTIF)
+            .send();
+    }
+
+    private WatchKey getWatchServiceKey() {
+        try {
+            return watchService.take();
+        } catch (InterruptedException | ClosedWatchServiceException e) {
+            Thread.currentThread().interrupt();
+            
+            // let the server know
+            ChatUtils.message("Stopped watching for changes to plugin files.")
+                .style(MessageStyle.PLAIN)
+                .type(MessageType.NOTIF)
+                .target(MessageTarget.CONSOLE)
+                .send();
+
+            return null;
+        }   
     }
 
     /**

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map; // generic map type
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.BiConsumer;
+import java.util.function.ObjIntConsumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player; // representing players
@@ -55,7 +55,9 @@ public class QuestRegistry {
     /**
      * Private constructor to prevent instantiation.
      */
-    private QuestRegistry() {}
+    private QuestRegistry() {
+        // Unused, is a Singleton
+    }
 
     /**
      * Read and parse quest inventories from the database.
@@ -84,7 +86,7 @@ public class QuestRegistry {
         String questID = quest.getID();
 
         // stop if quest is invalid
-        if (!quest.isValid()) {
+        if ( ! quest.isValid()) {
             ChatUtils.message("Not installing an invalid quest: " + questID)
                 .target(MessageTarget.CONSOLE)
                 .style(MessageStyle.PLAIN)
@@ -101,7 +103,7 @@ public class QuestRegistry {
         this.add(questID, quest);
 
         // untoggle and don't continue if quest is not toggled on
-        if (!quest.isToggled()) {
+        if ( ! quest.isToggled()) {
             this.untoggle(quest);
             return;
         }
@@ -131,7 +133,7 @@ public class QuestRegistry {
      * @param permanently if should also delete from database/filesystem
      * @return if the quest was successfully deleted
      */
-    public boolean delete(Quest quest, Boolean fromFS, Boolean withRefund, Boolean fromDB) {
+    public boolean delete(Quest quest, boolean fromFS, boolean withRefund, boolean fromDB) {
         String questID = quest.getID();
         UUID creator = quest.getCreator(); // get the creator if this quest has one
 
@@ -144,7 +146,7 @@ public class QuestRegistry {
             PlayerQuests.remove(quest);
 
             if (fromFS) {
-                FileUtils.delete(Core.getQuestsPath() + quest.getID() + ".json");
+                FileUtils.delete(Core.getQuestsPath() + quest.getID() + Core.getQuestFileExtension());
             }
 
             if (withRefund) {
@@ -197,7 +199,7 @@ public class QuestRegistry {
      */
     public boolean toggle(Quest quest) {
         // check + error for if any NPCs can't be placed
-        if (!this.canPlaceNPCs(quest)) {
+        if ( ! this.canPlaceNPCs(quest)) {
             return false;
         }
 
@@ -218,7 +220,7 @@ public class QuestRegistry {
      * @return false if any NPCs are not placeable
      */
     private boolean canPlaceNPCs(Quest quest) {
-        return true;
+        return quest != null; // TODO: calculate and return more accurate result
     }
 
     /**
@@ -272,16 +274,19 @@ public class QuestRegistry {
      * @param searchFS whether to try searching the filesystem
      * @return the quest object
      */
-    public Quest getQuest(String questID, Boolean searchFS) {
+    public Quest getQuest(String questID, boolean searchFS) {
         Quest result = this.getAllQuests().get(questID);
 
         // search in filesystem
         if (result == null && searchFS) {
-            System.err.println("Quest registry could not find quest: " + questID + ". It'll now search for it in the quest files.");
+            ChatUtils.message("Quest registry could not find quest: " + questID + ". It'll now search for it in the quest files.")
+                .target(MessageTarget.CONSOLE)
+                .type(MessageType.ERROR)
+                .send();
 
             // attempt finding it in the files and uploading to database
             try {
-                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json"));
+                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + Core.getQuestFileExtension()));
 
                 // if everything is okay, submit the quest to the database
                 // to avoid having to search for it again like this.
@@ -291,7 +296,10 @@ public class QuestRegistry {
                 }
 
             } catch (IOException e) {
-                throw new RuntimeException("Could not find the quest with ID: " + questID, e);
+                ChatUtils.message("Could not find the quest with ID: " + questID + " | " + e.getMessage())
+                    .target(MessageTarget.CONSOLE)
+                    .type(MessageType.ERROR)
+                    .send();
             }
         }
 
@@ -305,7 +313,7 @@ public class QuestRegistry {
         if (!result && searchFS) {
             // attempt finding it in the files
             try {
-                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + ".json")).isValid();
+                result = Quest.fromJSONString(FileUtils.get(Core.getQuestsPath() + questID + Core.getQuestFileExtension())).isValid();
             } catch (IOException e) {
                 return false;
             }
@@ -378,7 +386,7 @@ public class QuestRegistry {
      * @param callback optional thing to run on each item
      * @param invert whether to subtract instead of add items
      */
-    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, BiConsumer<ItemSerialisable, Integer> callback, Boolean invert) {
+    public void updateInventoryItem(Quest quest, Map<ItemSerialisable, Integer> items, ObjIntConsumer<ItemSerialisable> callback, boolean invert) {
         Map<ItemSerialisable, Integer> stagingInventory = new HashMap<>(this.getInventory(quest));
 
         items.forEach((material, amount) -> {
@@ -476,7 +484,7 @@ public class QuestRegistry {
 
         // error on catastrophe
         if (quester.isEmpty()) {
-            throw new RuntimeException("Could not find a requested QuestClient, but all players should be assigned a QuestClient");
+            throw new IllegalStateException("Could not find a requested QuestClient, but all players should be assigned a QuestClient");
         }
 
         // return the quester
