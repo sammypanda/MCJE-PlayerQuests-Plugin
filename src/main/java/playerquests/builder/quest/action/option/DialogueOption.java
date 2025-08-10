@@ -2,6 +2,7 @@ package playerquests.builder.quest.action.option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Material;
 
@@ -76,7 +77,11 @@ public class DialogueOption extends ActionOption {
     }
 
     @Override
-    public boolean isValid() {
-        return !this.getText().isEmpty();
+    public Optional<String> isValid() {
+        if (this.getText().isEmpty()) {
+            return Optional.of("Dialogue is missing, try setting the action's dialogue in the options menu.");
+        }
+
+        return Optional.empty();
     }
 }

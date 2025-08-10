@@ -2,6 +2,7 @@ package playerquests.builder.quest.action.option;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -102,7 +103,11 @@ public class NPCOption extends ActionOption {
     }
 
     @Override
-    public boolean isValid() {
-        return this.getNPC() != null;
+    public Optional<String> isValid() {
+        if (this.getNPC().isEmpty()) {
+            return Optional.of("NPC is missing, try choosing an NPC in the options menu.");
+        }
+
+        return Optional.empty();
     }
 }

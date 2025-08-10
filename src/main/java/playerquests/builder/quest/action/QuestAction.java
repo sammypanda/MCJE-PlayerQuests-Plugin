@@ -57,7 +57,8 @@ import playerquests.utility.singleton.Database;
     @JsonSubTypes.Type(value = RequestItemAction.class, name = "RequestItemAction"),
     @JsonSubTypes.Type(value = RewardItemAction.class, name = "RewardItemAction"),
     @JsonSubTypes.Type(value = TakeItemAction.class, name = "TakeItemAction"),
-    @JsonSubTypes.Type(value = CraftAction.class, name = "CraftAction")
+    @JsonSubTypes.Type(value = CraftAction.class, name = "CraftAction"),
+    @JsonSubTypes.Type(value = NarrateAction.class, name = "NarrateAction")
 })
 public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionListener<A>> {
 
@@ -209,7 +210,7 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
      */
     public void check(QuesterData questerData, boolean bypassClash) {
         // check if any conditions aren't met
-        Boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
+        boolean conditionsUnmet = this.getData().getConditions().stream().anyMatch(conditional -> {
             if (conditional.isMet(questerData)) {
                 return false; // don't do work if this condition already met
             }
@@ -252,7 +253,7 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
      * @param questerData the data about the quester playing the action.
      * @return if was successful
      */
-    protected abstract Boolean isCompleted(QuesterData questerData);
+    protected abstract boolean isCompleted(QuesterData questerData);
 
     /**
      * Completes the action.
@@ -415,7 +416,13 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
      * @return empty if was successful
      */
     @JsonIgnore
-    public abstract Optional<String> isValid();
+    public Optional<String> isValid() {
+        return this.getData().getOptions().stream()  // Assuming you have a way to get all options
+            .map(ActionOption::isValid)
+            .filter(Optional::isPresent)
+            .findFirst()
+            .orElse(Optional.empty());
+    }
 
     /**
      * Continues onto the next action(s) according to the context.
@@ -463,7 +470,7 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
         Quest quest = this.getStage().getQuest(); // find the quest this action belongs to
         NPCOption npcOption = this.getData().getOption(NPCOption.class).orElseGet(null); // find NPC option if applies
 
-        if (npcOption == null || !npcOption.isValid()) { // if the NPC option doesn't exist
+        if (npcOption == null || npcOption.isValid().isPresent()) { // if the NPC option doesn't exist
             return null;
         }
 

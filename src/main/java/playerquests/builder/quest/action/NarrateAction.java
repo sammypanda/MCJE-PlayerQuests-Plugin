@@ -1,7 +1,6 @@
 package playerquests.builder.quest.action;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,39 +11,33 @@ import playerquests.builder.quest.action.condition.ActionCondition;
 import playerquests.builder.quest.action.condition.CompletionCondition;
 import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
+import playerquests.builder.quest.action.listener.NarrateListener;
 import playerquests.builder.quest.action.listener.SpeakListener;
 import playerquests.builder.quest.action.option.ActionOption;
 import playerquests.builder.quest.action.option.DialogueOption;
-import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.data.LocationData;
 import playerquests.builder.quest.data.QuesterData;
-import playerquests.builder.quest.npc.QuestNPC;
 
 /**
  * Action for an NPC speaking.
  */
-public class SpeakAction extends QuestAction<SpeakAction, SpeakListener> {
-
-    /**
-     * the NPC added into the world.
-     */
-    QuestNPC npc;
+public class NarrateAction extends QuestAction<NarrateAction, NarrateListener> {
 
     /**
      * Default constructor for Jackson.
      */
-    public SpeakAction() {
+    public NarrateAction() {
         // Nothing here
     }
 
     @Override
     public String getName() {
-        return "Speak";
+        return "Narrate";
     }
 
     @Override
     protected void prepare(QuesterData questerData) {
-        this.npc = this.spawnNPC(questerData);
+        // No preparations needed
     }
 
     @Override
@@ -56,16 +49,12 @@ public class SpeakAction extends QuestAction<SpeakAction, SpeakListener> {
     protected void success(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer();
 
-        // send message
         this.getData().getOption(DialogueOption.class).ifPresent(dialogue ->
+            // send message
             player.sendPlainMessage(
-                String.format("<%s> %s", this.npc.getName(), dialogue.getText().getFirst())
+                String.format("%n> %s%n", dialogue.getText().getFirst())
             )
         );
-        // TODO: support multiple entries ^
-
-        // remove the NPC
-        this.despawnNPC(questerData);
     }
 
     @Override
@@ -74,22 +63,21 @@ public class SpeakAction extends QuestAction<SpeakAction, SpeakListener> {
     }
 
     @Override
-    protected SpeakListener startListener(QuesterData questerData) {        
-        return new SpeakListener(this, questerData);
+    protected NarrateListener startListener(QuesterData questerData) {        
+        return new NarrateListener(this, questerData);
     }
 
     @Override
     public GUISlot createSlot(GUIBuilder gui, Integer slot) {
         return new GUISlot(gui, slot)
             .setLabel(this.getName())
-            .setDescription(List.of("Makes an NPC speak."))
-            .setItem(Material.OAK_SIGN);
+            .setDescription(List.of("Puts text into the chat."))
+            .setItem(Material.SPRUCE_SIGN);
     }
 
     @Override
     public List<Class<? extends ActionOption>> getOptions() {
         return List.of(
-            NPCOption.class,
             DialogueOption.class
         );
     }
@@ -109,7 +97,7 @@ public class SpeakAction extends QuestAction<SpeakAction, SpeakListener> {
 
     @Override
     public LocationData getLocation() {
-        return new LocationData(this.npc.getLocation());
+        return null;
     }
 
     @Override

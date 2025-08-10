@@ -54,7 +54,7 @@ public class NoneAction extends QuestAction<NoneAction, NoneListener> {
     }
 
     @Override
-    protected Boolean isCompleted(QuesterData questerData) {
+    protected boolean isCompleted(QuesterData questerData) {
         return true;
     }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bukkit.Material;
@@ -134,7 +135,11 @@ public class ItemsOption extends ActionOption {
     }
 
     @Override
-    public boolean isValid() {
-        return !this.getItems().isEmpty();
+    public Optional<String> isValid() {
+        if (this.getItems().isEmpty()) {
+            return Optional.of("No items are set, try choosing some items in the options menu.");
+        }
+
+        return Optional.empty();
     }
 }

@@ -1,5 +1,7 @@
 package playerquests.builder.quest.action.option;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -74,9 +76,9 @@ public abstract class ActionOption {
     }
 
     /**
-     * Whether this option has enough information to be usable.
-     * @return state validity
+     * A message about why the option is not valid, or empty if is valid.
+     * @return error message or empty if successful
      */
     @JsonIgnore
-    public abstract boolean isValid();
+    public abstract Optional<String> isValid();
 }

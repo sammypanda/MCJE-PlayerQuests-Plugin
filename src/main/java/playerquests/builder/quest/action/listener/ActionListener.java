@@ -59,4 +59,14 @@ public abstract class ActionListener<A extends QuestAction<A, ?>> implements Lis
     protected boolean passedPlayerCheck(Player player) {
         return player.equals(this.questerData.getQuester().getPlayer());
     }
+
+    /**
+     * Delay to ease when an action is in a loop.
+     * @param questerData
+     */
+    protected void autoTrigger(QuesterData questerData) {
+        Bukkit.getScheduler().runTaskLater(Core.getPlugin(), () -> {
+            action.check(questerData);
+        }, 20);
+    }
 }
