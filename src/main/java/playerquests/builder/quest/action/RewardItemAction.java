@@ -11,8 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
-import playerquests.builder.quest.action.condition.CompletionCondition;
-import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
 import playerquests.builder.quest.action.listener.RewardItemListener;
 import playerquests.builder.quest.action.option.ActionOption;
@@ -48,20 +46,7 @@ public class RewardItemAction extends QuestAction<RewardItemAction, RewardItemLi
 
     @Override
     protected void prepare(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer();
-        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
-
-        player.sendMessage(
-            String.format("%n<%s>", "Dropping reward")
-        );
-
-        itemsOption.getItems().forEach((item, amount) -> {
-            player.sendMessage(
-                String.format("- %s (%d)", item.getName(), amount)
-            );
-        });
-
-        player.sendMessage("");
+        // Nothing here
     }
 
     @Override
@@ -77,8 +62,21 @@ public class RewardItemAction extends QuestAction<RewardItemAction, RewardItemLi
     @Override
     protected void success(QuesterData questerData) {
         Player player = questerData.getQuester().getPlayer();
-        Location playerLocation = player.getLocation();
         ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+
+        player.sendMessage(
+            String.format("%n<%s>", "Dropping reward")
+        );
+
+        itemsOption.getItems().forEach((item, amount) -> {
+            player.sendMessage(
+                String.format("- %s (%d)", item.getName(), amount)
+            );
+        });
+
+        player.sendMessage("");
+
+        Location playerLocation = player.getLocation();
         Quest quest = this.getStage().getQuest();
 
         QuestRegistry.getInstance().updateInventoryItem(quest, itemsOption.getItems(), (itemSerialisable, amount) -> {

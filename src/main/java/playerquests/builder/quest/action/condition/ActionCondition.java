@@ -33,7 +33,8 @@ import playerquests.client.ClientDirector;
     property = "condition")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = TimeCondition.class, name = "Time"),
-    @JsonSubTypes.Type(value = CompletionCondition.class, name = "Completion")
+    @JsonSubTypes.Type(value = CompletionCondition.class, name = "Completion"),
+    @JsonSubTypes.Type(value = CraftCondition.class, name = "Craft")
 })
 public abstract class ActionCondition {
 

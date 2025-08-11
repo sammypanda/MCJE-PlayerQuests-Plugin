@@ -2,7 +2,8 @@ package playerquests.builder.quest.action.condition;
 
 public enum ConditionType {
     COMPLETION(CompletionCondition.class),
-    TIME(TimeCondition.class);
+    TIME(TimeCondition.class),
+    CRAFT(CraftCondition.class);
 
     private final Class<? extends ActionCondition> conditionClass;
 

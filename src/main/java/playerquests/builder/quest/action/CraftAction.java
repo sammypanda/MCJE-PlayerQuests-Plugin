@@ -48,20 +48,20 @@ public class CraftAction extends QuestAction<CraftAction, CraftListener> {
 
     @Override
     protected void prepare(QuesterData questerData) {
-        Player player = questerData.getQuester().getPlayer();
-        ItemsOption itemsOption = this.getData().getOption(ItemsOption.class).get();
+        this.getData().getOption(ItemsOption.class).ifPresent(itemsOption -> {
+            final Player player = questerData.getQuester().getPlayer();
 
-        player.sendMessage(
-            String.format("%n<%s>", "Craft these items to continue")
-        );
-
-        itemsOption.getItems().forEach((item, amount) -> {
+            // send message stuffs
             player.sendMessage(
-                String.format("- %s (%d)", item.getName(), amount)
+                String.format("%n<%s>", "Craft these items to continue")
             );
-        });
 
-        player.sendMessage("");
+            itemsOption.getItems().forEach((item, amount) -> player.sendMessage(
+                String.format("- %s (%d)", item.getName(), amount)
+            ));
+
+            player.sendMessage("");
+        });
     }
 
     @Override
