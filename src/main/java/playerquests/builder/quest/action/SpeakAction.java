@@ -1,7 +1,6 @@
 package playerquests.builder.quest.action;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
