@@ -112,9 +112,7 @@ public class Dynamicactiontypeselector extends GUIDynamic {
             }
 
             // functionality for changing the action type
-            slot.onClick(() -> {
-                this.changeType(this.action, actionType);
-            });
+            slot.onClick(() -> this.changeType(this.action, actionType));
         });                
     }
 
