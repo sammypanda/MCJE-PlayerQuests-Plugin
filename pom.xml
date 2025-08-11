@@ -4,7 +4,7 @@
 
   <groupId>moe.sammypanda</groupId>
   <artifactId>playerquests</artifactId>
-  <version>0.10.6</version>
+  <version>0.10.7</version>
   <packaging>jar</packaging>
 
   <name>PlayerQuests</name>

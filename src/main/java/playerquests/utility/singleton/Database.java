@@ -267,7 +267,7 @@ public class Database {
             StringBuilder query = new StringBuilder();
 
             switch (version) {
-                case "0.10.6", "0.10.5", "0.10.4":
+                case "0.10.7", "0.10.6", "0.10.5", "0.10.4":
                     query.append(MigrationUtils.getMigration("0.10.4"));
                 case "0.10.3", "0.10.2", "0.10.1":
                     query.append(MigrationUtils.getMigration("0.10.1"));
