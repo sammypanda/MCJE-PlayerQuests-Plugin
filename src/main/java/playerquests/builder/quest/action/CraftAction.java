@@ -9,8 +9,6 @@ import org.bukkit.entity.Player;
 import playerquests.builder.gui.GUIBuilder;
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.quest.action.condition.ActionCondition;
-import playerquests.builder.quest.action.condition.CompletionCondition;
-import playerquests.builder.quest.action.condition.TimeCondition;
 import playerquests.builder.quest.action.data.ActionTweaks;
 import playerquests.builder.quest.action.listener.CraftListener;
 import playerquests.builder.quest.action.option.ActionOption;
@@ -120,12 +118,8 @@ public class CraftAction extends QuestAction<CraftAction, CraftListener> {
     }
 
     @Override
-    public List<Class<? extends ActionCondition>> getConditions() {
-        return List.of(
-            TimeCondition.class,
-            ActionCondition.class,
-            CompletionCondition.class
-        );
+    public List<Class<? extends ActionCondition>> getConditionBlocklist() {
+        return List.of();
     }
 
     @Override

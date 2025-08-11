@@ -93,10 +93,8 @@ public class NoneAction extends QuestAction<NoneAction, NoneListener> {
     }
 
     @Override
-    public List<Class<? extends ActionCondition>> getConditions() {
-        return List.of(
-            TimeCondition.class
-        );
+    public List<Class<? extends ActionCondition>> getConditionBlocklist() {
+        return List.of();
     }
 
     @Override

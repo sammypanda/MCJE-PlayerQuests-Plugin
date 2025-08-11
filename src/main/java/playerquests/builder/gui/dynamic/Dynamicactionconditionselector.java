@@ -1,13 +1,16 @@
 package playerquests.builder.gui.dynamic;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.bukkit.Material;
 
 import playerquests.builder.gui.component.GUISlot;
 import playerquests.builder.gui.function.UpdateScreen;
 import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.condition.ConditionType;
 import playerquests.builder.quest.data.ActionData;
 import playerquests.client.ClientDirector;
 
@@ -47,21 +50,19 @@ public class Dynamicactionconditionselector extends GUIDynamic {
         new GUISlot(gui, 1)
             .setLabel("Back")
             .setItem(Material.OAK_DOOR)
-            .onClick(() -> {
-                new UpdateScreen(List.of(this.previousScreen), director).execute();
-            });
+            .onClick(() -> new UpdateScreen(List.of(this.previousScreen), director).execute());
 
         // create divider
         new GUISlot(gui, 2)
             .setItem(Material.GRAY_STAINED_GLASS_PANE);
 
-        // summon option buttons
-        this.actionData.getAction().getConditions().forEach(conditionClass -> {
+        // define logic for summoning options buttons
+        Consumer<ConditionType> createOptionButtons = conditionClass -> {
             ActionCondition condition;
             
             // get an instance of the condition
             try {
-                condition = conditionClass.getDeclaredConstructor(ActionData.class).newInstance(this.actionData);
+                condition = conditionClass.getConditionClass().getDeclaredConstructor(ActionData.class).newInstance(this.actionData);
             } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 e.printStackTrace();
@@ -76,6 +77,9 @@ public class Dynamicactionconditionselector extends GUIDynamic {
                     this.director.setCurrentInstance(condition, ActionCondition.class); // set the condition to edit
                     new UpdateScreen(List.of("actionconditioneditor"), director).execute();
                 });
-        });
+        };
+
+        // summon option buttons
+        Arrays.stream(ConditionType.values()).forEach(createOptionButtons);
     }
 }

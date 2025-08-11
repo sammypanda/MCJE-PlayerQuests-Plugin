@@ -1,15 +1,22 @@
 package playerquests.utility.test;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.reflections.Reflections;
 
 import playerquests.Core;
 import playerquests.builder.quest.action.QuestAction;
+import playerquests.builder.quest.action.condition.ActionCondition;
+import playerquests.builder.quest.action.condition.ConditionType;
 import playerquests.builder.quest.action.option.NPCOption;
 import playerquests.builder.quest.npc.QuestNPC;
 import playerquests.builder.quest.stage.QuestStage;
@@ -215,6 +222,31 @@ public class Testquest extends TestUtility {
                 wasQuestSaved
             );
         }, 50);
+
+        return result;
+    }
+
+    @PlayerQuestsTest(label = "No missing conditions in ConditionType enum")
+    public CompletableFuture<Boolean> allConditionsAreInEnum() {
+        CompletableFuture<Boolean> result = new CompletableFuture<>();
+
+        // get all classes implementing ActionCondition
+        Reflections reflections = new Reflections("playerquests.builder.quest.action.condition");
+        Set<Class<? extends ActionCondition>> allConditions = 
+            reflections.getSubTypesOf(ActionCondition.class);
+        
+        // get all enum values
+        Set<Class<?>> enumConditionClasses = Arrays.stream(ConditionType.values())
+            .map(ConditionType::getConditionClass)
+            .collect(Collectors.toSet());
+        
+        // find missing classes
+        Set<Class<? extends ActionCondition>> missing = allConditions.stream()
+            .filter(clazz -> !enumConditionClasses.contains(clazz))
+            .collect(Collectors.toSet());
+        
+        // submit test result
+        result.complete(missing.isEmpty());
 
         return result;
     }

@@ -83,11 +83,8 @@ public class NarrateAction extends QuestAction<NarrateAction, NarrateListener> {
     }
 
     @Override
-    public List<Class<? extends ActionCondition>> getConditions() {
-        return List.of(
-            TimeCondition.class,
-            CompletionCondition.class
-        );
+    public List<Class<? extends ActionCondition>> getConditionBlocklist() {
+        return List.of();
     }
 
     @Override

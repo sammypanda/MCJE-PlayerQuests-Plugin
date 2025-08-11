@@ -32,11 +32,8 @@ public class RequestItemAction extends QuestAction<RequestItemAction, RequestIte
     }
 
     @Override
-    public List<Class<? extends ActionCondition>> getConditions() {
-        return List.of(
-            TimeCondition.class,
-            CompletionCondition.class
-        );
+    public List<Class<? extends ActionCondition>> getConditionBlocklist() {
+        return List.of();
     }
 
     @Override

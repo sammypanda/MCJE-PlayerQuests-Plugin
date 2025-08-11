@@ -109,7 +109,7 @@ public abstract class QuestAction<A extends QuestAction<A, L>, L extends ActionL
      * @return a list of action condition classes
      */
     @JsonIgnore
-    public abstract List<Class<? extends ActionCondition>> getConditions();
+    public abstract List<Class<? extends ActionCondition>> getConditionBlocklist();
 
     /**
      * Get the tweaks to apply to this action.
