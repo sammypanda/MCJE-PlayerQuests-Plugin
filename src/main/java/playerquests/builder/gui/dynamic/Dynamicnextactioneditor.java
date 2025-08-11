@@ -25,7 +25,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     /**
      * The action itself.
      */
-    QuestAction<?,?> action;
+    QuestAction<?,?> currentAction;
 
     /**
      * The context of the action to get next
@@ -54,9 +54,9 @@ public class Dynamicnextactioneditor extends GUIDynamic {
 
     @Override
     protected void setupCustom() {
-        this.action = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
+        this.currentAction = (QuestAction<?,?>) this.director.getCurrentInstance(QuestAction.class);
         this.selectedStage = (QuestStage) this.director.getCurrentInstance(QuestStage.class);
-        this.actionData = this.action.getData();
+        this.actionData = this.currentAction.getData();
         this.nextActions = new ArrayList<>(this.actionData.getNextActions());
     }
 
@@ -76,7 +76,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             this.createBackButton();
 
             // show stages
-            this.action.getStage().getQuest().getStages().entrySet().stream()
+            this.currentAction.getStage().getQuest().getStages().entrySet().stream()
                 .sorted((entry1, entry2) -> {
                     int intValue1 = Integer.parseInt(entry1.getKey().split("_")[1]);
                     int intValue2 = Integer.parseInt(entry2.getKey().split("_")[1]);
@@ -143,7 +143,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
     private GUISlot createActionButton(QuestAction<?,?> action) {
         String actionID = action.getID();
 
-        boolean isStartPoint = this.stageIsSelected() && this.action.getStage().getStartPoints()
+        boolean isStartPoint = this.stageIsSelected() && this.currentAction.getStage().getStartPoints()
             .stream()
             .anyMatch(path -> 
                 path.hasActions() && 
@@ -164,12 +164,12 @@ public class Dynamicnextactioneditor extends GUIDynamic {
             .setDescription(List.of(String.format("Type: %s", action.getName())))
             .setItem(action.getActionStateItem(isSelected, isStartPoint))
             .onClick(() -> {
-                this.handleActionButtonClick(isSelected, actionID, isStartPoint);
+                this.handleActionButtonClick(isSelected, action, isStartPoint);
             });
     }
 
-    private void handleActionButtonClick(boolean isSelected, String actionID, boolean isStartPoint) {
-        StagePath stagePath = new StagePath(action.getStage(), List.of(action));
+    private void handleActionButtonClick(boolean isSelected, QuestAction<?,?> clickedAction, boolean isStartPoint) {
+        StagePath stagePath = new StagePath(clickedAction.getStage(), List.of(clickedAction));
 
         // unselect
         if (isSelected) {
@@ -178,7 +178,7 @@ public class Dynamicnextactioneditor extends GUIDynamic {
                     return false;
                 }
 
-                return path.getActions().contains(actionID);
+                return path.getActions().contains(clickedAction.getID());
             });
         }
 
